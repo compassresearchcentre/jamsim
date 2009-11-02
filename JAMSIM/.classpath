@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="D:/Source/colt/lib/colt.jar" sourcepath="/colt">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/D:/Source/colt/doc/api/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/Source/commons-beanutils-1.8.0/commons-beanutils-1.8.0.jar" sourcepath="D:/Source/commons-beanutils-1.8.0/src">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/D:/Source/commons-beanutils-1.8.0/apidocs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/BeanShell"/>
+	<classpathentry kind="lib" path="D:/Source/commons-lang-2.4/commons-lang-2.4.jar" sourcepath="D:/Source/commons-lang-2.4/commons-lang-2.4-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/D:/Source/commons-lang-2.4/commons-lang-2.4-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/Source/fastutil-5.1.5/fastutil-5.1.5.jar" sourcepath="D:/Source/fastutil-5.1.5/src">
+		<attributes>
+			<attribute name="javadoc_location" value="http://fastutil.dsi.unimi.it/docs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Program Files/R/R-2.9.1/library/JavaGD/java/javaGD.jar" sourcepath="/org.rosuda.javaGD"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/JRI"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/REngine"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.ascape.common.lib"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.ascape.core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.ascape.ui.swing"/>
+	<classpathentry kind="lib" path="D:/Source/commons-collections-3.2.1/commons-collections-3.2.1.jar" sourcepath="D:/Source/commons-collections-3.2.1/commons-collections-3.2.1-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/D:/Source/commons-collections-3.2.1/commons-collections-3.2.1-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/Joda"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/casperdatasets-ext"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/casperdatasets-io"/>
+	<classpathentry kind="lib" path="D:/Source/commons-logging-1.1.1/commons-logging-1.1.1.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/casperdatasets"/>
+	<classpathentry kind="lib" path="D:/Source/functionalj/dist/functionalj.jar" sourcepath="D:/Source/functionalj/src/main/java">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/D:/Source/functionalj/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JUnit 4.7"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
