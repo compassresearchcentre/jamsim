@@ -8,6 +8,8 @@ import net.casper.data.model.CDataCacheContainer;
 import net.casper.io.file.CBuildFromFile;
 import net.casper.io.file.CDataFile;
 
+import org.omancode.util.PrefsOrOpenFileChooser;
+
 /**
  * Dataset file loader that gets the file to load from preferences or a GUI
  * prompt. The file to load is specified by looking up the file location in the
@@ -21,7 +23,7 @@ public class PrefsOrPromptFileLoader implements DatasetFileLoader {
 
 	private final Preferences prefs;
 
-	private final FileUtil fileutil;
+	private final PrefsOrOpenFileChooser fileChooser;
 
 	private final Output output;
 
@@ -34,6 +36,10 @@ public class PrefsOrPromptFileLoader implements DatasetFileLoader {
 
 	/**
 	 * Construct with specified preferences class and default output object.
+	 * 
+	 * @param prefsClass
+	 *            preferences node, if {@code null} uses the
+	 *            {@link PrefsOrPromptFileLoader} class node.
 	 */
 	public PrefsOrPromptFileLoader(Class<?> prefsClass) {
 		this(prefsClass, null);
@@ -57,7 +63,7 @@ public class PrefsOrPromptFileLoader implements DatasetFileLoader {
 		prefs =
 				Preferences.userNodeForPackage(prefsClass == null ? this
 						.getClass() : prefsClass);
-		fileutil = new FileUtil(prefs);
+		fileChooser = new PrefsOrOpenFileChooser(prefs);
 	}
 
 	/**
@@ -79,7 +85,7 @@ public class PrefsOrPromptFileLoader implements DatasetFileLoader {
 		// lookup the file from the prefs, or if it doesn't exist
 		// prompt the user
 		File file =
-				fileutil.getFileFromPrefsOrPrompt(datasetName,
+				fileChooser.getFile(datasetName,
 						"Select file containing dataset \"" + datasetName
 								+ "\"", CBuildFromFile.FileTypeFactories
 								.getFilter(), false);

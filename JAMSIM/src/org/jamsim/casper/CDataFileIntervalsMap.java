@@ -11,18 +11,20 @@ import net.casper.io.file.CDataFile;
 import org.jamsim.math.IntervalsIntMap;
 
 /**
- * Provides an IntervalsIntMap from the columns of a {@link #cDataFile}.
+ * Provides an {@link IntervalsIntMap} from the columns of a {@link CDataFile}.
  * 
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class CDataFileDefIntervals implements CDataFile {
+public class CDataFileIntervalsMap implements CDataFile {
 
 	private final CDataFile cDataFile;
 
 	private final String probColumn;
 
 	private final String valueColumn;
+
+	private IntervalsIntMap intervalsMap = null;
 
 	/**
 	 * Construct a casper dataset file definition that returns a map.
@@ -36,7 +38,7 @@ public class CDataFileDefIntervals implements CDataFile {
 	 *            The dataset column of {@code cDataFile} that specifies the
 	 *            mapped values for probabilities. Must be of type Integer.
 	 */
-	public CDataFileDefIntervals(CDataFile cDataFile,
+	public CDataFileIntervalsMap(CDataFile cDataFile,
 			String probabilitiesColumn, String mappedValuesColumn) {
 		this.cDataFile = cDataFile;
 		this.probColumn = probabilitiesColumn;
@@ -49,17 +51,26 @@ public class CDataFileDefIntervals implements CDataFile {
 	 * {@link #loadDataset(java.io.File)} has been called.
 	 * 
 	 * @return the map
-	 * @throws CDataGridException
-	 *             if problem reading the dataset
 	 */
-	public IntervalsIntMap getMap() throws CDataGridException {
-		CDataCacheContainer source = getContainer();
-
-		if (source == null) {
-			throw new IllegalStateException("Dataset has not been loaded. "
-					+ "Call loadDataset(file) before getMap().");
+	public IntervalsIntMap getIntervalsMap() {
+		if (intervalsMap == null) {
+			throw new IllegalStateException(
+					"Intervals map has not been loaded. "
+							+ "Has loadDataset(file) been called?");
 		}
 
+		return intervalsMap;
+	}
+
+	/** 
+	 * Generate the intervals map from a casper container.
+	 * 
+	 * @param source container
+	 * @return intervals map
+	 * @throws CDataGridException if problem reading container columns
+	 */
+	private IntervalsIntMap createIntervalsMap(CDataCacheContainer source)
+			throws CDataGridException {
 		CDataRowSet rowset = source.getAll();
 		double[] probabilities = new double[rowset.size()];
 		int[] values = new int[rowset.size()];
@@ -87,7 +98,16 @@ public class CDataFileDefIntervals implements CDataFile {
 
 	@Override
 	public CDataCacheContainer loadDataset(File file) throws IOException {
-		return cDataFile.loadDataset(file);
+		CDataCacheContainer source = cDataFile.loadDataset(file);
+
+		try {
+			intervalsMap = createIntervalsMap(source);
+		} catch (CDataGridException e) {
+			throw new IOException("Problem loading intervals from "
+					+ file.getCanonicalPath(), e);
+		}
+
+		return source;
 	}
 
 }

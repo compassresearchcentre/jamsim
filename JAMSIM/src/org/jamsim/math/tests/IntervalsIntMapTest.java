@@ -12,7 +12,7 @@ import net.casper.ext.cellreader.CellReaders;
 import net.casper.io.file.CDataFileDef;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.jamsim.casper.CDataFileDefIntervals;
+import org.jamsim.casper.CDataFileIntervalsMap;
 import org.jamsim.io.DatasetFileLoader;
 import org.jamsim.io.PrefsOrPromptFileLoader;
 import org.jamsim.math.IntervalsIntMap;
@@ -44,8 +44,8 @@ public class IntervalsIntMapTest {
 							CellReaders.INTEGER, CellReaders.DOUBLE },
 					"DestCat");
 
-	public static final CDataFileDefIntervals CDCat15ReallocChildBearer =
-			new CDataFileDefIntervals(Cat15ReallocChildBearer, "Prob",
+	public static final CDataFileIntervalsMap CDCat15ReallocChildBearer =
+			new CDataFileIntervalsMap(Cat15ReallocChildBearer, "Prob",
 					"DestCat");
 
 	public static DatasetFileLoader dsfLoader;
@@ -101,7 +101,7 @@ public class IntervalsIntMapTest {
 	public static void display() throws IOException, CDataGridException {
 		dsfLoader = new PrefsOrPromptFileLoader(IntervalsIntMapTest.class);
 		dsfLoader.loadDataset(CDCat15ReallocChildBearer);
-		cdmapFromFile = CDCat15ReallocChildBearer.getMap();
+		cdmapFromFile = CDCat15ReallocChildBearer.getIntervalsMap();
 	}
 
 	@Test

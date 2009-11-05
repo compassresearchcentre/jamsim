@@ -20,8 +20,7 @@ import javax.swing.tree.DefaultTreeModel;
 
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.ext.swing.CDatasetTableModel;
-import net.casper.io.file.CBuildFromFile;
-import net.casper.io.file.CDataFileDef;
+import net.casper.io.file.util.ExtFileFilter;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.ascape.model.Agent;
@@ -31,10 +30,10 @@ import org.ascape.runtime.RuntimeEnvironment;
 import org.ascape.runtime.swing.TreeModifier;
 import org.ascape.view.nonvis.ConsoleOutView;
 import org.jamsim.io.DatasetFileLoader;
-import org.jamsim.io.FileUtil;
 import org.jamsim.io.Output;
 import org.jamsim.io.PrefsOrPromptFileLoader;
 import org.jamsim.r.RInterfaceHL;
+import org.omancode.util.PrefsOrOpenFileChooser;
 
 /**
  * A Scape with micro-simulation input/output functions including base file
@@ -67,7 +66,7 @@ public class MicroSimScape extends Scape implements TreeModifier, Output {
 
 	protected final static String BASEFILE_KEY = "base file";
 
-	protected FileUtil fileutil = new FileUtil(prefs);
+	protected PrefsOrOpenFileChooser fileChooser = new PrefsOrOpenFileChooser(prefs);
 
 	private final PrefsOrPromptFileLoader dsfLoader =
 			new PrefsOrPromptFileLoader(this.getClass(), this);
@@ -83,10 +82,6 @@ public class MicroSimScape extends Scape implements TreeModifier, Output {
 	 * The scape loaded from the base file.
 	 */
 	private Scape baseScape;
-
-	public FileUtil getFileutil() {
-		return fileutil;
-	}
 
 	public DatasetFileLoader getDsfLoader() {
 		return dsfLoader;
@@ -224,8 +219,8 @@ public class MicroSimScape extends Scape implements TreeModifier, Output {
 			// dialog for the user to select one
 			if (!newBaseFile.exists()) {
 				newBaseFile =
-						fileutil.showOpenDialog("Select base file to load",
-								null, new FileUtil.CSVFileFilter());
+						fileChooser.showOpenDialog("Select base file to load",
+								null, new ExtFileFilter("csv", "CSV files"));
 			}
 
 			// if we have a passed in, or selected base file, then load it
@@ -269,44 +264,6 @@ public class MicroSimScape extends Scape implements TreeModifier, Output {
 		throw new NotImplementedException("Subclasses that call "
 				+ "loadBaseScape need to override "
 				+ "MicroSimScape.getBaseScapeAgents");
-	}
-
-	/**
-	 * Supplies a File to a {@link CDataFileDef} and loads the dataset. The file
-	 * to load is specified by looking up the file location in the preferences.
-	 * If the file is not set in the preferences, or does not exist, a dialog
-	 * box is shown allowing the user to select the file location.
-	 * 
-	 * @param cdef
-	 *            {@link CDataFileDef} object describing the dataset to load.
-	 * @throws IOException
-	 *             if there is a problem loading the file.
-	 * @return a casper container
-	 */
-	public CDataCacheContainer loadDataset(CDataFileDef cdef)
-			throws IOException {
-
-		String datasetName = cdef.getName();
-
-		// lookup the file from the prefs, or if it doesn't exist
-		// prompt the user
-		File file =
-				fileutil.getFileFromPrefsOrPrompt(datasetName,
-						"Select file containing dataset \"" + datasetName
-								+ "\"", CBuildFromFile.FileTypeFactories
-								.getFilter(), false);
-
-		// load the dataset
-		print("Loading dataset \"" + datasetName + "\" from ["
-				+ file.getPath() + "]. ");
-		CDataCacheContainer cdcc = cdef.loadDataset(file);
-		println("Done. ");
-		datasets.add(cdcc);
-
-		// save location of file selected in prefs
-		prefs.put(datasetName, file.getPath());
-
-		return cdcc;
 	}
 
 	/**
