@@ -1,6 +1,7 @@
 package org.jamsim.ascape;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.LayoutManager;
 
 import javax.swing.JScrollPane;
@@ -65,21 +66,51 @@ public final class AscapeGUIUtil {
 	}
 
 	/**
+	 * The border around the max size of a Panel View. See
+	 * {@link #createPanelView(JTable, Dimension)}.
+	 */
+	public static final Dimension BORDER_EDGES = new Dimension(20, 20);
+
+	/**
 	 * Create a PanelView that displays a table.
 	 * 
 	 * @param table
 	 *            table to display.
+	 * @param maxSize
+	 *            max display dimensions of the table, less
+	 *            {@link #BORDER_EDGES}. If {@code null} will display the table
+	 *            at it's preferred size.
 	 * @return PanelView containing the table.
 	 */
-	public static PanelView createPanelView(JTable table) {
-		sizeAllColumnsToHeaderWidths(table);
+	public static PanelView createPanelView(JTable table, Dimension maxSize) {
+		// sizeAllColumnsToHeaderWidths(table);
 
 		// tell the scroll pane enclosing the table to size its viewport
 		// to the table's preferred size.
-		table.setPreferredScrollableViewportSize(table.getPreferredSize());
+		// table.setPreferredScrollableViewportSize(table.getPreferredSize());
+
+		if (maxSize == null) {
+			table
+					.setPreferredScrollableViewportSize(table
+							.getPreferredSize());
+		} else {
+			int width =
+					Math.min(table.getPreferredSize().width, maxSize.width
+							- BORDER_EDGES.width);
+			int height =
+					Math.min(table.getPreferredSize().height, maxSize.height
+							- BORDER_EDGES.height);
+
+			table.setPreferredScrollableViewportSize(new Dimension(width,
+					height));
+		}
 
 		// allow sorting using the column headers
 		table.setAutoCreateRowSorter(true);
+
+		// do not resize the table column widths when the frame is resized;
+		// instead show the scroll bars
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
 		// create a new PanelView with the BorderLayout so that when
 		// the panel view is resized so are the components on it

@@ -83,7 +83,7 @@ public class IntervalsIntMap {
 	 *            probabilities
 	 * @param values
 	 *            values that map to {@code probabilities}
-	 * @return intervals, from 0 - 1 (inclusive), mapped to {@code value}. Or in
+	 * @return intervals, from 0 (exclusive) - 1 (inclusive), mapped to {@code value}. Or in
 	 *         other words, a cumulative distribution of probabilities mapped to
 	 *         an integer value.
 	 */
@@ -93,7 +93,7 @@ public class IntervalsIntMap {
 		double sumProbs = sumArray(probabilities);
 
 		// build cumulative distribution up from the bottom
-		rightBounds[0] = probabilities[0];
+		rightBounds[0] = probabilities[0] / sumProbs;
 		for (int i = 0; i < probabilities.length - 1; i++) {
 			rightBounds[i + 1] =
 					rightBounds[i] + probabilities[i + 1] / sumProbs;

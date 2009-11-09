@@ -1,48 +1,49 @@
 package org.jamsim.ascape;
 
+import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.Map;
 import java.util.prefs.Preferences;
 
 import javax.swing.JTable;
 import javax.swing.JTree;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
-import net.casper.data.model.CDataCacheContainer;
-import net.casper.ext.swing.CDatasetTableModel;
 import net.casper.io.file.util.ExtFileFilter;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.ascape.model.Agent;
 import org.ascape.model.Scape;
 import org.ascape.model.space.CollectionSpace;
 import org.ascape.runtime.RuntimeEnvironment;
+import org.ascape.runtime.swing.DesktopEnvironment;
 import org.ascape.runtime.swing.TreeModifier;
-import org.ascape.view.nonvis.ConsoleOutView;
-import org.jamsim.io.DatasetFileLoader;
-import org.jamsim.io.Output;
-import org.jamsim.io.PrefsOrPromptFileLoader;
+import org.jamsim.io.FileLoader;
+import org.jamsim.matrix.IndexedMatrixTableModel;
 import org.jamsim.r.RInterfaceHL;
-import org.omancode.util.PrefsOrOpenFileChooser;
+import org.jamsim.swing.DoubleCellRenderer;
+
+import com.bbn.openmap.layer.util.html.TableCellElement;
 
 /**
  * A Scape with micro-simulation input/output functions including base file
- * loading, output tables, and dataset loading.
+ * loading, and output tables and external / global data tables that appear in
+ * the Ascape Navigator.
  * 
+ * @param <D>
+ *            a scape data class that defines data external to the scape for use
+ *            by agents, and for loading agents.
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class MicroSimScape extends Scape implements TreeModifier, Output {
+public class MicroSimScape<D extends ScapeData> extends Scape implements
+		TreeModifier {
 
 	/**
 	 * Integer missing value constant.
@@ -61,120 +62,93 @@ public class MicroSimScape extends Scape implements TreeModifier, Output {
 	 */
 	private static final long serialVersionUID = 5534365905529673862L;
 
-	protected Preferences prefs =
-			Preferences.userNodeForPackage(this.getClass());
+	/**
+	 * The base file is kept as an instance variable and exposed as a model
+	 * parameter.
+	 */
+	private File basefile = null;
 
-	protected final static String BASEFILE_KEY = "base file";
+	private static final String BASEFILE_KEY = "base file";
 
-	protected PrefsOrOpenFileChooser fileChooser = new PrefsOrOpenFileChooser(prefs);
+	/**
+	 * Used to help load the base file.
+	 */
+	private final FileLoader loader;
 
-	private final PrefsOrPromptFileLoader dsfLoader =
-			new PrefsOrPromptFileLoader(this.getClass(), this);
+	/**
+	 * Prefs for loading/saving location of base file.
+	 */
+	private final Preferences prefs;
 
-	private ConsoleOutView console;
-
-	private List<TreeModifier> outputTableProviders =
+	private final List<TreeModifier> outputTableProviders =
 			new LinkedList<TreeModifier>();
 
-	private File basefile;
+	/**
+	 * Global data external to scape. Used by agents of this scape and used to
+	 * load these agents.
+	 */
+	private final D scapeData;
 
 	/**
-	 * The scape loaded from the base file.
+	 * Return the {@link ScapeData} object. This method allows agents to access
+	 * the external/global scape data.
+	 * 
+	 * @return scape data
 	 */
-	private Scape baseScape;
-
-	public DatasetFileLoader getDsfLoader() {
-		return dsfLoader;
+	public D getScapeData() {
+		return scapeData;
 	}
 
 	/**
-	 * An alphabetically sorted list of all datasets loaded by this scape
-	 * instance.
+	 * Creates a {@link MicroSimScape} and loads its agents from a base file.
+	 * The location of the base file is stored in Preferences. If such a
+	 * location does not exist, then the user is prompted for the base file
+	 * location.
 	 * 
+	 * @param name
+	 *            name of the scape. This will be the name of the dataframe if &
+	 *            when created in R.
+	 * @param prototypeAgent
+	 *            the prototype agent so the navigator knows to show fields that
+	 *            have getter/setter methods.
+	 * @param loader
+	 *            file loader object which provides preferences, an select file
+	 *            dialog, and output services
+	 * @param scapeData
+	 *            a class that specifies data external to the scape and
+	 *            available for global access by agents via
+	 *            {@link #getScapeData()}. This class also specifies how base
+	 *            agents are loaded (from file, database etc.)
 	 */
-	protected SortedSet<CDataCacheContainer> datasets =
-			Collections
-					.synchronizedSortedSet(new TreeSet<CDataCacheContainer>(
-							new CContainerNameComparator()));
-
-	/**
-	 * Comparator to sort CDataCacheContainers alphabetically by their name. NB:
-	 * This is not consistent with {@link CDataCacheContainer#equals(Object)}.
-	 * For the purposes of returning a sorted set it doesn't appear to matter,
-	 * but see {@link Comparator} for more details on the implications of this.
-	 * 
-	 * @author Oliver Mannion
-	 * 
-	 */
-	public static class CContainerNameComparator implements
-			Comparator<CDataCacheContainer>, Serializable {
-
-		/**
-		 * Serialization ID.
-		 */
-		private static final long serialVersionUID = -8030395771003560892L;
-
-		@Override
-		public int compare(CDataCacheContainer o1, CDataCacheContainer o2) {
-			return o1.getCacheName().compareTo(o2.getCacheName());
-		}
-	}
-
-	public MicroSimScape() {
-		super();
-	}
-
-	public MicroSimScape(CollectionSpace space) {
-		super(space);
-	}
-
-	public MicroSimScape(String name, Agent prototypeAgent) {
-		super(name, prototypeAgent);
-	}
-
 	public MicroSimScape(CollectionSpace space, String name,
-			Agent prototypeAgent) {
-		super(space, name, prototypeAgent);
-	}
+			Agent prototypeAgent, FileLoader loader, D scapeData) {
+		super(space);
+		this.loader = loader;
+		this.prefs = loader.getPrefs();
+		this.scapeData = scapeData;
 
-	@Override
-	public void createScape() {
-		super.createScape();
+		// set prototype agent after setting scapeData
+		// in case the agent wants to make use of scapeData
+		setPrototypeAgent(prototypeAgent);
 
-		RuntimeEnvironment runtime = this.getRunner().getEnvironment();
+		setName(name);
 
-		// set up console output and output for the DatasetLoader
-		console = runtime.getConsole();
-	}
+		// load the patient scape with patient agents
+		loadBaseScape();
 
-	public void print(String message) {
-		if (console == null) {
-			throw new RuntimeException("console == null. "
-					+ "createScape() must be called before print.");
-
-		}
-		console.print(message);
-
-	}
-
-	public void println(String message) {
-		if (console == null) {
-			throw new RuntimeException("console == null. "
-					+ "createScape() must be called before print.");
-		}
-		console.println(message);
+		// tell the patients scape not to auto create, otherwise
+		// it will remove the agents we've added to it and
+		// replace them with clones with parameter values of 0
+		this.setAutoCreate(false);
 	}
 
 	/**
-	 * Sets the base scape and loads it from the base file. The location of the
-	 * base file is stored in Preferences. Calls {@link #setBasefile(String)} to
-	 * do the work.
-	 * 
-	 * @param scape
-	 *            the scape to load from the base file.
+	 * Loads this scape with agents from a base file. The location of the base
+	 * file is stored in Preferences. If such a location does not exist, then
+	 * the user is prompted for the base file location. Calls
+	 * {@link #setBasefile(String)} to do the work.
 	 */
-	public void loadBaseScape(Scape scape) {
-		baseScape = scape;
+	private void loadBaseScape() {
 		setBasefile(prefs.get(BASEFILE_KEY, ""));
 	}
 
@@ -200,18 +174,14 @@ public class MicroSimScape extends Scape implements TreeModifier, Output {
 	 * 
 	 * @param bfileName
 	 *            base file to load
+	 * @throws IOException
 	 */
-	public void setBasefile(String bfileName) {
+	public final void setBasefile(String bfileName) {
 
-		if (baseScape == null) {
-			// no base scape specified so exit
-			// silently
-			return;
-		}
-
-		// bf will be null when editing the base file text area in the
-		// model parameters, before enter is pressed bf will be the
-		// empty string "" when there are no saved preferences
+		// bfileName will be null when editing the base file text area in the
+		// model parameters, before enter is pressed
+		// bfileName will be the empty string "" when there are no saved
+		// preferences
 		if (bfileName != null) {
 			File newBaseFile = new File(bfileName);
 
@@ -219,7 +189,7 @@ public class MicroSimScape extends Scape implements TreeModifier, Output {
 			// dialog for the user to select one
 			if (!newBaseFile.exists()) {
 				newBaseFile =
-						fileChooser.showOpenDialog("Select base file to load",
+						loader.showOpenDialog("Select base file to load",
 								null, new ExtFileFilter("csv", "CSV files"));
 			}
 
@@ -231,17 +201,17 @@ public class MicroSimScape extends Scape implements TreeModifier, Output {
 
 					// remove all existing agents (if any are present
 					// from previous loads this session)
-					baseScape.clear();
+					clear();
 
 					print("Loading base file [" + basefile.getPath() + "]. ");
-					Collection<?> col = getBaseScapeAgents(basefile);
-					baseScape.addAll(col);
-					println("Done. " + col.size() + " " + baseScape.getName()
+					Collection<?> col =
+							scapeData.getBaseScapeAgents(basefile);
+					addAll(col);
+					println("Done. " + col.size() + " " + getName()
 							+ " created.");
 
 					// save the base file to the prefs
 					prefs.put(BASEFILE_KEY, basefile.getPath());
-
 				} catch (IOException e) {
 					throw new RuntimeException(e.getMessage(), e); // NOPMD
 				}
@@ -249,21 +219,28 @@ public class MicroSimScape extends Scape implements TreeModifier, Output {
 		}
 	}
 
+	private void print(String message) {
+		loader.print(message);
+	}
+
+	private void println(String message) {
+		loader.println(message);
+	}
+
 	/**
-	 * Return a collection of agents from the base file. Subclasses of
-	 * MicroSimScape need to override this.
+	 * Return the dimensions of Ascape's desktop pane, i.e: the pane when
+	 * charts, tables etc. are displayed.
 	 * 
-	 * @param basefile
-	 *            base file to load agents from
-	 * @return collection of agents
-	 * @throws IOException
-	 *             if problem loading from base file
+	 * @return dimensions of Ascape's desktop pane.
 	 */
-	public Collection<?> getBaseScapeAgents(File basefile) throws IOException {
-		// subclasses that call loadBaseScape need to override this
-		throw new NotImplementedException("Subclasses that call "
-				+ "loadBaseScape need to override "
-				+ "MicroSimScape.getBaseScapeAgents");
+	public Dimension getDesktopSize() {
+		RuntimeEnvironment runtime = this.getRunner().getEnvironment();
+		if (runtime instanceof DesktopEnvironment) {
+			return ((DesktopEnvironment) runtime).getUserFrame()
+					.getDeskScrollPane().getViewport().getSize();
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -293,23 +270,24 @@ public class MicroSimScape extends Scape implements TreeModifier, Output {
 		DefaultMutableTreeNode datasetsNode =
 				new DefaultMutableTreeNode("Datasets");
 
-		// get all the datasets from the dataset loader,
-		// add them to a JTable and then create a PanelViewNode
-		// and add that to the tree
-		for (CDataCacheContainer cdcc : getDatasets()) {
-			try {
+		// get all the tables from the scape external data
+		// and add them to the navigator as a Panel View Node
 
-				// wrap dataset in a table
-				TableModel tm = new CDatasetTableModel(cdcc); // NOPMD
-				JTable table = new JTable(tm); // NOPMD
-				table.setName(cdcc.getCacheName());
+		TableCellRenderer dblRenderer = new DoubleCellRenderer(10);
 
-				// add PanelViewNode to the tree
-				datasetsNode.add(new TreeUtil.PanelViewNode(this, table)); // NOPMD
+		Dimension tableSize = getDesktopSize();
 
-			} catch (IOException e) {
-				throw new RuntimeException(e.getMessage(), e); // NOPMD
-			}
+		for (Map.Entry<String, TableModel> entry : scapeData.getTableModels()
+				.entrySet()) {
+
+			TableModel tmodel = entry.getValue();
+			JTable table = new JTable(tmodel); // NOPMD
+			table.setName(entry.getKey());
+			table.setDefaultRenderer(Double.class, dblRenderer);
+
+			// add PanelViewNode to the tree
+			datasetsNode.add(new TreeUtil.PanelViewNode(this, table,
+					tableSize)); // NOPMD
 		}
 
 		// add datasetsNode via the Tree Model
@@ -333,20 +311,10 @@ public class MicroSimScape extends Scape implements TreeModifier, Output {
 	 * modifier is actually responsible for adding itself as a node at the time
 	 * that the output is generated (eg: when the scape stops).
 	 * 
-	 * @param tm
+	 * @param tmod
 	 *            tree modifying model element
 	 */
-	public void addOutputTableNode(TreeModifier tm) {
-		outputTableProviders.add(tm);
+	public void addOutputTableNode(TreeModifier tmod) {
+		outputTableProviders.add(tmod);
 	}
-
-	/**
-	 * Get a alphabetically sorted list of all datasets loaded by this instance.
-	 * 
-	 * @return Sorted set of CDataCacheContainers.
-	 */
-	public SortedSet<CDataCacheContainer> getDatasets() {
-		return datasets;
-	}
-
 }

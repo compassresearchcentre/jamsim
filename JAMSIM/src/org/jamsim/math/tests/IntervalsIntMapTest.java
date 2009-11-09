@@ -14,7 +14,7 @@ import net.casper.io.file.CDataFileDef;
 import org.apache.commons.lang.ArrayUtils;
 import org.jamsim.casper.CDataFileIntervalsMap;
 import org.jamsim.io.DatasetFileLoader;
-import org.jamsim.io.PrefsOrPromptFileLoader;
+import org.jamsim.io.FileLoader;
 import org.jamsim.math.IntervalsIntMap;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -99,7 +99,7 @@ public class IntervalsIntMapTest {
 
 	@BeforeClass
 	public static void display() throws IOException, CDataGridException {
-		dsfLoader = new PrefsOrPromptFileLoader(IntervalsIntMapTest.class);
+		dsfLoader = new FileLoader(IntervalsIntMapTest.class);
 		dsfLoader.loadDataset(CDCat15ReallocChildBearer);
 		cdmapFromFile = CDCat15ReallocChildBearer.getIntervalsMap();
 	}

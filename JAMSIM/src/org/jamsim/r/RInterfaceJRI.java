@@ -127,7 +127,7 @@ public class RInterfaceJRI {
 
 		// define the column names
 		rEngine.rniSetAttr(dataframeP, "names", rEngine
-				.rniPutStringArray(matrix.getColumnNames()));
+				.rniPutStringArray(matrix.getMatrixColumnNames()));
 
 		// define the row names
 		rEngine.rniSetAttr(dataframeP, "row.names", rEngine

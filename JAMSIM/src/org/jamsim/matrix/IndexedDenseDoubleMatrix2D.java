@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
 import net.casper.data.model.CDataRowSet;
 import net.casper.data.model.CRowMetaData;
+import net.casper.io.file.util.ArrayUtil;
 import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 
 /**
@@ -25,19 +28,38 @@ public class IndexedDenseDoubleMatrix2D extends DenseDoubleMatrix2D {
 
 	/**
 	 * Index created from the primary keys of a casper dataset. Can be multiple
-	 * columns of any type of object.
+	 * columns of any type of object. Outer array is rows, inner array is
+	 * columns, i.e: index[row][col].
 	 * 
 	 */
-	protected Object[][] index;
+	private Object[][] index;
+
+	/**
+	 * List of the column names of the index.
+	 */
+	private final List<String> indexColumnNames = new ArrayList<String>();
 
 	/**
 	 * List of the column names of the matrix.
 	 */
-	private final List<String> columnNames = new ArrayList<String>();
+	private final List<String> matrixColumnNames = new ArrayList<String>();
 
+	/**
+	 * Construct an instance from a {@link CDataCacheContainer}. Convenience
+	 * method for {@link #IndexedDenseDoubleMatrix2D(CDataRowSet)}.
+	 * 
+	 * @param container
+	 *            casper container
+	 * @throws CDataGridException
+	 *             if problem reading container.
+	 */
 	public IndexedDenseDoubleMatrix2D(CDataCacheContainer container)
 			throws CDataGridException {
 		this(container.getAll());
+	}
+
+	protected Object[][] getIndex() {
+		return index;
 	}
 
 	/**
@@ -70,13 +92,14 @@ public class IndexedDenseDoubleMatrix2D extends DenseDoubleMatrix2D {
 		}
 		int keys = primaryKeys.size();
 
-		// create list of column names,
-		// for those columns not primary keys
+		// create lists of column names
 		int cols = meta.getColumnCount();
 		String[] allColumnNames = meta.getColumnNames();
 		for (int col = 0; col < cols; col++) {
-			if (!primaryKeys.contains(col)) {
-				columnNames.add(allColumnNames[col]);
+			if (primaryKeys.contains(col)) {
+				indexColumnNames.add(allColumnNames[col]);
+			} else {
+				matrixColumnNames.add(allColumnNames[col]);
 			}
 		}
 
@@ -161,7 +184,29 @@ public class IndexedDenseDoubleMatrix2D extends DenseDoubleMatrix2D {
 	 * 
 	 * @return ordered list of column names for this matrix.
 	 */
-	public String[] getColumnNames() {
-		return columnNames.toArray(new String[columnNames.size()]);
+	public String[] getMatrixColumnNames() {
+		return matrixColumnNames
+				.toArray(new String[matrixColumnNames.size()]);
 	}
+
+	/**
+	 * Get ordered list of column names for this matrix.
+	 * 
+	 * @return ordered list of column names for this matrix.
+	 */
+	public String[] getIndexColumnNames() {
+		return indexColumnNames.toArray(new String[indexColumnNames.size()]);
+	}
+
+	/**
+	 * Get ordered list of all column names for the index, following by the
+	 * matrix.
+	 * 
+	 * @return ordered list of column names for this matrix.
+	 */
+	public String[] getAllColumnNames() {
+		return (String[]) ArrayUtils.addAll(getIndexColumnNames(),
+				getMatrixColumnNames());
+	}
+
 }
