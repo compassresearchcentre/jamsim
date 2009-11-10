@@ -8,6 +8,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
+import org.ascape.model.Scape;
+import org.ascape.runtime.RuntimeEnvironment;
+import org.ascape.runtime.swing.DesktopEnvironment;
 import org.ascape.view.vis.PanelView;
 
 /**
@@ -22,6 +25,24 @@ public final class AscapeGUIUtil {
 	 * Private constructor to prevent instantiation.
 	 */
 	private AscapeGUIUtil() {
+	}
+
+	/**
+	 * Return the dimensions of Ascape's desktop pane, i.e: the pane where
+	 * charts, tables etc. are displayed.
+	 * 
+	 * @param scape
+	 *            scape
+	 * @return dimensions of Ascape's desktop pane.
+	 */
+	public static Dimension getDesktopSize(Scape scape) {
+		RuntimeEnvironment runtime = scape.getRunner().getEnvironment();
+		if (runtime instanceof DesktopEnvironment) {
+			return ((DesktopEnvironment) runtime).getUserFrame()
+					.getDeskScrollPane().getViewport().getSize();
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -66,6 +87,47 @@ public final class AscapeGUIUtil {
 	}
 
 	/**
+	 * Subtract one dimension from another.
+	 * 
+	 * @param d1
+	 *            dimension 1
+	 * @param d2
+	 *            dimension 2
+	 * @return {@code d1 - d2}
+	 */
+	public static Dimension subtract(Dimension d1, Dimension d2) {
+		return new Dimension(d1.width - d2.width, d1.height - d2.height);
+	}
+
+	/**
+	 * Add two dimensions together.
+	 * 
+	 * @param d1
+	 *            dimension 1
+	 * @param d2
+	 *            dimension 2
+	 * @return {@code d1 + d2}
+	 */
+	public static Dimension add(Dimension d1, Dimension d2) {
+		return new Dimension(d1.width + d2.width, d1.height + d2.height);
+	}
+
+	/**
+	 * Return the smallest width and height of two dimensions.
+	 * 
+	 * @param d1
+	 *            dimension 1
+	 * @param d2
+	 *            dimension 2
+	 * @return new dimensions with {@code width = min(d1.width,d2.width} and
+	 *         {@code height = min(d1.height,d2.height} .
+	 */
+	public static Dimension min(Dimension d1, Dimension d2) {
+		return new Dimension(Math.min(d1.width, d2.width), Math.min(
+				d1.height, d2.height));
+	}
+
+	/**
 	 * The border around the max size of a Panel View. See
 	 * {@link #createPanelView(JTable, Dimension)}.
 	 */
@@ -94,15 +156,11 @@ public final class AscapeGUIUtil {
 					.setPreferredScrollableViewportSize(table
 							.getPreferredSize());
 		} else {
-			int width =
-					Math.min(table.getPreferredSize().width, maxSize.width
-							- BORDER_EDGES.width);
-			int height =
-					Math.min(table.getPreferredSize().height, maxSize.height
-							- BORDER_EDGES.height);
 
-			table.setPreferredScrollableViewportSize(new Dimension(width,
-					height));
+			Dimension prefSize = table.getPreferredSize();
+
+			table.setPreferredScrollableViewportSize(min(prefSize, subtract(
+					maxSize, BORDER_EDGES)));
 		}
 
 		// allow sorting using the column headers

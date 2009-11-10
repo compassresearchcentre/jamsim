@@ -59,7 +59,8 @@ public class TreeUtil {
 			implements ActionListener {
 
 		private static final long serialVersionUID = 6327681491877012320L;
-		private final PanelView panelView;
+		private PanelView panelView;
+		private final JTable table;
 		private final Scape scape;
 		private final String name;
 
@@ -72,18 +73,12 @@ public class TreeUtil {
 		 * @param table
 		 *            JTable to display in a PanelView when this node is
 		 *            clicked.
-		 * @param maxSize
-		 *            max display dimensions of the table. If {@code null} will
-		 *            display the table at it's preferred size.
 		 */
-		public PanelViewNode(Scape scape, JTable table, Dimension maxSize) {
+		public PanelViewNode(Scape scape, JTable table) {
 			super(table);
 			this.scape = scape;
 			this.name = table.getName();
-
-			// Create a PanelView from the Table
-			panelView = AscapeGUIUtil.createPanelView(table, maxSize);
-
+			this.table = table;
 		}
 
 		/**
@@ -103,13 +98,17 @@ public class TreeUtil {
 
 			// check to see that panelView is not currently displayed
 			// (i.e: has been added to the scape)
-			if (scape.getScapeListeners().indexOf(panelView) == -1) {
+			if (panelView == null
+					|| scape.getScapeListeners().indexOf(panelView) == -1) {
 
-				// If a PanelView is closed and then re-opened, it is empty
-				panelView.validate();
+				// Create a PanelView from the Table
+				Dimension desktopSize = AscapeGUIUtil.getDesktopSize(scape);
+				panelView = AscapeGUIUtil.createPanelView(table, desktopSize);
+
 				// add the panelView to the scape, which will display it in the
 				// GUI
 				scape.addView(panelView);
+
 			}
 		}
 

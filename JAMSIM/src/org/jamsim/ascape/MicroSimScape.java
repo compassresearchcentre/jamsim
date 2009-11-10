@@ -228,22 +228,6 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	}
 
 	/**
-	 * Return the dimensions of Ascape's desktop pane, i.e: the pane when
-	 * charts, tables etc. are displayed.
-	 * 
-	 * @return dimensions of Ascape's desktop pane.
-	 */
-	public Dimension getDesktopSize() {
-		RuntimeEnvironment runtime = this.getRunner().getEnvironment();
-		if (runtime instanceof DesktopEnvironment) {
-			return ((DesktopEnvironment) runtime).getUserFrame()
-					.getDeskScrollPane().getViewport().getSize();
-		} else {
-			return null;
-		}
-	}
-
-	/**
 	 * Modify the Ascape Navigator tree to include nodes for datasets and output
 	 * tables.
 	 * 
@@ -275,8 +259,6 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 
 		TableCellRenderer dblRenderer = new DoubleCellRenderer(10);
 
-		Dimension tableSize = getDesktopSize();
-
 		for (Map.Entry<String, TableModel> entry : scapeData.getTableModels()
 				.entrySet()) {
 
@@ -286,8 +268,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 			table.setDefaultRenderer(Double.class, dblRenderer);
 
 			// add PanelViewNode to the tree
-			datasetsNode.add(new TreeUtil.PanelViewNode(this, table,
-					tableSize)); // NOPMD
+			datasetsNode.add(new TreeUtil.PanelViewNode(this, table)); // NOPMD
 		}
 
 		// add datasetsNode via the Tree Model
