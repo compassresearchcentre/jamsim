@@ -9,6 +9,8 @@ import javax.swing.event.InternalFrameEvent;
 import org.ascape.runtime.Runner;
 import org.ascape.runtime.swing.DesktopEnvironment;
 import org.ascape.runtime.swing.SwingEnvironment;
+import org.ascape.util.swing.AscapeGUIUtil;
+import org.ascape.util.swing.PanelViewUtil;
 import org.ascape.view.vis.PanelView;
 import org.rosuda.javaGD.GDInterface;
 import org.rosuda.javaGD.JGDPanel;
@@ -57,7 +59,7 @@ public class AscapeGD extends GDInterface {
 		}
 
 		// Create a new panel view
-		pv = AscapeGUIUtil.createResizablePanelView(WINDOW_TITLE);
+		pv = PanelViewUtil.createResizablePanelView(WINDOW_TITLE);
 
 		// create a Swing JGDPanel that R will draw on
 		// and add it to PanelView

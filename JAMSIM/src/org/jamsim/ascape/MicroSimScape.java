@@ -1,35 +1,20 @@
 package org.jamsim.ascape;
 
-import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.prefs.Preferences;
-
-import javax.swing.JTable;
-import javax.swing.JTree;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableModel;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 
 import net.casper.io.file.util.ExtFileFilter;
 
 import org.ascape.model.Agent;
 import org.ascape.model.Scape;
 import org.ascape.model.space.CollectionSpace;
-import org.ascape.runtime.RuntimeEnvironment;
-import org.ascape.runtime.swing.DesktopEnvironment;
-import org.ascape.runtime.swing.TreeModifier;
+import org.ascape.runtime.swing.SwingRunner;
+import org.ascape.runtime.swing.navigator.PanelViewNodes;
+import org.ascape.util.swing.AscapeGUIUtil;
 import org.jamsim.io.FileLoader;
-import org.jamsim.matrix.IndexedMatrixTableModel;
 import org.jamsim.r.RInterfaceHL;
-import org.jamsim.swing.DoubleCellRenderer;
-
-import com.bbn.openmap.layer.util.html.TableCellElement;
 
 /**
  * A Scape with micro-simulation input/output functions including base file
@@ -42,8 +27,12 @@ import com.bbn.openmap.layer.util.html.TableCellElement;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class MicroSimScape<D extends ScapeData> extends Scape implements
-		TreeModifier {
+public class MicroSimScape<D extends ScapeData> extends Scape {
+
+	/**
+	 * Serialization.
+	 */
+	private static final long serialVersionUID = 5534365905529673862L;
 
 	/**
 	 * Integer missing value constant.
@@ -57,11 +46,37 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	public static final double MISSING_VALUE_DOUBLE =
 			RInterfaceHL.MISSING_VALUE_DOUBLE;
 
-	/**
-	 * Serialization.
-	 */
-	private static final long serialVersionUID = 5534365905529673862L;
+	private static final RecordedMicroSimTreeBuilder TREE_BUILDER =
+			new RecordedMicroSimTreeBuilder();
 
+	private PanelViewNodes outputTablesNode;
+
+	/**
+	 * Get the output tables node.
+	 * Must be called after the Navigator tree has been created.
+	 * This happens after {@link #createScape()} but before
+	 * {@link #createGraphicViews()} is called. 
+	 * 
+	 * @return output tables node
+	 */
+	public PanelViewNodes getOutputTablesNode() {
+		
+		if (outputTablesNode == null) {
+			MicroSimScapeNode scapeNode =
+					(MicroSimScapeNode) TREE_BUILDER.getCreatedTreeNode(this);
+			
+			if (scapeNode == null) {
+				throw new IllegalStateException("Navigator tree node for " 
+						+ getClass().getSimpleName() + " \"" + name  
+						+ "\" not yet created");
+			}
+			
+			outputTablesNode = scapeNode.getOutputTablesNode();
+		}
+		
+		return outputTablesNode;
+	}
+	
 	/**
 	 * The base file is kept as an instance variable and exposed as a model
 	 * parameter.
@@ -79,9 +94,6 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 * Prefs for loading/saving location of base file.
 	 */
 	private final Preferences prefs;
-
-	private final List<TreeModifier> outputTableProviders =
-			new LinkedList<TreeModifier>();
 
 	/**
 	 * Global data external to scape. Used by agents of this scape and used to
@@ -105,6 +117,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 * location does not exist, then the user is prompted for the base file
 	 * location.
 	 * 
+	 * @param space
+	 *            scape space
 	 * @param name
 	 *            name of the scape. This will be the name of the dataframe if &
 	 *            when created in R.
@@ -139,7 +153,26 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		// tell the patients scape not to auto create, otherwise
 		// it will remove the agents we've added to it and
 		// replace them with clones with parameter values of 0
-		this.setAutoCreate(false);
+		// this.setAutoCreate(false);
+	}
+
+	/**
+	 * Set the Navigator Tree Builder here. At this point the SwingEnvironment
+	 * exists. We can't do this in {@link #createGraphicViews()} because at that
+	 * point the navigator has already been built (see the order of scape
+	 * creation etc. in
+	 * {@link SwingRunner#openImplementation(String[], boolean)}.
+	 * 
+	 * This method also overrides the scape implementation which removes all
+	 * agents and replaces them with clones with parameter values of 0.
+	 */
+	@Override
+	public void createScape() {
+		AscapeGUIUtil.setNavigatorTreeBuilder(this, TREE_BUILDER);
+	}
+
+	@Override
+	public void createGraphicViews() {
 	}
 
 	/**
@@ -225,77 +258,5 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 
 	private void println(String message) {
 		loader.println(message);
-	}
-
-	/**
-	 * Modify the Ascape Navigator tree to include nodes for datasets and output
-	 * tables.
-	 * 
-	 * Called by {@code org.ascape.runtime.swing.Navigator.ScapeNode}
-	 * constructor during the construction of the Navigator tree. This happens
-	 * after {@link #createScape()}.
-	 * 
-	 * @param tree
-	 *            the Navigator tree
-	 * @param parentNode
-	 *            this scape's node in the Navigator tree
-	 */
-	@Override
-	public void modifyTree(JTree tree, DefaultMutableTreeNode parentNode) {
-
-		tree
-				.addTreeSelectionListener(new TreeUtil.TSLPeformActionOnSelectedNode());
-
-		// Get the tree model. We will add nodes via the tree model instead
-		// of directly to the tree so that all the appropriate events are fired
-		DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
-
-		// create Dataset node
-		DefaultMutableTreeNode datasetsNode =
-				new DefaultMutableTreeNode("Datasets");
-
-		// get all the tables from the scape external data
-		// and add them to the navigator as a Panel View Node
-
-		TableCellRenderer dblRenderer = new DoubleCellRenderer(10);
-
-		for (Map.Entry<String, TableModel> entry : scapeData.getTableModels()
-				.entrySet()) {
-
-			TableModel tmodel = entry.getValue();
-			JTable table = new JTable(tmodel); // NOPMD
-			table.setName(entry.getKey());
-			table.setDefaultRenderer(Double.class, dblRenderer);
-
-			// add PanelViewNode to the tree
-			datasetsNode.add(new TreeUtil.PanelViewNode(this, table)); // NOPMD
-		}
-
-		// add datasetsNode via the Tree Model
-		treeModel.insertNodeInto(datasetsNode, parentNode, parentNode
-				.getChildCount());
-
-		// create the Output Tables node
-		DefaultMutableTreeNode outputTablesNode =
-				new DefaultMutableTreeNode("Output Tables");
-		treeModel.insertNodeInto(outputTablesNode, parentNode, parentNode
-				.getChildCount());
-
-		// initialise the output table providers
-		for (TreeModifier tm : outputTableProviders) {
-			tm.modifyTree(tree, outputTablesNode);
-		}
-	}
-
-	/**
-	 * Adds a tree modifier model element under the Output Tables node. The tree
-	 * modifier is actually responsible for adding itself as a node at the time
-	 * that the output is generated (eg: when the scape stops).
-	 * 
-	 * @param tmod
-	 *            tree modifying model element
-	 */
-	public void addOutputTableNode(TreeModifier tmod) {
-		outputTableProviders.add(tmod);
 	}
 }

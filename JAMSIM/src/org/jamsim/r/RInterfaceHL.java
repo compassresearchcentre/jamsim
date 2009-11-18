@@ -426,6 +426,12 @@ public final class RInterfaceHL {
 	public void assignDataFrame(String name, Collection<?> col,
 			Class<?> stopClass) throws RInterfaceException {
 
+		if (col.size() == 0) {
+			throw new RInterfaceException(
+					"Cannot create dataframe for empty collection \"" + name
+							+ "\"");
+		}
+
 		Object bean = col.iterator().next();
 
 		BeanPropertyInspector props;
