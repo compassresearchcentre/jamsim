@@ -3,9 +3,12 @@ package org.jamsim.io;
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.prefs.Preferences;
 
 import javax.swing.filechooser.FileFilter;
+import javax.swing.table.TableModel;
 
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
@@ -18,7 +21,10 @@ import net.casper.io.file.util.ExtFileFilter;
 import org.jamsim.casper.CDataFileDoubleArray;
 import org.jamsim.casper.CDataFileIntervalsMap;
 import org.jamsim.math.IntervalsIntMap;
+import org.jamsim.math.IntervalsIntMapTableModel;
 import org.jamsim.matrix.IndexedDenseDoubleMatrix2D;
+import org.jamsim.matrix.IndexedMatrixTableModel;
+import org.jamsim.swing.ArrayTableModel;
 import org.omancode.util.PrefsOrOpenFileChooser;
 
 /**
@@ -39,6 +45,23 @@ public class FileLoader implements DatasetFileLoader, Output {
 	private final CDataFileDefLoader cdefLoader = new CDataFileDefLoader();
 
 	/**
+	 * Table model representations of datasets, matrices etc. for display in a
+	 * Swing GUI.
+	 */
+	private final Map<String, TableModel> tmodels =
+			new TreeMap<String, TableModel>();
+
+	/**
+	 * Get a map of {@link TableModel} representations of the loaded datasets,
+	 * matrices etc. for display in a Swing JTable.
+	 * 
+	 * @return map of {@link TableModel}s.
+	 */
+	public Map<String, TableModel> getTableModels() {
+		return tmodels;
+	}
+
+	/**
 	 * Construct using defaults.
 	 */
 	public FileLoader() {
@@ -49,21 +72,20 @@ public class FileLoader implements DatasetFileLoader, Output {
 	 * Construct with specified preferences class and default output object.
 	 * 
 	 * @param prefsClass
-	 *            preferences node, if {@code null} uses the
-	 *            {@link FileLoader} class node.
+	 *            preferences node, if {@code null} uses the {@link FileLoader}
+	 *            class node.
 	 */
 	public FileLoader(Class<?> prefsClass) {
 		this(prefsClass, null);
 	}
 
 	/**
-	 * Construct {@link FileLoader} that loads preferences from the
-	 * node for class {@code prefsClass} and prints loading progress to {@code
-	 * output}.
+	 * Construct {@link FileLoader} that loads preferences from the node for
+	 * class {@code prefsClass} and prints loading progress to {@code output}.
 	 * 
 	 * @param prefsClass
-	 *            preferences node, if {@code null} uses the
-	 *            {@link FileLoader} class node.
+	 *            preferences node, if {@code null} uses the {@link FileLoader}
+	 *            class node.
 	 * @param output
 	 *            output object, if {@code null} uses the default
 	 *            {@link OutputToPrintStream} instance (ie: prints to
@@ -132,9 +154,9 @@ public class FileLoader implements DatasetFileLoader, Output {
 			FileFilter filter) {
 		return fileChooser.showOpenDialog(dialogTitle, parent, filter);
 	}
-	
+
 	/**
-	 * Provide the prefs to objects that want to load files themselves. 
+	 * Provide the prefs to objects that want to load files themselves.
 	 * 
 	 * @return prefs
 	 */
@@ -194,7 +216,11 @@ public class FileLoader implements DatasetFileLoader, Output {
 			throws IOException {
 
 		try {
-			return new IndexedDenseDoubleMatrix2D(loadDataset(cdef));
+			IndexedDenseDoubleMatrix2D matrix =
+					new IndexedDenseDoubleMatrix2D(loadDataset(cdef));
+
+			tmodels.put(cdef.getName(), new IndexedMatrixTableModel(matrix));
+			return matrix;
 		} catch (CDataGridException e) {
 			throw new IOException(e);
 		}
@@ -215,13 +241,14 @@ public class FileLoader implements DatasetFileLoader, Output {
 	public CDataFileDef loadCDataFile(String cdefName) throws IOException {
 		File file =
 				getFile(cdefName, "Select JSON dataset definition for \""
-						+ cdefName + "\"", new ExtFileFilter("txt", "JSON txt files"), false);
-		
+						+ cdefName + "\"", new ExtFileFilter("txt",
+						"JSON txt files"), false);
+
 		CDataFileDef cdef = cdefLoader.fromJsonFile(file);
-		
+
 		// save location of file selected in prefs
 		prefs.put(cdefName, file.getPath());
-		
+
 		return cdef;
 	}
 
@@ -239,7 +266,12 @@ public class FileLoader implements DatasetFileLoader, Output {
 	public IntervalsIntMap loadIntervalsMap(CDataFileIntervalsMap cdefmap)
 			throws IOException {
 		loadDataset(cdefmap);
-		return cdefmap.getIntervalsMap();
+
+		IntervalsIntMap iimap = cdefmap.getIntervalsMap();
+
+		tmodels.put(cdefmap.getName(), new IntervalsIntMapTableModel(iimap));
+
+		return iimap;
 
 	}
 
@@ -257,6 +289,11 @@ public class FileLoader implements DatasetFileLoader, Output {
 	public double[] loadDoublesArray(CDataFileDoubleArray cdefdouble)
 			throws IOException {
 		loadDataset(cdefdouble);
+
+		double[] array = cdefdouble.getDoublesArray();
+
+		tmodels.put(cdefdouble.getName(), new ArrayTableModel(array));
+
 		return cdefdouble.getDoublesArray();
 	}
 

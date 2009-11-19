@@ -1,5 +1,7 @@
 package org.jamsim.math;
 
+import java.util.Arrays;
+
 /**
  * Maps a set of contiguous intervals on the real number line to a set of
  * integer values.
@@ -83,9 +85,9 @@ public class IntervalsIntMap {
 	 *            probabilities
 	 * @param values
 	 *            values that map to {@code probabilities}
-	 * @return intervals, from 0 (exclusive) - 1 (inclusive), mapped to {@code value}. Or in
-	 *         other words, a cumulative distribution of probabilities mapped to
-	 *         an integer value.
+	 * @return intervals, from 0 (exclusive) - 1 (inclusive), mapped to {@code
+	 *         value}. Or in other words, a cumulative distribution of
+	 *         probabilities mapped to an integer value.
 	 */
 	public static IntervalsIntMap newInstanceFromProbabilities(
 			double[] probabilities, int[] values) {
@@ -198,4 +200,16 @@ public class IntervalsIntMap {
 		return sum;
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer sbuf = new StringBuffer(256);
+
+		sbuf.append("Intervals: ").append(Arrays.toString(getIntervals()))
+				.append('\n');
+		sbuf.append("Values: ").append(Arrays.toString(getValues())).append(
+				'\n');
+
+		return sbuf.toString();
+
+	}
 }
