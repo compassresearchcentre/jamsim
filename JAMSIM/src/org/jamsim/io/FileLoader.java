@@ -138,6 +138,26 @@ public class FileLoader implements DatasetFileLoader, Output {
 	}
 
 	/**
+	 * Lookup the directory from the prefs, or if it doesn't exist prompt the
+	 * user via an open file dialog.
+	 * 
+	 * @param prefsKey
+	 *            key to lookup stored directory.
+	 * @param prompt
+	 *            prompt message to ask user to select a directory.
+	 * @param saveDirSelectedToPrefs
+	 *            if {@code true} save the file selected to the prefs
+	 * @return File specified in prefs, or selected in the dialog by user.
+	 * @throws IOException
+	 *             if no valid directory is selected when prompted.
+	 */
+	public File getDirectory(String prefsKey, String prompt,
+			boolean saveDirSelectedToPrefs) throws IOException {
+		return fileChooser.getDirectory(prefsKey, prompt,
+				saveDirSelectedToPrefs);
+	}
+
+	/**
 	 * Show a JFileChooser open file dialog. Saves the directory last navigated
 	 * to into the preferences.
 	 * 
@@ -153,6 +173,21 @@ public class FileLoader implements DatasetFileLoader, Output {
 	public File showOpenDialog(String dialogTitle, Component parent,
 			FileFilter filter) {
 		return fileChooser.showOpenDialog(dialogTitle, parent, filter);
+	}
+
+	/**
+	 * Show a JFileChooser open file dialog that allows selection of directories
+	 * only. Saves the directory last navigated to into the preferences.
+	 * 
+	 * @param dialogTitle
+	 *            file chooser's dialog title
+	 * @param parent
+	 *            the parent component of the dialog; can be null
+	 * @return selected directory, or null if cancel selected.
+	 */
+	public File showOpenDialogForDirectories(String dialogTitle,
+			Component parent) {
+		return fileChooser.showOpenDialogForDirectories(dialogTitle, parent);
 	}
 
 	/**

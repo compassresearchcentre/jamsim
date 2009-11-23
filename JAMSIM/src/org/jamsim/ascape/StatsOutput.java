@@ -6,6 +6,8 @@ import java.util.TooManyListenersException;
 
 import javax.swing.table.TableModel;
 
+import net.casper.data.model.CDataCacheContainer;
+import net.casper.ext.CasperUtil;
 import net.casper.ext.swing.CDatasetTableModel;
 
 import org.ascape.model.event.DefaultScapeListener;
@@ -13,12 +15,15 @@ import org.ascape.model.event.ScapeEvent;
 import org.ascape.runtime.swing.navigator.PanelViewNodes;
 import org.ascape.util.data.StatCollector;
 import org.ascape.view.vis.ChartView;
+import org.jamsim.date.DateUtil;
+import org.jamsim.io.FileUtil;
 
 /**
  * Display output from a {@link StatsOutputModel}. Adds stat collectors and
  * chart from a {@link StatsOutputModel} to the scape. When the scape stops
- * after each run, adds an output data table node in the Navigator and displays
- * the {@link StatsOutputModel} results in a table.
+ * after each run, adds an output data table node in the Navigator that displays
+ * the {@link StatsOutputModel} results in a table, and outputs the results to a
+ * file.
  * 
  * @author Oliver Mannion
  * @version $Revision$
@@ -30,6 +35,8 @@ public class StatsOutput extends DefaultScapeListener {
 
 	private final StatsOutputModel stats;
 
+	private final String outputDirectory;
+
 	private int runNumber = 1;
 
 	/**
@@ -39,12 +46,15 @@ public class StatsOutput extends DefaultScapeListener {
 	 *            navigator output tables tree node
 	 * @param stats
 	 *            {@link StatsOutputModel}
+	 * @param outputDirectory
+	 *            destination directory for results output file
 	 */
 	public StatsOutput(PanelViewNodes outputTablesNode,
-			StatsOutputModel stats) {
+			StatsOutputModel stats, String outputDirectory) {
 		super(stats.getName());
 		this.stats = stats;
 		this.outputTablesNode = outputTablesNode;
+		this.outputDirectory = FileUtil.addTrailingSlash(outputDirectory);
 	}
 
 	/**
@@ -102,21 +112,31 @@ public class StatsOutput extends DefaultScapeListener {
 	/**
 	 * Perform operations required when the simulation has stopped. Here we
 	 * write create an output node on the Navigator tree via a call to
-	 * {@link #createNavigatorOutputNode()}.
+	 * {@link #createNavigatorOutputNode()} and output the results to a file.
 	 * 
 	 * @param scapeEvent
-	 *            scape event
+	 *            not used
 	 */
 	@Override
 	public void scapeStopped(ScapeEvent scapeEvent) {
-		// writeStatsToFile(directory + "output.csv", stats);
 
 		// create the output node on the AWT event thread
 		/*
 		 * Runnable doWorkRunnable = new Runnable() { public void run() {
 		 * createOutputNode(); } }; SwingUtilities.invokeLater(doWorkRunnable);
 		 */
-		createNavigatorOutputNode();
+
+		String runName = name + " (Run " + runNumber++ + ")";
+		CDataCacheContainer results = stats.getResults();
+
+		createNavigatorOutputNode(runName, results);
+		try {
+			CasperUtil.writeToCSV(outputDirectory
+					+ DateUtil.nowToSortableUniqueDateString() + " "
+					+ runName + ".csv", results);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 
 	}
 
@@ -124,15 +144,15 @@ public class StatsOutput extends DefaultScapeListener {
 	 * Create a node on the Navigator tree that represents this output table.
 	 * 
 	 */
-	private void createNavigatorOutputNode() {
+	private void createNavigatorOutputNode(String nodeName,
+			CDataCacheContainer container) {
 		TableModel tmodel;
 		try {
-			tmodel = new CDatasetTableModel(stats.getResults());
+			tmodel = new CDatasetTableModel(container);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 
-		String nodeName = name + " (Run " + runNumber++ + ")";
 		outputTablesNode.addChildTableNode(nodeName, tmodel);
 	}
 

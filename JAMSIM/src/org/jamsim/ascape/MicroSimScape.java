@@ -51,39 +51,17 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 
 	private PanelViewNodes outputTablesNode;
 
-	/**
-	 * Get the output tables node.
-	 * Must be called after the Navigator tree has been created.
-	 * This happens after {@link #createScape()} but before
-	 * {@link #createGraphicViews()} is called. 
-	 * 
-	 * @return output tables node
-	 */
-	public PanelViewNodes getOutputTablesNode() {
-		
-		if (outputTablesNode == null) {
-			MicroSimScapeNode scapeNode =
-					(MicroSimScapeNode) TREE_BUILDER.getCreatedTreeNode(this);
-			
-			if (scapeNode == null) {
-				throw new IllegalStateException("Navigator tree node for " 
-						+ getClass().getSimpleName() + " \"" + name  
-						+ "\" not yet created");
-			}
-			
-			outputTablesNode = scapeNode.getOutputTablesNode();
-		}
-		
-		return outputTablesNode;
-	}
-	
+	private static final String OUTPUTDIR_KEY = "output directory";
+
+	private File outputDirectory;
+
+	private static final String BASEFILE_KEY = "base file";
+
 	/**
 	 * The base file is kept as an instance variable and exposed as a model
 	 * parameter.
 	 */
 	private File basefile = null;
-
-	private static final String BASEFILE_KEY = "base file";
 
 	/**
 	 * Used to help load the base file.
@@ -154,6 +132,10 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 		// it will remove the agents we've added to it and
 		// replace them with clones with parameter values of 0
 		// this.setAutoCreate(false);
+
+		loadOutputDirectory();
+		
+		println("Output directory: " + getOutputDirectory());
 	}
 
 	/**
@@ -171,8 +153,29 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 		AscapeGUIUtil.setNavigatorTreeBuilder(this, TREE_BUILDER);
 	}
 
-	@Override
-	public void createGraphicViews() {
+	/**
+	 * Get the output tables node. Must be called after the Navigator tree has
+	 * been created. This happens after {@link #createScape()} but before
+	 * {@link #createGraphicViews()} is called.
+	 * 
+	 * @return output tables node
+	 */
+	public PanelViewNodes getOutputTablesNode() {
+
+		if (outputTablesNode == null) {
+			MicroSimScapeNode scapeNode =
+					(MicroSimScapeNode) TREE_BUILDER.getCreatedTreeNode(this);
+
+			if (scapeNode == null) {
+				throw new IllegalStateException("Navigator tree node for "
+						+ getClass().getSimpleName() + " \"" + name
+						+ "\" not yet created");
+			}
+
+			outputTablesNode = scapeNode.getOutputTablesNode();
+		}
+
+		return outputTablesNode;
 	}
 
 	/**
@@ -252,11 +255,61 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 		}
 	}
 
-	private void print(String message) {
+	private void loadOutputDirectory() {
+		setOutputDirectory(prefs.get(OUTPUTDIR_KEY, ""));
+	}
+
+	/**
+	 * Get the scape's output directory. Used for result output to files.
+	 * 
+	 * @return output directory
+	 */
+	public final String getOutputDirectory() {
+
+		if (outputDirectory == null) {
+			throw new IllegalStateException(
+					"An output directory has not been specified.");
+		}
+
+		return outputDirectory.getPath();
+	}
+
+	/**
+	 * Set the output directory for the scape.
+	 * 
+	 * @param strOutputDir
+	 *            output directory
+	 */
+	public final void setOutputDirectory(String strOutputDir) {
+		// strOutputDir will be null when editing the base file text area in the
+		// model parameters, before enter is pressed
+		// strOutputDir will be the empty string "" when there are no saved
+		// preferences
+		if (strOutputDir != null) {
+			File fOutputDir = new File(strOutputDir);
+
+			// if the directory doesn't exist then show a file chooser
+			// dialog for the user to select one
+			if (!fOutputDir.exists()) {
+				fOutputDir =
+						loader.showOpenDialogForDirectories(
+								"Select output directory", null);
+			}
+
+			if (fOutputDir != null) {
+				this.outputDirectory = fOutputDir;
+
+				// save the base file to the prefs
+				prefs.put(OUTPUTDIR_KEY, fOutputDir.getPath());
+			}
+		}
+	}
+
+	private final void print(String message) {
 		loader.print(message);
 	}
 
-	private void println(String message) {
+	private final void println(String message) {
 		loader.println(message);
 	}
 }
