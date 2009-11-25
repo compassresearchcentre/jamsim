@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.TooManyListenersException;
 
+import javax.swing.JTable;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
 import net.casper.data.model.CDataCacheContainer;
@@ -17,6 +19,7 @@ import org.ascape.util.data.StatCollector;
 import org.ascape.view.vis.ChartView;
 import org.jamsim.date.DateUtil;
 import org.jamsim.io.FileUtil;
+import org.jamsim.swing.DoubleCellRenderer;
 
 /**
  * Display output from a {@link StatsOutputModel}. Adds stat collectors and
@@ -153,7 +156,14 @@ public class StatsOutput extends DefaultScapeListener {
 			throw new RuntimeException(e);
 		}
 
-		outputTablesNode.addChildTableNode(nodeName, tmodel);
+		TableCellRenderer dblRenderer = new DoubleCellRenderer();
+		JTable table = new JTable(tmodel); 
+		table.setName(nodeName);
+		table.setDefaultRenderer(Double.class, dblRenderer);
+		
+		outputTablesNode.addChildTableNode(table);
+		
+		
 	}
 
 }

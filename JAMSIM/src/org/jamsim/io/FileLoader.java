@@ -26,6 +26,7 @@ import org.jamsim.matrix.IndexedDenseDoubleMatrix2D;
 import org.jamsim.matrix.IndexedMatrixTableModel;
 import org.jamsim.swing.ArrayTableModel;
 import org.omancode.util.PrefsOrOpenFileChooser;
+import org.omancode.util.PrefsOrSaveFileChooser;
 
 /**
  * File loader that loads datasets, and objects based on datasets, from files.
@@ -38,7 +39,9 @@ public class FileLoader implements DatasetFileLoader, Output {
 
 	private final Preferences prefs;
 
-	private final PrefsOrOpenFileChooser fileChooser;
+	private final PrefsOrOpenFileChooser openChooser;
+
+	private final PrefsOrSaveFileChooser saveChooser;
 
 	private final Output output;
 
@@ -96,13 +99,14 @@ public class FileLoader implements DatasetFileLoader, Output {
 		prefs =
 				Preferences.userNodeForPackage(prefsClass == null ? this
 						.getClass() : prefsClass);
-		fileChooser = new PrefsOrOpenFileChooser(prefs);
+		openChooser = new PrefsOrOpenFileChooser(prefs);
+		saveChooser = new PrefsOrSaveFileChooser(prefs);
 	}
 
 	/**
-	 * Convenience method which displays the chooser with the dialog title
-	 * "Select file to load: " + {@code prefsKey}. The chooser has no file
-	 * filters. The file selected is saved to {@code prefsKey}.
+	 * Convenience method which displays the chooser with the default dialog
+	 * title {@link PrefsOrOpenFileChooser#DEFAULT_PROMPT}. The chooser has no
+	 * file filters. The file selected is saved to {@code prefsKey}.
 	 * 
 	 * @param prefsKey
 	 *            key to lookup stored filename.
@@ -111,7 +115,22 @@ public class FileLoader implements DatasetFileLoader, Output {
 	 *             if no valid file is selected when prompted.
 	 */
 	public File getFile(String prefsKey) throws IOException {
-		return fileChooser.getFile(prefsKey);
+		return openChooser.getFile(prefsKey);
+	}
+
+	/**
+	 * Convenience method which displays the save chooser with the default
+	 * dialog title {@link PrefsOrSaveFileChooser#DEFAULT_PROMPT}. The chooser
+	 * has no file filters. The file selected is saved to {@code prefsKey}.
+	 * 
+	 * @param prefsKey
+	 *            key to lookup stored filename.
+	 * @return File specified in prefs, or selected in the dialog by user.
+	 * @throws IOException
+	 *             if no valid file is selected when prompted.
+	 */
+	public File getFileToSave(String prefsKey) throws IOException {
+		return saveChooser.getFile(prefsKey);
 	}
 
 	/**
@@ -133,7 +152,7 @@ public class FileLoader implements DatasetFileLoader, Output {
 	 */
 	public File getFile(String prefsKey, String prompt, FileFilter filter,
 			boolean saveFileSelectedToPrefs) throws IOException {
-		return fileChooser.getFile(prefsKey, prompt, filter,
+		return openChooser.getFile(prefsKey, prompt, filter,
 				saveFileSelectedToPrefs);
 	}
 
@@ -153,7 +172,7 @@ public class FileLoader implements DatasetFileLoader, Output {
 	 */
 	public File getDirectory(String prefsKey, String prompt,
 			boolean saveDirSelectedToPrefs) throws IOException {
-		return fileChooser.getDirectory(prefsKey, prompt,
+		return openChooser.getDirectory(prefsKey, prompt,
 				saveDirSelectedToPrefs);
 	}
 
@@ -172,7 +191,7 @@ public class FileLoader implements DatasetFileLoader, Output {
 	 */
 	public File showOpenDialog(String dialogTitle, Component parent,
 			FileFilter filter) {
-		return fileChooser.showOpenDialog(dialogTitle, parent, filter);
+		return openChooser.showOpenDialog(dialogTitle, parent, filter);
 	}
 
 	/**
@@ -187,7 +206,7 @@ public class FileLoader implements DatasetFileLoader, Output {
 	 */
 	public File showOpenDialogForDirectories(String dialogTitle,
 			Component parent) {
-		return fileChooser.showOpenDialogForDirectories(dialogTitle, parent);
+		return openChooser.showOpenDialogForDirectories(dialogTitle, parent);
 	}
 
 	/**

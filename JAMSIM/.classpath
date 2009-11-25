@@ -54,5 +54,10 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/OmanUtil"/>
+	<classpathentry kind="lib" path="D:/Source/jga-0.8.1/jga-0.8.1.jar" sourcepath="D:/Source/jga-0.8.1/jga-0.8.1-src.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/D:/Source/jga-0.8.1/jga-0.8.1-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

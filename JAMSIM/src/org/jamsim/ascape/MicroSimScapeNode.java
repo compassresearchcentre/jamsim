@@ -75,7 +75,7 @@ public class MicroSimScapeNode extends ScapeNode {
 				new DefaultMutableTreeNode("Datasets");
 
 
-		TableCellRenderer dblRenderer = new DoubleCellRenderer(10);
+		TableCellRenderer dblRenderer = new DoubleCellRenderer();
 
 		// get all the tables from the scape external data
 		// and add them to the navigator as a Panel View Node

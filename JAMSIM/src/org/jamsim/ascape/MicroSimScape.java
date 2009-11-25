@@ -2,10 +2,18 @@ package org.jamsim.ascape;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.prefs.Preferences;
 
+import javax.swing.SwingUtilities;
+
+import net.casper.data.model.CDataCacheContainer;
+import net.casper.data.model.CDataGridException;
+import net.casper.io.beans.CBuildFromCollection;
+import net.casper.io.file.CBuildFromFile;
 import net.casper.io.file.util.ExtFileFilter;
+import net.sf.jga.swing.spreadsheet.Cell;
 
 import org.ascape.model.Agent;
 import org.ascape.model.Scape;
@@ -126,7 +134,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 		setName(name);
 
 		// load the patient scape with patient agents
-		loadBaseScape();
+		// loadAgents();
 
 		// tell the patients scape not to auto create, otherwise
 		// it will remove the agents we've added to it and
@@ -134,7 +142,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 		// this.setAutoCreate(false);
 
 		loadOutputDirectory();
-		
+
 		println("Output directory: " + getOutputDirectory());
 	}
 
@@ -183,8 +191,16 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 * file is stored in Preferences. If such a location does not exist, then
 	 * the user is prompted for the base file location. Calls
 	 * {@link #setBasefile(String)} to do the work.
+	 * 
+	 * <p>
+	 * The method must be called after construction and after the scape has been
+	 * added to its parent, so that the scape variable is available.
 	 */
-	private void loadBaseScape() {
+	public void loadAgents() {
+		if (scape == null) {
+			throw new RuntimeException(name
+					+ " has not been added to a scape yet");
+		}
 		setBasefile(prefs.get(BASEFILE_KEY, ""));
 	}
 
@@ -226,12 +242,14 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 			if (!newBaseFile.exists()) {
 				newBaseFile =
 						loader.showOpenDialog("Select base file to load",
-								null, new ExtFileFilter("csv", "CSV files"));
+								null, CBuildFromFile.FileTypeFactories
+										.getFilter());
 			}
 
 			// if we have a passed in, or selected base file, then load it
 			// and set the base file instance variable
 			if (newBaseFile != null) {
+
 				try {
 					basefile = newBaseFile;
 
@@ -239,17 +257,23 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 					// from previous loads this session)
 					clear();
 
-					print("Loading base file [" + basefile.getPath() + "]. ");
+					println("Loading base file [" + basefile.getPath()
+							+ "]...... ");
+
+					// AscapeGUIUtil.flushConsoleLog(this);
+					// Thread.yield();
+
 					Collection<?> col =
 							scapeData.getBaseScapeAgents(basefile);
 					addAll(col);
-					println("Done. " + col.size() + " " + getName()
-							+ " created.");
+
+					println("Done. " + size() + " " + getName() + " created.");
 
 					// save the base file to the prefs
 					prefs.put(BASEFILE_KEY, basefile.getPath());
+
 				} catch (IOException e) {
-					throw new RuntimeException(e.getMessage(), e); // NOPMD
+					throw new RuntimeException(e.getMessage(), e); // NOPMD }
 				}
 			}
 		}
@@ -303,6 +327,14 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 				prefs.put(OUTPUTDIR_KEY, fOutputDir.getPath());
 			}
 		}
+	}
+
+	public CDataCacheContainer getDataSetOfAgents() throws CDataGridException {
+		CBuildFromCollection builder =
+				new CBuildFromCollection(name, this,
+						getPrototypeAgent().getClass().getSuperclass(), null);
+
+		return new CDataCacheContainer(builder);
 	}
 
 	private final void print(String message) {

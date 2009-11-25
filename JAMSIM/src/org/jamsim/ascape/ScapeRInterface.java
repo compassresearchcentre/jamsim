@@ -155,7 +155,7 @@ public class ScapeRInterface extends DefaultScapeListener {
 				String dataframeName =
 						scape.getName().toLowerCase() + runNumber++;
 				rInterface.assignDataFrame(dataframeName, scape,
-						org.ascape.model.Cell.class);
+						scape.getPrototypeAgent().getClass().getSuperclass());
 				rInterface.printlnToConsole("Created dataframe "
 						+ dataframeName);
 			}
