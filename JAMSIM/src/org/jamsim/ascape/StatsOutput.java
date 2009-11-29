@@ -9,6 +9,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
 import net.casper.data.model.CDataCacheContainer;
+import net.casper.data.model.CDataGridException;
 import net.casper.ext.CasperUtil;
 import net.casper.ext.swing.CDatasetTableModel;
 
@@ -129,15 +130,18 @@ public class StatsOutput extends DefaultScapeListener {
 		 * createOutputNode(); } }; SwingUtilities.invokeLater(doWorkRunnable);
 		 */
 
-		String runName = name + " (Run " + runNumber++ + ")";
-		CDataCacheContainer results = stats.getResults();
-
-		createNavigatorOutputNode(runName, results);
 		try {
+			String runName = name + " (Run " + runNumber++ + ")";
+			CDataCacheContainer results = stats.getResults();
+
+			createNavigatorOutputNode(runName, results);
+			
 			CasperUtil.writeToCSV(outputDirectory
 					+ DateUtil.nowToSortableUniqueDateString() + " "
 					+ runName + ".csv", results);
 		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} catch (CDataGridException e) {
 			throw new RuntimeException(e);
 		}
 

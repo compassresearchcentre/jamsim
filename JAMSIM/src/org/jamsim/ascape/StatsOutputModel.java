@@ -3,6 +3,7 @@ package org.jamsim.ascape;
 import java.util.Collection;
 
 import net.casper.data.model.CDataCacheContainer;
+import net.casper.data.model.CDataGridException;
 
 import org.ascape.util.data.StatCollector;
 import org.ascape.view.vis.ChartView;
@@ -70,7 +71,8 @@ public interface StatsOutputModel {
 	 * (from the StatCollectors), its frequency and percent.
 	 * 
 	 * @return a casper dataset of illness occurrence data
+	 * @throws CDataGridException if problem creating dataset
 	 */
-	CDataCacheContainer getResults();
+	CDataCacheContainer getResults() throws CDataGridException;
 
 }

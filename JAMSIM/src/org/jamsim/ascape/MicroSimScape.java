@@ -2,18 +2,13 @@ package org.jamsim.ascape;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.prefs.Preferences;
-
-import javax.swing.SwingUtilities;
 
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
 import net.casper.io.beans.CBuildFromCollection;
 import net.casper.io.file.CBuildFromFile;
-import net.casper.io.file.util.ExtFileFilter;
-import net.sf.jga.swing.spreadsheet.Cell;
 
 import org.ascape.model.Agent;
 import org.ascape.model.Scape;
