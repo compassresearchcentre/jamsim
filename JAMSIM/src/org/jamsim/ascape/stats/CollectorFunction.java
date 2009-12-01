@@ -1,7 +1,5 @@
 package org.jamsim.ascape.stats;
 
-import net.sf.functionalj.Function1;
-
 import org.ascape.util.data.StatCollectorCondCSA;
 
 /**
@@ -26,12 +24,12 @@ public class CollectorFunction<T> extends StatCollectorCondCSA {
 	 * {@code null}, collects data for all members.
 	 * 
 	 */
-	protected final Function1<Boolean, T> predicate;
+	protected final StatsPredicate<T> predicate;
 
 	/**
 	 * Value to collect from the scape members.
 	 */
-	protected final Function1<Double, T> valueFunction;
+	protected final StatsFunction<T> valueFunction;
 
 	private final double denominator;
 
@@ -47,7 +45,7 @@ public class CollectorFunction<T> extends StatCollectorCondCSA {
 	 *            value to divide the sum by in {@link #getRatio()}.
 	 */
 	public CollectorFunction(String name,
-			Function1<Double, T> valueFunction, double denominator) {
+			StatsFunction<T> valueFunction, double denominator) {
 		this(name, valueFunction, null, denominator);
 	}
 
@@ -65,8 +63,8 @@ public class CollectorFunction<T> extends StatCollectorCondCSA {
 	 *            value to divide the sum by in {@link #getRatio()}.
 	 */
 	public CollectorFunction(String name,
-			Function1<Double, T> valueFunction,
-			Function1<Boolean, T> predicate, double denominator) {
+			StatsFunction<T> valueFunction,
+			StatsPredicate<T> predicate, double denominator) {
 		super(name);
 		this.predicate = predicate;
 		this.valueFunction = valueFunction;
@@ -76,7 +74,7 @@ public class CollectorFunction<T> extends StatCollectorCondCSA {
 	@Override
 	public double getValue(Object object) {
 		T scapeMember = (T) object;
-		double value = valueFunction.call(scapeMember);
+		double value = valueFunction.getValue(scapeMember);
 		return value;
 	}
 
@@ -86,7 +84,7 @@ public class CollectorFunction<T> extends StatCollectorCondCSA {
 		if (predicate == null) {
 			return true;
 		}
-		return predicate.call(scapeMember);
+		return predicate.getValue(scapeMember);
 	}
 
 	/**

@@ -1,4 +1,4 @@
-package org.jamsim.ascape;
+package org.jamsim.ascape.stats;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -155,7 +155,7 @@ public class StatsOutput extends DefaultScapeListener {
 			CDataCacheContainer container) {
 		TableModel tmodel;
 		try {
-			tmodel = new CDatasetTableModel(container);
+			tmodel = new CDatasetTableModel(container, false);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

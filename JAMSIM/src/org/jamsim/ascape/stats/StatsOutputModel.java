@@ -1,4 +1,4 @@
-package org.jamsim.ascape;
+package org.jamsim.ascape.stats;
 
 import java.util.Collection;
 

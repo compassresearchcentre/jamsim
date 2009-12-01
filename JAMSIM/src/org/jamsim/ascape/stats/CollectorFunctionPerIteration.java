@@ -1,7 +1,5 @@
 package org.jamsim.ascape.stats;
 
-import net.sf.functionalj.Function1;
-
 import org.ascape.model.Scape;
 
 /**
@@ -23,13 +21,13 @@ public class CollectorFunctionPerIteration<T> extends CollectorFunction<T> {
 
 	
 	public CollectorFunctionPerIteration(String name,
-			Function1<Double, T> valueFunction, double denominator, Scape scape) {
+			StatsFunction<T> valueFunction, double denominator, Scape scape) {
 		this(name, valueFunction, null, denominator, scape);
 	}
 	
 	public CollectorFunctionPerIteration(String name,
-			Function1<Double, T> valueFunction,
-			Function1<Boolean, T> predicate, double denominator, Scape scape) {
+			StatsFunction<T> valueFunction,
+			StatsPredicate<T> predicate, double denominator, Scape scape) {
 		super(name, valueFunction, predicate, denominator);
 		this.scape = scape;
 	}
@@ -38,7 +36,7 @@ public class CollectorFunctionPerIteration<T> extends CollectorFunction<T> {
 	public double getValue(Object object) {
 		T scapeMember = (T) object;
 		int currentIteration = scape.getIteration();
-		double value = valueFunction.call(scapeMember);
+		double value = valueFunction.getValue(scapeMember);
 		if (value == 0) {
 			return 0;
 		}

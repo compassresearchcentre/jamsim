@@ -1,9 +1,11 @@
 package org.jamsim.ascape.stats;
 
-public interface StatsFunction<T> {
+import java.io.Serializable;
+
+public interface StatsFunction<T> extends Serializable {
 
 	String getName();
 	
-	double getValue(T scapeMember);
+	double getValue(T pParam);
 	
 }
