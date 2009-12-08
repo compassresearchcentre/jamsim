@@ -16,8 +16,9 @@ import org.ascape.model.space.CollectionSpace;
 import org.ascape.runtime.swing.SwingRunner;
 import org.ascape.runtime.swing.navigator.PanelViewNodes;
 import org.ascape.util.swing.AscapeGUIUtil;
+import org.jamsim.ascape.stats.StatsOutput;
+import org.jamsim.ascape.stats.StatsOutputModel;
 import org.jamsim.io.FileLoader;
-import org.jamsim.r.RInterfaceHL;
 
 /**
  * A Scape with micro-simulation input/output functions including base file
@@ -36,18 +37,6 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 * Serialization.
 	 */
 	private static final long serialVersionUID = 5534365905529673862L;
-
-	/**
-	 * Integer missing value constant.
-	 */
-	public static final int MISSING_VALUE_INTEGER =
-			RInterfaceHL.MISSING_VALUE_INTEGER;
-
-	/**
-	 * Double missing value constant.
-	 */
-	public static final double MISSING_VALUE_DOUBLE =
-			RInterfaceHL.MISSING_VALUE_DOUBLE;
 
 	private static final RecordedMicroSimTreeBuilder TREE_BUILDER =
 			new RecordedMicroSimTreeBuilder();
@@ -338,5 +327,9 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 
 	private final void println(String message) {
 		loader.println(message);
+	}
+	
+	public void addStatsOutput(StatsOutputModel stats) {
+		addView(new StatsOutput(getOutputTablesNode(), stats,getOutputDirectory()));
 	}
 }

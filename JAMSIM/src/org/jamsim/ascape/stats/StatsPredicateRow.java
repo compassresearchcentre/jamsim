@@ -1,5 +1,7 @@
 package org.jamsim.ascape.stats;
 
+import org.apache.commons.lang.mutable.MutableDouble;
+
 
 public class StatsPredicateRow<T> {
 
@@ -33,13 +35,17 @@ public class StatsPredicateRow<T> {
 		return denominatorFunction.getName();
 	}
 	
-	public double getDenominatorValue() {
-		return denominator;
+	public MutableDouble getDenominator() {
+		return new MutableDouble(denominator);
 	}
 
 	public void incDenominatorValue(T scapeMember) {
-		if (predicate == null || predicate.getValue(scapeMember)) {
+		if (predicate == null || predicate.test(scapeMember)) {
 			denominator = denominator + denominatorFunction.getValue(scapeMember);
 		}
+	}
+
+	public void setDenominator(double denominator) {
+		this.denominator = denominator;
 	}
 }

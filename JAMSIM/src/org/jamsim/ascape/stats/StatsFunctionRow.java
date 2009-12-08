@@ -1,26 +1,28 @@
 package org.jamsim.ascape.stats;
 
+import org.apache.commons.lang.mutable.MutableDouble;
+
 
 public class StatsFunctionRow<T> {
 
 	private final String name;
 	private final StatsFunction<T> function;
-	private double denominator;
+	private MutableDouble  denominator;
 	private final StatsFunction<T> denominatorFunction;
 
 	
 	public StatsFunctionRow(StatsFunction<T> function,
 			StatsFunction<T> denominatorFunction) {
-		this(function.getName(), function, denominatorFunction, 0);
+		this(function.getName(), function, denominatorFunction, new MutableDouble(0));
 	}
 
 	public StatsFunctionRow(StatsFunction<T> function,
-			StatsFunction<T> denominatorFunction, double denominator) {
+			StatsFunction<T> denominatorFunction, MutableDouble  denominator) {
 		this(function.getName(), function, denominatorFunction, denominator);
 	}
 
 	public StatsFunctionRow(String name, StatsFunction<T> function,
-			StatsFunction<T> denominatorFunction, double denominator) {
+			StatsFunction<T> denominatorFunction, MutableDouble  denominator) {
 		this.name = name;
 		this.function = function;
 		this.denominatorFunction = denominatorFunction;
@@ -39,12 +41,12 @@ public class StatsFunctionRow<T> {
 		return denominatorFunction.getName();
 	}
 	
-	public double getDenominatorValue() {
+	public MutableDouble getDenominator() {
 		return denominator;
 	}
 
-	public void setDenominator(double denominator) {
-		this.denominator = denominator;
+	public void setDenominatorValue(double value) {
+		this.denominator.setValue(value);
 	}
 	
 /*	public void incDenominatorValue(T scapeMember) {

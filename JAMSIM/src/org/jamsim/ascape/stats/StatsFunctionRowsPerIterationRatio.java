@@ -17,15 +17,38 @@ import org.ascape.util.data.StatCollector;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class StatsFunctionRowsPerIterationPercentage implements
-		StatsOutputModel {
+public class StatsFunctionRowsPerIterationRatio implements StatsOutputModel {
 
 	private final Collection<CollectorFunctionPerIteration<?>> stats =
 			new LinkedList<CollectorFunctionPerIteration<?>>();
 
-	private final String rowColumnHeading;
+	private final String columnHeading;
 
 	private final String name;
+
+	private final double ratioMultipler;
+
+	/**
+	 * Invoke the constructor with a {@code ratioMultipler} of 100.
+	 * 
+	 * @param name
+	 *            name
+	 * @param scape
+	 *            scape. Used to get the current iteration.
+	 * @param rows
+	 *            rows to create in the table
+	 * @param columnHeading
+	 *            column heading
+	 * @param predicate
+	 *            predicate to apply to all rows
+	 * @param <T>
+	 *            type of scape members
+	 */
+	public <T> StatsFunctionRowsPerIterationRatio(String name, Scape scape,
+			Collection<StatsFunctionRow<T>> rows, String columnHeading,
+			StatsPredicate<T> predicate) {
+		this(name, scape, rows, columnHeading, predicate, 100);
+	}
 
 	/**
 	 * Default constructor. From a collection of {@link StatsFunctionRow}s,
@@ -35,28 +58,34 @@ public class StatsFunctionRowsPerIterationPercentage implements
 	 * Each {@link StatsFunctionRow} acts on a subset of the scape, as
 	 * determined by its {@link StatsPredicate}.
 	 * 
+	 * @param name
+	 *            name
 	 * @param scape
 	 *            scape. Used to get the current iteration.
 	 * @param rows
 	 *            rows to create in the table
-	 * @param function
-	 *            value to collect from simulation.
+	 * @param columnHeading
+	 *            column heading
+	 * @param predicate
+	 *            predicate to apply to all rows
+	 * @param ratioMultipler
+	 *            amount to multiple the ratio by (eg: 100 to get percentage)
 	 * @param <T>
 	 *            type of scape members
 	 */
-	public <T> StatsFunctionRowsPerIterationPercentage(String name, Scape scape,
-			Collection<StatsFunctionRow<T>> rows, String rowHeading,
-			StatsPredicate<T> predicate) {
+	public <T> StatsFunctionRowsPerIterationRatio(String name, Scape scape,
+			Collection<StatsFunctionRow<T>> rows, String columnHeading,
+			StatsPredicate<T> predicate, double ratioMultipler) {
 
 		for (StatsFunctionRow<T> row : rows) {
 			stats.add(new CollectorFunctionPerIteration<T>(row.getName(), row
-					.getFunction(), predicate, row.getDenominatorValue(),
-					scape));
+					.getFunction(), predicate, row.getDenominator(), scape));
 		}
 
 		StatsFunctionRow<T> row = rows.iterator().next();
-		rowColumnHeading = rowHeading;
+		this.columnHeading = columnHeading;
 		this.name = name;
+		this.ratioMultipler = ratioMultipler;
 	}
 
 	@Override
@@ -84,7 +113,7 @@ public class StatsFunctionRowsPerIterationPercentage implements
 
 		// Set up new Casper container for the results
 		String columnNames =
-				rowColumnHeading + ",Percent (over all fortnights)";
+				columnHeading + ",Percent (over all fortnights)";
 		final Class<?>[] columnTypes =
 				new Class[] { String.class, Double.class };
 
@@ -96,7 +125,7 @@ public class StatsFunctionRowsPerIterationPercentage implements
 
 		for (CollectorFunctionPerIteration<?> sc : stats) {
 			container.addSingleRow(new Object[] { sc.getName(),
-					sc.getPercent() });
+					sc.getRatio() * ratioMultipler });
 		}
 
 		return container;

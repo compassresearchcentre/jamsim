@@ -52,16 +52,6 @@ import org.rosuda.REngine.JRI.JRIEngine;
 public final class RInterfaceHL {
 
 	/**
-	 * Integer missing value constant.
-	 */
-	public static final int MISSING_VALUE_INTEGER = REXPInteger.NA; // NOPMD
-
-	/**
-	 * Double missing value constant.
-	 */
-	public static final double MISSING_VALUE_DOUBLE = REXPDouble.NA; // NOPMD
-
-	/**
 	 * Private constructor prevents instantiation from other classes.
 	 */
 	private RInterfaceHL() {

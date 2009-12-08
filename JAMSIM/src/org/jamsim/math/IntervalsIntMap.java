@@ -1,5 +1,8 @@
 package org.jamsim.math;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+
 import java.util.Arrays;
 
 /**
@@ -212,4 +215,57 @@ public class IntervalsIntMap {
 		return sbuf.toString();
 
 	}
+
+	/**
+	 * Draw from a cumulative distribution of probabilities. First, create a
+	 * cumulative distribution from the set of probabilities that are included
+	 * (i.e.: {@code includeProb[i] = true}). Second, using {@code random} draw
+	 * a probability from the CD and return its index.
+	 * 
+	 * @param includeProb
+	 *            the set of all probabilities to include. Only where {@code
+	 *            includeProb[i] = true} will that probability be used to create
+	 *            the CD.
+	 * @param probabilities
+	 *            the probability of all conditions. Only the probabilities of
+	 *            conditions that are {@code true} in {@code includeProb} will
+	 *            be used to create the cumulative distribution.
+	 * @param random
+	 *            a random number in the range {@code (0,1]}.
+	 * @return an index in the range {@code [0, includeProb.length]}. This is
+	 *         the position of the probability in the {@code includeProb} array.
+	 */
+	public static int drawIndexFromProbs(boolean[] includeProb,
+			double[] probabilities, double random) {
+
+		IntArrayList indexOfProbsIncluded =
+				new IntArrayList(includeProb.length);
+		DoubleArrayList includedProbsList =
+				new DoubleArrayList(includeProb.length);
+
+		// create lists of:
+		// 1) the index of included probabilities
+		// 2) the included probability values
+		for (int i = 0; i < includeProb.length; i++) {
+			if (includeProb[i]) {
+				indexOfProbsIncluded.add(i);
+				includedProbsList.add(probabilities[i]);
+			}
+		}
+
+		if (indexOfProbsIncluded.size() == 0) {
+			// no included probabilities
+			return -1;
+		}
+
+		// create cumulative distribution
+		IntervalsIntMap cdmap =
+				IntervalsIntMap.newInstanceFromProbabilities(
+						includedProbsList.toDoubleArray(),
+						indexOfProbsIncluded.toIntArray());
+
+		// select an index from the cumulative distribution
+		return cdmap.getMappedValue(random);
+	}
+
 }

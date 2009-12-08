@@ -49,7 +49,7 @@ public class StatsPredicateRowsPerIterationPercentage implements StatsOutputMode
 
 		for (StatsPredicateRow<T> row : rows) {
 			stats.add(new CollectorFunctionPerIteration<T>(row.getName(),
-					function, row.getPredicate(), row.getDenominatorValue(),
+					function, row.getPredicate(), row.getDenominator(),
 					scape));
 		}
 

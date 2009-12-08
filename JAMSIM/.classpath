@@ -13,11 +13,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/BeanShell"/>
-	<classpathentry kind="lib" path="D:/Source/commons-lang-2.4/commons-lang-2.4.jar" sourcepath="D:/Source/commons-lang-2.4/commons-lang-2.4-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/D:/Source/commons-lang-2.4/commons-lang-2.4-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="D:/Source/fastutil-5.1.5/fastutil-5.1.5.jar" sourcepath="D:/Source/fastutil-5.1.5/src">
 		<attributes>
 			<attribute name="javadoc_location" value="http://fastutil.dsi.unimi.it/docs/"/>
@@ -54,5 +49,10 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/OmanUtil"/>
+	<classpathentry kind="lib" path="D:/Source/commons-lang-2.4/commons-lang-2.4.jar" sourcepath="D:/Source/commons-lang-2.4/commons-lang-2.4-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/D:/Source/commons-lang-2.4/commons-lang-2.4-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

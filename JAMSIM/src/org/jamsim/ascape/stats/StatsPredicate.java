@@ -6,6 +6,6 @@ public interface StatsPredicate<T> extends Serializable {
 
 	String getName();
 	
-	boolean getValue(T pParam);
+	boolean test(T pParam);
 	
 }

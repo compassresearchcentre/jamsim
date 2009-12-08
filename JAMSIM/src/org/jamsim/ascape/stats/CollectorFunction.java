@@ -1,5 +1,6 @@
 package org.jamsim.ascape.stats;
 
+import org.apache.commons.lang.mutable.MutableDouble;
 import org.ascape.util.data.StatCollectorCondCSA;
 
 /**
@@ -31,7 +32,7 @@ public class CollectorFunction<T> extends StatCollectorCondCSA {
 	 */
 	protected final StatsFunction<T> valueFunction;
 
-	private final double denominator;
+	private final MutableDouble denominator;
 
 	/**
 	 * Construct a {@link CollectorFunction} that returns values for all scape
@@ -45,7 +46,7 @@ public class CollectorFunction<T> extends StatCollectorCondCSA {
 	 *            value to divide the sum by in {@link #getRatio()}.
 	 */
 	public CollectorFunction(String name,
-			StatsFunction<T> valueFunction, double denominator) {
+			StatsFunction<T> valueFunction, MutableDouble denominator) {
 		this(name, valueFunction, null, denominator);
 	}
 
@@ -64,7 +65,7 @@ public class CollectorFunction<T> extends StatCollectorCondCSA {
 	 */
 	public CollectorFunction(String name,
 			StatsFunction<T> valueFunction,
-			StatsPredicate<T> predicate, double denominator) {
+			StatsPredicate<T> predicate, MutableDouble denominator) {
 		super(name);
 		this.predicate = predicate;
 		this.valueFunction = valueFunction;
@@ -84,7 +85,7 @@ public class CollectorFunction<T> extends StatCollectorCondCSA {
 		if (predicate == null) {
 			return true;
 		}
-		return predicate.getValue(scapeMember);
+		return predicate.test(scapeMember);
 	}
 
 	/**
@@ -102,7 +103,7 @@ public class CollectorFunction<T> extends StatCollectorCondCSA {
 	 * @return ratio ratio
 	 */
 	public double getRatio() {
-		return (getSum() / denominator);
+		return (getSum() / denominator.doubleValue());
 	}
 
 }

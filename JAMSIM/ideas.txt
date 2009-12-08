@@ -1,0 +1,1 @@
+central definition of simulation output variables. in this central location the zeroing of all variables is handled automatically at the beginning of each run.
