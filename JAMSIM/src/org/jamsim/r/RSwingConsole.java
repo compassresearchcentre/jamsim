@@ -7,7 +7,6 @@ import java.awt.Font;
 import java.awt.Frame;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.Reader;
 
 import javax.swing.JComponent;
 
@@ -16,21 +15,29 @@ import org.rosuda.JRI.Rengine;
 
 import bsh.util.JConsole;
 
+/**
+ * Swing GUI Console that interacts with the main R REPL (Read-eval-print loop).
+ * 
+ * @author Oliver Mannion
+ * @version $Revision$
+ * 
+ */
 public class RSwingConsole extends JComponent implements RMainLoopCallbacks {
 	/**
 	 * Serial ID.
 	 */
 	private static final long serialVersionUID = -8885521123731152442L;
 
-	private static final String newline =
+/*	private static final String NEWLINE =
 			System.getProperty("line.separator");
+*/
+	private final JConsole console = new JConsole();
 
-	private JConsole console = new JConsole();
+	private final BufferedReader keyboard = new BufferedReader(console.getIn());
 
-	private Reader keyboardReader = console.getIn();
-
-	private BufferedReader keyboard = new BufferedReader(console.getIn());
-
+	/**
+	 * Default constructor.
+	 */
 	public RSwingConsole() {
 
 		// set the layout manager to BorderLayout so that when this
@@ -49,16 +56,21 @@ public class RSwingConsole extends JComponent implements RMainLoopCallbacks {
 
 	/**
 	 * RMainLoopCallbacks
+	 * ------------------
 	 * 
 	 * These functions are called from R native code during execution of the
 	 * main R REPL (Read-eval-print loop). They cause R to block while they
 	 * execute.
 	 */
-
+	
+	
+	
+	@Override
 	public void rWriteConsole(Rengine re, String text, int oType) {
 		console.print(text, Color.BLUE);
 	}
 
+	@Override
 	public void rBusy(Rengine re, int which) {
 		// TODO
 		// System.out.println("rBusy("+which+")");
@@ -76,7 +88,16 @@ public class RSwingConsole extends JComponent implements RMainLoopCallbacks {
 	 * events and will appear frozen while this method waits for and/or
 	 * processes input.
 	 * 
+	 *@param re
+	 *            calling engine
+	 *@param prompt
+	 *            prompt to be displayed at the console prior to user's input
+	 *@param addToHistory
+	 *            flag telling the handler whether the input should be
+	 *            considered for adding to history (!=0) or not (0)
+	 *@return user's input to be passed to R for evaluation
 	 */
+	@Override
 	public String rReadConsole(Rengine re, String prompt, int addToHistory) {
 		prompt(prompt);
 
@@ -118,10 +139,12 @@ public class RSwingConsole extends JComponent implements RMainLoopCallbacks {
 		return input;
 	}
 
+	@Override
 	public void rShowMessage(Rengine re, String message) {
 		rWriteConsole(re, "rShowMessage \"" + message + "\"", 1);
 	}
 
+	@Override
 	public String rChooseFile(Rengine re, int newFile) {
 		FileDialog fd =
 				new FileDialog(new Frame(), newFile == 0 ? "Select a file"
@@ -138,12 +161,15 @@ public class RSwingConsole extends JComponent implements RMainLoopCallbacks {
 		return res;
 	}
 
+	@Override
 	public void rFlushConsole(Rengine re) {
 	}
 
+	@Override
 	public void rLoadHistory(Rengine re, String filename) {
 	}
 
+	@Override
 	public void rSaveHistory(Rengine re, String filename) {
 	}
 }

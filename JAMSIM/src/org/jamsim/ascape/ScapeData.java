@@ -7,6 +7,8 @@ import java.util.Map;
 
 import javax.swing.table.TableModel;
 
+import org.ascape.model.Agent;
+
 /**
  * Defines data external to a scape that can be accessed by agents. Also defines
  * how base agents are loaded.
@@ -35,7 +37,7 @@ public interface ScapeData {
 	 * @throws IOException
 	 *             if problem loading from base file
 	 */
-	Collection<?> getBaseScapeAgents(File basefile) throws IOException;
+	Collection<? extends Agent> getBaseScapeAgents(File basefile) throws IOException;
 
 	// get file loader?
 

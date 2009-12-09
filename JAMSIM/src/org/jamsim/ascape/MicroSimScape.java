@@ -247,9 +247,13 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 					// AscapeGUIUtil.flushConsoleLog(this);
 					// Thread.yield();
 
-					Collection<?> col =
+					Collection<? extends Agent> col =
 							scapeData.getBaseScapeAgents(basefile);
 					addAll(col);
+					
+					for (Agent a : col) {
+						a.setScape(this);
+					}
 
 					println("Done. " + size() + " " + getName() + " created.");
 
