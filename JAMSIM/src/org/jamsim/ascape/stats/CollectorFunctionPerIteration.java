@@ -22,15 +22,15 @@ public class CollectorFunctionPerIteration<T> extends CollectorFunction<T> {
 
 	
 	public CollectorFunctionPerIteration(String name,
-			StatsFunction<T> valueFunction, MutableDouble  denominator, Scape scape) {
-		this(name, valueFunction, null, denominator, scape);
+			StatsFunction<T> valueFunction, MutableDouble  denominator, Scape iteratingScape) {
+		this(name, valueFunction, null, denominator, iteratingScape);
 	}
 	
 	public CollectorFunctionPerIteration(String name,
 			StatsFunction<T> valueFunction,
-			StatsPredicate<T> predicate, MutableDouble  denominator, Scape scape) {
+			StatsPredicate<T> predicate, MutableDouble  denominator, Scape iteratingScape) {
 		super(name, valueFunction, predicate, denominator);
-		this.scape = scape;
+		this.scape = iteratingScape;
 	}
 
 	@Override

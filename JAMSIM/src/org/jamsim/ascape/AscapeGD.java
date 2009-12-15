@@ -9,14 +9,14 @@ import javax.swing.event.InternalFrameEvent;
 import org.ascape.runtime.Runner;
 import org.ascape.runtime.swing.DesktopEnvironment;
 import org.ascape.runtime.swing.SwingEnvironment;
-import org.ascape.util.swing.AscapeGUIUtil;
 import org.ascape.util.swing.PanelViewUtil;
 import org.ascape.view.vis.PanelView;
 import org.rosuda.javaGD.GDInterface;
 import org.rosuda.javaGD.JGDPanel;
 
 /**
- * An R graphics device in the Ascape Swing MDI.
+ * An R graphics device in the Ascape Swing MDI. Make sure the environment
+ * variable JAVAGD_CLASS_NAME = "org/jamsim/ascape/AscapeGD".
  * 
  * @author Oliver Mannion
  * @version $Revision$
@@ -32,15 +32,13 @@ public class AscapeGD extends GDInterface {
 	 */
 	private JInternalFrame pvFrame;
 
-	public AscapeGD() {
-		super();
-	}
-
 	/**
 	 * Create a new graphics device.
 	 * 
 	 * @param w
+	 *            width
 	 * @param h
+	 *            height
 	 */
 	@Override
 	public void gdOpen(double w, double h) {

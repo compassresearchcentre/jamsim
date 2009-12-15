@@ -1,8 +1,6 @@
 package org.jamsim.ascape.stats;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.TooManyListenersException;
 
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
@@ -16,101 +14,45 @@ import net.casper.ext.swing.CDatasetTableModel;
 import org.ascape.model.event.DefaultScapeListener;
 import org.ascape.model.event.ScapeEvent;
 import org.ascape.runtime.swing.navigator.PanelViewNodes;
-import org.ascape.util.data.StatCollector;
-import org.ascape.view.vis.ChartView;
 import org.jamsim.date.DateUtil;
 import org.jamsim.io.FileUtil;
 import org.jamsim.swing.DoubleCellRenderer;
 
 /**
- * Display output from a {@link StatsOutputModel}. Adds stat collectors and
- * chart from a {@link StatsOutputModel} to the scape. When the scape stops
- * after each run, adds an output data table node in the Navigator that displays
- * the {@link StatsOutputModel} results in a table, and outputs the results to a
- * file.
+ * Display output from a {@link OutputDatasetProvider}. When the scape stops after each
+ * run, adds an output data table node in the Navigator that displays the
+ * {@link OutputDatasetProvider} results in a table, and outputs the results to a file.
  * 
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class StatsOutput extends DefaultScapeListener {
+public class OutputDataset extends DefaultScapeListener {
 	private static final long serialVersionUID = -5105471052036807288L;
 
 	private final PanelViewNodes outputTablesNode;
 
-	private final StatsOutputModel stats;
+	private final OutputDatasetProvider outDataset;
 
 	private final String outputDirectory;
 
 	private int runNumber = 1;
 
 	/**
-	 * Construct an {@link StatsOutput}.
+	 * Construct an {@link OutputDataset}.
 	 * 
 	 * @param outputTablesNode
 	 *            navigator output tables tree node
-	 * @param stats
-	 *            {@link StatsOutputModel}
+	 * @param outDataset
+	 *            {@link OutputDatasetProvider}
 	 * @param outputDirectory
 	 *            destination directory for results output file
 	 */
-	public StatsOutput(PanelViewNodes outputTablesNode,
-			StatsOutputModel stats, String outputDirectory) {
-		super(stats.getName());
-		this.stats = stats;
+	public OutputDataset(PanelViewNodes outputTablesNode,
+			OutputDatasetProvider outDataset, String outputDirectory) {
+		super(outDataset.getName());
+		this.outDataset = outDataset;
 		this.outputTablesNode = outputTablesNode;
 		this.outputDirectory = FileUtil.addTrailingSlash(outputDirectory);
-	}
-
-	/**
-	 * Add the view to the scape, registering it as a listener, and ensuring
-	 * that it hasn't been added to any other scapes.
-	 * 
-	 * @param scapeEvent
-	 *            the event for this scape to make this view the observer of
-	 * @throws TooManyListenersException
-	 *             the too many listeners exception
-	 * @exception TooManyListenersException
-	 *                on attempt to add a scape when one is allready added
-	 */
-	@Override
-	public void scapeAdded(ScapeEvent scapeEvent)
-			throws TooManyListenersException {
-		super.scapeAdded(scapeEvent);
-		initializeListener();
-	}
-
-	/**
-	 * Called once at the beginning after the listener has been added to the
-	 * scape. At this point the scape instance variable will have been set.
-	 */
-	public void initializeListener() {
-		addStatCollectors(stats.getStatCollectors());
-
-		int chartType = stats.getChartViewType();
-
-		if (chartType != StatsOutputModel.NO_CHART) {
-			ChartView chart = new ChartView(chartType);
-
-			scape.addView(chart);
-
-			// setup the chart AFTER adding it to the scape
-			for (String seriesName : stats.getChartSeries()) {
-				chart.addSeries(seriesName);
-			}
-		}
-	}
-
-	/**
-	 * Add {@link StatCollector}s on the scape to record data during the
-	 * simulation.
-	 * 
-	 * @param stats
-	 *            collection of {@link StatCollector}s to add to the scape.
-	 */
-	private void addStatCollectors(Collection<? extends StatCollector> stats) {
-		for (StatCollector sc : stats) {
-			scape.addStatCollector(sc);
-		}
 	}
 
 	/**
@@ -132,10 +74,11 @@ public class StatsOutput extends DefaultScapeListener {
 
 		try {
 			String runName = name + " (Run " + runNumber + ")";
-			CDataCacheContainer results = stats.getOutputDataset(runNumber++);
+			CDataCacheContainer results =
+					outDataset.getOutputDataset(runNumber++);
 
 			createNavigatorOutputNode(runName, results);
-			
+
 			CasperUtil.writeToCSV(outputDirectory
 					+ DateUtil.nowToSortableUniqueDateString() + " "
 					+ runName + ".csv", results);
@@ -161,13 +104,12 @@ public class StatsOutput extends DefaultScapeListener {
 		}
 
 		TableCellRenderer dblRenderer = new DoubleCellRenderer();
-		JTable table = new JTable(tmodel); 
+		JTable table = new JTable(tmodel);
 		table.setName(nodeName);
 		table.setDefaultRenderer(Double.class, dblRenderer);
-		
+
 		outputTablesNode.addChildTableNode(table);
-		
-		
+
 	}
 
 }

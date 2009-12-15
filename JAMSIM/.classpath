@@ -19,7 +19,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/Program Files/R/R-2.9.1/library/JavaGD/java/javaGD.jar" sourcepath="/org.rosuda.javaGD"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/JRI"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/REngine"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.ascape.common.lib"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.ascape.core"/>
@@ -54,5 +53,11 @@
 			<attribute name="javadoc_location" value="jar:file:/D:/Source/commons-lang-2.4/commons-lang-2.4-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="D:/Source/commons-io-1.4/commons-io-1.4.jar" sourcepath="D:/Source/commons-io-1.4/commons-io-1.4-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/D:/Source/commons-io-1.4/commons-io-1.4-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/JRI"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

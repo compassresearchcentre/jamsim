@@ -17,14 +17,37 @@ import org.ascape.util.data.StatCollector;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class StatsPredicateRowsPerIterationPercentage implements StatsOutputModel {
+public class StatsPredicateRowsPerIterationPercentage implements
+		StatsOutputModel {
 
 	private final Collection<CollectorFunctionPerIteration<?>> stats =
 			new LinkedList<CollectorFunctionPerIteration<?>>();
 
-	private final String rowColumnHeading;
-	private final String functionName;
-	private final String denominatorName;
+	private final String columnHeading;
+	private final String name;
+
+	/**
+	 * Convenience constructor that generates a name.
+	 * 
+	 * @param <T>
+	 *            type of scape members
+	 * @param iteratingScape
+	 *            scape. Used to get the current iteration.
+	 * @param rows
+	 *            rows to create in the table
+	 * @param columnHeading
+	 *            column heading
+	 * @param function
+	 *            value to collect from simulation.
+	 */
+	public <T> StatsPredicateRowsPerIterationPercentage(Scape iteratingScape,
+			Collection<StatsPredicateRow<T>> rows, String columnHeading,
+			StatsFunction<T> function) {
+		this("Average percent with " + function.getName()
+				+ " in each iteration by " + columnHeading + " ("
+				+ rows.iterator().next().getDenominatorName() + ")",
+				iteratingScape, rows, columnHeading, function);
+	}
 
 	/**
 	 * Default constructor. From a collection of {@link StatsPredicateRow}s,
@@ -34,36 +57,37 @@ public class StatsPredicateRowsPerIterationPercentage implements StatsOutputMode
 	 * Each {@link StatsPredicateRow} acts on a subset of the scape, as
 	 * determined by its {@link StatsPredicate}.
 	 * 
-	 * @param scape
+	 * @param <T>
+	 *            type of scape members
+	 * @param name
+	 *            name
+	 * @param iteratingScape
 	 *            scape. Used to get the current iteration.
 	 * @param rows
 	 *            rows to create in the table
+	 * @param columnHeading
+	 *            column heading
 	 * @param function
 	 *            value to collect from simulation.
-	 * @param <T>
-	 *            type of scape members
 	 */
-	public <T> StatsPredicateRowsPerIterationPercentage(Scape scape,
-			Collection<StatsPredicateRow<T>> rows, String rowHeading,
-			StatsFunction<T> function) {
+	public <T> StatsPredicateRowsPerIterationPercentage(String name,
+			Scape iteratingScape, Collection<StatsPredicateRow<T>> rows,
+			String columnHeading, StatsFunction<T> function) {
 
 		for (StatsPredicateRow<T> row : rows) {
 			stats.add(new CollectorFunctionPerIteration<T>(row.getName(),
 					function, row.getPredicate(), row.getDenominator(),
-					scape));
+					iteratingScape));
 		}
 
 		StatsPredicateRow<T> row = rows.iterator().next();
-		functionName = function.getName();
-		rowColumnHeading = rowHeading;
-		denominatorName = row.getDenominatorName();
+		this.columnHeading = columnHeading;
+		this.name = name;
 	}
 
 	@Override
 	public final String getName() {
-		return "Average percent with " + functionName
-				+ " in each iteration by " + rowColumnHeading + " ("
-				+ denominatorName + ")";
+		return name;
 	}
 
 	@Override
@@ -82,16 +106,17 @@ public class StatsPredicateRowsPerIterationPercentage implements StatsOutputMode
 	}
 
 	@Override
-	public CDataCacheContainer getResults() throws CDataGridException {
+	public CDataCacheContainer getOutputDataset(int run)
+			throws CDataGridException {
 
 		// Set up new Casper container for the results
-		String columnNames =
-				rowColumnHeading + ",Percent (over all iterations)";
+		String columnNames = columnHeading + ",Percent (over all iterations)";
 		final Class<?>[] columnTypes =
 				new Class[] { String.class, Double.class };
 
 		CDataCacheContainer container =
-				CDataCacheContainer.newInsertionOrdered(getName(), columnNames, columnTypes);
+				CDataCacheContainer.newInsertionOrdered(getName(),
+						columnNames, columnTypes);
 
 		for (CollectorFunctionPerIteration<?> sc : stats) {
 			container.addSingleRow(new Object[] { sc.getName(),

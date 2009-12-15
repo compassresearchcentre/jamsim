@@ -5,12 +5,13 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 
 import java.beans.IntrospectionException;
-import java.lang.reflect.Array;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 import net.casper.data.model.CDataGridException;
@@ -20,8 +21,9 @@ import net.casper.io.beans.util.BeanPropertyInspector;
 import net.casper.io.file.util.ArrayUtil;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
-import org.jamsim.swing.ArrayTableModel;
+import org.apache.commons.lang.StringUtils;
 import org.rosuda.JRI.RMainLoopCallbacks;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPDouble;
@@ -169,13 +171,40 @@ public final class RInterfaceHL {
 	}
 
 	/**
+	 * Evaluate a text file in R in the global environment.
+	 * 
+	 * @param file
+	 *            text file to evaluate in R
+	 * @return REXP result of the evaluation.
+	 * @throws RInterfaceException
+	 *             if problem during evaluation.
+	 * @throws IOException
+	 *             if file cannot be read.
+	 */
+	public REXP parseAndEval(File file) throws IOException,
+			RInterfaceException {
+		String expr = IOUtils.toString(new FileReader(file));
+		
+		// strip "\r" otherwise we will get parse errors
+		expr = StringUtils.remove(expr, "\r");
+
+		try {
+			return tryParseAndEval(expr);
+		} catch (RInterfaceException e) {
+			throw new RInterfaceException(file.getCanonicalPath() + " "
+					+ e.getMessage(), e);
+		}
+	}
+
+	/**
 	 * Evaluate a String expression in R in the global environment.
 	 * 
 	 * @param expr
 	 *            expression to evaluate.
 	 * @return REXP result of the evaluation.
 	 * @throws RInterfaceException
-	 *             if problem during evaluation.
+	 *             if problem during parse or evaluation. Parse errors will
+	 *             simply return the message "parse error".
 	 */
 	public REXP parseAndEval(String expr) throws RInterfaceException {
 		if (!initialized()) {
@@ -185,9 +214,50 @@ public final class RInterfaceHL {
 		try {
 			return rosudaEngine.parseAndEval(expr);
 		} catch (REngineException e) {
-			throw new RInterfaceException(e);
+			throw new RInterfaceException(e.getMessage(), e);
 		} catch (REXPMismatchException e) {
-			throw new RInterfaceException(e);
+			throw new RInterfaceException(e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * Wraps a try around a parse and eval. This will catch parse and evaluation
+	 * errors and return the error message in the exception.
+	 * 
+	 * @param expr
+	 *            expression to try and parse and eval
+	 * @return REXP result of the evaluation.
+	 * @throws RInterfaceException
+	 *             if there is a parse or evaluation error the error message is
+	 *             returned in the exception
+	 */
+	public REXP tryParseAndEval(String expr) throws RInterfaceException {
+		if (!initialized()) {
+			throw new RInterfaceException("REngine has not been initialized.");
+		}
+
+		try {
+
+			rosudaEngine.assign(".tmp.", expr);
+			REXP r =
+					rosudaEngine
+							.parseAndEval("try(eval(parse(text=.tmp.)),silent=TRUE)");
+			if (r == null) {
+				// evaluated OK and returned nothing
+				return null;
+			} else if (r.inherits("try-error")) {
+				// evaluated with error and returned "try-error" object which
+				// contains error message
+				throw new RInterfaceException(r.asString());
+			} else {
+				// evaluated OK and returned object
+				return r;
+			}
+
+		} catch (REngineException e) {
+			throw new RInterfaceException(e.getMessage(), e);
+		} catch (REXPMismatchException e) {
+			throw new RInterfaceException(e.getMessage(), e);
 		}
 	}
 
@@ -209,7 +279,8 @@ public final class RInterfaceHL {
 	 *             if problem during evaluation.
 	 */
 	public void printToConsole(String msg) throws RInterfaceException {
-		parseAndEval("cat('" + msg + "')");
+		rloopHandler.rWriteConsole(null, msg, 0);
+		//parseAndEval("cat('" + msg + "')");
 	}
 
 	/**
@@ -244,7 +315,7 @@ public final class RInterfaceHL {
 		if (array == null) {
 			return new REXPNull();
 		}
-		
+
 		Class<?> arrayClass = array.getClass();
 
 		if (arrayClass == double[].class) {

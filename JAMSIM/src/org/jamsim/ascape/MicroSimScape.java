@@ -250,7 +250,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 					Collection<? extends Agent> col =
 							scapeData.getBaseScapeAgents(basefile);
 					addAll(col);
-					
+
 					for (Agent a : col) {
 						a.setScape(this);
 					}
@@ -319,8 +319,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 
 	public CDataCacheContainer getDataSetOfAgents() throws CDataGridException {
 		CBuildFromCollection builder =
-				new CBuildFromCollection(name, this,
-						getPrototypeAgent().getClass().getSuperclass(), null);
+				new CBuildFromCollection(name, this, getPrototypeAgent()
+						.getClass().getSuperclass(), null);
 
 		return new CDataCacheContainer(builder);
 	}
@@ -332,8 +332,9 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	private final void println(String message) {
 		loader.println(message);
 	}
-	
+
 	public void addStatsOutput(StatsOutputModel stats) {
-		addView(new StatsOutput(getOutputTablesNode(), stats,getOutputDirectory()));
+		addView(new StatsOutput(getOutputTablesNode(), stats,
+				getOutputDirectory()));
 	}
 }

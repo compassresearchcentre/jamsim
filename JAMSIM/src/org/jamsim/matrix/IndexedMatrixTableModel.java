@@ -3,7 +3,8 @@ package org.jamsim.matrix;
 import javax.swing.table.AbstractTableModel;
 
 /**
- * A TableModel wrapper for a Casper dataset.
+ * A TableModel wrapper for a {@link IndexedDenseDoubleMatrix2D}. The matrix
+ * index coluns are shown before the matrix itself.
  * 
  * @author Oliver Mannion
  * @version $Revision$
@@ -33,7 +34,7 @@ public class IndexedMatrixTableModel extends AbstractTableModel {
 
 		this.columnTypes =
 				constructColumnTypesArray(index[0], matrix.columns());
-		
+
 		this.numIndexCols = index[0].length;
 	}
 
@@ -64,7 +65,7 @@ public class IndexedMatrixTableModel extends AbstractTableModel {
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		
+
 		if (columnIndex < numIndexCols) {
 			return index[rowIndex][columnIndex];
 		} else {

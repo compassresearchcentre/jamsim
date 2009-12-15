@@ -16,7 +16,7 @@ import org.ascape.view.vis.ChartView;
  * @version $Revision$
  * 
  */
-public interface StatsOutputModel {
+public interface StatsOutputModel extends OutputDatasetProvider {
 
 	/**
 	 * No chart displayed by the {@link StatsOutputModel}.
@@ -65,14 +65,5 @@ public interface StatsOutputModel {
 	 * @return collection of series names
 	 */
 	Collection<String> getChartSeries();
-
-	/**
-	 * Create a Casper dataset with the output results of each illness category
-	 * (from the StatCollectors), its frequency and percent.
-	 * 
-	 * @return a casper dataset of illness occurrence data
-	 * @throws CDataGridException if problem creating dataset
-	 */
-	CDataCacheContainer getResults() throws CDataGridException;
 
 }

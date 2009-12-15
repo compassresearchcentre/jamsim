@@ -28,17 +28,37 @@ public class RSwingConsole extends JComponent implements RMainLoopCallbacks {
 	 */
 	private static final long serialVersionUID = -8885521123731152442L;
 
-/*	private static final String NEWLINE =
-			System.getProperty("line.separator");
-*/
+	/*
+	 * private static final String NEWLINE =
+	 * System.getProperty("line.separator");
+	 */
 	private final JConsole console = new JConsole();
 
-	private final BufferedReader keyboard = new BufferedReader(console.getIn());
+	private final BufferedReader keyboard =
+			new BufferedReader(console.getIn());
 
+	private boolean promptVisible = false;
+
+	private String rPrompt;
+	
 	/**
-	 * Default constructor.
+	 * Create {@link RSwingConsole} and display the prompt.
 	 */
 	public RSwingConsole() {
+		this(true);
+	}
+
+	/**
+	 * Create {@link RSwingConsole}.
+	 * 
+	 * @param startWithPrompt
+	 *            show the prompt once R is loaded. If you want to load extra
+	 *            packages and libraries after R is loaded you will want this to
+	 *            be {@code false} and then call
+	 * 
+	 */
+	public RSwingConsole(boolean startWithPrompt) {
+		promptVisible = startWithPrompt;
 
 		// set the layout manager to BorderLayout so that when this
 		// component's container is resized, so are the component's
@@ -55,16 +75,13 @@ public class RSwingConsole extends JComponent implements RMainLoopCallbacks {
 	}
 
 	/**
-	 * RMainLoopCallbacks
-	 * ------------------
+	 * RMainLoopCallbacks ------------------
 	 * 
 	 * These functions are called from R native code during execution of the
 	 * main R REPL (Read-eval-print loop). They cause R to block while they
 	 * execute.
 	 */
-	
-	
-	
+
 	@Override
 	public void rWriteConsole(Rengine re, String text, int oType) {
 		console.print(text, Color.BLUE);
@@ -76,8 +93,24 @@ public class RSwingConsole extends JComponent implements RMainLoopCallbacks {
 		// System.out.println("rBusy("+which+")");
 	}
 
+	/**
+	 * Set the visibility of the console prompt.
+	 * 
+	 * @param promptVisible
+	 *            if {@code true} the console prompt will show when R is ready
+	 *            for input (i.e: when R cals
+	 *            {@link #rReadConsole(Rengine, String, int)}).
+	 */
+	public void setPromptVisible(boolean promptVisible) {
+		this.promptVisible = promptVisible;
+	}
+
 	private void prompt(String prompt) {
 		console.print(prompt, Color.RED);
+	}
+	
+	public void printPrompt() {
+		prompt(rPrompt);
 	}
 
 	/**
@@ -99,7 +132,10 @@ public class RSwingConsole extends JComponent implements RMainLoopCallbacks {
 	 */
 	@Override
 	public String rReadConsole(Rengine re, String prompt, int addToHistory) {
-		prompt(prompt);
+		rPrompt = prompt;
+		if (promptVisible) {
+			prompt(prompt);
+		}
 
 		String input = null;
 		try {

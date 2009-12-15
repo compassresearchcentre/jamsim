@@ -109,7 +109,7 @@ public class StatsFunctionRowsPerIterationRatio implements StatsOutputModel {
 	}
 
 	@Override
-	public CDataCacheContainer getResults() throws CDataGridException {
+	public CDataCacheContainer getOutputDataset(int run) throws CDataGridException {
 
 		// Set up new Casper container for the results
 		String columnNames =
