@@ -16,7 +16,9 @@ import org.ascape.model.space.CollectionSpace;
 import org.ascape.runtime.swing.SwingRunner;
 import org.ascape.runtime.swing.navigator.PanelViewNodes;
 import org.ascape.util.swing.AscapeGUIUtil;
-import org.jamsim.ascape.stats.StatsOutput;
+import org.jamsim.ascape.stats.OutputDataset;
+import org.jamsim.ascape.stats.OutputDatasetProvider;
+import org.jamsim.ascape.stats.StatsOutputDataset;
 import org.jamsim.ascape.stats.StatsOutputModel;
 import org.jamsim.io.FileLoader;
 
@@ -334,7 +336,13 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	}
 
 	public void addStatsOutput(StatsOutputModel stats) {
-		addView(new StatsOutput(getOutputTablesNode(), stats,
+		addView(new StatsOutputDataset(getOutputTablesNode(), stats,
 				getOutputDirectory()));
 	}
+	
+	public void addStatsOutput(OutputDatasetProvider provider) {
+		addView(new OutputDataset(getOutputTablesNode(), provider,
+				getOutputDirectory()));
+	}
+
 }

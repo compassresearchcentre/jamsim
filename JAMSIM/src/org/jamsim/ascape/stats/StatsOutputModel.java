@@ -2,9 +2,6 @@ package org.jamsim.ascape.stats;
 
 import java.util.Collection;
 
-import net.casper.data.model.CDataCacheContainer;
-import net.casper.data.model.CDataGridException;
-
 import org.ascape.util.data.StatCollector;
 import org.ascape.view.vis.ChartView;
 
@@ -37,13 +34,6 @@ public interface StatsOutputModel extends OutputDatasetProvider {
 	 * Pie chart type.
 	 */
 	int PIE = ChartView.PIE;
-
-	/**
-	 * Get name of this group of stat collectors.
-	 * 
-	 * @return name
-	 */
-	String getName();
 
 	/**
 	 * Get this group of stat collectors.

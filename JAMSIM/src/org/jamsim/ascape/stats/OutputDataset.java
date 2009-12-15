@@ -19,9 +19,10 @@ import org.jamsim.io.FileUtil;
 import org.jamsim.swing.DoubleCellRenderer;
 
 /**
- * Display output from a {@link OutputDatasetProvider}. When the scape stops after each
- * run, adds an output data table node in the Navigator that displays the
- * {@link OutputDatasetProvider} results in a table, and outputs the results to a file.
+ * Display output from a {@link OutputDatasetProvider}. When the scape stops
+ * after each run, adds an output data table node in the Navigator that displays
+ * the {@link OutputDatasetProvider} results in a table, and outputs the results
+ * to a file.
  * 
  * @author Oliver Mannion
  * @version $Revision$
@@ -98,7 +99,7 @@ public class OutputDataset extends DefaultScapeListener {
 			CDataCacheContainer container) {
 		TableModel tmodel;
 		try {
-			tmodel = new CDatasetTableModel(container, false);
+			tmodel = new CDatasetTableModel(container, true);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
