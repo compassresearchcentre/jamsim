@@ -319,6 +319,14 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 		}
 	}
 
+	/**
+	 * Return the agents of this scape as a caper dataset.
+	 * 
+	 * @return casper dataset of this scape's agents.
+	 * 
+	 * @throws CDataGridException
+	 *             if problem creating dataset
+	 */
 	public CDataCacheContainer getDataSetOfAgents() throws CDataGridException {
 		CBuildFromCollection builder =
 				new CBuildFromCollection(name, this, getPrototypeAgent()
@@ -327,22 +335,57 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 		return new CDataCacheContainer(builder);
 	}
 
-	private final void print(String message) {
-		loader.print(message);
-	}
-
-	private final void println(String message) {
+	/**
+	 * Convenience println method.
+	 * 
+	 * @param message
+	 */
+	private void println(String message) {
 		loader.println(message);
 	}
 
+	/**
+	 * Add a {@link StatsOutputModel} to the scape.
+	 * 
+	 * @param stats
+	 *            stats
+	 */
 	public void addStatsOutput(StatsOutputModel stats) {
 		addView(new StatsOutputDataset(getOutputTablesNode(), stats,
 				getOutputDirectory()));
 	}
-	
+
+	/**
+	 * Add a {@link OutputDatasetProvider} to the scape.
+	 * 
+	 * @param provider
+	 *            provider
+	 */
 	public void addStatsOutput(OutputDatasetProvider provider) {
 		addView(new OutputDataset(getOutputTablesNode(), provider,
 				getOutputDirectory()));
+	}
+
+	/**
+	 * Add R to this scape.
+	 * 
+	 * @param startUpFilePrefsKey
+	 *            if specified will look up this in the preferences and load the
+	 *            file into R.
+	 * @return scape R interface
+	 * @throws IOException
+	 *             if problem looking up {@code startUpFilePrefsKey}
+	 */
+	public ScapeRInterface addR(String startUpFilePrefsKey)
+			throws IOException {
+		// add R to scape
+		File rStartup = null;
+		if (startUpFilePrefsKey != null) {
+			rStartup = loader.getFile(startUpFilePrefsKey);
+		}
+		ScapeRInterface scapeR = new ScapeRInterface(rStartup);
+		addView(scapeR);
+		return scapeR;
 	}
 
 }

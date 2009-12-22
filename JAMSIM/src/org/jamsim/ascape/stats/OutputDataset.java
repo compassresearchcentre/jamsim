@@ -38,8 +38,10 @@ public class OutputDataset extends DefaultScapeListener {
 
 	private int runNumber = 1;
 
+	private boolean multiRunNodeCreated = false;
+
 	/**
-	 * Construct an {@link OutputDataset}.
+	 * Master constructor.
 	 * 
 	 * @param outputTablesNode
 	 *            navigator output tables tree node
@@ -76,13 +78,15 @@ public class OutputDataset extends DefaultScapeListener {
 		try {
 			String runName = name + " (Run " + runNumber + ")";
 			CDataCacheContainer results =
-					outDataset.getOutputDataset(runNumber++);
+					outDataset.getOutputDataset(runNumber);
 
 			createNavigatorOutputNode(runName, results);
 
 			CasperUtil.writeToCSV(outputDirectory
 					+ DateUtil.nowToSortableUniqueDateString() + " "
 					+ runName + ".csv", results);
+
+			runNumber++;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} catch (CDataGridException e) {
@@ -91,8 +95,32 @@ public class OutputDataset extends DefaultScapeListener {
 
 	}
 
+	@Override
+	public void scapeClosing(ScapeEvent scapeEvent) {
+
+		
+		if (outDataset instanceof MultiRunOutputDatasetProvider
+				&& !multiRunNodeCreated) {
+			
+			// create multi-run node
+			try {
+				CDataCacheContainer allRuns =
+						((MultiRunOutputDatasetProvider) outDataset)
+								.getMultiRunDataset();
+
+				createNavigatorOutputNode(allRuns.getCacheName(), allRuns);
+
+				multiRunNodeCreated = true;
+
+			} catch (CDataGridException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+	}
+
 	/**
-	 * Create a node on the Navigator tree that represents this output table.
+	 * Create a node on the Navigator tree that represents this dataset.
 	 * 
 	 */
 	private void createNavigatorOutputNode(String nodeName,
@@ -103,6 +131,15 @@ public class OutputDataset extends DefaultScapeListener {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+
+		createNavigatorOutputNode(nodeName, tmodel);
+	}
+
+	/**
+	 * Create a node on the Navigator tree that represents this table model.
+	 * 
+	 */
+	private void createNavigatorOutputNode(String nodeName, TableModel tmodel) {
 
 		TableCellRenderer dblRenderer = new DoubleCellRenderer();
 		JTable table = new JTable(tmodel);

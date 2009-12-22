@@ -2,15 +2,16 @@ package org.jamsim.matrix;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
-
-import org.apache.commons.lang.ArrayUtils;
 
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
 import net.casper.data.model.CDataRowSet;
 import net.casper.data.model.CRowMetaData;
-import net.casper.io.file.util.ArrayUtil;
+
+import org.apache.commons.lang.ArrayUtils;
+
 import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 
 /**
@@ -32,17 +33,17 @@ public class IndexedDenseDoubleMatrix2D extends DenseDoubleMatrix2D {
 	 * columns, i.e: index[row][col].
 	 * 
 	 */
-	private Object[][] index;
+	private final Object[][] index;
 
 	/**
 	 * List of the column names of the index.
 	 */
-	private final List<String> indexColumnNames = new ArrayList<String>();
+	private final List<String> indexColumnNames;
 
 	/**
 	 * List of the column names of the matrix.
 	 */
-	private final List<String> matrixColumnNames = new ArrayList<String>();
+	private final List<String> matrixColumnNames;
 
 	/**
 	 * Construct an instance from a {@link CDataCacheContainer}. Convenience
@@ -58,8 +59,31 @@ public class IndexedDenseDoubleMatrix2D extends DenseDoubleMatrix2D {
 		this(container.getAll());
 	}
 
+	/**
+	 * Get the index. Used by {@link IndexedMatrixTableModel}.
+	 * 
+	 * @return the index
+	 */
 	protected Object[][] getIndex() {
 		return index;
+	}
+
+	/**
+	 * Construct an instance from its constituent parts.
+	 * 
+	 * @param indexColumnNames column names of the index
+	 * @param index the index
+	 * @param matrixColumnNames column names of the matrix
+	 * @param matrix the matrix
+	 */
+	public IndexedDenseDoubleMatrix2D(String[] indexColumnNames,
+			Object[][] index, String[] matrixColumnNames,
+			double[][] matrix) {
+		super(matrix);
+		this.indexColumnNames = Arrays.asList(indexColumnNames);
+		this.index = index;
+		this.matrixColumnNames = Arrays.asList(matrixColumnNames);
+
 	}
 
 	/**
@@ -81,6 +105,8 @@ public class IndexedDenseDoubleMatrix2D extends DenseDoubleMatrix2D {
 		// must call super constructor so setup empty 0x0 matrix
 		super(0, 0);
 		double[][] result;
+		indexColumnNames = new LinkedList<String>();
+		matrixColumnNames = new LinkedList<String>();
 
 		// get meta information from CDataRowSet
 		CRowMetaData meta = cdrs.getMetaDefinition();
