@@ -21,6 +21,7 @@ import org.jamsim.ascape.stats.OutputDatasetProvider;
 import org.jamsim.ascape.stats.StatsOutputDataset;
 import org.jamsim.ascape.stats.StatsOutputModel;
 import org.jamsim.io.FileLoader;
+import org.jamsim.r.RInterfaceHL;
 
 /**
  * A Scape with micro-simulation input/output functions including base file
@@ -81,6 +82,15 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 */
 	public D getScapeData() {
 		return scapeData;
+	}
+
+	private RInterfaceHL rInterface;
+	
+	
+	
+
+	public RInterfaceHL getRInterface() {
+		return rInterface;
 	}
 
 	/**
@@ -385,6 +395,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 		}
 		ScapeRInterface scapeR = new ScapeRInterface(rStartup);
 		addView(scapeR);
+		
+		rInterface = scapeR.getRInterface();
 		return scapeR;
 	}
 

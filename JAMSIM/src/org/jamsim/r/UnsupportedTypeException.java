@@ -28,6 +28,16 @@ public class UnsupportedTypeException extends IOException {
 	}
 
 	/**
+	 * Throw exception with "classX not supported" message.
+	 * 
+	 * @param type
+	 *            the unsupported type
+	 */
+	public UnsupportedTypeException(Class<?> type) {
+		super(type.getCanonicalName() + " not supported");
+	}
+
+	/**
 	 * Throw exception with previous (chained) exception.
 	 * 
 	 * <p>

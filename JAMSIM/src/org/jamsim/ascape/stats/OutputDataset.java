@@ -14,9 +14,16 @@ import net.casper.ext.swing.CDatasetTableModel;
 import org.ascape.model.event.DefaultScapeListener;
 import org.ascape.model.event.ScapeEvent;
 import org.ascape.runtime.swing.navigator.PanelViewNodes;
+import org.jamsim.ascape.MicroSimScape;
 import org.jamsim.date.DateUtil;
 import org.jamsim.io.FileUtil;
+import org.jamsim.r.RDataFrame;
+import org.jamsim.r.RInterfaceException;
+import org.jamsim.r.RInterfaceHL;
+import org.jamsim.r.UnsupportedTypeException;
 import org.jamsim.swing.DoubleCellRenderer;
+import org.rosuda.REngine.REXP;
+import org.rosuda.REngine.REXPMismatchException;
 
 /**
  * Display output from a {@link OutputDatasetProvider}. When the scape stops
@@ -82,9 +89,7 @@ public class OutputDataset extends DefaultScapeListener {
 
 			createNavigatorOutputNode(runName, results);
 
-			CasperUtil.writeToCSV(outputDirectory
-					+ DateUtil.nowToSortableUniqueDateString() + " "
-					+ runName + ".csv", results);
+			writeCSV(runName, results);
 
 			runNumber++;
 		} catch (IOException e) {
@@ -95,22 +100,70 @@ public class OutputDataset extends DefaultScapeListener {
 
 	}
 
+	private void writeCSV(CDataCacheContainer container)
+			throws IOException {
+		writeCSV(container.getCacheName(), container);
+	}
+
+	private void writeCSV(String runName, CDataCacheContainer container)
+			throws IOException {
+		CasperUtil.writeToCSV(outputDirectory
+				+ DateUtil.nowToSortableUniqueDateString() + " " + runName
+				+ ".csv", container);
+	}
+
+	/**
+	 * Create the multi-run dataset node when the simulation has finished, if
+	 * the {@link OutputDatasetProvider} is a
+	 * {@link MultiRunOutputDatasetProvider}.
+	 */
 	@Override
 	public void scapeClosing(ScapeEvent scapeEvent) {
 
-		
 		if (outDataset instanceof MultiRunOutputDatasetProvider
 				&& !multiRunNodeCreated) {
-			
+
 			// create multi-run node
 			try {
 				CDataCacheContainer allRuns =
 						((MultiRunOutputDatasetProvider) outDataset)
 								.getMultiRunDataset();
 
-				createNavigatorOutputNode(allRuns.getCacheName(), allRuns);
+				//createNavigatorOutputNode(allRuns.getCacheName(), allRuns);
 
 				multiRunNodeCreated = true;
+
+				RInterfaceHL rInterface =
+						((MicroSimScape<?>) scape).getRInterface();
+
+				try {
+					String dfName = outDataset.getShortName();
+					rInterface.assignDataFrame(dfName, allRuns);
+					rInterface.printlnToConsole("Created dataframe " + dfName);
+					
+					REXP rexp =
+							rInterface.parseAndEval("meanOfRuns(" + dfName
+									+ ")");
+					RDataFrame df =
+							new RDataFrame(allRuns.getCacheName(), rexp);
+
+					CDataCacheContainer meanOfRuns =
+							new CDataCacheContainer(df);
+
+					createNavigatorOutputNode(meanOfRuns.getCacheName(),
+							meanOfRuns);
+
+					writeCSV(meanOfRuns);
+
+				} catch (RInterfaceException e) {
+					throw new RuntimeException(e);
+				} catch (REXPMismatchException e) {
+					throw new RuntimeException(e);
+				} catch (UnsupportedTypeException e) {
+					throw new RuntimeException(e);
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
 
 			} catch (CDataGridException e) {
 				throw new RuntimeException(e);

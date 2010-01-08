@@ -199,13 +199,16 @@ public class RSwingConsole extends JComponent implements RMainLoopCallbacks {
 
 	@Override
 	public void rFlushConsole(Rengine re) {
+		// not implemented
 	}
 
 	@Override
 	public void rLoadHistory(Rengine re, String filename) {
+		// not implemented
 	}
 
 	@Override
 	public void rSaveHistory(Rengine re, String filename) {
+		// not implemented
 	}
 }

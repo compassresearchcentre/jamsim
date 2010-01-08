@@ -12,6 +12,13 @@ import net.casper.data.model.CDataGridException;
 public interface OutputDatasetProvider {
 
 	/**
+	 * Output dataset short name. Can be used as an ID.
+	 * 
+	 * @return short name
+	 */
+	String getShortName();
+	
+	/**
 	 * Output dataset name.
 	 * 
 	 * @return name
@@ -31,7 +38,7 @@ public interface OutputDatasetProvider {
 	CDataCacheContainer getOutputDataset(int run) throws CDataGridException;
 
 	/**
-	 * Output data values.
+	 * Output data values for the given run number.
 	 * 
 	 * @param run
 	 *            simulation run number

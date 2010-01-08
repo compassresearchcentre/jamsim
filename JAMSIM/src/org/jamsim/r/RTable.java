@@ -17,23 +17,22 @@ import org.rosuda.REngine.RList;
 
 /**
  * An R expression that is a R table. The first column is the names of the rows
- * of the R table.
+ * of the R table. Implements {@link CBuilder}.
  * 
  * @author Oliver Mannion
  * @version $Revision$
  */
 public class RTable implements CBuilder {
 
-	private final String tableName;
+	private final String name;
 	private final String rowVariableName;
-	private final String colVariableName;
 	private Object[] rowNames;
 	private final String[] colNames;
 	private final double[][] values;
 	private int currentRowIndex;
 
 	/**
-	 * Create an RTable from a Rexp.
+	 * Create an {@link RTable} from a {@link REXP}.
 	 * 
 	 * @param name
 	 *            name. If {@code null}, one will be generated from the column
@@ -41,7 +40,7 @@ public class RTable implements CBuilder {
 	 * @param rexp
 	 *            R expression
 	 * @throws REXPMismatchException
-	 *             if rexp is not of the right Java type or R class.
+	 *             if rexp is not an {@link REXPDouble} or an R table class.
 	 */
 	public RTable(String name, REXP rexp) throws REXPMismatchException {
 		if (!RTable.isTable(rexp) || !(rexp instanceof REXPDouble)) {
@@ -53,9 +52,9 @@ public class RTable implements CBuilder {
 						.asStrings();
 
 		rowVariableName = dimNamesNames[0];
-		colVariableName = dimNamesNames[1];
+		String colVariableName = dimNamesNames[1];
 
-		this.tableName =
+		this.name =
 				(name == null) ? rowVariableName + " by " + colVariableName
 						: name;
 
@@ -129,7 +128,7 @@ public class RTable implements CBuilder {
 
 	@Override
 	public String getName() {
-		return tableName;
+		return name;
 	}
 
 	@Override

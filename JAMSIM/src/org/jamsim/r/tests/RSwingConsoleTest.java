@@ -10,6 +10,7 @@ import javax.swing.JFrame;
 import org.jamsim.r.RInterfaceException;
 import org.jamsim.r.RInterfaceHL;
 import org.jamsim.r.RSwingConsole;
+import org.jamsim.r.RUtil;
 
 public class RSwingConsoleTest {
 
@@ -45,8 +46,9 @@ public class RSwingConsoleTest {
 			//char[] array = new char[] {'c','d'};
 			double[] array = new double[] {1.2,2.2,3.3};
 			//Double[] array = new Double[] {1.2,2.2,3.3};
-			RInterfaceHL.toVector((Object)array);
+			//RUtil.toVector((Object)array);
 			
+			System.out.println(rInterface.evalMean(new double[] {1,2,3,4,5}));
 			
 		} catch (RInterfaceException e) {
 			// TODO Auto-generated catch block

@@ -15,9 +15,6 @@ import org.ascape.util.data.StatCollector;
 import org.jamsim.matrix.CBuildFromMatrix;
 import org.jamsim.matrix.IndexedDenseDoubleMatrix2D;
 
-import cern.colt.matrix.DoubleMatrix2D;
-import cern.colt.matrix.impl.DenseDoubleMatrix2D;
-
 /**
  * Collection of {@link CollectorFunction}s created from
  * {@link StatsFunctionRow}s or {@link StatsPredicateRow}s.
@@ -28,46 +25,31 @@ import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 public class StatsRows implements StatsOutputModel,
 		MultiRunOutputDatasetProvider {
 
+	/**
+	 * Default ratio multiplier used when none is specified by a constructor.
+	 */
+	public static final int DEFAULT_RATIO_MULTIPLIER = 100;
+
 	private final Collection<CollectorFunction<?>> stats =
 			new LinkedList<CollectorFunction<?>>();
 
 	private final String columnHeading;
 	private final String name;
 
-	private final double ratioMultipler;
+	private final double ratioMultiplier;
 
-	List<double[]> valuesFromAllRuns = new LinkedList<double[]>();
+	private final List<double[]> valuesFromAllRuns =
+			new LinkedList<double[]>();
 
-	private DoubleMatrix2D multiRun;
+	private final String shortName;
 
 	/**
-	 * Convenience constructor that generates a name.
+	 * Invoke the constructor with the default ratio multiplier.
 	 * 
 	 * @param <T>
 	 *            type of scape members
-	 * @param iteratingScape
-	 *            scape. Used to get the current iteration.
-	 * @param rows
-	 *            rows to create in the table
-	 * @param columnHeading
-	 *            column heading
-	 * @param function
-	 *            value to collect from simulation.
-	 */
-	public <T> StatsRows(Scape iteratingScape,
-			Collection<StatsPredicateRow<T>> rows, String columnHeading,
-			StatsFunction<T> function) {
-		this("Average percent with " + function.getName()
-				+ " in each iteration by " + columnHeading + " ("
-				+ rows.iterator().next().getDenominatorName() + ")",
-				iteratingScape, rows, columnHeading, function);
-	}
-
-	/**
-	 * Invoke the constructor with a {@code ratioMultipler} of 100.
-	 * 
-	 * @param <T>
-	 *            type of scape members
+	 * @param shortName
+	 *            short name
 	 * @param name
 	 *            name
 	 * @param iteratingScape
@@ -79,10 +61,11 @@ public class StatsRows implements StatsOutputModel,
 	 * @param function
 	 *            value to collect from simulation.
 	 */
-	public <T> StatsRows(String name, Scape iteratingScape,
+	public <T> StatsRows(String shortName, String name, Scape iteratingScape,
 			Collection<StatsPredicateRow<T>> rows, String columnHeading,
 			StatsFunction<T> function) {
-		this(name, iteratingScape, rows, columnHeading, function, 100);
+		this(shortName, name, iteratingScape, rows, columnHeading, function,
+				DEFAULT_RATIO_MULTIPLIER);
 	}
 
 	/**
@@ -95,6 +78,8 @@ public class StatsRows implements StatsOutputModel,
 	 * 
 	 * @param <T>
 	 *            type of scape members
+	 * @param shortName
+	 *            short name
 	 * @param name
 	 *            name
 	 * @param iteratingScape
@@ -107,33 +92,26 @@ public class StatsRows implements StatsOutputModel,
 	 *            column heading
 	 * @param function
 	 *            value to collect from simulation.
+	 * @param ratioMultiplier
+	 *            amount to multiple the ratio by (eg: 100 to get percentage)
 	 */
-	public <T> StatsRows(String name, Scape iteratingScape,
+	public <T> StatsRows(String shortName, String name, Scape iteratingScape,
 			Collection<StatsPredicateRow<T>> rows, String columnHeading,
-			StatsFunction<T> function, double ratioMultipler) {
+			StatsFunction<T> function, double ratioMultiplier) {
+		this(shortName, name, columnHeading, ratioMultiplier);
 
-		if (iteratingScape == null) {
-			for (StatsPredicateRow<T> row : rows) {
-				stats.add(new CollectorFunction<T>(row.getName(), function,
-						row.getPredicate(), row.getDenominator()));
-			}
-		} else {
-			for (StatsPredicateRow<T> row : rows) {
-				stats.add(new CollectorFunctionPerIteration<T>(row.getName(),
-						function, row.getPredicate(), row.getDenominator(),
-						iteratingScape));
-			}
+		for (StatsPredicateRow<T> row : rows) {
+			stats.add(row.getCollectorFunction(function, iteratingScape));
 		}
 
-		this.columnHeading = columnHeading;
-		this.name = name;
-		this.ratioMultipler = ratioMultipler;
 	}
 
 	/**
-	 * Construct from a collection of {@link StatsFunctionRow}s with a {@code
-	 * ratioMultipler} of 100.
+	 * Construct from a collection of {@link StatsFunctionRow}s with the default
+	 * ratio multiplier.
 	 * 
+	 * @param shortName
+	 *            short name
 	 * @param name
 	 *            name
 	 * @param scape
@@ -147,10 +125,11 @@ public class StatsRows implements StatsOutputModel,
 	 * @param <T>
 	 *            type of scape members
 	 */
-	public <T> StatsRows(String name, Scape scape,
+	public <T> StatsRows(String shortName, String name, Scape scape,
 			Collection<StatsFunctionRow<T>> rows, String columnHeading,
 			StatsPredicate<T> predicate) {
-		this(name, scape, rows, columnHeading, predicate, 100);
+		this(shortName, name, scape, rows, columnHeading, predicate,
+				DEFAULT_RATIO_MULTIPLIER);
 	}
 
 	/**
@@ -161,6 +140,8 @@ public class StatsRows implements StatsOutputModel,
 	 * {@link StatsFunctionRow} acts on a subset of the scape, as determined by
 	 * its {@link StatsPredicate}.
 	 * 
+	 * @param shortName
+	 *            short name
 	 * @param name
 	 *            name
 	 * @param iteratingScape
@@ -173,31 +154,32 @@ public class StatsRows implements StatsOutputModel,
 	 *            column heading
 	 * @param predicate
 	 *            predicate to apply to all rows
-	 * @param ratioMultipler
+	 * @param ratioMultiplier
 	 *            amount to multiple the ratio by (eg: 100 to get percentage)
 	 * @param <T>
 	 *            type of scape members
 	 */
-	public <T> StatsRows(String name, Scape iteratingScape,
+	public <T> StatsRows(String shortName, String name, Scape iteratingScape,
 			Collection<StatsFunctionRow<T>> rows, String columnHeading,
-			StatsPredicate<T> predicate, double ratioMultipler) {
+			StatsPredicate<T> predicate, double ratioMultiplier) {
+		this(shortName, name, columnHeading, ratioMultiplier);
 
-		if (iteratingScape == null) {
-			for (StatsFunctionRow<T> row : rows) {
-				stats.add(new CollectorFunction<T>(row.getName(), row
-						.getFunction(), predicate, row.getDenominator()));
-			}
-		} else {
-			for (StatsFunctionRow<T> row : rows) {
-				stats.add(new CollectorFunctionPerIteration<T>(row.getName(),
-						row.getFunction(), predicate, row.getDenominator(),
-						iteratingScape));
-			}
+		for (StatsFunctionRow<T> row : rows) {
+			stats.add(row.getCollectorFunction(predicate, iteratingScape));
 		}
+	}
 
+	private StatsRows(String shortName, String name, String columnHeading,
+			double ratioMultiplier) {
 		this.columnHeading = columnHeading;
 		this.name = name;
-		this.ratioMultipler = ratioMultipler;
+		this.shortName = shortName;
+		this.ratioMultiplier = ratioMultiplier;
+	}
+
+	@Override
+	public String getShortName() {
+		return shortName;
 	}
 
 	@Override
@@ -220,6 +202,32 @@ public class StatsRows implements StatsOutputModel,
 		return Collections.emptyList();
 	}
 
+	/**
+	 * Return collector function values as a double array.
+	 * 
+	 * @param run
+	 *            run number
+	 * @return collector function values.
+	 */
+	@Override
+	public double[] getValues(int run) {
+		double[] values = new double[stats.size()];
+		int index = 0;
+		for (CollectorFunction<?> cf : stats) {
+			values[index++] = getValue(cf);
+		}
+		return values;
+	}
+
+	/**
+	 * Return collector function values as a dataset.
+	 * 
+	 * @param run
+	 *            run number
+	 * @return collector function values.
+	 * @throws CDataGridException
+	 *             if problem creating dataset
+	 */
 	@Override
 	public CDataCacheContainer getOutputDataset(int run)
 			throws CDataGridException {
@@ -233,32 +241,38 @@ public class StatsRows implements StatsOutputModel,
 				CDataCacheContainer.newInsertionOrdered(getName(),
 						columnNames, columnTypes);
 
+		// Fill container with values from the collector functions
 		for (CollectorFunction<?> cf : stats) {
 			container
 					.addSingleRow(new Object[] { cf.getName(), getValue(cf) });
 		}
 
+		// Store this run
 		valuesFromAllRuns.add(getValues(run));
 
 		return container;
 	}
 
+	/**
+	 * Return dataset of collector function values from all runs. First column
+	 * is the collector functions names, and then each following column is a
+	 * particular run, eg: Run 1, Run 2, Run 3 ...etc.
+	 * 
+	 * @return dataset of collector function values from all runs
+	 * @throws CDataGridException
+	 *             if problem creating dataset
+	 */
+	@Override
 	public CDataCacheContainer getMultiRunDataset() throws CDataGridException {
+		int numberRuns = valuesFromAllRuns.size();
 		double[][] array =
-				valuesFromAllRuns
-						.toArray(new double[valuesFromAllRuns.size()][]);
-
-		String[][] rowNames = new String[stats.size()][1];
-		int i = 0;
-		for (CollectorFunction<?> cf : stats) {
-			rowNames[i++][0] = cf.getName();
-		}
+				ArrayUtil.transpose(valuesFromAllRuns
+						.toArray(new double[numberRuns][]));
 
 		IndexedDenseDoubleMatrix2D allRuns =
 				new IndexedDenseDoubleMatrix2D(
-						new String[] { columnHeading }, rowNames,
-						new String[] { "Run 1", "Run 2" }, ArrayUtil
-								.transpose(array));
+						new String[] { columnHeading }, getRowNames(),
+						runNumbers(numberRuns), array);
 
 		CBuilder builder =
 				new CBuildFromMatrix(name + " (All runs)", allRuns);
@@ -266,18 +280,47 @@ public class StatsRows implements StatsOutputModel,
 		return new CDataCacheContainer(builder);
 	}
 
-	@Override
-	public double[] getValues(int run) {
-		double[] values = new double[stats.size()];
-		int index = 0;
-		for (CollectorFunction<?> cf : stats) {
-			values[index++] = getValue(cf);
+	/**
+	 * Create a string array of the form {"Run 1", "Run 2", "Run 3" .. etc }.
+	 * 
+	 * @param numberRuns
+	 *            number of runs
+	 * @return string array of runs
+	 */
+	private static String[] runNumbers(int numberRuns) {
+		String[] runNums = new String[numberRuns];
+
+		for (int i = 0; i < runNums.length; i++) {
+			runNums[i] = "Run " + (i + 1);
 		}
-		return values;
+
+		return runNums;
 	}
 
+	/**
+	 * Return array of the collector function names.
+	 * 
+	 * @return collector function names
+	 */
+	public String[] getRowNames() {
+		String[] rowNames = new String[stats.size()];
+
+		int index = 0;
+		for (CollectorFunction<?> cf : stats) {
+			rowNames[index++] = cf.getName();
+		}
+		return rowNames;
+	}
+
+	/**
+	 * Get the collector function ratio * ratioMultiplier.
+	 * 
+	 * @param cfunc
+	 *            collector function
+	 * @return collector function ratio * ratioMultiplier
+	 */
 	private double getValue(CollectorFunction<?> cfunc) {
-		return cfunc.getRatio() * ratioMultipler;
+		return cfunc.getRatio() * ratioMultiplier;
 	}
 
 }
