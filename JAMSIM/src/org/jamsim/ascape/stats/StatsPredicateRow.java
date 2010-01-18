@@ -77,7 +77,7 @@ public class StatsPredicateRow<T> {
 
 	/**
 	 * Get a {@link CollectorFunction} that is the product of this predicate row
-	 * and a function.
+	 * and denominator, and the supplied function.
 	 * 
 	 * @param function
 	 *            function

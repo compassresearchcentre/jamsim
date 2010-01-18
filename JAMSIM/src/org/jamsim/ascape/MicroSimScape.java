@@ -14,12 +14,10 @@ import org.ascape.model.Agent;
 import org.ascape.model.Scape;
 import org.ascape.model.space.CollectionSpace;
 import org.ascape.runtime.swing.SwingRunner;
-import org.ascape.runtime.swing.navigator.PanelViewNodes;
+import org.ascape.runtime.swing.navigator.RunResultsNode;
 import org.ascape.util.swing.AscapeGUIUtil;
 import org.jamsim.ascape.stats.OutputDataset;
 import org.jamsim.ascape.stats.OutputDatasetProvider;
-import org.jamsim.ascape.stats.StatsOutputDataset;
-import org.jamsim.ascape.stats.StatsOutputModel;
 import org.jamsim.io.FileLoader;
 import org.jamsim.r.RInterfaceHL;
 
@@ -44,7 +42,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	private static final RecordedMicroSimTreeBuilder TREE_BUILDER =
 			new RecordedMicroSimTreeBuilder();
 
-	private PanelViewNodes outputTablesNode;
+	private RunResultsNode outputTablesNode;
 
 	private static final String OUTPUTDIR_KEY = "output directory";
 
@@ -84,11 +82,13 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 		return scapeData;
 	}
 
-	private RInterfaceHL rInterface;
+	private transient RInterfaceHL rInterface;
 	
-	
-	
-
+	/**
+	 * Provide R interface.
+	 * 
+	 * @return r interface
+	 */
 	public RInterfaceHL getRInterface() {
 		return rInterface;
 	}
@@ -164,7 +164,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 * 
 	 * @return output tables node
 	 */
-	public PanelViewNodes getOutputTablesNode() {
+	public RunResultsNode getOutputTablesNode() {
 
 		if (outputTablesNode == null) {
 			MicroSimScapeNode scapeNode =
@@ -352,17 +352,6 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 */
 	private void println(String message) {
 		loader.println(message);
-	}
-
-	/**
-	 * Add a {@link StatsOutputModel} to the scape.
-	 * 
-	 * @param stats
-	 *            stats
-	 */
-	public void addStatsOutput(StatsOutputModel stats) {
-		addView(new StatsOutputDataset(getOutputTablesNode(), stats,
-				getOutputDirectory()));
 	}
 
 	/**

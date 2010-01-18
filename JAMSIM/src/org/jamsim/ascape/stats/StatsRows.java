@@ -1,7 +1,6 @@
 package org.jamsim.ascape.stats;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,7 +21,7 @@ import org.jamsim.matrix.IndexedDenseDoubleMatrix2D;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class StatsRows implements StatsOutputModel,
+public class StatsRows implements OutputDatasetProvider, StatCollectorProvider,
 		MultiRunOutputDatasetProvider {
 
 	/**
@@ -169,6 +168,30 @@ public class StatsRows implements StatsOutputModel,
 		}
 	}
 
+	/**
+	 * Construct from a single {@link CollectorFunction}.
+	 * 
+	 * @param shortName
+	 *            short name
+	 * @param name
+	 *            name
+	 * @param function
+	 *            collector function
+	 * @param columnHeading
+	 *            column heading
+	 * @param ratioMultiplier
+	 *            amount to multiple the ratio by (eg: 100 to get percentage)
+	 * @param <T>
+	 *            type of scape members
+	 */
+	public <T> StatsRows(String shortName, String name,
+			CollectorFunction<T> function, String columnHeading,
+			double ratioMultiplier) {
+		this(shortName, name, columnHeading, ratioMultiplier);
+
+		stats.add(function);
+	}
+
 	private StatsRows(String shortName, String name, String columnHeading,
 			double ratioMultiplier) {
 		this.columnHeading = columnHeading;
@@ -192,16 +215,6 @@ public class StatsRows implements StatsOutputModel,
 		return stats;
 	}
 
-	@Override
-	public int getChartViewType() {
-		return StatsOutputModel.NO_CHART;
-	}
-
-	@Override
-	public Collection<String> getChartSeries() {
-		return Collections.emptyList();
-	}
-
 	/**
 	 * Return collector function values as a double array.
 	 * 
@@ -214,7 +227,7 @@ public class StatsRows implements StatsOutputModel,
 		double[] values = new double[stats.size()];
 		int index = 0;
 		for (CollectorFunction<?> cf : stats) {
-			values[index++] = getValue(cf);
+			values[index++] = fetchValue(cf);
 		}
 		return values;
 	}
@@ -243,8 +256,8 @@ public class StatsRows implements StatsOutputModel,
 
 		// Fill container with values from the collector functions
 		for (CollectorFunction<?> cf : stats) {
-			container
-					.addSingleRow(new Object[] { cf.getName(), getValue(cf) });
+			container.addSingleRow(new Object[] { cf.getName(),
+					fetchValue(cf) });
 		}
 
 		// Store this run
@@ -319,7 +332,7 @@ public class StatsRows implements StatsOutputModel,
 	 *            collector function
 	 * @return collector function ratio * ratioMultiplier
 	 */
-	private double getValue(CollectorFunction<?> cfunc) {
+	private double fetchValue(CollectorFunction<?> cfunc) {
 		return cfunc.getRatio() * ratioMultiplier;
 	}
 

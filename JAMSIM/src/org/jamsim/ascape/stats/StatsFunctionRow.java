@@ -51,8 +51,8 @@ public class StatsFunctionRow<T> {
 
 	/**
 	 * Get a {@link CollectorFunction} that is the product of this function row
-	 * and a predicate.
-	 * 
+	 * and denominator, and the supplied predicate.
+	 *  
 	 * @param predicate
 	 *            predicate
 	 * @param iteratingScape

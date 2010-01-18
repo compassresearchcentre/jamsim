@@ -1,6 +1,8 @@
 package org.jamsim.ascape.stats;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.TooManyListenersException;
 
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
@@ -13,7 +15,9 @@ import net.casper.ext.swing.CDatasetTableModel;
 
 import org.ascape.model.event.DefaultScapeListener;
 import org.ascape.model.event.ScapeEvent;
-import org.ascape.runtime.swing.navigator.PanelViewNodes;
+import org.ascape.runtime.swing.navigator.RunResultsNode;
+import org.ascape.util.data.StatCollector;
+import org.ascape.view.vis.ChartView;
 import org.jamsim.ascape.MicroSimScape;
 import org.jamsim.date.DateUtil;
 import org.jamsim.io.FileUtil;
@@ -37,7 +41,7 @@ import org.rosuda.REngine.REXPMismatchException;
 public class OutputDataset extends DefaultScapeListener {
 	private static final long serialVersionUID = -5105471052036807288L;
 
-	private final PanelViewNodes outputTablesNode;
+	private final RunResultsNode outputTablesNode;
 
 	private final OutputDatasetProvider outDataset;
 
@@ -57,12 +61,75 @@ public class OutputDataset extends DefaultScapeListener {
 	 * @param outputDirectory
 	 *            destination directory for results output file
 	 */
-	public OutputDataset(PanelViewNodes outputTablesNode,
+	public OutputDataset(RunResultsNode outputTablesNode,
 			OutputDatasetProvider outDataset, String outputDirectory) {
 		super(outDataset.getName());
 		this.outDataset = outDataset;
 		this.outputTablesNode = outputTablesNode;
 		this.outputDirectory = FileUtil.addTrailingSlash(outputDirectory);
+	}
+
+	/**
+	 * Add the view to the scape, registering it as a listener, and ensuring
+	 * that it hasn't been added to any other scapes.
+	 * 
+	 * @param scapeEvent
+	 *            the event for this scape to make this view the observer of
+	 * @throws TooManyListenersException
+	 *             the too many listeners exception
+	 * @exception TooManyListenersException
+	 *                on attempt to add a scape when one is already added
+	 */
+	@Override
+	public void scapeAdded(ScapeEvent scapeEvent)
+			throws TooManyListenersException {
+		super.scapeAdded(scapeEvent);
+
+		if (outDataset instanceof StatCollectorProvider) {
+			addStatCollectors((StatCollectorProvider) outDataset);
+		}
+
+		if (outDataset instanceof ChartProvider) {
+			addChart((ChartProvider) outDataset);
+		}
+
+
+	}
+
+	/**
+	 * Add a chart to the scape.
+	 * 
+	 * @param source
+	 *            a chart provider
+	 */
+	private void addChart(ChartProvider source) {
+		int chartType = source.getChartViewType();
+
+		ChartView chart = new ChartView(chartType);
+
+		scape.addView(chart);
+
+		// setup the chart AFTER adding it to the scape
+		for (String seriesName : source.getChartSeries()) {
+			chart.addSeries(seriesName);
+		}
+	}
+
+	/**
+	 * Add {@link StatCollector}s on the scape to record data during the
+	 * simulation.
+	 * 
+	 * @param stats
+	 *            collection of {@link StatCollector}s to add to the scape.
+	 */
+	private void addStatCollectors(StatCollectorProvider statsProvider) {
+
+		Collection<? extends StatCollector> stats =
+				statsProvider.getStatCollectors();
+
+		for (StatCollector sc : stats) {
+			scape.addStatCollector(sc);
+		}
 	}
 
 	/**
@@ -87,7 +154,7 @@ public class OutputDataset extends DefaultScapeListener {
 			CDataCacheContainer results =
 					outDataset.getOutputDataset(runNumber);
 
-			createNavigatorOutputNode(runName, results);
+			createNavigatorOutputNode(runNumber, runName, results);
 
 			writeCSV(runName, results);
 
@@ -100,8 +167,7 @@ public class OutputDataset extends DefaultScapeListener {
 
 	}
 
-	private void writeCSV(CDataCacheContainer container)
-			throws IOException {
+	private void writeCSV(CDataCacheContainer container) throws IOException {
 		writeCSV(container.getCacheName(), container);
 	}
 
@@ -129,7 +195,7 @@ public class OutputDataset extends DefaultScapeListener {
 						((MultiRunOutputDatasetProvider) outDataset)
 								.getMultiRunDataset();
 
-				//createNavigatorOutputNode(allRuns.getCacheName(), allRuns);
+				// createNavigatorOutputNode(allRuns.getCacheName(), allRuns);
 
 				multiRunNodeCreated = true;
 
@@ -139,8 +205,9 @@ public class OutputDataset extends DefaultScapeListener {
 				try {
 					String dfName = outDataset.getShortName();
 					rInterface.assignDataFrame(dfName, allRuns);
-					rInterface.printlnToConsole("Created dataframe " + dfName);
-					
+					rInterface.printlnToConsole("Created dataframe " + dfName
+							+ "(" + outDataset.getName() + ")");
+
 					REXP rexp =
 							rInterface.parseAndEval("meanOfRuns(" + dfName
 									+ ")");
@@ -150,8 +217,8 @@ public class OutputDataset extends DefaultScapeListener {
 					CDataCacheContainer meanOfRuns =
 							new CDataCacheContainer(df);
 
-					createNavigatorOutputNode(meanOfRuns.getCacheName(),
-							meanOfRuns);
+					createNavigatorOutputNode(RunResultsNode.ALLRUNS,
+							meanOfRuns.getCacheName(), meanOfRuns);
 
 					writeCSV(meanOfRuns);
 
@@ -176,7 +243,7 @@ public class OutputDataset extends DefaultScapeListener {
 	 * Create a node on the Navigator tree that represents this dataset.
 	 * 
 	 */
-	private void createNavigatorOutputNode(String nodeName,
+	private void createNavigatorOutputNode(int runNumber, String nodeName,
 			CDataCacheContainer container) {
 		TableModel tmodel;
 		try {
@@ -185,21 +252,22 @@ public class OutputDataset extends DefaultScapeListener {
 			throw new RuntimeException(e);
 		}
 
-		createNavigatorOutputNode(nodeName, tmodel);
+		createNavigatorOutputNode(runNumber, nodeName, tmodel);
 	}
 
 	/**
 	 * Create a node on the Navigator tree that represents this table model.
 	 * 
 	 */
-	private void createNavigatorOutputNode(String nodeName, TableModel tmodel) {
+	private void createNavigatorOutputNode(int runNumber, String nodeName,
+			TableModel tmodel) {
 
 		TableCellRenderer dblRenderer = new DoubleCellRenderer();
 		JTable table = new JTable(tmodel);
 		table.setName(nodeName);
 		table.setDefaultRenderer(Double.class, dblRenderer);
 
-		outputTablesNode.addChildTableNode(table);
+		outputTablesNode.addChildTableNode(runNumber, table);
 
 	}
 

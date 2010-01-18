@@ -5,21 +5,8 @@ import java.util.Collection;
 import org.ascape.util.data.StatCollector;
 import org.ascape.view.vis.ChartView;
 
-/**
- * Defines output from a group of {@link StatCollector}s. Output includes a
- * collection of {@link StatCollector}s, a chart, and a results dataset.
- * 
- * @author Oliver Mannion
- * @version $Revision$
- * 
- */
-public interface StatsOutputModel extends OutputDatasetProvider {
-
-	/**
-	 * No chart displayed by the {@link StatsOutputModel}.
-	 */
-	int NO_CHART = -1;
-
+public interface ChartProvider extends StatCollectorProvider {
+	
 	/**
 	 * Line graph chart type.
 	 */
@@ -34,13 +21,6 @@ public interface StatsOutputModel extends OutputDatasetProvider {
 	 * Pie chart type.
 	 */
 	int PIE = ChartView.PIE;
-
-	/**
-	 * Get this group of stat collectors.
-	 * 
-	 * @return stat collectors
-	 */
-	Collection<? extends StatCollector> getStatCollectors();
 
 	/**
 	 * Get the chart type.

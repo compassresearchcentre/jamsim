@@ -9,7 +9,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 import org.ascape.runtime.swing.navigator.PanelViewNode;
-import org.ascape.runtime.swing.navigator.PanelViewNodes;
+import org.ascape.runtime.swing.navigator.PanelViewNodeParent;
+import org.ascape.runtime.swing.navigator.RunResultsNode;
 import org.ascape.runtime.swing.navigator.ScapeNode;
 import org.ascape.runtime.swing.navigator.TreeBuilder;
 import org.jamsim.swing.DoubleCellRenderer;
@@ -34,7 +35,7 @@ public class MicroSimScapeNode extends ScapeNode {
 	 */
 	private static final long serialVersionUID = 2933396206340650491L;
 
-	private final PanelViewNodes outputTablesNode;
+	private final RunResultsNode outputTablesNode;
 
 	/**
 	 * Get output tables node. Exposed so scapes can add output tables during /
@@ -42,7 +43,7 @@ public class MicroSimScapeNode extends ScapeNode {
 	 * 
 	 * @return output tables node
 	 */
-	public PanelViewNodes getOutputTablesNode() {
+	public RunResultsNode getOutputTablesNode() {
 		return outputTablesNode;
 	}
 
@@ -62,7 +63,7 @@ public class MicroSimScapeNode extends ScapeNode {
 		addDatasetNodes(scape, treeModel);
 
 		// create the Output Tables node
-		outputTablesNode = new PanelViewNodes("Output Tables", scape, treeModel);
+		outputTablesNode = new RunResultsNode("Output Tables", scape, treeModel);
 		treeModel
 				.insertNodeInto(outputTablesNode, this, this.getChildCount());
 	}

@@ -37,7 +37,8 @@ public interface ScapeData {
 	 * @throws IOException
 	 *             if problem loading from base file
 	 */
-	Collection<? extends Agent> getBaseScapeAgents(File basefile) throws IOException;
+	Collection<? extends Agent> getBaseScapeAgents(File basefile)
+			throws IOException;
 
 	// get file loader?
 

@@ -22,5 +22,10 @@ public class Constants {
 	 */
 	public static final double MISSING_VALUE_DOUBLE = REXPDouble.NA; // NOPMD
 
+	/**
+	 * Newline.
+	 */
+	public static final String NEWLINE = System.getProperty("line.separator");
+
 
 }
