@@ -16,8 +16,8 @@ import org.ascape.model.space.CollectionSpace;
 import org.ascape.runtime.swing.SwingRunner;
 import org.ascape.runtime.swing.navigator.RunResultsNode;
 import org.ascape.util.swing.AscapeGUIUtil;
-import org.jamsim.ascape.stats.OutputDataset;
-import org.jamsim.ascape.stats.OutputDatasetProvider;
+import org.jamsim.ascape.output.OutputDataset;
+import org.jamsim.ascape.output.OutputDatasetProvider;
 import org.jamsim.io.FileLoader;
 import org.jamsim.r.RInterfaceHL;
 

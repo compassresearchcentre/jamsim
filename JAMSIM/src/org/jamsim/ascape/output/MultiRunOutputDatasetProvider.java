@@ -1,4 +1,4 @@
-package org.jamsim.ascape.stats;
+package org.jamsim.ascape.output;
 
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;

@@ -1,4 +1,4 @@
-package org.jamsim.ascape.stats;
+package org.jamsim.math;
 
 import org.apache.commons.lang.mutable.MutableDouble;
 

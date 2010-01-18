@@ -11,6 +11,9 @@ import net.casper.io.file.util.ArrayUtil;
 
 import org.ascape.model.Scape;
 import org.ascape.util.data.StatCollector;
+import org.jamsim.ascape.output.MultiRunOutputDatasetProvider;
+import org.jamsim.ascape.output.OutputDatasetProvider;
+import org.jamsim.ascape.output.StatCollectorProvider;
 import org.jamsim.matrix.CBuildFromMatrix;
 import org.jamsim.matrix.IndexedDenseDoubleMatrix2D;
 
