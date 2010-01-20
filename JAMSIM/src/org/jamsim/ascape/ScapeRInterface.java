@@ -4,11 +4,14 @@ import java.awt.Component;
 import java.awt.Font;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.TooManyListenersException;
 
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+
+import net.casper.data.model.CDataCacheContainer;
 
 import org.ascape.model.event.DefaultScapeListener;
 import org.ascape.model.event.ScapeEvent;
@@ -18,6 +21,10 @@ import org.ascape.runtime.swing.UserFrame;
 import org.jamsim.r.RInterfaceException;
 import org.jamsim.r.RInterfaceHL;
 import org.jamsim.r.RSwingConsole;
+import org.jamsim.r.RUtil;
+import org.rosuda.REngine.REXP;
+import org.rosuda.REngine.REXPMismatchException;
+import org.rosuda.REngine.REngineException;
 
 /**
  * Connects an Ascape scape to R. When this listener is added to a scape, it
@@ -55,9 +62,15 @@ public class ScapeRInterface extends DefaultScapeListener {
 	 */
 	private final File startUpFile;
 
-	
 	private final RSwingConsole rConsole;
-	
+
+	private MicroSimScape<?> msScape;
+
+	/**
+	 * Flag set after first time scape is closed.
+	 */
+	private boolean firstCloseExecuted = false;
+
 	/**
 	 * Default constructor.
 	 */
@@ -74,7 +87,7 @@ public class ScapeRInterface extends DefaultScapeListener {
 	public ScapeRInterface(File startUpFile) {
 		super("R Scape Interface");
 		this.startUpFile = startUpFile;
-		
+
 		rConsole = new RSwingConsole(false);
 		rConsole.setFont(new Font("Monospaced", Font.PLAIN, 12));
 	}
@@ -93,7 +106,16 @@ public class ScapeRInterface extends DefaultScapeListener {
 	@Override
 	public void scapeAdded(ScapeEvent scapeEvent)
 			throws TooManyListenersException {
+
 		super.scapeAdded(scapeEvent);
+		if (!(scape instanceof MicroSimScape<?>)) {
+			throw new IllegalArgumentException(this.getClass()
+					.getSimpleName()
+					+ " must be added to an instance of "
+					+ MicroSimScape.class.getSimpleName());
+		}
+		msScape = (MicroSimScape<?>) scape;
+
 		loadR();
 	}
 
@@ -111,7 +133,6 @@ public class ScapeRInterface extends DefaultScapeListener {
 
 			// display message on ascape log tab
 			System.out.print("Starting R....");
-
 
 			// load R
 			try {
@@ -133,13 +154,14 @@ public class ScapeRInterface extends DefaultScapeListener {
 
 				if (startUpFile != null) {
 					try {
-						rInterface.printlnToConsole("Loading " + startUpFile.getCanonicalPath());
+						rInterface.printlnToConsole("Loading "
+								+ startUpFile.getCanonicalPath());
 						rInterface.parseAndEval(startUpFile);
 					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
 				}
-				
+
 				// display prompt
 				rConsole.setPromptVisible(true);
 				rConsole.printPrompt();
@@ -153,10 +175,6 @@ public class ScapeRInterface extends DefaultScapeListener {
 			}
 
 		}
-	}
-
-	public RInterfaceHL getRInterface() {
-		return rInterface;
 	}
 
 	/**
@@ -174,10 +192,6 @@ public class ScapeRInterface extends DefaultScapeListener {
 		} catch (RInterfaceException e) {
 			throw new IOException(e);
 		}
-	}
-
-	public void showPrompt() {
-		checkInitialized();
 	}
 
 	private void checkInitialized() {
@@ -235,19 +249,134 @@ public class ScapeRInterface extends DefaultScapeListener {
 	public void scapeStopped(ScapeEvent scapeEvent) {
 		try {
 			if (rInterface != null) {
-				String dataframeName =
-						scape.getName().toLowerCase() + runNumber++;
-				rInterface.assignDataFrame(dataframeName, scape, scape
+
+				String dataframeName = getScapeDFRunName(runNumber++);
+
+				assignDataFrame(dataframeName, scape, scape
 						.getPrototypeAgent().getClass().getSuperclass());
 				rInterface.printlnToConsole("Created dataframe "
 						+ dataframeName);
-				rConsole.printPrompt();
 			}
 
 		} catch (RInterfaceException e) {
 			e.printStackTrace();
 			throw new RuntimeException(e); // NOPMD
 		}
+	}
+
+	@Override
+	public void scapeClosing(ScapeEvent scapeEvent) {
+		
+		// scapeClosing gets called twice when the scape closes
+		// so we need a flag (firstCloseExecuted) to make sure
+		// it doesn't get called twice
+		if (firstCloseExecuted) {
+			rConsole.printPrompt();
+		} else {
+			firstCloseExecuted = true;
+		}
+	}
+
+	
+	/**
+	 * Return the name of the scape dataframe created for the given run number.
+	 * 
+	 * @param run
+	 *            run number
+	 * @return dataframe name
+	 */
+	public String getScapeDFRunName(int run) {
+		return scape.getName().toLowerCase() + run;
+	}
+
+	/**
+	 * Create a dataframe in R from the given collection. Introspection is used
+	 * to determine the bean properties (i.e.: getter methods) that are exposed,
+	 * and each one becomes a column in the dataframe. Columns are only created
+	 * for primitive properties and arrays of primitive properties; object
+	 * properties are ignored without warning.
+	 * 
+	 * NB: doesn't automatically create factors like read.table does.
+	 * 
+	 * @param name
+	 *            the name of the dataframe to create in R.
+	 * @param col
+	 *            the Java collection to convert.
+	 * @param stopClass
+	 *            Columns are created for all getter methods that are defined by
+	 *            {@code stopClass}'s subclasses. {@code stopClass}'s getter
+	 *            methods and superclass getter methods are not converted to
+	 *            columns in the dataframe.
+	 * @throws RInterfaceException
+	 *             if Collection cannot be read, or dataframe cannot be created.
+	 */
+	public void assignDataFrame(String name, Collection<?> col,
+			Class<?> stopClass) throws RInterfaceException {
+		rInterface.assignDataFrame(name, RUtil.toRList(col, stopClass));
+		msScape.addDataFrameNode(name);
+	}
+
+	/**
+	 * Create a dataframe in R from the given casper dataset.
+	 * 
+	 * NB: doesn't automatically create factors like read.table does.
+	 * 
+	 * @param name
+	 *            the name of the dataframe to create in R.
+	 * @param container
+	 *            the casper container to convert.
+	 * @throws RInterfaceException
+	 *             if Collection cannot be read, or dataframe cannot be created.
+	 */
+	public void assignDataFrame(String name, CDataCacheContainer container)
+			throws RInterfaceException {
+		rInterface.assignDataFrame(name, RUtil.toRList(container));
+		msScape.addDataFrameNode(name);
+	}
+
+	/**
+	 * Evaluate a String expression in R in the global environment.
+	 * 
+	 * @param expr
+	 *            expression to evaluate.
+	 * @return REXP result of the evaluation.
+	 * @throws RInterfaceException
+	 *             if problem during parse or evaluation. Parse errors will
+	 *             simply return the message "parse error".
+	 */
+	public REXP parseAndEval(String expr) throws RInterfaceException {
+		return rInterface.parseAndEval(expr);
+	}
+
+	/**
+	 * Evaluate a String expression in R in the global environment. Returns all
+	 * console output produced by this evaluation. Does not return the
+	 * {@link REXP} produced by the evaluation.
+	 * 
+	 * @param expr
+	 *            expression to evaluate.
+	 * @return console output from the evaluation.
+	 * @throws RInterfaceException
+	 *             if problem during parse or evaluation. Parse errors will
+	 *             simply return the message "parse error".
+	 */
+	public String parseAndEvalCaptureOutput(String expr)
+			throws RInterfaceException {
+		rConsole.startOutputCapture();
+		rInterface.parseAndEval(expr);
+		return rConsole.stopOutputCapture();
+	}
+
+	/**
+	 * Print a message out to the R console with a line feed.
+	 * 
+	 * @param msg
+	 *            message to print.
+	 * @throws RInterfaceException
+	 *             if problem during evaluation.
+	 */
+	public void printlnToConsole(String msg) throws RInterfaceException {
+		rInterface.printToConsole(msg + "\n");
 	}
 
 }

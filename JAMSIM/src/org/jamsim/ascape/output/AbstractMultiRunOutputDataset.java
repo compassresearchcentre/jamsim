@@ -11,7 +11,16 @@ import net.casper.io.file.util.ArrayUtil;
 import org.jamsim.matrix.CBuildFromMatrix;
 import org.jamsim.matrix.IndexedDenseDoubleMatrix2D;
 
-public abstract class MultiRunOutputDatasetImpl implements
+/**
+ * Implementation of {@link MultiRunOutputDatasetProvider} based on an array of
+ * doubles. Constructs a single run from the values provided by
+ * {@link #getValues(int)} and {@link #getValueNames()}. Constructs a multiple
+ * run dataset from all {@link #getValues(int)} calls made.
+ * 
+ * @author Oliver Mannion
+ * @version $Revision$
+ */
+public abstract class AbstractMultiRunOutputDataset implements
 		MultiRunOutputDatasetProvider {
 
 	private final String name;
@@ -20,16 +29,30 @@ public abstract class MultiRunOutputDatasetImpl implements
 			new LinkedList<double[]>();
 	private final String columnHeading;
 
-	public MultiRunOutputDatasetImpl(String name, String shortName, String columnHeading) {
+	/**
+	 * Constructor.
+	 * 
+	 * @param shortName
+	 *            short name. This will become the name of the dataframe created
+	 *            in R to hold these results.
+	 * @param name
+	 *            name
+	 * @param columnHeading
+	 *            column heading of the dataset column that contains the value
+	 *            names
+	 */
+	public AbstractMultiRunOutputDataset(String shortName, String name,
+			String columnHeading) {
 		this.columnHeading = columnHeading;
 		this.name = name;
 		this.shortName = shortName;
 	}
 
 	/**
-	 * Return dataset of collector function values from all runs. First column
-	 * is the collector functions names, and then each following column is a
-	 * particular run, eg: Run 1, Run 2, Run 3 ...etc.
+	 * Return dataset of collector function values from all runs. i.e: all calls
+	 * to {@link #getValues(int)}. First column is provided by
+	 * {@link #getValueNames()}, and then each following column is a particular
+	 * run, eg: Run 1, Run 2, Run 3 ...etc.
 	 * 
 	 * @return dataset of collector function values from all runs
 	 * @throws CDataGridException
@@ -59,7 +82,8 @@ public abstract class MultiRunOutputDatasetImpl implements
 	}
 
 	/**
-	 * Return collector function values as a dataset.
+	 * Output dataset for the given run number. This is a dataset wrapped around
+	 * {@link #getValues(int)} and {@link #getValueNames()}.
 	 * 
 	 * @param run
 	 *            run number
@@ -99,7 +123,6 @@ public abstract class MultiRunOutputDatasetImpl implements
 		return shortName;
 	}
 
-	
 	/**
 	 * Create a string array of the form {"Run 1", "Run 2", "Run 3" .. etc }.
 	 * 

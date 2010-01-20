@@ -42,8 +42,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	private static final RecordedMicroSimTreeBuilder TREE_BUILDER =
 			new RecordedMicroSimTreeBuilder();
 
-	private RunResultsNode outputTablesNode;
-
+	private MicroSimScapeNode scapeNode;
+	
 	private static final String OUTPUTDIR_KEY = "output directory";
 
 	private File outputDirectory;
@@ -82,15 +82,15 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 		return scapeData;
 	}
 
-	private transient RInterfaceHL rInterface;
+	private ScapeRInterface scapeR;
 	
 	/**
 	 * Provide R interface.
 	 * 
 	 * @return r interface
 	 */
-	public RInterfaceHL getRInterface() {
-		return rInterface;
+	public ScapeRInterface getScapeRInterface() {
+		return scapeR;
 	}
 
 	/**
@@ -166,8 +166,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 */
 	public RunResultsNode getOutputTablesNode() {
 
-		if (outputTablesNode == null) {
-			MicroSimScapeNode scapeNode =
+		if (scapeNode == null) {
+			scapeNode =
 					(MicroSimScapeNode) TREE_BUILDER.getCreatedTreeNode(this);
 
 			if (scapeNode == null) {
@@ -176,12 +176,32 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 						+ "\" not yet created");
 			}
 
-			outputTablesNode = scapeNode.getOutputTablesNode();
 		}
 
-		return outputTablesNode;
+		return scapeNode.getOutputTablesNode();
 	}
 
+
+	/**
+	 * Add a {@link OutputDatasetProvider} to the scape.
+	 * 
+	 * @param provider
+	 *            provider
+	 */
+	public void addStatsOutput(OutputDatasetProvider provider) {
+		addView(new OutputDataset(getOutputTablesNode(), provider,
+				getOutputDirectory()));
+	}
+
+	/**
+	 * Add a data frame node to the navigator.
+	 * 
+	 * @param name dataframe name in R
+	 */
+	public void addDataFrameNode(String name) {
+		scapeNode.addDataFrameNode(name);
+	}
+	
 	/**
 	 * Loads this scape with agents from a base file. The location of the base
 	 * file is stored in Preferences. If such a location does not exist, then
@@ -355,17 +375,6 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	}
 
 	/**
-	 * Add a {@link OutputDatasetProvider} to the scape.
-	 * 
-	 * @param provider
-	 *            provider
-	 */
-	public void addStatsOutput(OutputDatasetProvider provider) {
-		addView(new OutputDataset(getOutputTablesNode(), provider,
-				getOutputDirectory()));
-	}
-
-	/**
 	 * Add R to this scape.
 	 * 
 	 * @param startUpFilePrefsKey
@@ -382,11 +391,11 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 		if (startUpFilePrefsKey != null) {
 			rStartup = loader.getFile(startUpFilePrefsKey);
 		}
-		ScapeRInterface scapeR = new ScapeRInterface(rStartup);
+		scapeR = new ScapeRInterface(rStartup);
 		addView(scapeR);
 		
-		rInterface = scapeR.getRInterface();
 		return scapeR;
 	}
+
 
 }

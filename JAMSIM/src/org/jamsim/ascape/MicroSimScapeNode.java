@@ -1,5 +1,6 @@
 package org.jamsim.ascape;
 
+import java.awt.Font;
 import java.util.Map;
 
 import javax.swing.JTable;
@@ -9,7 +10,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 import org.ascape.runtime.swing.navigator.PanelViewNode;
-import org.ascape.runtime.swing.navigator.PanelViewNodeParent;
 import org.ascape.runtime.swing.navigator.RunResultsNode;
 import org.ascape.runtime.swing.navigator.ScapeNode;
 import org.ascape.runtime.swing.navigator.TreeBuilder;
@@ -36,6 +36,9 @@ public class MicroSimScapeNode extends ScapeNode {
 	private static final long serialVersionUID = 2933396206340650491L;
 
 	private final RunResultsNode outputTablesNode;
+	private final DefaultTreeModel treeModel;
+	private DefaultMutableTreeNode dfNode;
+	private final MicroSimScape<?> scape;
 
 	/**
 	 * Get output tables node. Exposed so scapes can add output tables during /
@@ -58,12 +61,15 @@ public class MicroSimScapeNode extends ScapeNode {
 	public MicroSimScapeNode(MicroSimScape<?> scape, TreeBuilder treeBuilder) {
 		super(scape, treeBuilder);
 
-		DefaultTreeModel treeModel = treeBuilder.getTreeModel();
+		this.scape = scape;
+
+		treeModel = treeBuilder.getTreeModel();
 
 		addDatasetNodes(scape, treeModel);
 
 		// create the Output Tables node
-		outputTablesNode = new RunResultsNode("Output Tables", scape, treeModel);
+		outputTablesNode =
+				new RunResultsNode("Output Tables", scape, treeModel);
 		treeModel
 				.insertNodeInto(outputTablesNode, this, this.getChildCount());
 	}
@@ -74,7 +80,6 @@ public class MicroSimScapeNode extends ScapeNode {
 		// create Dataset node
 		DefaultMutableTreeNode datasetsNode =
 				new DefaultMutableTreeNode("Datasets");
-
 
 		TableCellRenderer dblRenderer = new DoubleCellRenderer();
 
@@ -96,4 +101,23 @@ public class MicroSimScapeNode extends ScapeNode {
 		treeModel.insertNodeInto(datasetsNode, this, this.getChildCount());
 	}
 
+	/**
+	 * Add a {@link DataFrameNode} under the "Dataframes" folder.
+	 * 
+	 * @param dataFrameName
+	 *            data frame name
+	 */
+	public void addDataFrameNode(String dataFrameName) {
+		if (dfNode == null) {
+			// create on demand
+			dfNode = new DefaultMutableTreeNode("Dataframes");
+			treeModel.insertNodeInto(dfNode, this, this.getChildCount());
+		}
+
+		Font textFont = new Font("Monospaced", Font.PLAIN, 12);
+
+		treeModel.insertNodeInto(new DataFrameNode(scape, dataFrameName,
+				textFont), dfNode, dfNode.getChildCount());
+
+	}
 }

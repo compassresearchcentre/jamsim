@@ -11,8 +11,10 @@ import net.casper.data.model.CDataGridException;
 import net.casper.data.model.CDataRowSet;
 import net.casper.data.model.CRowMetaData;
 import net.casper.io.beans.util.BeanPropertyInspector;
+import net.casper.io.file.util.ArrayUtil;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPDouble;
 import org.rosuda.REngine.REXPInteger;
@@ -336,6 +338,20 @@ public final class RUtil {
 		}
 
 		return rVectors;
+	}
+
+	/**
+	 * Returns the R class(es) of rexp.
+	 * 
+	 * @param rexp
+	 *            expression to test
+	 * @return true/false
+	 */
+	public static String getClassAttribute(REXP rexp) {
+		String[] clazz =
+				((REXPString) rexp.getAttribute("class")).asStrings();
+
+		return ArrayUtil.toString(clazz);
 	}
 
 }

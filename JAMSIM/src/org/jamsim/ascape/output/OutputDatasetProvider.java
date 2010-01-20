@@ -26,8 +26,7 @@ public interface OutputDatasetProvider {
 	String getName();
 
 	/**
-	 * Output dataset for the given run number. This is a dataset wrapped around
-	 * {@link #getValues(int)}.
+	 * Output dataset for the given run number. 
 	 * 
 	 * @param run
 	 *            simulation run number
@@ -36,14 +35,5 @@ public interface OutputDatasetProvider {
 	 *             if problem creating dataset
 	 */
 	CDataCacheContainer getOutputDataset(int run) throws CDataGridException;
-
-	/**
-	 * Output data values for the given run number.
-	 * 
-	 * @param run
-	 *            simulation run number
-	 * @return output data values.
-	 */
-	double[] getValues(int run);
 
 }

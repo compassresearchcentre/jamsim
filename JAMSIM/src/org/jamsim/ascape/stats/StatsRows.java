@@ -2,20 +2,11 @@ package org.jamsim.ascape.stats;
 
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
-
-import net.casper.data.model.CBuilder;
-import net.casper.data.model.CDataCacheContainer;
-import net.casper.data.model.CDataGridException;
-import net.casper.io.file.util.ArrayUtil;
 
 import org.ascape.model.Scape;
 import org.ascape.util.data.StatCollector;
-import org.jamsim.ascape.output.MultiRunOutputDatasetProvider;
-import org.jamsim.ascape.output.OutputDatasetProvider;
+import org.jamsim.ascape.output.AbstractMultiRunOutputDataset;
 import org.jamsim.ascape.output.StatCollectorProvider;
-import org.jamsim.matrix.CBuildFromMatrix;
-import org.jamsim.matrix.IndexedDenseDoubleMatrix2D;
 
 /**
  * Collection of {@link CollectorFunction}s created from
@@ -24,8 +15,8 @@ import org.jamsim.matrix.IndexedDenseDoubleMatrix2D;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class StatsRows implements OutputDatasetProvider, StatCollectorProvider,
-		MultiRunOutputDatasetProvider {
+public class StatsRows extends AbstractMultiRunOutputDataset implements
+		StatCollectorProvider {
 
 	/**
 	 * Default ratio multiplier used when none is specified by a constructor.
@@ -35,15 +26,9 @@ public class StatsRows implements OutputDatasetProvider, StatCollectorProvider,
 	private final Collection<CollectorFunction<?>> stats =
 			new LinkedList<CollectorFunction<?>>();
 
-	private final String columnHeading;
-	private final String name;
-
 	private final double ratioMultiplier;
-
-	private final List<double[]> valuesFromAllRuns =
-			new LinkedList<double[]>();
-
-	private final String shortName;
+	
+	private String[] valueNames;
 
 	/**
 	 * Invoke the constructor with the default ratio multiplier.
@@ -106,6 +91,7 @@ public class StatsRows implements OutputDatasetProvider, StatCollectorProvider,
 			stats.add(row.getCollectorFunction(function, iteratingScape));
 		}
 
+		this.valueNames = calcValueNames();
 	}
 
 	/**
@@ -169,6 +155,9 @@ public class StatsRows implements OutputDatasetProvider, StatCollectorProvider,
 		for (StatsFunctionRow<T> row : rows) {
 			stats.add(row.getCollectorFunction(predicate, iteratingScape));
 		}
+
+		this.valueNames = calcValueNames();
+
 	}
 
 	/**
@@ -193,24 +182,14 @@ public class StatsRows implements OutputDatasetProvider, StatCollectorProvider,
 		this(shortName, name, columnHeading, ratioMultiplier);
 
 		stats.add(function);
-	}
+
+		this.valueNames = calcValueNames();
+}
 
 	private StatsRows(String shortName, String name, String columnHeading,
 			double ratioMultiplier) {
-		this.columnHeading = columnHeading;
-		this.name = name;
-		this.shortName = shortName;
+		super(shortName, name, columnHeading);
 		this.ratioMultiplier = ratioMultiplier;
-	}
-
-	@Override
-	public String getShortName() {
-		return shortName;
-	}
-
-	@Override
-	public final String getName() {
-		return name;
 	}
 
 	@Override
@@ -235,90 +214,17 @@ public class StatsRows implements OutputDatasetProvider, StatCollectorProvider,
 		return values;
 	}
 
-	/**
-	 * Return collector function values as a dataset.
-	 * 
-	 * @param run
-	 *            run number
-	 * @return collector function values.
-	 * @throws CDataGridException
-	 *             if problem creating dataset
-	 */
 	@Override
-	public CDataCacheContainer getOutputDataset(int run)
-			throws CDataGridException {
-
-		// Set up new Casper container for the results
-		String columnNames = columnHeading + ",Value";
-		final Class<?>[] columnTypes =
-				new Class[] { String.class, Double.class };
-
-		CDataCacheContainer container =
-				CDataCacheContainer.newInsertionOrdered(getName(),
-						columnNames, columnTypes);
-
-		// Fill container with values from the collector functions
-		for (CollectorFunction<?> cf : stats) {
-			container.addSingleRow(new Object[] { cf.getName(),
-					fetchValue(cf) });
-		}
-
-		// Store this run
-		valuesFromAllRuns.add(getValues(run));
-
-		return container;
+	public String[] getValueNames() {
+		return valueNames;
 	}
-
-	/**
-	 * Return dataset of collector function values from all runs. First column
-	 * is the collector functions names, and then each following column is a
-	 * particular run, eg: Run 1, Run 2, Run 3 ...etc.
-	 * 
-	 * @return dataset of collector function values from all runs
-	 * @throws CDataGridException
-	 *             if problem creating dataset
-	 */
-	@Override
-	public CDataCacheContainer getMultiRunDataset() throws CDataGridException {
-		int numberRuns = valuesFromAllRuns.size();
-		double[][] array =
-				ArrayUtil.transpose(valuesFromAllRuns
-						.toArray(new double[numberRuns][]));
-
-		IndexedDenseDoubleMatrix2D allRuns =
-				new IndexedDenseDoubleMatrix2D(
-						new String[] { columnHeading }, getRowNames(),
-						runNumbers(numberRuns), array);
-
-		CBuilder builder =
-				new CBuildFromMatrix(name + " (All runs)", allRuns);
-
-		return new CDataCacheContainer(builder);
-	}
-
-	/**
-	 * Create a string array of the form {"Run 1", "Run 2", "Run 3" .. etc }.
-	 * 
-	 * @param numberRuns
-	 *            number of runs
-	 * @return string array of runs
-	 */
-	private static String[] runNumbers(int numberRuns) {
-		String[] runNums = new String[numberRuns];
-
-		for (int i = 0; i < runNums.length; i++) {
-			runNums[i] = "Run " + (i + 1);
-		}
-
-		return runNums;
-	}
-
+	
 	/**
 	 * Return array of the collector function names.
 	 * 
 	 * @return collector function names
 	 */
-	public String[] getRowNames() {
+	private String[] calcValueNames() {
 		String[] rowNames = new String[stats.size()];
 
 		int index = 0;

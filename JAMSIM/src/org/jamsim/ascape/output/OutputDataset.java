@@ -19,6 +19,7 @@ import org.ascape.runtime.swing.navigator.RunResultsNode;
 import org.ascape.util.data.StatCollector;
 import org.ascape.view.vis.ChartView;
 import org.jamsim.ascape.MicroSimScape;
+import org.jamsim.ascape.ScapeRInterface;
 import org.jamsim.date.DateUtil;
 import org.jamsim.io.FileUtil;
 import org.jamsim.r.RDataFrame;
@@ -50,6 +51,8 @@ public class OutputDataset extends DefaultScapeListener {
 	private int runNumber = 1;
 
 	private boolean multiRunNodeCreated = false;
+
+	private ScapeRInterface scapeR;
 
 	/**
 	 * Master constructor.
@@ -85,6 +88,15 @@ public class OutputDataset extends DefaultScapeListener {
 			throws TooManyListenersException {
 		super.scapeAdded(scapeEvent);
 
+		if (!(scape instanceof MicroSimScape<?>)) {
+			throw new IllegalArgumentException(this.getClass()
+					.getSimpleName()
+					+ " must be added to an instance of "
+					+ MicroSimScape.class.getSimpleName());
+		}
+
+		scapeR = ((MicroSimScape<?>) scape).getScapeRInterface();
+
 		if (outDataset instanceof StatCollectorProvider) {
 			addStatCollectors((StatCollectorProvider) outDataset);
 		}
@@ -92,7 +104,6 @@ public class OutputDataset extends DefaultScapeListener {
 		if (outDataset instanceof ChartProvider) {
 			addChart((ChartProvider) outDataset);
 		}
-
 
 	}
 
@@ -186,6 +197,9 @@ public class OutputDataset extends DefaultScapeListener {
 	@Override
 	public void scapeClosing(ScapeEvent scapeEvent) {
 
+		// scapeClosing gets called twice when the scape closes
+		// so we need a flag (multiRunNodeCreated) to make sure
+		// it doesn't get called twice
 		if (outDataset instanceof MultiRunOutputDatasetProvider
 				&& !multiRunNodeCreated) {
 
@@ -199,17 +213,14 @@ public class OutputDataset extends DefaultScapeListener {
 
 				multiRunNodeCreated = true;
 
-				RInterfaceHL rInterface =
-						((MicroSimScape<?>) scape).getRInterface();
-
 				try {
 					String dfName = outDataset.getShortName();
-					rInterface.assignDataFrame(dfName, allRuns);
-					rInterface.printlnToConsole("Created dataframe " + dfName
+					scapeR.assignDataFrame(dfName, allRuns);
+					scapeR.printlnToConsole("Created dataframe " + dfName
 							+ "(" + outDataset.getName() + ")");
 
 					REXP rexp =
-							rInterface.parseAndEval("meanOfRuns(" + dfName
+						scapeR.parseAndEval("meanOfRuns(" + dfName
 									+ ")");
 					RDataFrame df =
 							new RDataFrame(allRuns.getCacheName(), rexp);

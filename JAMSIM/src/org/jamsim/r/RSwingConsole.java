@@ -40,7 +40,11 @@ public class RSwingConsole extends JComponent implements RMainLoopCallbacks {
 	private boolean promptVisible = false;
 
 	private String rPrompt;
-	
+
+	private boolean captureOutput = false;
+
+	private StringBuffer capturedOutput;
+
 	/**
 	 * Create {@link RSwingConsole} and display the prompt.
 	 */
@@ -82,9 +86,33 @@ public class RSwingConsole extends JComponent implements RMainLoopCallbacks {
 	 * execute.
 	 */
 
+	/**
+	 * Begin capture of all further output from
+	 * {@link #rWriteConsole(Rengine, String, int)}.
+	 */
+	public void startOutputCapture() {
+		captureOutput = true;
+		capturedOutput = new StringBuffer(256);
+	}
+
 	@Override
 	public void rWriteConsole(Rengine re, String text, int oType) {
-		console.print(text, Color.BLUE);
+		if (captureOutput) {
+			capturedOutput.append(text);
+		} else {
+			console.print(text, Color.BLUE);
+		}
+	}
+
+	/**
+	 * Start capturing output from {@link #rWriteConsole(Rengine, String, int)}
+	 * and return output captured since {@link #startOutputCapture()}.
+	 * 
+	 * @return output captured since {@link #startOutputCapture()}.
+	 */
+	public String stopOutputCapture() {
+		captureOutput = false;
+		return capturedOutput.toString();
 	}
 
 	@Override
@@ -108,7 +136,7 @@ public class RSwingConsole extends JComponent implements RMainLoopCallbacks {
 	private void prompt(String prompt) {
 		console.print(prompt, Color.RED);
 	}
-	
+
 	public void printPrompt() {
 		prompt(rPrompt);
 	}

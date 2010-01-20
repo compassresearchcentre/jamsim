@@ -1,55 +1,55 @@
 package org.jamsim.ascape.output;
 
+import net.casper.data.model.CBuilder;
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
-import net.sf.functionalj.util.Strings;
 
+import org.apache.commons.lang.NotImplementedException;
+import org.jamsim.ascape.ScapeRInterface;
+import org.jamsim.r.RDataFrame;
 import org.jamsim.r.RInterfaceException;
-import org.jamsim.r.RInterfaceHL;
 import org.jamsim.r.RTable;
+import org.jamsim.r.RUtil;
+import org.jamsim.r.UnsupportedTypeException;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
 
 /**
  * A single run output dataset produced by running commands on the scape
  * dataframe. Runs the R command when the iteration finishes and returns a
- * casper dataset.
+ * casper dataset. Currently supports R commands that return a table or a
+ * dataset.
  * 
  * @author Oliver Mannion
  * @version $Revision$
  * 
  */
-public class ROutputDataMultiRun implements MultiRunOutputDatasetProvider {
+public class ROutput implements OutputDatasetProvider {
 
-	private final RInterfaceHL rInterface;
+	private final ScapeRInterface scapeR;
 	private final String name;
 	private final String shortName;
-	private final String dataframeName;
 	private final String rCommand;
 
 	/**
 	 * Default constructor.
 	 * 
-	 * @param rInterface
+	 * @param scapeR
 	 *            r interface for running the command.
 	 * @param shortName
 	 *            short name
 	 * @param name
 	 *            name
-	 * @param dataFrameName
-	 *            name of the dataframe produced at the end of every scape
-	 *            iteration. Do not include the run number suffix.
 	 * @param rCommand
 	 *            r command to run on the dataframe at then end of every scape
 	 *            iteration. Where the string "DATAFRAME" appears, this will be
 	 *            substituted with {@code dataFrameName + run number}.
 	 */
-	public ROutputDataMultiRun(RInterfaceHL rInterface, String shortName,
-			String name, String dataFrameName, String rCommand) {
-		this.rInterface = rInterface;
+	public ROutput(String shortName, String name, ScapeRInterface scapeR, 
+			String rCommand) {
+		this.scapeR = scapeR;
 		this.shortName = shortName;
 		this.name = name;
-		this.dataframeName = dataFrameName;
 		this.rCommand = rCommand;
 	}
 
@@ -72,30 +72,35 @@ public class ROutputDataMultiRun implements MultiRunOutputDatasetProvider {
 		try {
 			// where the string "DATAFRAME" appears,
 			// substitute with {@code dataFrameName + run number}.
-			String cmd = rCommand.replace("DATAFRAME", dataframeName + run);
+			String cmd =
+					rCommand.replace("DATAFRAME", scapeR
+							.getScapeDFRunName(run));
 
-			rexp = rInterface.parseAndEval(cmd);
+			rexp = scapeR.parseAndEval(cmd);
 
-			RTable tbl = new RTable(getName(), rexp);
+			CBuilder builder;
 
-			return new CDataCacheContainer(tbl);
+			if (RTable.isTable(rexp)) {
+				builder = new RTable(getName(), rexp);
+			} else if (RDataFrame.isDataFrame(rexp)) {
+				builder = new RDataFrame(getName(), rexp);
+			} else {
+				throw new NotImplementedException(cmd
+						+ " returned rexp of type ["
+						+ RUtil.getClassAttribute(rexp)
+						+ "]\n. Conversion of this type to "
+						+ "dataset not yet implemented.");
+			}
+
+			return new CDataCacheContainer(builder);
 
 		} catch (RInterfaceException e) {
 			throw new CDataGridException(e);
 		} catch (REXPMismatchException e) {
 			throw new CDataGridException(e);
+		} catch (UnsupportedTypeException e) {
+			throw new CDataGridException(e);
 		}
-	}
-
-	@Override
-	public double[] getValues(int run) {
-		return new double[0];
-	}
-
-	@Override
-	public CDataCacheContainer getMultiRunDataset() throws CDataGridException {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }
