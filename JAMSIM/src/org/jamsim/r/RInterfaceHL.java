@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.rosuda.JRI.RMainLoopCallbacks;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
+import org.rosuda.REngine.REXPString;
 import org.rosuda.REngine.REngine;
 import org.rosuda.REngine.REngineException;
 import org.rosuda.REngine.RList;
@@ -181,7 +182,7 @@ public final class RInterfaceHL {
 	}
 
 	/**
-	 * Evaluate a String expression in R in the global environment.
+	 * Evaluate an expression in R in the global environment.
 	 * 
 	 * @param expr
 	 *            expression to evaluate.
@@ -200,6 +201,36 @@ public final class RInterfaceHL {
 		} catch (REngineException e) {
 			throw new RInterfaceException(e.getMessage(), e);
 		} catch (REXPMismatchException e) {
+			throw new RInterfaceException(e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * Evaluate an expression and test that it returns a {@link REXPString}.
+	 * 
+	 * @param expr
+	 *            expression to evaluate.
+	 * @return REXP result of the evaluation.
+	 * @throws RInterfaceException
+	 *             if problem during parse or evaluation, or expression does not
+	 *             return a {@link REXPString}.
+	 */
+	public String[] parseAndEvalStringVector(String expr)
+			throws RInterfaceException {
+		try {
+			REXP rexp = rosudaEngine.parseAndEval(expr);
+
+			// r command must return a REXPString
+			if (!(rexp instanceof REXPString)) {
+				throw new RInterfaceException(expr + " returned "
+						+ rexp.getClass().getCanonicalName()
+						+ " instead of REXPString");
+			}
+
+			return rexp.asStrings();
+		} catch (REXPMismatchException e) {
+			throw new RInterfaceException(e.getMessage(), e);
+		} catch (REngineException e) {
 			throw new RInterfaceException(e.getMessage(), e);
 		}
 	}

@@ -108,6 +108,12 @@ public abstract class AbstractMultiRunOutputDataset implements
 		double[] values = getValues(run);
 		String[] names = getValueNames();
 
+		if (values.length != names.length) {
+			throw new IllegalArgumentException("\"" + getShortName()
+					+ "\" values.length (" + values.length
+					+ ") != names.length (" + names.length + ")");
+		}
+
 		for (int i = 0; i < values.length; i++) {
 			container.addSingleRow(new Object[] { names[i], values[i] });
 		}

@@ -50,18 +50,46 @@ public class ROutputMultiRun extends AbstractMultiRunOutputDataset {
 		this.valueNames = valueNames;
 	}
 
+	/**
+	 * Default constructor.
+	 * 
+	 * @param shortName
+	 *            short name. This will become the name of the dataframe created
+	 *            in R to hold these results.
+	 * @param name
+	 *            name
+	 * @param columnHeading
+	 *            column heading of the dataset column that contains the value
+	 *            names
+	 * @param valueNameCommand
+	 *            evaluate this command in R to return a String vector that
+	 *            specifies the value names
+	 * @param scapeR
+	 *            r interface for running the command.
+	 * @param rCommand
+	 *            r command to run on the dataframe at then end of every scape
+	 *            iteration. Where the string "DATAFRAME" appears, this will be
+	 *            substituted with {@code dataFrameName + run number}.
+	 */
+	public ROutputMultiRun(String shortName, String name,
+			String columnHeading, String valueNameCommand,
+			ScapeRInterface scapeR, String rCommand) {
+		this(shortName, name, columnHeading, scapeR
+				.parseAndEvalStringVector(valueNameCommand), scapeR, rCommand);
+	}
+
 	@Override
 	public double[] getValues(int run) {
-		REXP rexp;
+		String cmd = "";
 
 		try {
 			// where the string "DATAFRAME" appears,
 			// substitute with {@code dataFrameName + run number}.
-			String cmd =
-					rCommand.replace("DATAFRAME", scapeR
-							.getScapeDFRunName(run));
+			cmd = scapeR.rcmdReplace(rCommand, run);
 
-			rexp = scapeR.parseAndEval(cmd);
+			//System.out.println("Debug R:" + cmd);
+			
+			REXP rexp = scapeR.parseAndEval(cmd);
 
 			// r command must return a REXPDouble
 			if (!(rexp instanceof REXPDouble)) {
@@ -72,9 +100,9 @@ public class ROutputMultiRun extends AbstractMultiRunOutputDataset {
 			return rexp.asDoubles();
 
 		} catch (RInterfaceException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException(e.getMessage() + " [" + cmd + "]", e);
 		} catch (REXPMismatchException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException(e.getMessage() + " [" + cmd + "]", e);
 		}
 	}
 

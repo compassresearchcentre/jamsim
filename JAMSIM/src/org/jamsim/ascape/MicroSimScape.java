@@ -14,7 +14,7 @@ import org.ascape.model.Agent;
 import org.ascape.model.Scape;
 import org.ascape.model.space.CollectionSpace;
 import org.ascape.runtime.swing.SwingRunner;
-import org.ascape.runtime.swing.navigator.RunResultsNode;
+import org.ascape.runtime.swing.navigator.PanelViewNodes;
 import org.ascape.util.swing.AscapeGUIUtil;
 import org.jamsim.ascape.output.OutputDataset;
 import org.jamsim.ascape.output.OutputDatasetProvider;
@@ -43,7 +43,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 			new RecordedMicroSimTreeBuilder();
 
 	private MicroSimScapeNode scapeNode;
-	
+
 	private static final String OUTPUTDIR_KEY = "output directory";
 
 	private File outputDirectory;
@@ -83,7 +83,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	}
 
 	private ScapeRInterface scapeR;
-	
+
 	/**
 	 * Provide R interface.
 	 * 
@@ -164,7 +164,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 * 
 	 * @return output tables node
 	 */
-	public RunResultsNode getOutputTablesNode() {
+	public PanelViewNodes getOutputTablesNode() {
 
 		if (scapeNode == null) {
 			scapeNode =
@@ -181,7 +181,6 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 		return scapeNode.getOutputTablesNode();
 	}
 
-
 	/**
 	 * Add a {@link OutputDatasetProvider} to the scape.
 	 * 
@@ -196,12 +195,13 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	/**
 	 * Add a data frame node to the navigator.
 	 * 
-	 * @param name dataframe name in R
+	 * @param name
+	 *            dataframe name in R
 	 */
 	public void addDataFrameNode(String name) {
 		scapeNode.addDataFrameNode(name);
 	}
-	
+
 	/**
 	 * Loads this scape with agents from a base file. The location of the base
 	 * file is stored in Preferences. If such a location does not exist, then
@@ -380,22 +380,23 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 * @param startUpFilePrefsKey
 	 *            if specified will look up this in the preferences and load the
 	 *            file into R.
+	 * @param rRunEndCommand
+	 *            R command to run at the end of each run, or {@code null}.
 	 * @return scape R interface
 	 * @throws IOException
 	 *             if problem looking up {@code startUpFilePrefsKey}
 	 */
-	public ScapeRInterface addR(String startUpFilePrefsKey)
-			throws IOException {
+	public ScapeRInterface addR(String startUpFilePrefsKey,
+			String rRunEndCommand) throws IOException {
 		// add R to scape
 		File rStartup = null;
 		if (startUpFilePrefsKey != null) {
 			rStartup = loader.getFile(startUpFilePrefsKey);
 		}
-		scapeR = new ScapeRInterface(rStartup);
+		scapeR = new ScapeRInterface(rStartup, rRunEndCommand);
 		addView(scapeR);
-		
+
 		return scapeR;
 	}
-
 
 }

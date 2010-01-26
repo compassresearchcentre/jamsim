@@ -15,7 +15,7 @@ import net.casper.ext.swing.CDatasetTableModel;
 
 import org.ascape.model.event.DefaultScapeListener;
 import org.ascape.model.event.ScapeEvent;
-import org.ascape.runtime.swing.navigator.RunResultsNode;
+import org.ascape.runtime.swing.navigator.PanelViewNodes;
 import org.ascape.util.data.StatCollector;
 import org.ascape.view.vis.ChartView;
 import org.jamsim.ascape.MicroSimScape;
@@ -42,7 +42,7 @@ import org.rosuda.REngine.REXPMismatchException;
 public class OutputDataset extends DefaultScapeListener {
 	private static final long serialVersionUID = -5105471052036807288L;
 
-	private final RunResultsNode outputTablesNode;
+	private final PanelViewNodes outputTablesNode;
 
 	private final OutputDatasetProvider outDataset;
 
@@ -64,7 +64,7 @@ public class OutputDataset extends DefaultScapeListener {
 	 * @param outputDirectory
 	 *            destination directory for results output file
 	 */
-	public OutputDataset(RunResultsNode outputTablesNode,
+	public OutputDataset(PanelViewNodes outputTablesNode,
 			OutputDatasetProvider outDataset, String outputDirectory) {
 		super(outDataset.getName());
 		this.outDataset = outDataset;
@@ -209,8 +209,6 @@ public class OutputDataset extends DefaultScapeListener {
 						((MultiRunOutputDatasetProvider) outDataset)
 								.getMultiRunDataset();
 
-				// createNavigatorOutputNode(allRuns.getCacheName(), allRuns);
-
 				multiRunNodeCreated = true;
 
 				try {
@@ -228,7 +226,7 @@ public class OutputDataset extends DefaultScapeListener {
 					CDataCacheContainer meanOfRuns =
 							new CDataCacheContainer(df);
 
-					createNavigatorOutputNode(RunResultsNode.ALLRUNS,
+					createNavigatorOutputNode(PanelViewNodes.ALLRUNS,
 							meanOfRuns.getCacheName(), meanOfRuns);
 
 					writeCSV(meanOfRuns);

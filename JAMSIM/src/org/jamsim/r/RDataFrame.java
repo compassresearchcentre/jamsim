@@ -79,7 +79,7 @@ public class RDataFrame implements CBuilder {
 
 		int index = 0;
 		for (RVector rvec : rvectors) {
-			columnTypes[index++] = rvec.getClass();
+			columnTypes[index++] = rvec.getType();
 		}
 
 		return columnTypes;

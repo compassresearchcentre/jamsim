@@ -39,7 +39,8 @@ public class DataFrameNode extends DefaultMutableTreeNode implements
 	 * @param scape
 	 *            scape to associate this instance with.
 	 */
-	public DataFrameNode(MicroSimScape<?> scape, String dataFrameName, Font font) {
+	public DataFrameNode(MicroSimScape<?> scape, String dataFrameName,
+			Font font) {
 		super(dataFrameName);
 		this.scape = scape;
 		this.dataFrameName = dataFrameName;
@@ -80,15 +81,16 @@ public class DataFrameNode extends DefaultMutableTreeNode implements
 	private PanelView createDFPanelView(String dataFrameName) {
 		String text = getDFDetails(dataFrameName);
 		Dimension desktopSize = AscapeGUIUtil.getDesktopSize(scape);
-		return PanelViewUtil.createPanelView(dataFrameName, text, desktopSize, font);
+		return PanelViewUtil.createPanelView(dataFrameName, text,
+				desktopSize, font);
 	}
 
 	private String getDFDetails(String dataFrameName) {
 		ScapeRInterface scapeR = scape.getScapeRInterface();
 
 		try {
-			return scapeR.parseAndEvalCaptureOutput("str(head("
-					+ dataFrameName + "))");
+			return scapeR.parseAndEvalCaptureOutput("str("
+					+ dataFrameName + ", max.level=1)");
 
 		} catch (RInterfaceException e) {
 			throw new RuntimeException(e);
