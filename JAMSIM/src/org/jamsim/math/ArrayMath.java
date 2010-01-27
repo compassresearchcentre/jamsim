@@ -58,5 +58,29 @@ public final class ArrayMath {
 
 		return sum;
 	}
+	
+	/**
+	 * Adds the double values in two arrays together and returns the sum.
+	 * 
+	 * @param array1 array 1
+	 * @param array2 array 2
+	 * @return the sum of array1 + array2
+	 */
+	public static int[] sum(int[] array1, int[] array2) {
+		if (array1.length != array2.length) {
+			throw new IllegalArgumentException("array1.length ("
+					+ array1.length + ") != array2.length (" + array2.length
+					+ ")");
+		}
+
+		int[] sum = new int[array1.length];
+
+		for (int i = 0; i < array1.length; i++) {
+			sum[i] = array1[i] + array2[i];
+		}
+
+		return sum;
+	}
+
 
 }

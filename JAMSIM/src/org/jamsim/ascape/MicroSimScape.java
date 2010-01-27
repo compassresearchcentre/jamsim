@@ -3,6 +3,9 @@ package org.jamsim.ascape;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.prefs.Preferences;
 
 import net.casper.data.model.CDataCacheContainer;
@@ -192,14 +195,24 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 				getOutputDirectory()));
 	}
 
+	private final Map<String, String> dataFrameNodeMap =
+			new HashMap<String, String>();
+
 	/**
-	 * Add a data frame node to the navigator.
+	 * Add a data frame node to the navigator. Exits silently without creating a
+	 * duplicate if a node of the same name already exists.
 	 * 
 	 * @param name
 	 *            dataframe name in R
 	 */
 	public void addDataFrameNode(String name) {
-		scapeNode.addDataFrameNode(name);
+
+		if (!dataFrameNodeMap.containsKey(name)) {
+
+			scapeNode.addDataFrameNode(name);
+			dataFrameNodeMap.put(name, null);
+		}
+
 	}
 
 	/**
@@ -382,18 +395,21 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 *            file into R.
 	 * @param rRunEndCommand
 	 *            R command to run at the end of each run, or {@code null}.
+	 * @param keepAllRunDFs
+	 *            flag to keep the dataframes from each run in R. This means
+	 *            creating each new dataframe with a unique name.
 	 * @return scape R interface
 	 * @throws IOException
 	 *             if problem looking up {@code startUpFilePrefsKey}
 	 */
 	public ScapeRInterface addR(String startUpFilePrefsKey,
-			String rRunEndCommand) throws IOException {
+			String rRunEndCommand, boolean keepAllRunDFs) throws IOException {
 		// add R to scape
 		File rStartup = null;
 		if (startUpFilePrefsKey != null) {
 			rStartup = loader.getFile(startUpFilePrefsKey);
 		}
-		scapeR = new ScapeRInterface(rStartup, rRunEndCommand);
+		scapeR = new ScapeRInterface(rStartup, rRunEndCommand, keepAllRunDFs);
 		addView(scapeR);
 
 		return scapeR;

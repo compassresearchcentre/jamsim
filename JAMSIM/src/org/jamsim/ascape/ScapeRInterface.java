@@ -80,10 +80,16 @@ public class ScapeRInterface extends DefaultScapeListener {
 	private final ExecutionTimer timer = new ExecutionTimer();
 
 	/**
+	 * Flag to keep the dataframes from each run in R. This means creating each
+	 * new dataframe with a unique name.
+	 */
+	private final boolean keepAllRunDFs;
+
+	/**
 	 * Default constructor.
 	 */
 	public ScapeRInterface() {
-		this(null, null);
+		this(null, null, false);
 	}
 
 	/**
@@ -93,10 +99,15 @@ public class ScapeRInterface extends DefaultScapeListener {
 	 *            file of R commands to load into R when it is started
 	 * @param rRunEndCommand
 	 *            R command to run at the end of each run, or {@code null}.
+	 * @param keepAllRunDFs
+	 *            flag to keep the dataframes from each run in R. This means
+	 *            creating each new dataframe with a unique name.
 	 */
-	public ScapeRInterface(File startUpFile, String rRunEndCommand) {
+	public ScapeRInterface(File startUpFile, String rRunEndCommand,
+			boolean keepAllRunDFs) {
 		super("R Scape Interface");
 		this.startUpFile = startUpFile;
+		this.keepAllRunDFs = keepAllRunDFs;
 
 		rConsole = new RSwingConsole(false);
 		rConsole.setFont(new Font("Monospaced", Font.PLAIN, 12));
@@ -358,7 +369,9 @@ public class ScapeRInterface extends DefaultScapeListener {
 	 * @return dataframe name
 	 */
 	public String getScapeDFRunName(int run) {
-		return scape.getName().toLowerCase() + run;
+		String dfName =
+				scape.getName().toLowerCase() + (keepAllRunDFs ? run : "");
+		return dfName;
 	}
 
 	/**
