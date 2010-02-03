@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
@@ -21,8 +20,8 @@ import org.ascape.runtime.swing.navigator.PanelViewNodes;
 import org.ascape.util.swing.AscapeGUIUtil;
 import org.jamsim.ascape.output.OutputDataset;
 import org.jamsim.ascape.output.OutputDatasetProvider;
+import org.jamsim.ascape.output.ROutputMultiRun;
 import org.jamsim.io.FileLoader;
-import org.jamsim.r.RInterfaceHL;
 
 /**
  * A Scape with micro-simulation input/output functions including base file
@@ -390,6 +389,11 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	/**
 	 * Add R to this scape.
 	 * 
+	 * @param dataFrameSymbol
+	 *            replacement symbol. When evaluating {@link #rRunEndCommand}
+	 *            and commands during the creation of output datasets in
+	 *            {@link ROutputMultiRun}, this symbol is searched for and
+	 *            replaced with the current run's dataframe name.
 	 * @param startUpFilePrefsKey
 	 *            if specified will look up this in the preferences and load the
 	 *            file into R.
@@ -402,14 +406,17 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 * @throws IOException
 	 *             if problem looking up {@code startUpFilePrefsKey}
 	 */
-	public ScapeRInterface addR(String startUpFilePrefsKey,
-			String rRunEndCommand, boolean keepAllRunDFs) throws IOException {
+	public ScapeRInterface addR(String dataFrameSymbol,
+			String startUpFilePrefsKey, String rRunEndCommand,
+			boolean keepAllRunDFs) throws IOException {
 		// add R to scape
 		File rStartup = null;
 		if (startUpFilePrefsKey != null) {
 			rStartup = loader.getFile(startUpFilePrefsKey);
 		}
-		scapeR = new ScapeRInterface(rStartup, rRunEndCommand, keepAllRunDFs);
+		scapeR =
+				new ScapeRInterface(dataFrameSymbol, rStartup,
+						rRunEndCommand, keepAllRunDFs);
 		addView(scapeR);
 
 		return scapeR;

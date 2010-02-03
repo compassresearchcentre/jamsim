@@ -2,30 +2,41 @@ package org.jamsim.ascape;
 
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.TooManyListenersException;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
 import net.casper.data.model.CDataCacheContainer;
 
+import org.ascape.model.Scape;
 import org.ascape.model.event.DefaultScapeListener;
 import org.ascape.model.event.ScapeEvent;
 import org.ascape.runtime.RuntimeEnvironment;
 import org.ascape.runtime.swing.DesktopEnvironment;
 import org.ascape.runtime.swing.UserFrame;
+import org.ascape.util.swing.AscapeGUIUtil;
+import org.jamsim.ascape.output.ROutputMultiRun;
 import org.jamsim.r.RInterfaceException;
 import org.jamsim.r.RInterfaceHL;
 import org.jamsim.r.RSwingConsole;
 import org.jamsim.r.RUtil;
+import org.jamsim.swing.JEditPanelView;
+import org.jamsim.swing.PanelViewListener;
 import org.jamsim.util.ExecutionTimer;
 import org.rosuda.REngine.REXP;
-import org.rosuda.REngine.REXPMismatchException;
-import org.rosuda.REngine.REXPString;
 
 /**
  * Connects an Ascape scape to R. When this listener is added to a scape, it
@@ -40,7 +51,13 @@ public class ScapeRInterface extends DefaultScapeListener {
 	/**
 	 * Dataframe replacement symbol.
 	 */
-	public static final String DATAFRAME_SYMBOL = "DATAFRAME";
+	private final String dataFrameSymbol;
+
+	/**
+	 * Default dataframe replacement symbol to use if none specified in
+	 * constructor.
+	 */
+	public static final String DEFAULT_DF_SYMBOL = "DATAFRAME";
 
 	/**
 	 * Serialization ID.
@@ -75,7 +92,7 @@ public class ScapeRInterface extends DefaultScapeListener {
 	 */
 	private boolean firstCloseExecuted = false;
 
-	private int currentRun = 0;
+	private int runNumber = 0;
 
 	private final ExecutionTimer timer = new ExecutionTimer();
 
@@ -85,16 +102,25 @@ public class ScapeRInterface extends DefaultScapeListener {
 	 */
 	private final boolean keepAllRunDFs;
 
+	private JEditPanelView jeditStartupFile;
+
 	/**
-	 * Default constructor.
+	 * Default constructor. Construct with no startup file, no run end command,
+	 * without keeping all run's dataframes, and with {@link #DEFAULT_DF_SYMBOL}
+	 * as the dataframe replacement symbol.
 	 */
 	public ScapeRInterface() {
-		this(null, null, false);
+		this(DEFAULT_DF_SYMBOL, null, null, false);
 	}
 
 	/**
 	 * Construct {@link #ScapeRInterface()} with a file to load at R startup.
 	 * 
+	 * @param dataFrameSymbol
+	 *            replacement symbol. When evaluating {@link #rRunEndCommand}
+	 *            and commands during the creation of output datasets in
+	 *            {@link ROutputMultiRun}, this symbol is searched for and
+	 *            replaced with the current run's dataframe name.
 	 * @param startUpFile
 	 *            file of R commands to load into R when it is started
 	 * @param rRunEndCommand
@@ -103,9 +129,10 @@ public class ScapeRInterface extends DefaultScapeListener {
 	 *            flag to keep the dataframes from each run in R. This means
 	 *            creating each new dataframe with a unique name.
 	 */
-	public ScapeRInterface(File startUpFile, String rRunEndCommand,
-			boolean keepAllRunDFs) {
+	public ScapeRInterface(String dataFrameSymbol, File startUpFile,
+			String rRunEndCommand, boolean keepAllRunDFs) {
 		super("R Scape Interface");
+		this.dataFrameSymbol = dataFrameSymbol;
 		this.startUpFile = startUpFile;
 		this.keepAllRunDFs = keepAllRunDFs;
 
@@ -115,22 +142,14 @@ public class ScapeRInterface extends DefaultScapeListener {
 	}
 
 	/**
-	 * Called immediatly after the scape is initialized.
+	 * At the beginning of all runs, print a blank line to the R console.
 	 * 
 	 * @param scapeEvent
 	 *            the scape event
 	 */
-
-	/**
-	 * At the beginning of all runs, print a blank line to the R console.
-	 */
 	public void scapeInitialized(ScapeEvent scapeEvent) {
-		if (currentRun == 0) {
-			try {
-				printlnToConsole("");
-			} catch (RInterfaceException e) {
-				throw new RuntimeException(e);
-			}
+		if (runNumber == 0) {
+			printlnToConsole("");
 		}
 	}
 
@@ -159,6 +178,123 @@ public class ScapeRInterface extends DefaultScapeListener {
 		msScape = (MicroSimScape<?>) scape;
 
 		loadR();
+
+		if (startUpFile != null) {
+			addRMenu(scape);
+			addRShortcut();
+		}
+	}
+
+	/**
+	 * Add the R menu to the menu bar.
+	 * 
+	 * @param scape
+	 *            scape
+	 */
+	private void addRMenu(Scape scape) {
+		JMenu rMenu = new JMenu("R");
+
+		JMenuItem item = new JMenuItem(getOpenStartupFileAction());
+		rMenu.add(item);
+
+		AscapeGUIUtil.addMenu(scape, rMenu);
+	}
+
+	/**
+	 * Install the F8 key pressed event listener. Calls
+	 * {@link #executeRStartupFileBuffer()} when triggered.
+	 */
+	private void addRShortcut() {
+
+		KeyboardFocusManager.getCurrentKeyboardFocusManager()
+				.addKeyEventDispatcher(new KeyEventDispatcher() {
+					@Override
+					public boolean dispatchKeyEvent(final KeyEvent e) {
+						if (e.getKeyCode() == KeyEvent.VK_F8
+								&& e.getID() == KeyEvent.KEY_PRESSED) {
+
+							executeRStartupFileBuffer();
+
+							return true;
+						}
+						return false;
+
+					}
+				});
+
+	}
+
+	/**
+	 * Execute the contents of the R startup file buffer. If text has been
+	 * selected, execute that, otherwise execute the entire contents. If the R
+	 * startup file buffer hasn't been loaded, exits silently.
+	 */
+	private void executeRStartupFileBuffer() {
+		if (jeditStartupFile != null) {
+			rConsole.linefeed();
+
+			// get current selection
+			// if nothing selected use entire buffer
+			String contents = jeditStartupFile.getCurrentSelection();
+
+			if (contents == null) {
+				contents = jeditStartupFile.getBufferContents();
+			}
+
+			tryParseAndEvalPrintError(contents);
+
+			rConsole.printPrompt();
+		}
+	}
+
+	/**
+	 * Action that opens a window displaying the R startup file.
+	 * 
+	 * @return action
+	 */
+	private Action getOpenStartupFileAction() {
+		Action openAction = new AbstractAction() {
+
+			public void actionPerformed(ActionEvent e) {
+
+				try {
+					createJEditStartupFile();
+				} catch (IOException e1) {
+					throw new RuntimeException(e1);
+				}
+			}
+		};
+		openAction.putValue(Action.NAME, "Open R startup file");
+		openAction.putValue(Action.SHORT_DESCRIPTION, "Open R startup file");
+		/*
+		 * openAction.putValue(Action.SMALL_ICON, DesktopEnvironment
+		 * .getIcon("OpenArrow"));
+		 */
+		return openAction;
+
+	}
+
+	/**
+	 * Create {@link JEditPanelView} that contains contents of
+	 * {@link #startUpFile} and add it to the GUI.
+	 * 
+	 * @throws IOException
+	 *             if problem reading {@link #startUpFile}.
+	 */
+	private void createJEditStartupFile() throws IOException {
+		if (jeditStartupFile == null) {
+			jeditStartupFile =
+					new JEditPanelView("R startup file: "
+							+ startUpFile.getCanonicalPath(), startUpFile);
+			jeditStartupFile.addToSwingEnvironment();
+			jeditStartupFile.setPanelViewListener(new PanelViewListener() {
+
+				@Override
+				public void panelViewClosing() {
+					jeditStartupFile = null;
+				}
+			});
+		}
 	}
 
 	/**
@@ -196,9 +332,12 @@ public class ScapeRInterface extends DefaultScapeListener {
 
 				if (startUpFile != null) {
 					try {
+
 						rInterface.printlnToConsole("Loading "
 								+ startUpFile.getCanonicalPath());
+
 						rInterface.parseAndEval(startUpFile);
+
 					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -291,12 +430,12 @@ public class ScapeRInterface extends DefaultScapeListener {
 	 */
 	@Override
 	public void scapeStopped(ScapeEvent scapeEvent) {
-		currentRun++;
+		runNumber++;
 
 		try {
 			if (rInterface != null) {
 
-				String dataframeName = getScapeDFRunName(currentRun);
+				String dataframeName = getScapeDFRunName(runNumber);
 
 				timer.start();
 
@@ -314,7 +453,7 @@ public class ScapeRInterface extends DefaultScapeListener {
 
 					timer.start();
 
-					String rcmd = rcmdReplace(rRunEndCommand, currentRun);
+					String rcmd = rcmdReplace(rRunEndCommand, runNumber);
 
 					rInterface.parseAndEval(rcmd);
 
@@ -332,8 +471,8 @@ public class ScapeRInterface extends DefaultScapeListener {
 	}
 
 	/**
-	 * Where the string {@link #DATAFRAME_SYMBOL} appears, substitute with
-	 * {@code dataFrameName + run number}.
+	 * Where the {@link #dataFrameSymbol} appears, substitute with the dataframe
+	 * scape name returned by {@link #getScapeDFRunName(int)}.
 	 * 
 	 * @param rcmd
 	 *            R command containing text to replace
@@ -342,7 +481,7 @@ public class ScapeRInterface extends DefaultScapeListener {
 	 * @return R command text with string replaced
 	 */
 	public String rcmdReplace(String rcmd, int run) {
-		return rcmd.replace(DATAFRAME_SYMBOL, getScapeDFRunName(run));
+		return rcmd.replace(dataFrameSymbol, getScapeDFRunName(run));
 	}
 
 	/**
@@ -434,6 +573,23 @@ public class ScapeRInterface extends DefaultScapeListener {
 	}
 
 	/**
+	 * Evaluate an expression, catching parse and evaluation errors and
+	 * returning them via the console (if any).
+	 * 
+	 * @param expr
+	 *            expression to evaluate
+	 * @return evaluated result
+	 */
+	public REXP tryParseAndEvalPrintError(String expr) {
+		try {
+			return rInterface.tryParseAndEval(expr);
+		} catch (RInterfaceException e) {
+			printlnToConsole(e.getMessage());
+			return null;
+		}
+	}
+
+	/**
 	 * Evaluate a String expression in R in the global environment. Returns all
 	 * console output produced by this evaluation. Does not return the
 	 * {@link REXP} produced by the evaluation.
@@ -472,11 +628,13 @@ public class ScapeRInterface extends DefaultScapeListener {
 	 * 
 	 * @param msg
 	 *            message to print.
-	 * @throws RInterfaceException
-	 *             if problem during evaluation.
 	 */
-	public void printlnToConsole(String msg) throws RInterfaceException {
-		rInterface.printToConsole(msg + "\n");
+	public void printlnToConsole(String msg) {
+		try {
+			rInterface.printToConsole(msg + "\n");
+		} catch (RInterfaceException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }

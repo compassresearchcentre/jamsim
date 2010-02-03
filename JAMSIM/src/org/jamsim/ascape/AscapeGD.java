@@ -66,7 +66,7 @@ public class AscapeGD extends GDInterface {
 
 		// create a frame for the PanelView
 		// this displays it in the Ascape MDI environment
-		// NB: normally you would create add a PanelView as
+		// NB: normally you would add a PanelView as
 		// a ScapeListener to a scape, which would then
 		// create an MDI frame if the ScapeListener is a
 		// ComponentView. Here we bypass adding the PanelView
@@ -95,7 +95,7 @@ public class AscapeGD extends GDInterface {
 
 		} else {
 			throw new RuntimeException("Unknown frame type "
-					+ pvFrame.getClass().getCanonicalName());
+					+ pvFrameImp.getClass().getCanonicalName());
 		}
 
 	}

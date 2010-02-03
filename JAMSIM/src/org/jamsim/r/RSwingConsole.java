@@ -28,6 +28,8 @@ public class RSwingConsole extends JComponent implements RMainLoopCallbacks {
 	 */
 	private static final long serialVersionUID = -8885521123731152442L;
 
+	private static final String LINESEP = System.getProperty("line.separator");
+
 	/*
 	 * private static final String NEWLINE =
 	 * System.getProperty("line.separator");
@@ -137,8 +139,18 @@ public class RSwingConsole extends JComponent implements RMainLoopCallbacks {
 		console.print(prompt, Color.RED);
 	}
 
+	/**
+	 * Display the prompt.
+	 */
 	public void printPrompt() {
 		prompt(rPrompt);
+	}
+	
+	/**
+	 * Move the current position to the next line.
+	 */
+	public void linefeed() {
+		console.print(LINESEP);
 	}
 
 	/**

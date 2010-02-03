@@ -59,5 +59,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/JRI"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jedit-textarea"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

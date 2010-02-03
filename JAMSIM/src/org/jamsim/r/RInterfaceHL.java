@@ -10,6 +10,7 @@ import net.casper.io.file.util.ArrayUtil;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.jamsim.io.FileUtil;
 import org.rosuda.JRI.RMainLoopCallbacks;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
@@ -165,7 +166,7 @@ public final class RInterfaceHL {
 			RInterfaceException {
 		FileReader fr = new FileReader(file);
 		String expr = IOUtils.toString(fr);
-
+		
 		// release file after loading,
 		// instead of waiting for VM exit/garbage collection
 		fr.close();

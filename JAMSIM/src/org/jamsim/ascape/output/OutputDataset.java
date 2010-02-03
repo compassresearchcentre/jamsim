@@ -24,7 +24,6 @@ import org.jamsim.date.DateUtil;
 import org.jamsim.io.FileUtil;
 import org.jamsim.r.RDataFrame;
 import org.jamsim.r.RInterfaceException;
-import org.jamsim.r.RInterfaceHL;
 import org.jamsim.r.UnsupportedTypeException;
 import org.jamsim.swing.DoubleCellRenderer;
 import org.rosuda.REngine.REXP;
@@ -48,7 +47,7 @@ public class OutputDataset extends DefaultScapeListener {
 
 	private final String outputDirectory;
 
-	private int runNumber = 1;
+	private int runNumber = 0;
 
 	private boolean multiRunNodeCreated = false;
 
@@ -153,6 +152,7 @@ public class OutputDataset extends DefaultScapeListener {
 	 */
 	@Override
 	public void scapeStopped(ScapeEvent scapeEvent) {
+		runNumber++;
 
 		// create the output node on the AWT event thread
 		/*
@@ -169,7 +169,6 @@ public class OutputDataset extends DefaultScapeListener {
 
 			writeCSV(runName, results);
 
-			runNumber++;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} catch (CDataGridException e) {
@@ -200,7 +199,8 @@ public class OutputDataset extends DefaultScapeListener {
 		// scapeClosing gets called twice when the scape closes
 		// so we need a flag (multiRunNodeCreated) to make sure
 		// it doesn't get called twice
-		if (outDataset instanceof MultiRunOutputDatasetProvider
+		if (runNumber > 0
+				&& outDataset instanceof MultiRunOutputDatasetProvider
 				&& !multiRunNodeCreated) {
 
 			// create multi-run node
@@ -218,8 +218,7 @@ public class OutputDataset extends DefaultScapeListener {
 							+ "(" + outDataset.getName() + ")");
 
 					REXP rexp =
-						scapeR.parseAndEval("meanOfRuns(" + dfName
-									+ ")");
+							scapeR.parseAndEval("meanOfRuns(" + dfName + ")");
 					RDataFrame df =
 							new RDataFrame(allRuns.getCacheName(), rexp);
 

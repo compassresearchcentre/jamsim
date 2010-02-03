@@ -13,7 +13,6 @@ import org.ascape.util.swing.AscapeGUIUtil;
 import org.ascape.util.swing.PanelViewUtil;
 import org.ascape.view.vis.PanelView;
 import org.jamsim.r.RInterfaceException;
-import org.rosuda.REngine.REXP;
 
 /**
  * Tree node that displays details of an R dataframe when clicked on. For
@@ -36,8 +35,13 @@ public class DataFrameNode extends DefaultMutableTreeNode implements
 	 * Create a {@link DataFrameNode} that when clicked will display information
 	 * on the R dataframe.
 	 * 
+	 * 
 	 * @param scape
 	 *            scape to associate this instance with.
+	 * @param dataFrameName
+	 *            name of the dataframe in R
+	 * @param font
+	 *            font to use in textarea that displays dataframe details
 	 */
 	public DataFrameNode(MicroSimScape<?> scape, String dataFrameName,
 			Font font) {
@@ -78,6 +82,13 @@ public class DataFrameNode extends DefaultMutableTreeNode implements
 		}
 	}
 
+	/**
+	 * Create a panel view with a textarea displaying the dataframe details.
+	 * Dataframe details are provided by {@link #getDFDetails(String)}.
+	 * 
+	 * @param dataFrameName
+	 * @return
+	 */
 	private PanelView createDFPanelView(String dataFrameName) {
 		String text = getDFDetails(dataFrameName);
 		Dimension desktopSize = AscapeGUIUtil.getDesktopSize(scape);
@@ -85,12 +96,20 @@ public class DataFrameNode extends DefaultMutableTreeNode implements
 				desktopSize, font);
 	}
 
+	/**
+	 * Return the details of the dataframe. This is the response from executing
+	 * {@code str(dataframe, max.level=1) } in the R console.
+	 * 
+	 * @param dataFrameName
+	 *            data frame name
+	 * @return details of dataframe.
+	 */
 	private String getDFDetails(String dataFrameName) {
 		ScapeRInterface scapeR = scape.getScapeRInterface();
 
 		try {
-			return scapeR.parseAndEvalCaptureOutput("str("
-					+ dataFrameName + ", max.level=1)");
+			return scapeR.parseAndEvalCaptureOutput("str(" + dataFrameName
+					+ ", max.level=1)");
 
 		} catch (RInterfaceException e) {
 			throw new RuntimeException(e);
