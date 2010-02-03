@@ -43,6 +43,10 @@ public class FileBuffer extends JEditBuffer {
 
 	private void insertWithoutRecordingUndo(String contents) {
 		this.insert(0, contents);
+		resetUndoState();
+	}
+	
+	private void resetUndoState() {
 		this.setDirty(false);
 
 		// super.undoMgr = new UndoManager(this);
@@ -90,6 +94,7 @@ public class FileBuffer extends JEditBuffer {
 				i++;
 			}
 			writer.flush();
+			resetUndoState();
 		} finally {
 			readUnlock();
 		}

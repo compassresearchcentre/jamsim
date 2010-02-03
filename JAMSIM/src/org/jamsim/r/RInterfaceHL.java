@@ -164,22 +164,33 @@ public final class RInterfaceHL {
 	 */
 	public REXP parseAndEval(File file) throws IOException,
 			RInterfaceException {
-		FileReader fr = new FileReader(file);
-		String expr = IOUtils.toString(fr);
-		
-		// release file after loading,
-		// instead of waiting for VM exit/garbage collection
-		fr.close();
-
-		// strip "\r" otherwise we will get parse errors
-		expr = StringUtils.remove(expr, "\r");
-
 		try {
-			return tryParseAndEval(expr);
+			return tryParseAndEval(readRFile(file));
 		} catch (RInterfaceException e) {
 			throw new RInterfaceException(file.getCanonicalPath() + " "
 					+ e.getMessage(), e);
 		}
+	}
+
+	/**
+	 * Returns contents of an R file. Removes "\r" in the string, because R
+	 * doesn't like them.
+	 * 
+	 * @param file text file
+	 * @return contents of text file with "\r" removed
+	 * @throws IOException
+	 *             if file cannot be read.
+	 */
+	public static String readRFile(File file) throws IOException {
+		FileReader reader = new FileReader(file);
+		String expr = IOUtils.toString(reader);
+
+		// release file after loading,
+		// instead of waiting for VM exit/garbage collection
+		reader.close();
+
+		// strip "\r" otherwise we will get parse errors
+		return StringUtils.remove(expr, "\r");
 	}
 
 	/**

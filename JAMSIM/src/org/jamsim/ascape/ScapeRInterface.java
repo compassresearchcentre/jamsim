@@ -2,39 +2,27 @@ package org.jamsim.ascape;
 
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.KeyEventDispatcher;
-import java.awt.KeyboardFocusManager;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.TooManyListenersException;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
 import net.casper.data.model.CDataCacheContainer;
 
-import org.ascape.model.Scape;
 import org.ascape.model.event.DefaultScapeListener;
 import org.ascape.model.event.ScapeEvent;
 import org.ascape.runtime.RuntimeEnvironment;
 import org.ascape.runtime.swing.DesktopEnvironment;
 import org.ascape.runtime.swing.UserFrame;
-import org.ascape.util.swing.AscapeGUIUtil;
 import org.jamsim.ascape.output.ROutputMultiRun;
 import org.jamsim.r.RInterfaceException;
 import org.jamsim.r.RInterfaceHL;
 import org.jamsim.r.RSwingConsole;
 import org.jamsim.r.RUtil;
-import org.jamsim.swing.JEditPanelView;
-import org.jamsim.swing.PanelViewListener;
 import org.jamsim.util.ExecutionTimer;
 import org.rosuda.REngine.REXP;
 
@@ -49,20 +37,15 @@ import org.rosuda.REngine.REXP;
 public class ScapeRInterface extends DefaultScapeListener {
 
 	/**
-	 * Dataframe replacement symbol.
+	 * Serialization ID.
 	 */
-	private final String dataFrameSymbol;
+	private static final long serialVersionUID = -5105471052036807288L;
 
 	/**
 	 * Default dataframe replacement symbol to use if none specified in
 	 * constructor.
 	 */
 	public static final String DEFAULT_DF_SYMBOL = "DATAFRAME";
-
-	/**
-	 * Serialization ID.
-	 */
-	private static final long serialVersionUID = -5105471052036807288L;
 
 	/**
 	 * R Console tab title.
@@ -72,18 +55,29 @@ public class ScapeRInterface extends DefaultScapeListener {
 	private static final int MAX_PRINT = 256;
 
 	/**
-	 * R interface.
+	 * Dataframe replacement symbol.
 	 */
-	private transient RInterfaceHL rInterface = null;
+	private final String dataFrameSymbol;
 
 	/**
 	 * File of R commands to load into R when it is started.
 	 */
 	private final File startUpFile;
 
-	private final RSwingConsole rConsole;
-
 	private final String rRunEndCommand;
+
+	/**
+	 * Flag to keep the dataframes from each run in R. This means creating each
+	 * new dataframe with a unique name.
+	 */
+	private final boolean keepAllRunDFs;
+
+	/**
+	 * R interface.
+	 */
+	private transient RInterfaceHL rInterface = null;
+
+	private final RSwingConsole rConsole;
 
 	private MicroSimScape<?> msScape;
 
@@ -95,14 +89,6 @@ public class ScapeRInterface extends DefaultScapeListener {
 	private int runNumber = 0;
 
 	private final ExecutionTimer timer = new ExecutionTimer();
-
-	/**
-	 * Flag to keep the dataframes from each run in R. This means creating each
-	 * new dataframe with a unique name.
-	 */
-	private final boolean keepAllRunDFs;
-
-	private JEditPanelView jeditStartupFile;
 
 	/**
 	 * Default constructor. Construct with no startup file, no run end command,
@@ -180,120 +166,7 @@ public class ScapeRInterface extends DefaultScapeListener {
 		loadR();
 
 		if (startUpFile != null) {
-			addRMenu(scape);
-			addRShortcut();
-		}
-	}
-
-	/**
-	 * Add the R menu to the menu bar.
-	 * 
-	 * @param scape
-	 *            scape
-	 */
-	private void addRMenu(Scape scape) {
-		JMenu rMenu = new JMenu("R");
-
-		JMenuItem item = new JMenuItem(getOpenStartupFileAction());
-		rMenu.add(item);
-
-		AscapeGUIUtil.addMenu(scape, rMenu);
-	}
-
-	/**
-	 * Install the F8 key pressed event listener. Calls
-	 * {@link #executeRStartupFileBuffer()} when triggered.
-	 */
-	private void addRShortcut() {
-
-		KeyboardFocusManager.getCurrentKeyboardFocusManager()
-				.addKeyEventDispatcher(new KeyEventDispatcher() {
-					@Override
-					public boolean dispatchKeyEvent(final KeyEvent e) {
-						if (e.getKeyCode() == KeyEvent.VK_F8
-								&& e.getID() == KeyEvent.KEY_PRESSED) {
-
-							executeRStartupFileBuffer();
-
-							return true;
-						}
-						return false;
-
-					}
-				});
-
-	}
-
-	/**
-	 * Execute the contents of the R startup file buffer. If text has been
-	 * selected, execute that, otherwise execute the entire contents. If the R
-	 * startup file buffer hasn't been loaded, exits silently.
-	 */
-	private void executeRStartupFileBuffer() {
-		if (jeditStartupFile != null) {
-			rConsole.linefeed();
-
-			// get current selection
-			// if nothing selected use entire buffer
-			String contents = jeditStartupFile.getCurrentSelection();
-
-			if (contents == null) {
-				contents = jeditStartupFile.getBufferContents();
-			}
-
-			tryParseAndEvalPrintError(contents);
-
-			rConsole.printPrompt();
-		}
-	}
-
-	/**
-	 * Action that opens a window displaying the R startup file.
-	 * 
-	 * @return action
-	 */
-	private Action getOpenStartupFileAction() {
-		Action openAction = new AbstractAction() {
-
-			public void actionPerformed(ActionEvent e) {
-
-				try {
-					createJEditStartupFile();
-				} catch (IOException e1) {
-					throw new RuntimeException(e1);
-				}
-			}
-		};
-		openAction.putValue(Action.NAME, "Open R startup file");
-		openAction.putValue(Action.SHORT_DESCRIPTION, "Open R startup file");
-		/*
-		 * openAction.putValue(Action.SMALL_ICON, DesktopEnvironment
-		 * .getIcon("OpenArrow"));
-		 */
-		return openAction;
-
-	}
-
-	/**
-	 * Create {@link JEditPanelView} that contains contents of
-	 * {@link #startUpFile} and add it to the GUI.
-	 * 
-	 * @throws IOException
-	 *             if problem reading {@link #startUpFile}.
-	 */
-	private void createJEditStartupFile() throws IOException {
-		if (jeditStartupFile == null) {
-			jeditStartupFile =
-					new JEditPanelView("R startup file: "
-							+ startUpFile.getCanonicalPath(), startUpFile);
-			jeditStartupFile.addToSwingEnvironment();
-			jeditStartupFile.setPanelViewListener(new PanelViewListener() {
-
-				@Override
-				public void panelViewClosing() {
-					jeditStartupFile = null;
-				}
-			});
+			new JEditRStartupFile(scape, this, startUpFile);
 		}
 	}
 
@@ -336,7 +209,8 @@ public class ScapeRInterface extends DefaultScapeListener {
 						rInterface.printlnToConsole("Loading "
 								+ startUpFile.getCanonicalPath());
 
-						rInterface.parseAndEval(startUpFile);
+						tryParseAndEvalPrintError(RInterfaceHL
+								.readRFile(startUpFile));
 
 					} catch (IOException e) {
 						throw new RuntimeException(e);
@@ -574,19 +448,34 @@ public class ScapeRInterface extends DefaultScapeListener {
 
 	/**
 	 * Evaluate an expression, catching parse and evaluation errors and
-	 * returning them via the console (if any).
+	 * returning them via the console (if any). Prints linefeed before, and
+	 * prompt after, evaluation.
 	 * 
 	 * @param expr
 	 *            expression to evaluate
 	 * @return evaluated result
 	 */
 	public REXP tryParseAndEvalPrintError(String expr) {
+		REXP rexp = null;
+
 		try {
-			return rInterface.tryParseAndEval(expr);
+
+			rexp = rInterface.tryParseAndEval(expr);
+
 		} catch (RInterfaceException e) {
 			printlnToConsole(e.getMessage());
-			return null;
 		}
+
+		return rexp;
+
+	}
+
+	public void linefeed() {
+		rConsole.linefeed();
+	}
+
+	public void printPrompt() {
+		rConsole.printPrompt();
 	}
 
 	/**

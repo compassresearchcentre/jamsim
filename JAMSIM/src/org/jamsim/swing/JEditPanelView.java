@@ -131,12 +131,7 @@ public class JEditPanelView extends PanelViewNoStall {
 			 */
 			@Override
 			public void transactionComplete(JEditBuffer buffer) {
-				// get the frame
-				ViewFrameBridge pvBridge = getViewFrame();
-
-				String modified = buffer.isDirty() ? " * " : "";
-				pvBridge.setTitle(name + modified);
-
+				updateFrameTitle();
 			}
 		};
 
@@ -145,6 +140,14 @@ public class JEditPanelView extends PanelViewNoStall {
 		return buffer;
 	}
 
+	private void updateFrameTitle() {
+		// get the frame
+		ViewFrameBridge pvBridge = getViewFrame();
+
+		String modified = buffer.isDirty() ? " * " : "";
+		pvBridge.setTitle(name + modified);
+	}
+	
 	public static StandaloneTextArea createTextArea() {
 		final Properties props = new Properties();
 		props.putAll(loadProperties("/org/gjt/sp/jedit/jedit_keys.props"));
@@ -184,5 +187,12 @@ public class JEditPanelView extends PanelViewNoStall {
 	
 	public String getCurrentSelection() {
 		return jedit.getSelectedText();
+	}
+	
+	public void saveBuffer() throws IOException {
+		if (buffer.isDirty()) {
+			buffer.save();
+			updateFrameTitle();
+		}
 	}
 }
