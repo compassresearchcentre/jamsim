@@ -4,8 +4,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
+import org.gjt.sp.jedit.textarea.TextArea;
+import org.gjt.sp.util.IOUtilities;
+import org.gjt.sp.util.Log;
 
 public final class FileUtil {
 
@@ -49,10 +54,57 @@ public final class FileUtil {
 		return contents;
 
 	}
-	
-	public static void writeFile(File file, String contents) throws IOException {
+
+	public static void writeFile(File file, String contents)
+			throws IOException {
 		FileWriter fw = new FileWriter(file);
 		IOUtils.write(contents, fw);
 	}
 
+	/**
+	 * Method that will close an {@link InputStream} ignoring it if it is null
+	 * and ignoring exceptions.
+	 * 
+	 * @param in
+	 *            the InputStream to close.
+	 */
+	public static void closeQuietly(InputStream in) {
+		if (in != null) {
+			try {
+				in.close();
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+	}
+
+	/**
+	 * Load a file resource into a {@link Properties} object.
+	 * 
+	 * @param resourceClass
+	 *            class the file resource is associated with
+	 * @param fileName
+	 *            file resource to load. Usually needs to exist in the same
+	 *            directory as the class it is associated with.
+	 * @return properties
+	 * @throws IOException
+	 *             if problem reading file
+	 */
+	public static Properties loadProperties(Class<?> resourceClass,
+			String fileName) throws IOException {
+		Properties props = new Properties();
+		InputStream ins = resourceClass.getResourceAsStream(fileName);
+
+		if (ins == null) {
+			throw new IOException("Could not find resource \"" + fileName
+					+ "\"");
+		}
+
+		try {
+			props.load(ins);
+		} finally {
+			closeQuietly(ins);
+		}
+		return props;
+	}
 }

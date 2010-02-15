@@ -1,7 +1,7 @@
 package org.jamsim.ascape.output;
 
-import org.jamsim.ascape.ScapeRInterface;
 import org.jamsim.r.RInterfaceException;
+import org.jamsim.r.ScapeRInterface;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPDouble;
 import org.rosuda.REngine.REXPMismatchException;
@@ -75,7 +75,7 @@ public class ROutputMultiRun extends AbstractMultiRunOutputDataset {
 			String columnHeading, String valueNameCommand,
 			ScapeRInterface scapeR, String rCommand) {
 		this(shortName, name, columnHeading, scapeR
-				.parseAndEvalStringVector(valueNameCommand), scapeR, rCommand);
+				.evalReturnString(valueNameCommand), scapeR, rCommand);
 	}
 
 	@Override
@@ -89,7 +89,7 @@ public class ROutputMultiRun extends AbstractMultiRunOutputDataset {
 
 			//System.out.println("Debug R:" + cmd);
 			
-			REXP rexp = scapeR.parseAndEval(cmd);
+			REXP rexp = scapeR.eval(cmd);
 
 			// r command must return a REXPDouble
 			if (!(rexp instanceof REXPDouble)) {

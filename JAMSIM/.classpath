@@ -28,16 +28,10 @@
 			<attribute name="javadoc_location" value="jar:file:/D:/Source/commons-collections-3.2.1/commons-collections-3.2.1-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry combineaccessrules="false" kind="src" path="/Joda"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/casperdatasets-ext"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/casperdatasets-io"/>
 	<classpathentry kind="lib" path="D:/Source/commons-logging-1.1.1/commons-logging-1.1.1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/casperdatasets"/>
-	<classpathentry kind="lib" path="D:/Source/functionalj/dist/functionalj.jar" sourcepath="D:/Source/functionalj/src/main/java">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/D:/Source/functionalj/javadoc/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JUnit 4.7"/>
 	<classpathentry kind="lib" path="D:/Source/xstream-1.3.1/lib/xstream-1.3.1.jar"/>
 	<classpathentry kind="lib" path="D:/Source/xstream-1.3.1/lib/xpp3_min-1.1.4c.jar"/>
@@ -60,5 +54,10 @@
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/JRI"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jedit-textarea"/>
+	<classpathentry kind="lib" path="D:/Source/functionalj/dist/functionalj.jar" sourcepath="D:/Source/functionalj/src/main/java">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/D:/Source/functionalj/javadoc/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

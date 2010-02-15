@@ -193,6 +193,25 @@ public class FileLoader implements DatasetFileLoader, Output {
 			FileFilter filter) {
 		return openChooser.showOpenDialog(dialogTitle, parent, filter);
 	}
+	
+	/**
+	 * Show a JFileChooser save file dialog, prompting to overwrite if the file
+	 * already exists. Saves the directory last navigated to into the
+	 * preferences.
+	 * 
+	 * @param dialogTitle
+	 *            file chooser's dialog title
+	 * @param parent
+	 *            the parent component of the dialog; can be null
+	 * @param filter
+	 *            file filter used in the select file dialog. If {@code null},
+	 *            then no filter applied and any type of file can be selected.
+	 * @return selected File, or null if cancel selected.
+	 */
+	public File showSaveDialogPromptOverwrite(String dialogTitle,
+			Component parent, FileFilter filter) {
+		return saveChooser.showSaveDialogPromptOverwrite(dialogTitle, parent, filter);
+	}
 
 	/**
 	 * Show a JFileChooser open file dialog that allows selection of directories

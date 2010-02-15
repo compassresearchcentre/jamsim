@@ -15,15 +15,15 @@ import net.casper.ext.swing.CDatasetTableModel;
 
 import org.ascape.model.event.DefaultScapeListener;
 import org.ascape.model.event.ScapeEvent;
-import org.ascape.runtime.swing.navigator.PanelViewNodes;
+import org.ascape.runtime.swing.navigator.NodesByRunFolder;
 import org.ascape.util.data.StatCollector;
 import org.ascape.view.vis.ChartView;
 import org.jamsim.ascape.MicroSimScape;
-import org.jamsim.ascape.ScapeRInterface;
 import org.jamsim.date.DateUtil;
 import org.jamsim.io.FileUtil;
 import org.jamsim.r.RDataFrame;
 import org.jamsim.r.RInterfaceException;
+import org.jamsim.r.ScapeRInterface;
 import org.jamsim.r.UnsupportedTypeException;
 import org.jamsim.swing.DoubleCellRenderer;
 import org.rosuda.REngine.REXP;
@@ -41,7 +41,7 @@ import org.rosuda.REngine.REXPMismatchException;
 public class OutputDataset extends DefaultScapeListener {
 	private static final long serialVersionUID = -5105471052036807288L;
 
-	private final PanelViewNodes outputTablesNode;
+	private final NodesByRunFolder outputTablesNode;
 
 	private final OutputDatasetProvider outDataset;
 
@@ -63,7 +63,7 @@ public class OutputDataset extends DefaultScapeListener {
 	 * @param outputDirectory
 	 *            destination directory for results output file
 	 */
-	public OutputDataset(PanelViewNodes outputTablesNode,
+	public OutputDataset(NodesByRunFolder outputTablesNode,
 			OutputDatasetProvider outDataset, String outputDirectory) {
 		super(outDataset.getName());
 		this.outDataset = outDataset;
@@ -218,14 +218,14 @@ public class OutputDataset extends DefaultScapeListener {
 							+ "(" + outDataset.getName() + ")");
 
 					REXP rexp =
-							scapeR.parseAndEval("meanOfRuns(" + dfName + ")");
+							scapeR.eval("meanOfRuns(" + dfName + ")");
 					RDataFrame df =
 							new RDataFrame(allRuns.getCacheName(), rexp);
 
 					CDataCacheContainer meanOfRuns =
 							new CDataCacheContainer(df);
 
-					createNavigatorOutputNode(PanelViewNodes.ALLRUNS,
+					createNavigatorOutputNode(NodesByRunFolder.ALLRUNS,
 							meanOfRuns.getCacheName(), meanOfRuns);
 
 					writeCSV(meanOfRuns);

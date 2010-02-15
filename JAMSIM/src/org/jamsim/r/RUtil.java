@@ -1,6 +1,10 @@
 package org.jamsim.r;
 
 import java.beans.IntrospectionException;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,7 +18,8 @@ import net.casper.io.beans.util.BeanPropertyInspector;
 import net.casper.io.file.util.ArrayUtil;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPDouble;
 import org.rosuda.REngine.REXPInteger;
@@ -352,6 +357,50 @@ public final class RUtil {
 				((REXPString) rexp.getAttribute("class")).asStrings();
 
 		return ArrayUtil.toString(clazz);
+	}
+
+
+	/**
+	 * Returns contents of an R file. Removes "\r" in the string, because R
+	 * doesn't like them.
+	 * 
+	 * @param file
+	 *            text file
+	 * @return contents of text file with "\r" removed
+	 * @throws IOException
+	 *             if file cannot be read.
+	 */
+	public static String readRFile(File file) throws IOException {
+		FileReader reader = new FileReader(file);
+		String expr = IOUtils.toString(reader);
+
+		// release file after loading,
+		// instead of waiting for VM exit/garbage collection
+		reader.close();
+
+		// strip "\r" otherwise we will get parse errors
+		return StringUtils.remove(expr, "\r");
+	}
+
+	/**
+	 * Returns contents of an {@link InputStream}. Removes "\r" in the string,
+	 * because R doesn't like them.
+	 * 
+	 * @param stream
+	 *            stream
+	 * @return contents of text file with "\r" removed
+	 * @throws IOException
+	 *             if file cannot be read.
+	 */
+	public static String readRStream(InputStream stream) throws IOException {
+		String expr = IOUtils.toString(stream);
+
+		// release file after loading,
+		// instead of waiting for VM exit/garbage collection
+		stream.close();
+
+		// strip "\r" otherwise we will get parse errors
+		return StringUtils.remove(expr, "\r");
 	}
 
 }

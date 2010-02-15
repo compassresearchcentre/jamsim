@@ -1,16 +1,11 @@
 package org.jamsim.r;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.Collection;
+import java.io.InputStream;
 
-import net.casper.data.model.CDataCacheContainer;
 import net.casper.io.file.util.ArrayUtil;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.jamsim.io.FileUtil;
 import org.rosuda.JRI.RMainLoopCallbacks;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
@@ -23,10 +18,12 @@ import org.rosuda.REngine.JRI.JRIEngine;
 /**
  * General purpose interface to the R high level engine. Provides
  * <ul>
- * <li>single instance, because R is single threaded.
- * <li>Conversion of Collection to R dataframe.
- * <li>Conversion of Casper dataset to R dataframe.
- * <li>Parsing and evaluation of commands in R.
+ * <li>Single instance, because R is single threaded.
+ * <li>Assignment of R objects.
+ * <li>Parsing and evaluation of commands in R in multiple ways (
+ * {@link #eval(String)}, {@link #parseEvalPrint(String)},
+ * {@link #parseEvalTry(String)}).
+ * 
  * <li>Message output to the R console.
  * </ul>
  * 
@@ -38,6 +35,12 @@ import org.rosuda.REngine.JRI.JRIEngine;
  * @version $Revision$
  */
 public final class RInterfaceHL {
+
+	/**
+	 * Support file containing R functions to load into R environment on
+	 * startup.
+	 */
+	private static final String SUPPORT_FILE = "RInterfaceHL.r";
 
 	/**
 	 * Private constructor prevents instantiation from other classes.
@@ -71,7 +74,7 @@ public final class RInterfaceHL {
 		private static RInterfaceHL initRInterfaceHL() {
 			try {
 				return new RInterfaceHL(rloopHandler); // NOPMD
-			} catch (REngineException e) {
+			} catch (RInterfaceException e) {
 				// a static initializer cannot throw exceptions
 				// but it can throw an ExceptionInInitializerError
 				throw new ExceptionInInitializerError(e);
@@ -137,9 +140,10 @@ public final class RInterfaceHL {
 	 *            R REPL handler supplied by client.
 	 * @throws REngineException
 	 *             if R cannot be loaded.
+	 * @throws RInterfaceException
 	 */
 	private RInterfaceHL(RMainLoopCallbacks rloopHandler)
-			throws REngineException {
+			throws RInterfaceException {
 
 		// tell Rengine code not to die if it can't
 		// load the JRI native DLLs. This allows
@@ -147,65 +151,59 @@ public final class RInterfaceHL {
 		// ourselves
 		System.setProperty("jri.ignore.ule", "yes");
 
-		rosudaEngine =
-				new JRIEngine(new String[] { "--no-save" }, rloopHandler);
-	}
-
-	/**
-	 * Evaluate a text file in R in the global environment.
-	 * 
-	 * @param file
-	 *            text file to evaluate in R
-	 * @return REXP result of the evaluation.
-	 * @throws RInterfaceException
-	 *             if problem during evaluation.
-	 * @throws IOException
-	 *             if file cannot be read.
-	 */
-	public REXP parseAndEval(File file) throws IOException,
-			RInterfaceException {
 		try {
-			return tryParseAndEval(readRFile(file));
-		} catch (RInterfaceException e) {
-			throw new RInterfaceException(file.getCanonicalPath() + " "
-					+ e.getMessage(), e);
+			rosudaEngine =
+					new JRIEngine(new String[] { "--no-save" }, rloopHandler);
+
+			loadRSupportFunctions();
+
+		} catch (REngineException e) {
+			throw new RInterfaceException(e);
+		} catch (IOException e) {
+			throw new RInterfaceException(e);
 		}
+
 	}
 
 	/**
-	 * Returns contents of an R file. Removes "\r" in the string, because R
-	 * doesn't like them.
+	 * Load support functions from support file.
 	 * 
-	 * @param file text file
-	 * @return contents of text file with "\r" removed
+	 * @throws RInterfaceException
+	 *             if problem loading file
 	 * @throws IOException
-	 *             if file cannot be read.
+	 *             if problem loading file
 	 */
-	public static String readRFile(File file) throws IOException {
-		FileReader reader = new FileReader(file);
-		String expr = IOUtils.toString(reader);
+	private void loadRSupportFunctions() throws RInterfaceException,
+			IOException {
+		InputStream ins = getClass().getResourceAsStream(SUPPORT_FILE);
 
-		// release file after loading,
-		// instead of waiting for VM exit/garbage collection
-		reader.close();
-
-		// strip "\r" otherwise we will get parse errors
-		return StringUtils.remove(expr, "\r");
+		eval(RUtil.readRStream(ins));
 	}
 
 	/**
-	 * Evaluate an expression in R in the global environment.
+	 * Evaluate an expression in R in the global environment. Does not
+	 * explicitly call "parse" so any syntax errors will result in the unhelpful
+	 * "parse error" exception message. Any evaluation errors will have the
+	 * error messages printed to the console and return the exception message
+	 * "error during evaluation". Unlike, the REPL and
+	 * {@link #parseEvalPrint(String)}, does not print the result of the
+	 * expression (ie: does just the E part of the REPL). Any prints within the
+	 * expression or functions called by the expression will print. Warnings
+	 * produced by the expression will not be printed.
 	 * 
 	 * @param expr
 	 *            expression to evaluate.
-	 * @return REXP result of the evaluation.
+	 * @return REXP result of the evaluation. Not printed to the console.
 	 * @throws RInterfaceException
 	 *             if problem during parse or evaluation. Parse errors will
-	 *             simply return the message "parse error".
+	 *             simply return the message "parse error". Any evaluation
+	 *             errors with have the error messages printed to the console
+	 *             and return the exception message "error during evaluation".
 	 */
-	public REXP parseAndEval(String expr) throws RInterfaceException {
+	public REXP eval(String expr) throws RInterfaceException {
 		if (!initialized()) {
-			throw new RInterfaceException("REngine has not been initialized.");
+			throw new IllegalStateException(
+					"REngine has not been initialized.");
 		}
 
 		try {
@@ -227,8 +225,7 @@ public final class RInterfaceHL {
 	 *             if problem during parse or evaluation, or expression does not
 	 *             return a {@link REXPString}.
 	 */
-	public String[] parseAndEvalStringVector(String expr)
-			throws RInterfaceException {
+	public String[] evalReturnString(String expr) throws RInterfaceException {
 		try {
 			REXP rexp = rosudaEngine.parseAndEval(expr);
 
@@ -248,27 +245,49 @@ public final class RInterfaceHL {
 	}
 
 	/**
-	 * Wraps a try around a parse and eval. This will catch parse and evaluation
-	 * errors and return the error message in the exception.
+	 * Wraps a parse and try around an eval. The parse will generate syntax
+	 * error messages, and the try will catch parse and evaluation errors and
+	 * return them in the exception as opposed to printing it on the console.
 	 * 
 	 * @param expr
 	 *            expression to try and parse and eval
 	 * @return REXP result of the evaluation.
 	 * @throws RInterfaceException
 	 *             if there is a parse or evaluation error the error message is
-	 *             returned in the exception
+	 *             returned in the exception. Nothing printed to the console.
 	 */
-	public REXP tryParseAndEval(String expr) throws RInterfaceException {
+	public REXP parseEvalTry(String expr) throws RInterfaceException {
 		if (!initialized()) {
-			throw new RInterfaceException("REngine has not been initialized.");
+			throw new IllegalStateException(
+					"REngine has not been initialized.");
 		}
 
 		try {
 
-			rosudaEngine.assign(".tmp.", expr);
-			REXP r =
-					rosudaEngine
-							.parseAndEval("try(eval(parse(text=.tmp.)),silent=TRUE)");
+			/**
+			 * Place the expression in a character vector, syntax errors and
+			 * all. If we tried to execute the expression directly we might run
+			 * into syntax errors that wouldn't be trapped by try.
+			 */
+			rosudaEngine.assign(".expression.", expr);
+
+			/**
+			 * parse: converts a file, or character vector, into an expression
+			 * object but doesn't evaluate it. If there is a problem parsing,
+			 * because of syntax error, it will print a detailed message. This
+			 * message can be captured by "try".
+			 * 
+			 * eval: evaluates an expression object
+			 * 
+			 * try: returns a "try-error" object with the contents of the error
+			 * text, or if no error returns the evaluated expression's return
+			 * object (if it has one).
+			 * 
+			 */
+			String exec = "try(eval(parse(text=.expression.)), silent=TRUE)";
+
+			REXP r = rosudaEngine.parseAndEval(exec);
+
 			if (r == null) {
 				// evaluated OK and returned nothing
 				return null;
@@ -285,6 +304,73 @@ public final class RInterfaceHL {
 			throw new RInterfaceException(e.getMessage(), e);
 		} catch (REXPMismatchException e) {
 			throw new RInterfaceException(e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * Wraps a parse around an eval and prints (shows) result. Returns the
+	 * expression result AND prints it to the console if it is visible, ie: the
+	 * REP parts of the REPL. Errors & warnings are are output to the console,
+	 * ie: doesn't produce Java exceptions for expression errors. Uses R global
+	 * environment.
+	 * 
+	 * @param expr
+	 *            expression to parse, eval and show
+	 * @return REXP result of the evaluation. Also printed to the console if
+	 *         visible. Returns {@code null} if there was an exception generated
+	 *         whilst evaluating the expression.
+	 */
+	public REXP parseEvalPrint(String expr) {
+		if (!initialized()) {
+			throw new IllegalStateException(
+					"REngine has not been initialized.");
+		}
+
+		try {
+
+			/**
+			 * Place the expression in a character vector, syntax errors and
+			 * all. If we tried to execute the expression directly we might run
+			 * into syntax errors in the executing statement.
+			 */
+			rosudaEngine.assign(".expression.", expr);
+
+			String exec = ".pep(.expression.)";
+			//String exec = expr;
+
+			REXP result = rosudaEngine.parseAndEval(exec);
+
+			return result;
+
+		} catch (REngineException e) {
+			// swallow! error message will be printed to the console
+			return null;
+		} catch (REXPMismatchException e) {
+			// swallow! error message will be printed to the console
+			return null;
+		}
+	}
+
+	/**
+	 * Parse and evaluate a text file in R. Calls {@link #parseEvalTry(File)}.
+	 * Throws exception if problem reading the file.
+	 * 
+	 * @param file
+	 *            text file to evaluate in R
+	 * @return REXP result of the evaluation.
+	 * @throws RInterfaceException
+	 *             if problem during evaluation. See
+	 *             {@link #parseEvalTry(String)}.
+	 * @throws IOException
+	 *             if file cannot be read.
+	 */
+	public REXP parseEvalTry(File file) throws IOException,
+			RInterfaceException {
+		try {
+			return parseEvalTry(RUtil.readRFile(file));
+		} catch (RInterfaceException e) {
+			throw new RInterfaceException(file.getCanonicalPath() + " "
+					+ e.getMessage(), e);
 		}
 	}
 
@@ -344,49 +430,6 @@ public final class RInterfaceHL {
 	}
 
 	/**
-	 * Create a dataframe in R from the given collection. Introspection is used
-	 * to determine the bean properties (i.e.: getter methods) that are exposed,
-	 * and each one becomes a column in the dataframe. Columns are only created
-	 * for primitive properties and arrays of primitive properties; object
-	 * properties are ignored without warning.
-	 * 
-	 * NB: doesn't automatically create factors like read.table does.
-	 * 
-	 * @param name
-	 *            the name of the dataframe to create in R.
-	 * @param col
-	 *            the Java collection to convert.
-	 * @param stopClass
-	 *            Columns are created for all getter methods that are defined by
-	 *            {@code stopClass}'s subclasses. {@code stopClass}'s getter
-	 *            methods and superclass getter methods are not converted to
-	 *            columns in the dataframe.
-	 * @throws RInterfaceException
-	 *             if Collection cannot be read, or dataframe cannot be created.
-	 */
-	public void assignDataFrame(String name, Collection<?> col,
-			Class<?> stopClass) throws RInterfaceException {
-		assignDataFrame(name, RUtil.toRList(col, stopClass));
-	}
-
-	/**
-	 * Create a dataframe in R from the given casper dataset.
-	 * 
-	 * NB: doesn't automatically create factors like read.table does.
-	 * 
-	 * @param name
-	 *            the name of the dataframe to create in R.
-	 * @param container
-	 *            the casper container to convert.
-	 * @throws RInterfaceException
-	 *             if Collection cannot be read, or dataframe cannot be created.
-	 */
-	public void assignDataFrame(String name, CDataCacheContainer container)
-			throws RInterfaceException {
-		assignDataFrame(name, RUtil.toRList(container));
-	}
-
-	/**
 	 * Create an {@link RList} in R as a dataframe.
 	 * 
 	 * @param name
@@ -411,27 +454,6 @@ public final class RInterfaceHL {
 		}
 	}
 
-	public double evalMean(double[] array) throws RInterfaceException {
-		assign(".tmp.evalMean", RUtil.toVector(array));
-		REXP result = parseAndEval("mean(.tmp.evalMean)");
-		try {
-			return result.asDouble();
-		} catch (REXPMismatchException e) {
-			throw new RInterfaceException(e);
-		}
-	}
-
-	public double evalMeanError(double[] array) throws RInterfaceException {
-		assign(".tmp.evalMeanError", RUtil.toVector(array));
-		REXP result =
-				parseAndEval("qt(0.975,df=length(.tmp.evalMeanError)-1)*sd(.tmp.evalMeanError)/sqrt(length(.tmp.evalMeanError))");
-		try {
-			return result.asDouble();
-		} catch (REXPMismatchException e) {
-			throw new RInterfaceException(e);
-		}
-	}
-
 	/**
 	 * Get R_DEFAULT_PACKAGES.
 	 * 
@@ -443,7 +465,7 @@ public final class RInterfaceHL {
 
 		REXP availablePkgs;
 		try {
-			availablePkgs = parseAndEval(".packages(TRUE)");
+			availablePkgs = eval(".packages(TRUE)");
 			if (availablePkgs.isNull() || availablePkgs.asStrings() == null) {
 				return "";
 			} else {
@@ -467,11 +489,10 @@ public final class RInterfaceHL {
 		if (!packages.contains(pack)) {
 			printlnToConsole("Package " + pack
 					+ " not found. Attempting to download...");
-			parseAndEval("install.packages('" + pack + "');library(" + pack
-					+ ")");
+			eval("install.packages('" + pack + "');library(" + pack + ")");
 		} else {
 			printlnToConsole("Loading package: " + pack);
-			parseAndEval("library(" + pack + ")");
+			eval("library(" + pack + ")");
 		}
 	}
 

@@ -40,7 +40,7 @@ public class RSwingConsoleTest {
 	public void testRSwingConsole() {
 		loadConsole();
 		try {
-			rInterface.assignDataFrame("p1", people1, Object.class);
+			//rInterface.assignDataFrame("p1", people1, Object.class);
 			rInterface.printlnToConsole("Created p1");
 			
 			//char[] array = new char[] {'c','d'};
@@ -48,7 +48,7 @@ public class RSwingConsoleTest {
 			//Double[] array = new Double[] {1.2,2.2,3.3};
 			//RUtil.toVector((Object)array);
 			
-			System.out.println(rInterface.evalMean(new double[] {1,2,3,4,5}));
+			//System.out.println(rInterface.evalMean(new double[] {1,2,3,4,5}));
 			
 		} catch (RInterfaceException e) {
 			// TODO Auto-generated catch block

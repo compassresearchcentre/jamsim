@@ -5,11 +5,11 @@ import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
 
 import org.apache.commons.lang.NotImplementedException;
-import org.jamsim.ascape.ScapeRInterface;
 import org.jamsim.r.RDataFrame;
 import org.jamsim.r.RInterfaceException;
 import org.jamsim.r.RTable;
 import org.jamsim.r.RUtil;
+import org.jamsim.r.ScapeRInterface;
 import org.jamsim.r.UnsupportedTypeException;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
@@ -76,7 +76,7 @@ public class ROutput implements OutputDatasetProvider {
 					rCommand.replace("DATAFRAME", scapeR
 							.getScapeDFRunName(run));
 
-			rexp = scapeR.parseAndEval(cmd);
+			rexp = scapeR.eval(cmd);
 
 			CBuilder builder;
 

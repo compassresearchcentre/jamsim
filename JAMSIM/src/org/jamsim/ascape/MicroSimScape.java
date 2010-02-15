@@ -16,12 +16,16 @@ import org.ascape.model.Agent;
 import org.ascape.model.Scape;
 import org.ascape.model.space.CollectionSpace;
 import org.ascape.runtime.swing.SwingRunner;
-import org.ascape.runtime.swing.navigator.PanelViewNodes;
+import org.ascape.runtime.swing.navigator.NodesByRunFolder;
 import org.ascape.util.swing.AscapeGUIUtil;
+import org.jamsim.ascape.navigator.MicroSimScapeNode;
+import org.jamsim.ascape.navigator.RecordedMicroSimTreeBuilder;
 import org.jamsim.ascape.output.OutputDataset;
 import org.jamsim.ascape.output.OutputDatasetProvider;
 import org.jamsim.ascape.output.ROutputMultiRun;
 import org.jamsim.io.FileLoader;
+import org.jamsim.r.RFileInterface;
+import org.jamsim.r.ScapeRInterface;
 
 /**
  * A Scape with micro-simulation input/output functions including base file
@@ -166,7 +170,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 * 
 	 * @return output tables node
 	 */
-	public PanelViewNodes getOutputTablesNode() {
+	public NodesByRunFolder getOutputTablesNode() {
 
 		if (scapeNode == null) {
 			scapeNode =
@@ -418,6 +422,9 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 				new ScapeRInterface(dataFrameSymbol, rStartup,
 						rRunEndCommand, keepAllRunDFs);
 		addView(scapeR);
+		
+		RFileInterface rFiles = new RFileInterface(this, scapeR, loader);
+
 
 		return scapeR;
 	}
