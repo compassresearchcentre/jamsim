@@ -6,6 +6,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.gjt.sp.jedit.textarea.TextArea;
@@ -106,5 +108,31 @@ public final class FileUtil {
 			closeQuietly(ins);
 		}
 		return props;
+	}
+
+	/**
+	 * Regex of invalid Windows file name characters.
+	 */
+	private static final String INVALID_FILENAME_CHARS_REGEX =
+			"[\\\\/:*?<>\"|]";
+
+	/**
+	 * Compiled regex pattern of invalid file name characters.
+	 */
+	private static final Pattern INVALID_FILENAME_CHARS_PATTERN =
+			Pattern.compile(INVALID_FILENAME_CHARS_REGEX);
+
+	/**
+	 * Remove invalid Windows filename characters (including directory slashes)
+	 * from the string.
+	 * 
+	 * @param filename
+	 *            filename, without the path
+	 * @return cleaned filename
+	 */
+	public static String stripInvalidFileNameChars(String filename) {
+		Matcher m = INVALID_FILENAME_CHARS_PATTERN.matcher(filename);
+
+		return m.replaceAll("");
 	}
 }

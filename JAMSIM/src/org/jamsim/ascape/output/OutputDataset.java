@@ -32,8 +32,10 @@ import org.rosuda.REngine.REXPMismatchException;
 /**
  * Display output from a {@link OutputDatasetProvider}. When the scape stops
  * after each run, adds an output data table node in the Navigator that displays
- * the {@link OutputDatasetProvider} results in a table, and outputs the results
- * to a file.
+ * the {@link OutputDatasetProvider} results in a table, and optionally outputs
+ * the results to a file. When the simulation finishes running, creates a multi
+ * run node if the {@link OutputDatasetProvider} is a
+ * {@link MultiRunOutputDatasetProvider}.
  * 
  * @author Oliver Mannion
  * @version $Revision$
@@ -144,8 +146,8 @@ public class OutputDataset extends DefaultScapeListener {
 
 	/**
 	 * Perform operations required when the simulation has stopped. Here we
-	 * write create an output node on the Navigator tree via a call to
-	 * {@link #createNavigatorOutputNode()} and output the results to a file.
+	 * write create an output node on the Navigator tree and optionally output
+	 * the results to a file if {@link MicroSimScape#isResultsToFile()} is true.
 	 * 
 	 * @param scapeEvent
 	 *            not used
@@ -167,7 +169,9 @@ public class OutputDataset extends DefaultScapeListener {
 
 			createNavigatorOutputNode(runNumber, runName, results);
 
-			writeCSV(runName, results);
+			if (((MicroSimScape<?>) scape).isResultsToFile()) {
+				writeCSV(runName, results);
+			}
 
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -183,15 +187,21 @@ public class OutputDataset extends DefaultScapeListener {
 
 	private void writeCSV(String runName, CDataCacheContainer container)
 			throws IOException {
-		CasperUtil.writeToCSV(outputDirectory
-				+ DateUtil.nowToSortableUniqueDateString() + " " + runName
-				+ ".csv", container);
+
+		// strip runName of any illegal characters
+		String cleanedRunName = FileUtil.stripInvalidFileNameChars(runName);
+		String fileName =
+				outputDirectory + DateUtil.nowToSortableUniqueDateString()
+						+ " " + cleanedRunName + ".csv";
+
+		CasperUtil.writeToCSV(fileName, container);
 	}
 
 	/**
 	 * Create the multi-run dataset node when the simulation has finished, if
 	 * the {@link OutputDatasetProvider} is a
-	 * {@link MultiRunOutputDatasetProvider}.
+	 * {@link MultiRunOutputDatasetProvider}. Optionally output the results to a
+	 * file if {@link MicroSimScape#isResultsToFile()} is true.
 	 */
 	@Override
 	public void scapeClosing(ScapeEvent scapeEvent) {
@@ -217,8 +227,7 @@ public class OutputDataset extends DefaultScapeListener {
 					scapeR.printlnToConsole("Created dataframe " + dfName
 							+ "(" + outDataset.getName() + ")");
 
-					REXP rexp =
-							scapeR.eval("meanOfRuns(" + dfName + ")");
+					REXP rexp = scapeR.eval("meanOfRuns(" + dfName + ")");
 					RDataFrame df =
 							new RDataFrame(allRuns.getCacheName(), rexp);
 
@@ -228,7 +237,9 @@ public class OutputDataset extends DefaultScapeListener {
 					createNavigatorOutputNode(NodesByRunFolder.ALLRUNS,
 							meanOfRuns.getCacheName(), meanOfRuns);
 
-					writeCSV(meanOfRuns);
+					if (((MicroSimScape<?>) scape).isResultsToFile()) {
+						writeCSV(meanOfRuns);
+					}
 
 				} catch (RInterfaceException e) {
 					throw new RuntimeException(e);

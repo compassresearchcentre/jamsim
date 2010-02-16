@@ -56,6 +56,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 
 	private static final String BASEFILE_KEY = "base file";
 
+	private boolean outputToFile = false;
+
 	/**
 	 * The base file is kept as an instance variable and exposed as a model
 	 * parameter.
@@ -71,6 +73,28 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 * Prefs for loading/saving location of base file.
 	 */
 	private final Preferences prefs;
+
+	/**
+	 * Get whether {@link OutputDataset}s for this scape should write their
+	 * results to a file.
+	 * 
+	 * @return {@code true} if this scape's {@link OutputDataset}s should write
+	 *         to a file.
+	 */
+	public boolean isResultsToFile() {
+		return outputToFile;
+	}
+
+	/**
+	 * Set whether {@link OutputDataset}s for this scape should write their
+	 * results to a file.
+	 * 
+	 * @param outputToFile
+	 *            write to file, or not
+	 */
+	public void setResultsToFile(boolean outputToFile) {
+		this.outputToFile = outputToFile;
+	}
 
 	/**
 	 * Global data external to scape. Used by agents of this scape and used to
@@ -160,7 +184,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 */
 	@Override
 	public void createScape() {
-		AscapeGUIUtil.setNavigatorTreeBuilder(this, TREE_BUILDER);
+		AscapeGUIUtil.setNavigatorTreeBuilder(TREE_BUILDER);
 	}
 
 	/**
@@ -252,9 +276,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 * Sets the base file to the specified file. The base file can be specified
 	 * from the model parameters. If the base file doesn't exist, then a file
 	 * chooser dialog is displayed to allow the user to select. If specified or
-	 * selected, any existing agents are removed and the base file is loaded. If
-	 * a base scape has not been set by a call to {@link #loadBaseScape(Scape)}
-	 * then this method will exit silently.
+	 * selected, any existing agents are removed and the base file is loaded.
 	 * 
 	 * @param bfileName
 	 *            base file to load
@@ -394,8 +416,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 * Add R to this scape.
 	 * 
 	 * @param dataFrameSymbol
-	 *            replacement symbol. When evaluating {@link #rRunEndCommand}
-	 *            and commands during the creation of output datasets in
+	 *            replacement symbol. When evaluating {@code rRunEndCommand} and
+	 *            commands during the creation of output datasets in
 	 *            {@link ROutputMultiRun}, this symbol is searched for and
 	 *            replaced with the current run's dataframe name.
 	 * @param startUpFilePrefsKey
@@ -422,9 +444,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 				new ScapeRInterface(dataFrameSymbol, rStartup,
 						rRunEndCommand, keepAllRunDFs);
 		addView(scapeR);
-		
-		RFileInterface rFiles = new RFileInterface(this, scapeR, loader);
 
+		RFileInterface rFiles = new RFileInterface(this, scapeR, loader);
 
 		return scapeR;
 	}
