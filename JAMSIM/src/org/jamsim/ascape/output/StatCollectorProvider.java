@@ -4,6 +4,12 @@ import java.util.Collection;
 
 import org.ascape.util.data.StatCollector;
 
+/**
+ * Provider of a collection of {@link StatCollector}s.
+ * 
+ * @author Oliver Mannion
+ * @version $Revision$
+ */
 public interface StatCollectorProvider {
 
 	/**

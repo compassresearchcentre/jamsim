@@ -10,9 +10,6 @@ import org.jamsim.util.MRUSet;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 public class MRUSetTest {
 
 	@BeforeClass
@@ -65,10 +62,4 @@ public class MRUSetTest {
 
 	}
 	
-	@Test
-	public void testLoadSaveMRU() {
-		GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
-		Gson gson = gsonBuilder.create();
-		
-	}
 }

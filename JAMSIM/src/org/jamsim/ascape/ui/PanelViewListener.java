@@ -4,6 +4,12 @@ import javax.swing.JInternalFrame;
 
 import org.ascape.view.vis.PanelView;
 
+/**
+ * A listener of {@link PanelView} events.
+ * 
+ * @author Oliver Mannion
+ * @version $Revision$
+ */
 public interface PanelViewListener {
 
 	/**

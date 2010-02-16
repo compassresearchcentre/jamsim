@@ -1,7 +1,7 @@
 package org.jamsim.ascape.output;
 
+import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.r.RInterfaceException;
-import org.jamsim.r.ScapeRInterface;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPDouble;
 import org.rosuda.REngine.REXPMismatchException;

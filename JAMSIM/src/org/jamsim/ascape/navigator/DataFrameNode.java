@@ -13,8 +13,8 @@ import org.ascape.util.swing.AscapeGUIUtil;
 import org.ascape.util.swing.PanelViewUtil;
 import org.ascape.view.vis.PanelView;
 import org.jamsim.ascape.MicroSimScape;
+import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.r.RInterfaceException;
-import org.jamsim.r.ScapeRInterface;
 
 /**
  * Tree node that displays details of an R dataframe when clicked on. For

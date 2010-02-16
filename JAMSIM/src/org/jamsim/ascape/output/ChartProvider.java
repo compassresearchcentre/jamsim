@@ -5,6 +5,12 @@ import java.util.Collection;
 import org.ascape.util.data.StatCollector;
 import org.ascape.view.vis.ChartView;
 
+/**
+ * A {@link StatCollectorProvider} that also provides a series for a Chart.
+ * 
+ * @author Oliver Mannion
+ * @version $Revision$
+ */
 public interface ChartProvider extends StatCollectorProvider {
 	
 	/**

@@ -14,6 +14,12 @@ import org.gjt.sp.jedit.textarea.TextArea;
 import org.gjt.sp.util.IOUtilities;
 import org.gjt.sp.util.Log;
 
+/**
+ * Static utility class of general purpose file functions.
+ * 
+ * @author Oliver Mannion
+ * @version $Revision$
+ */
 public final class FileUtil {
 
 	private FileUtil() {

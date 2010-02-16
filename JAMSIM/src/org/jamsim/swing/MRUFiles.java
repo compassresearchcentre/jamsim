@@ -12,12 +12,11 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import org.apache.commons.lang.StringUtils;
-import org.jamsim.util.MRUActionMenu;
 import org.jamsim.util.MRUSet;
 
 /**
- * Provide a menu of MRU files (see {@link #getMenu(String)}) and loading/saving
- * the files from {@link Preferences}.
+ * Provide a menu of MRU files and loading/saving the file list from
+ * {@link Preferences}.
  * 
  * @author Oliver Mannion
  * @version $Revision: 64

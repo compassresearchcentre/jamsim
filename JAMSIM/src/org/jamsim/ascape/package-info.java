@@ -1,6 +1,5 @@
 /**
- * Classes that interact with ascape: 
- * GUI utils, R interface , MicroSimScape etc.
+ * Ascape specific classes. Have dependencies with Ascape.
  *
  * @author Oliver Mannion
  *

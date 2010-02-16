@@ -13,7 +13,6 @@ import net.casper.io.file.CDataFileDef;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.jamsim.casper.CDataFileIntervalsMap;
-import org.jamsim.io.DatasetFileLoader;
 import org.jamsim.io.FileLoader;
 import org.jamsim.math.IntervalsIntMap;
 import org.junit.BeforeClass;
@@ -48,7 +47,7 @@ public class IntervalsIntMapTest {
 			new CDataFileIntervalsMap(Cat15ReallocChildBearer, "Prob",
 					"DestCat");
 
-	public static DatasetFileLoader dsfLoader;
+	public static FileLoader dsfLoader;
 
 	private static final double EPSILON = 1.0e-15;
 

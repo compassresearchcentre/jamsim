@@ -12,13 +12,13 @@ import javax.swing.table.TableModel;
 
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
+import net.casper.ext.file.CDataFileDoubleArray;
 import net.casper.io.file.CBuildFromFile;
 import net.casper.io.file.CDataFile;
 import net.casper.io.file.CDataFileDef;
 import net.casper.io.file.CDataFileDefLoader;
 import net.casper.io.file.util.ExtFileFilter;
 
-import org.jamsim.casper.CDataFileDoubleArray;
 import org.jamsim.casper.CDataFileIntervalsMap;
 import org.jamsim.math.IntervalsIntMap;
 import org.jamsim.math.IntervalsIntMapTableModel;
@@ -35,7 +35,7 @@ import org.omancode.util.PrefsOrSaveFileChooser;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class FileLoader implements DatasetFileLoader, Output {
+public class FileLoader implements Output {
 
 	private final Preferences prefs;
 
