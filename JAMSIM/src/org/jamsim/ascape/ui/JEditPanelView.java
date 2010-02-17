@@ -26,7 +26,7 @@ import org.gjt.sp.jedit.syntax.ModeProvider;
 import org.gjt.sp.jedit.textarea.StandaloneTextArea;
 import org.gjt.sp.jedit.textarea.TextArea;
 import org.jamsim.io.FileBuffer;
-import org.jamsim.io.FileUtil;
+import org.omancode.io.FileUtil;
 
 /**
  * A {@link PanelView} that contains a JEdit {@link TextArea}.

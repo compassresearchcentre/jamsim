@@ -30,7 +30,7 @@ import org.gjt.sp.jedit.syntax.ModeProvider;
 import org.jamsim.ascape.ui.JEditPanelView;
 import org.jamsim.ascape.ui.PanelViewListener;
 import org.jamsim.io.FileLoader;
-import org.jamsim.swing.MRUFiles;
+import org.omancode.swing.MRUFiles;
 
 /**
  * Handles the opening, display, execution and saving of R files in the GUI.

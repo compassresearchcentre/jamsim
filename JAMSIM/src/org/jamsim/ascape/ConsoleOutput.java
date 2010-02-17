@@ -1,6 +1,7 @@
-package org.jamsim.io;
+package org.jamsim.ascape;
 
 import org.ascape.view.nonvis.ConsoleOutView;
+import org.omancode.io.Output;
 
 /**
  * Adapt the Ascape {@link ConsoleOutView} to the {@link Output} interface.

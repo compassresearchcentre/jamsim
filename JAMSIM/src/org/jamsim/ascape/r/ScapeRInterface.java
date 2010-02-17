@@ -24,7 +24,7 @@ import org.jamsim.r.RInterfaceException;
 import org.jamsim.r.RInterfaceHL;
 import org.jamsim.r.RSwingConsole;
 import org.jamsim.r.RUtil;
-import org.jamsim.util.ExecutionTimer;
+import org.omancode.util.ExecutionTimer;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
 

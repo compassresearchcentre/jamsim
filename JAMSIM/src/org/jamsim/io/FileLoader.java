@@ -24,9 +24,11 @@ import org.jamsim.math.IntervalsIntMap;
 import org.jamsim.math.IntervalsIntMapTableModel;
 import org.jamsim.matrix.IndexedDenseDoubleMatrix2D;
 import org.jamsim.matrix.IndexedMatrixTableModel;
-import org.jamsim.swing.ArrayTableModel;
-import org.omancode.util.PrefsOrOpenFileChooser;
-import org.omancode.util.PrefsOrSaveFileChooser;
+import org.omancode.io.Output;
+import org.omancode.io.OutputToPrintStream;
+import org.omancode.swing.ArrayTableModel;
+import org.omancode.swing.PrefsOrOpenFileChooser;
+import org.omancode.swing.PrefsOrSaveFileChooser;
 
 /**
  * File loader that loads datasets, and objects based on datasets, from files.

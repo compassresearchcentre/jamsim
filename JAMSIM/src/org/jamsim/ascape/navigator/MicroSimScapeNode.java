@@ -14,7 +14,7 @@ import org.ascape.runtime.swing.navigator.NodesByRunFolder;
 import org.ascape.runtime.swing.navigator.ScapeNode;
 import org.ascape.runtime.swing.navigator.TreeBuilder;
 import org.jamsim.ascape.MicroSimScape;
-import org.jamsim.swing.DoubleCellRenderer;
+import org.omancode.swing.DoubleCellRenderer;
 
 /**
  * Navigator tree node for a {@link MicroSimScape}. Same as {@link ScapeNode}

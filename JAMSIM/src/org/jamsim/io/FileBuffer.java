@@ -8,6 +8,7 @@ import javax.swing.text.Segment;
 
 import org.apache.commons.lang.StringUtils;
 import org.gjt.sp.jedit.buffer.JEditBuffer;
+import org.omancode.io.FileUtil;
 
 /**
  * A {@link JEditBuffer} that contains the contents of a file. Extends
