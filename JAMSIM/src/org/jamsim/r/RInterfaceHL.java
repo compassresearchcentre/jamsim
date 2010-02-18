@@ -3,6 +3,7 @@ package org.jamsim.r;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 
 import net.casper.io.file.util.ArrayUtil;
 
@@ -429,6 +430,7 @@ public final class RInterfaceHL {
 		}
 	}
 
+	
 	/**
 	 * Create an {@link RList} in R as a dataframe.
 	 * 

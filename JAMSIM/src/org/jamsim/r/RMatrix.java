@@ -16,23 +16,43 @@ import org.rosuda.REngine.REXPString;
 import org.rosuda.REngine.RList;
 
 /**
- * An R expression that is a R table. The first column is the names of the rows
- * of the R table. Implements {@link CBuilder}.
+ * An R expression that is a numeric matrix (ie: a 2D numeric vector). The first
+ * column of the {@link RMatrix} is taken from the names of the rows of the R
+ * table. Implements {@link CBuilder}.
  * 
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class RTable implements CBuilder {
+public class RMatrix implements CBuilder {
 
 	private final String name;
+
+	/**
+	 * The variable name for the {@link #rowNames}. This will the name header of
+	 * the first column. eg: "Frequency"
+	 */
 	private final String rowVariableName;
+
+	/**
+	 * Identifies the name of each row. This will be the first column in the
+	 * resultant dataset. eg: "1,2,3,4,5.."
+	 */
 	private Object[] rowNames;
+
+	/**
+	 * Column name headers for the 2nd and subsequent columns.
+	 */
 	private final String[] colNames;
+
+	/**
+	 * Matrix of values in the table.
+	 */
 	private final double[][] values;
+
 	private int currentRowIndex;
 
 	/**
-	 * Create an {@link RTable} from a {@link REXP}.
+	 * Create an {@link RMatrix} from a {@link REXP}.
 	 * 
 	 * @param name
 	 *            name. If {@code null}, one will be generated from the column
@@ -42,17 +62,18 @@ public class RTable implements CBuilder {
 	 * @throws REXPMismatchException
 	 *             if rexp is not an {@link REXPDouble} or an R table class.
 	 */
-	public RTable(String name, REXP rexp) throws REXPMismatchException {
-		if (!RTable.isTable(rexp) || !(rexp instanceof REXPDouble)) {
+	public RMatrix(String name, REXP rexp) throws REXPMismatchException {
+		if (!RMatrix.isMatrix(rexp) || !(rexp instanceof REXPDouble)) {
 			throw new REXPMismatchException(rexp, "table");
 		}
 
-		String[] dimNamesNames =
-				rexp.getAttribute("dimnames").getAttribute("names")
-						.asStrings();
+		String[] dimNamesNames = RUtil.getDimNamesNames(rexp);
 
-		rowVariableName = dimNamesNames[0];
-		String colVariableName = dimNamesNames[1];
+		rowVariableName =
+				(dimNamesNames == null) ? "" : dimNamesNames[0] + " / "
+						+ dimNamesNames[1];
+		String colVariableName =
+				(dimNamesNames == null) ? "" : dimNamesNames[1];
 
 		this.name =
 				(name == null) ? rowVariableName + " by " + colVariableName
@@ -66,17 +87,23 @@ public class RTable implements CBuilder {
 	}
 
 	/**
-	 * Test whether rexp has a class of table.
+	 * Test whether rexp is a numeric matrix (ie: a REXPDouble with 2
+	 * dimensions). Includes objects of class "table".
 	 * 
 	 * @param rexp
 	 *            expression to test
 	 * @return true/false
 	 */
-	public static boolean isTable(REXP rexp) {
-		String[] clazz =
-				((REXPString) rexp.getAttribute("class")).asStrings();
+	public static boolean isMatrix(REXP rexp) {
 
-		return ArrayUtils.contains(clazz, "table");
+		if (rexp instanceof REXPDouble) {
+			if (RUtil.getDimensions(rexp) == 2) {
+				return true;
+			}
+		}
+
+		return false;
+
 	}
 
 	@Override

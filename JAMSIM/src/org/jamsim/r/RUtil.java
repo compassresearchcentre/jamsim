@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -19,6 +20,7 @@ import net.casper.io.file.util.ArrayUtil;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPDouble;
@@ -333,8 +335,8 @@ public final class RUtil {
 			if (element instanceof REXPVector) {
 				REXPVector rexp = (REXPVector) element;
 
-				rVectors.add(new RVector(
-						(String)rlist.names.get(index++), rexp));
+				rVectors.add(new RVector((String) rlist.names.get(index++),
+						rexp));
 			} else {
 				throw new UnsupportedTypeException("rlist contains "
 						+ element.getClass().getCanonicalName());
@@ -346,19 +348,63 @@ public final class RUtil {
 	}
 
 	/**
-	 * Returns the R class(es) of rexp.
+	 * Returns the R class attribute of rexp.
 	 * 
 	 * @param rexp
 	 *            expression to test
-	 * @return true/false
+	 * @return a comma separated string of the rexp classes, eg: {@code
+	 *         "[xtabs, table]"}. If it has not class attribute, returns {@code
+	 *         null}.
 	 */
 	public static String getClassAttribute(REXP rexp) {
-		String[] clazz =
-				((REXPString) rexp.getAttribute("class")).asStrings();
 
-		return ArrayUtil.toString(clazz);
+		REXPString classAttribute = (REXPString) rexp.getAttribute("class");
+
+		String[] clazz = null;
+		if (classAttribute == null) {
+			// If the object does not have a class attribute,
+			// it has an implicit class, "matrix", "array" or the
+			// result of mode(x) (except that integer vectors have implicit
+			// class "integer")
+
+		} else {
+			clazz = classAttribute.asStrings();
+		}
+
+		return Arrays.toString(clazz);
+	}
+	
+	public static int getDimensions(REXP rexp) {
+
+		REXPInteger dimAttribute = (REXPInteger) rexp.getAttribute("dim");
+
+		if (dimAttribute != null) {
+			return dimAttribute.asIntegers().length;
+		} 
+		
+		return 0;
 	}
 
+	/**
+	 * Return the "names" attribute of the "dimnames" attribute.
+	 * 
+	 * @param rexp
+	 * @return "names" of "dimnames", or {@code null} if there is no "names"
+	 *         attribute.
+	 */
+	public static String[] getDimNamesNames(REXP rexp) {
+
+		REXPString dimNamesNames =
+				(REXPString) rexp.getAttribute("dimnames").getAttribute(
+						"names");
+
+		if (dimNamesNames == null) {
+			return null;
+		}
+
+		return dimNamesNames.asStrings();
+
+	}
 
 	/**
 	 * Returns contents of an R file. Removes "\r" in the string, because R

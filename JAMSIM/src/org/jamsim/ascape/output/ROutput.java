@@ -8,7 +8,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.r.RDataFrame;
 import org.jamsim.r.RInterfaceException;
-import org.jamsim.r.RTable;
+import org.jamsim.r.RMatrix;
 import org.jamsim.r.RUtil;
 import org.jamsim.r.UnsupportedTypeException;
 import org.rosuda.REngine.REXP;
@@ -80,15 +80,15 @@ public class ROutput implements OutputDatasetProvider {
 
 			CBuilder builder;
 
-			if (RTable.isTable(rexp)) {
-				builder = new RTable(getName(), rexp);
+			if (RMatrix.isMatrix(rexp)) {
+				builder = new RMatrix(getName(), rexp);
 			} else if (RDataFrame.isDataFrame(rexp)) {
 				builder = new RDataFrame(getName(), rexp);
 			} else {
 				throw new NotImplementedException(cmd
-						+ " returned rexp of type ["
+						+ " returned rexp of class "
 						+ RUtil.getClassAttribute(rexp)
-						+ "]\n. Conversion of this type to "
+						+ ".\nConversion of this class to "
 						+ "dataset not yet implemented.");
 			}
 

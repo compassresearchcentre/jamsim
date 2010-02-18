@@ -94,10 +94,8 @@ public class RDataFrame implements CBuilder {
 	 * @return true/false
 	 */
 	public static boolean isDataFrame(REXP rexp) {
-		String[] clazz =
-				((REXPString) rexp.getAttribute("class")).asStrings();
-
-		return ArrayUtils.contains(clazz, "data.frame");
+		String clazz = RUtil.getClassAttribute(rexp); 
+		return clazz.contains("data.frame");
 	}
 
 	@Override
