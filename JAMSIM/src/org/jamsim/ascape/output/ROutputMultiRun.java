@@ -38,8 +38,9 @@ public class ROutputMultiRun extends AbstractMultiRunOutputDataset {
 	 *            r interface for running the command.
 	 * @param rCommand
 	 *            r command to run on the dataframe at then end of every scape
-	 *            iteration. Where the string "DATAFRAME" appears, this will be
-	 *            substituted with {@code dataFrameName + run number}.
+	 *            iteration. Where the data frame symbol appears this will be
+	 *            substituted with {@code dataFrameName + run number} - see
+	 *            {@link ScapeRInterface#rcmdReplace(String, int)}.
 	 */
 	public ROutputMultiRun(String shortName, String name,
 			String columnHeading, String[] valueNames,
@@ -68,8 +69,9 @@ public class ROutputMultiRun extends AbstractMultiRunOutputDataset {
 	 *            r interface for running the command.
 	 * @param rCommand
 	 *            r command to run on the dataframe at then end of every scape
-	 *            iteration. Where the string "DATAFRAME" appears, this will be
-	 *            substituted with {@code dataFrameName + run number}.
+	 *            iteration. Where the data frame symbol appears this will be
+	 *            substituted with {@code dataFrameName + run number} - see
+	 *            {@link ScapeRInterface#rcmdReplace(String, int)}.
 	 */
 	public ROutputMultiRun(String shortName, String name,
 			String columnHeading, String valueNameCommand,
@@ -83,12 +85,12 @@ public class ROutputMultiRun extends AbstractMultiRunOutputDataset {
 		String cmd = "";
 
 		try {
-			// where the string "DATAFRAME" appears,
+			// where the data frame symbol appears,
 			// substitute with {@code dataFrameName + run number}.
 			cmd = scapeR.rcmdReplace(rCommand, run);
 
-			//System.out.println("Debug R:" + cmd);
-			
+			// System.out.println("Debug R:" + cmd);
+
 			REXP rexp = scapeR.eval(cmd);
 
 			// r command must return a REXPDouble

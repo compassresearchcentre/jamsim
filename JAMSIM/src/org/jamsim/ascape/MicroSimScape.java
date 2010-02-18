@@ -22,6 +22,7 @@ import org.jamsim.ascape.navigator.MicroSimScapeNode;
 import org.jamsim.ascape.navigator.RecordedMicroSimTreeBuilder;
 import org.jamsim.ascape.output.OutputDataset;
 import org.jamsim.ascape.output.OutputDatasetProvider;
+import org.jamsim.ascape.output.ROutput;
 import org.jamsim.ascape.output.ROutputMultiRun;
 import org.jamsim.ascape.r.RFileInterface;
 import org.jamsim.ascape.r.ScapeRInterface;
@@ -217,7 +218,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 * @param provider
 	 *            provider
 	 */
-	public void addStatsOutput(OutputDatasetProvider provider) {
+	public void addOutputDataset(OutputDatasetProvider provider) {
 		addView(new OutputDataset(getOutputTablesNode(), provider,
 				getOutputDirectory()));
 	}
@@ -418,8 +419,9 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 * @param dataFrameSymbol
 	 *            replacement symbol. When evaluating {@code rRunEndCommand} and
 	 *            commands during the creation of output datasets in
-	 *            {@link ROutputMultiRun}, this symbol is searched for and
-	 *            replaced with the current run's dataframe name.
+	 *            {@link ROutput} and {@link ROutputMultiRun}, this symbol is
+	 *            searched for and replaced with the current run's dataframe
+	 *            name.
 	 * @param startUpFilePrefsKey
 	 *            if specified will look up this in the preferences and load the
 	 *            file into R.
