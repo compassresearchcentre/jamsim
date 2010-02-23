@@ -15,12 +15,12 @@ import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
 import net.casper.data.model.CDataRowSet;
 import net.casper.data.model.CRowMetaData;
+import net.casper.io.beans.CMarkedUpRow;
+import net.casper.io.beans.CMarkedUpRowBean;
 import net.casper.io.beans.util.BeanPropertyInspector;
-import net.casper.io.file.util.ArrayUtil;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPDouble;
@@ -119,6 +119,38 @@ public final class RUtil {
 	}
 
 	/**
+	 * Get bean property. Return reflection errors as
+	 * {@link RInterfaceException}s.
+	 * 
+	 * @param bean
+	 *            Bean whose property is to be extracted
+	 * @param name
+	 *            Possibly indexed and/or nested name of the property to be
+	 *            extracted
+	 * @return the property value
+	 * @throws RInterfaceException
+	 *             if reflection problem getting property
+	 */
+	private static Object getProperty(Object bean, String name)
+			throws RInterfaceException {
+		Object prop;
+		try {
+			prop = PropertyUtils.getProperty(bean, name);
+		} catch (IllegalAccessException e) {
+			throw new RInterfaceException("Oh no, "
+					+ "couldn't get property [" + name + "]", e);
+		} catch (InvocationTargetException e) {
+			throw new RInterfaceException("Oh no, "
+					+ "couldn't get property [" + name + "]", e);
+		} catch (NoSuchMethodException e) {
+			throw new RInterfaceException("Oh no, "
+					+ "couldn't get property [" + name + "]", e);
+		}
+		return prop;
+
+	}
+
+	/**
 	 * Create an {@link RList} from a {@link CDataCacheContainer}.
 	 * 
 	 * NB: doesn't automatically create factors like read.table does.
@@ -138,35 +170,10 @@ public final class RUtil {
 							+ container.getCacheName() + "\"");
 		}
 
-		CRowMetaData meta = container.getMetaDefinition();
-		String[] columnNames = meta.getColumnNames();
-		Class<?>[] columnTypes = meta.getColumnTypes();
-
-		int numElements = container.size();
-
-		// create a List of RVectors that hold an unknown type
-		ArrayList<RVector> vectors = new ArrayList<RVector>();
-
 		// create an RVector for each column
-		for (int i = 0; i < columnNames.length; i++) {
-			Class<?> klass = columnTypes[i];
-
-			// only process classes we can handle, ignore the rest
-			if (klass.isPrimitive() || klass.isArray()
-					|| klass.getSuperclass() == Number.class
-					|| klass == String.class || klass == Character.class) {
-				RVector vector;
-				try {
-					vector = new RVector(// NOPMD
-							columnNames[i], klass, numElements);
-				} catch (UnsupportedTypeException e) {
-					throw new RInterfaceException("Cannot create column ["
-							+ columnNames[i] + "]. " + e.getMessage(), e);
-				}
-				vectors.add(vector);
-			}
-
-		}
+		List<RVector> vectors =
+				getNewRVectors(container.getMetaDefinition(), container
+						.size());
 
 		if (vectors.isEmpty()) {
 			throw new RInterfaceException(
@@ -181,8 +188,7 @@ public final class RUtil {
 			while (cdrs.next()) {
 				for (RVector vector : vectors) {
 					String propName = vector.getName();
-					Object prop;
-					prop = cdrs.getObject(propName);
+					Object prop = cdrs.getObject(propName);
 					vector.addValue(prop);
 				}
 			}
@@ -240,20 +246,29 @@ public final class RUtil {
 		for (BeanPropertyInspector.Property prop : props) {
 			Class<?> klass = prop.getPropertyType();
 
-			// only process classes we can handle, ignore the rest
-			if (klass.isPrimitive() || klass.isArray()
-					|| klass.getSuperclass() == Number.class
-					|| klass == String.class || klass == Character.class) {
-				RVector vector;
-				try {
-					vector = new RVector(// NOPMD
-							prop.getName(), klass, numElements);
-				} catch (UnsupportedTypeException e) {
-					throw new RInterfaceException("Cannot create column ["
-							+ prop.getName() + "]. " + e.getMessage(), e);
-				}
+			RVector vector =
+					RVector.create(prop.getName(), klass, numElements);
+			if (vector != null) {
+				// only add classes we can handle, ignore the rest
 				vectors.add(vector);
 			}
+		}
+
+		// fill the RVectors' values row by row
+		// from the bean's property values
+		for (Object element : col) {
+			for (RVector vector : vectors) {
+				String propName = vector.getName();
+				Object prop = getProperty(element, propName);
+				vector.addValue(prop);
+			}
+		}
+
+		String markedUpRowGetterName = props.getGetMarkedUpRowMethodName();
+		if (markedUpRowGetterName != null) {
+			List<RVector> rowProps =
+					extractMarkedRow(col, markedUpRowGetterName);
+			vectors.addAll(rowProps);
 		}
 
 		if (vectors.isEmpty()) {
@@ -262,30 +277,102 @@ public final class RUtil {
 							+ "that can be converted to a dataframe");
 		}
 
+		return toRList(vectors);
+
+	}
+
+	/**
+	 * Extract the values of a {@link CMarkedUpRow} that is retrieved via a
+	 * getter method on a collection of beans.
+	 * 
+	 * @param col
+	 *            collection of beans that expose a {@link CMarkedUpRow}.
+	 * @param markedUpRowGetterName
+	 *            getter method used on the bean to retrieve the
+	 *            {@link CMarkedUpRow}.
+	 * @return list of {@link RVector}s. One for each value in the
+	 *         {@link CMarkedUpRow}.
+	 * @throws RInterfaceException
+	 *             if problem reading collection.
+	 */
+	public static List<RVector> extractMarkedRow(Collection<?> col,
+			String markedUpRowGetterName) throws RInterfaceException {
+
+		if (col.isEmpty()) {
+			throw new RInterfaceException("Empty collection of "
+					+ CMarkedUpRowBean.class);
+		}
+
+		Object cMarkedUpRowBean = col.iterator().next();
+		CMarkedUpRow firstRow =
+				(CMarkedUpRow) getProperty(cMarkedUpRowBean,
+						markedUpRowGetterName);
+
+		// get list of vectors, one for each column in the row
+		// the vectors will be empty
+		List<RVector> vectors =
+				getNewRVectors(firstRow.getMetaDefinition(), col.size());
+
+		if (vectors.isEmpty()) {
+			throw new RInterfaceException(
+					"Container does not contain any columns "
+							+ "that can be converted to a RList");
+		}
+
 		// fill the RVectors' values row by row
 		// from the bean's property values
 		for (Object element : col) {
 			for (RVector vector : vectors) {
 				String propName = vector.getName();
+				CMarkedUpRow row =
+						(CMarkedUpRow) getProperty(element,
+								markedUpRowGetterName);
 				Object prop;
 				try {
-					prop = PropertyUtils.getProperty(element, propName);
-				} catch (IllegalAccessException e) {
-					throw new RInterfaceException("Oh no, "
-							+ "couldn't get property [" + propName + "]", e);
-				} catch (InvocationTargetException e) {
-					throw new RInterfaceException("Oh no, "
-							+ "couldn't get property [" + propName + "]", e);
-				} catch (NoSuchMethodException e) {
-					throw new RInterfaceException("Oh no, "
-							+ "couldn't get property [" + propName + "]", e);
+					prop = row.getObject(propName);
+				} catch (CDataGridException e) {
+					throw new RInterfaceException(e);
 				}
 				vector.addValue(prop);
 			}
 		}
 
-		return toRList(vectors);
+		return vectors;
 
+	}
+
+	/**
+	 * Generate a list of {@link RVector}s, one for each column in the meta
+	 * data. Each {@link RVector} will be empty and initialised to the specified
+	 * size.
+	 * 
+	 * @param meta
+	 *            meta data
+	 * @param numElements
+	 *            initial size of each vector
+	 * @return list of empty {@link RVector}s
+	 * @throws RInterfaceException
+	 */
+	private static List<RVector> getNewRVectors(CRowMetaData meta,
+			int numElements) throws RInterfaceException {
+		String[] columnNames = meta.getColumnNames();
+		Class<?>[] columnTypes = meta.getColumnTypes();
+
+		// create a List of RVectors that hold an unknown type
+		ArrayList<RVector> vectors = new ArrayList<RVector>();
+
+		// create an RVector for each column
+		for (int i = 0; i < columnNames.length; i++) {
+			Class<?> klass = columnTypes[i];
+
+			RVector vector =
+					RVector.create(columnNames[i], klass, numElements);
+			if (vector != null) {
+				// only add classes we can handle, ignore the rest
+				vectors.add(vector);
+			}
+		}
+		return vectors;
 	}
 
 	/**
@@ -373,22 +460,28 @@ public final class RUtil {
 
 		return Arrays.toString(clazz);
 	}
-	
+
+	/**
+	 * Get dimension (dim) attribute from rexp.
+	 * 
+	 * @param rexp rexp
+	 * @return number of dimensions
+	 */
 	public static int getDimensions(REXP rexp) {
 
 		REXPInteger dimAttribute = (REXPInteger) rexp.getAttribute("dim");
 
 		if (dimAttribute != null) {
 			return dimAttribute.asIntegers().length;
-		} 
-		
+		}
+
 		return 0;
 	}
 
 	/**
 	 * Return the "names" attribute of the "dimnames" attribute.
 	 * 
-	 * @param rexp
+	 * @param rexp rexp
 	 * @return "names" of "dimnames", or {@code null} if there is no "names"
 	 *         attribute.
 	 */

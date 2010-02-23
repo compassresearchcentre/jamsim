@@ -87,7 +87,7 @@ public class MicroSimScapeNode extends ScapeNode {
 		// get all the tables from the scape external data
 		// and add them to the navigator as a Panel View Node
 		for (Map.Entry<String, TableModel> entry : scape.getScapeData()
-				.getTableModels().entrySet()) {
+				.getInputDatasets().entrySet()) {
 
 			TableModel tmodel = entry.getValue();
 			JTable table = new JTable(tmodel); // NOPMD

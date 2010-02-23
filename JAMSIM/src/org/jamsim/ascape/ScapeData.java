@@ -19,14 +19,14 @@ import org.ascape.model.Agent;
 public interface ScapeData {
 
 	/**
-	 * Return a map of tables which will be displayed in the Navigator. These
-	 * can be any data the simulation wants to display in tabulated form, that
-	 * does not change after loading. The map key is the name used for the table
-	 * in the Navigator.
+	 * Return a map of tables which will be displayed in the Navigator under the
+	 * "Datasets" node. These can be any data the simulation wants to display in
+	 * tabulated form, that does not change after loading. The map key is the
+	 * name used for the table in the Navigator.
 	 * 
 	 * @return list of JTables for display in user interface.
 	 */
-	Map<String, TableModel> getTableModels();
+	Map<String, TableModel> getInputDatasets();
 
 	/**
 	 * Return a collection of agents from the base file.
@@ -39,9 +39,5 @@ public interface ScapeData {
 	 */
 	Collection<? extends Agent> getBaseScapeAgents(File basefile)
 			throws IOException;
-
-	// get file loader?
-
-	// get output??
 
 }

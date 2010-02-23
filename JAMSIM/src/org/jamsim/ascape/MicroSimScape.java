@@ -196,7 +196,11 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 * @return output tables node
 	 */
 	public NodesByRunFolder getOutputTablesNode() {
-
+		initScapeNode();
+		return scapeNode.getOutputTablesNode();
+	}
+	
+	private void initScapeNode() {
 		if (scapeNode == null) {
 			scapeNode =
 					(MicroSimScapeNode) TREE_BUILDER.getCreatedTreeNode(this);
@@ -208,8 +212,6 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 			}
 
 		}
-
-		return scapeNode.getOutputTablesNode();
 	}
 
 	/**
@@ -236,7 +238,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	public void addDataFrameNode(String name) {
 
 		if (!dataFrameNodeMap.containsKey(name)) {
-
+			initScapeNode();
 			scapeNode.addDataFrameNode(name);
 			dataFrameNodeMap.put(name, null);
 		}

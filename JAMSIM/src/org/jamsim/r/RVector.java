@@ -44,7 +44,6 @@ public class RVector {
 	private final List values;
 
 	private final Class<?> klass;
-	private boolean klassIsArray = false;
 
 	/**
 	 * Create a new {@link RVector} with given name, value type, a initial size.
@@ -62,7 +61,49 @@ public class RVector {
 			throws UnsupportedTypeException {
 		this.name = name;
 		this.values = createList(klass, initialSize);
+
+		if (values == null) {
+			throw new UnsupportedTypeException("Unsupported type "
+					+ klass.getCanonicalName());
+		}
+
 		this.klass = klass;
+	}
+
+	/**
+	 * Constructor used by {@link #create(String, Class, int)}.
+	 * 
+	 * @param name
+	 * @param klass
+	 * @param values
+	 */
+	private RVector(String name, Class<?> klass, List values) {
+		this.name = name;
+		this.values = values;
+		this.klass = klass;
+	}
+
+	/**
+	 * Create an {@link RVector} or return {@code null} if the supplied class is
+	 * of the wrong type.
+	 * 
+	 * @param name
+	 *            vector name.
+	 * @param klass
+	 *            type of the values this vector will hold.
+	 * @param initialSize
+	 *            number of elements in this vector.
+	 * @return {@link RVector} or {@code null} if {@code klass} is of
+	 *         unsupported type.
+	 */
+	public static RVector create(String name, Class<?> klass, int initialSize) {
+		List values = createList(klass, initialSize);
+
+		if (values == null) {
+			return null;
+		}
+
+		return new RVector(name, klass, values);
 	}
 
 	/**
@@ -112,7 +153,6 @@ public class RVector {
 		}
 	}
 
-	
 	/**
 	 * Creates a primitive array list of the appropriate type for the given
 	 * rexp.
@@ -156,13 +196,11 @@ public class RVector {
 	 * @param initialSize
 	 *            number of elements in the list. Used to initial the list to
 	 *            this size.
-	 * @throws UnsupportedTypeException
-	 *             if {@code klass} is of an unsupported type (ie: no
-	 *             corresponding primitive list implementation exists)
+	 * @returns primitive list, or {@code null} if no corresponding primitive
+	 *          list implementation exists
 	 */
-	private List createList(Class<?> klass, int initialSize)
-			throws UnsupportedTypeException {
-		List values;
+	private static List createList(Class<?> klass, int initialSize) {
+		List values = null;
 
 		if (klass == double.class || klass == Double.class) {
 			values = new DoubleArrayList(initialSize);
@@ -187,11 +225,7 @@ public class RVector {
 			// no R type for char, use String instead
 			values = new ArrayList<String>(initialSize);
 		} else if (klass.isArray()) {
-			klassIsArray = true;
 			values = new RList(initialSize, false);
-		} else {
-			throw new UnsupportedTypeException("Unsupported type "
-					+ klass.getCanonicalName());
 		}
 
 		return values;
@@ -212,7 +246,7 @@ public class RVector {
 		// convert it to a String first.
 		if (value instanceof Character) {
 			values.add(value.toString());
-		} else if (klassIsArray) {
+		} else if (klass.isArray()) {
 			// this must be an array object passed in, so wrap it in a
 			// REXPVector
 			values.add(RUtil.toVector(value));
@@ -261,7 +295,7 @@ public class RVector {
 	public String getName() {
 		return name;
 	}
-	
+
 	/**
 	 * Get the type of the values in the vector.
 	 * 

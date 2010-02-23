@@ -326,7 +326,7 @@ public class ScapeRInterface extends DefaultScapeListener {
 
 					String rcmd = rcmdReplace(rRunEndCommand, runNumber);
 
-					rInterface.eval(rcmd);
+					rInterface.parseEvalPrint(rcmd);
 
 					timer.stop();
 

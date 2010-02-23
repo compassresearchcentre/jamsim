@@ -3,6 +3,7 @@ package org.jamsim.io;
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.prefs.Preferences;
@@ -12,7 +13,9 @@ import javax.swing.table.TableModel;
 
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
+import net.casper.ext.CasperUtil;
 import net.casper.ext.file.CDataFileDoubleArray;
+import net.casper.io.beans.CMarkedUpRowBean;
 import net.casper.io.file.CBuildFromFile;
 import net.casper.io.file.CDataFile;
 import net.casper.io.file.CDataFileDef;
@@ -195,7 +198,7 @@ public class FileLoader implements Output {
 			FileFilter filter) {
 		return openChooser.showOpenDialog(dialogTitle, parent, filter);
 	}
-	
+
 	/**
 	 * Show a JFileChooser save file dialog, prompting to overwrite if the file
 	 * already exists. Saves the directory last navigated to into the
@@ -212,7 +215,8 @@ public class FileLoader implements Output {
 	 */
 	public File showSaveDialogPromptOverwrite(String dialogTitle,
 			Component parent, FileFilter filter) {
-		return saveChooser.showSaveDialogPromptOverwrite(dialogTitle, parent, filter);
+		return saveChooser.showSaveDialogPromptOverwrite(dialogTitle, parent,
+				filter);
 	}
 
 	/**
@@ -237,6 +241,38 @@ public class FileLoader implements Output {
 	 */
 	public Preferences getPrefs() {
 		return prefs;
+	}
+
+	/**
+	 * Load {@link CDataFileDef} from prefs key, then load {@file} using
+	 * the the {@link CDataFileDef}.
+	 * 
+	 * @param prefsKey
+	 *            preferences key specifying location of {@link CDataFileDef}.
+	 * @param file
+	 *            file containing data specified by the {@link CDataFileDef}.
+	 * @param beanClass
+	 *            {@link CMarkedUpRowBean} class to load
+	 * @param <E>
+	 *            type of bean class
+	 * @return casper dataset container
+	 * @throws IOException
+	 *             if problem reading file or creating beans
+	 */
+	public <E extends CMarkedUpRowBean> Collection<E> loadBeans(
+			String prefsKey, File file, Class<E> beanClass)
+			throws IOException {
+
+		CDataFileDef cdefPatients = loadCDataFile(prefsKey);
+
+		CDataCacheContainer con = cdefPatients.loadDataset(file);
+
+		try {
+			return CasperUtil.exportMarkedUpRowBeans(con, beanClass);
+		} catch (CDataGridException e) {
+			throw new IOException(e);
+		}
+
 	}
 
 	/**
