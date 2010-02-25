@@ -257,7 +257,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 */
 	public void loadAgents() {
 		if (scape == null) {
-			throw new RuntimeException(name
+			throw new IllegalStateException(name
 					+ " has not been added to a scape yet");
 		}
 		setBasefile(prefs.get(BASEFILE_KEY, ""));
@@ -449,7 +449,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 						rRunEndCommand, keepAllRunDFs);
 		addView(scapeR);
 
-		RFileInterface rFiles = new RFileInterface(this, scapeR, loader);
+		new RFileInterface(this, scapeR, loader);
 
 		return scapeR;
 	}

@@ -201,6 +201,9 @@ public class ScapeRInterface extends DefaultScapeListener {
 						+ MAX_PRINT);
 				rInterface.eval("options(max.print=" + MAX_PRINT + ")");
 
+				// create initial dataframe from scape
+				assignScapeDataFrame(runNumber);
+				
 				if (startUpFile != null) {
 					try {
 
@@ -293,6 +296,31 @@ public class ScapeRInterface extends DefaultScapeListener {
 	}
 
 	/**
+	 * Create a dataframe from the scape.
+	 * 
+	 * @param runNumber
+	 *            run number. Used in the naming of the dataframe
+	 * @throws RInterfaceException
+	 *             if problem during creation
+	 */
+	private void assignScapeDataFrame(int runNumber)
+			throws RInterfaceException {
+		String dataframeName = getScapeDFRunName(runNumber);
+
+		timer.start();
+
+		assignDataFrame(dataframeName, scape, scape.getPrototypeAgent()
+				.getClass().getSuperclass());
+		rInterface.printlnToConsole("Created dataframe " + dataframeName);
+
+		timer.stop();
+
+		System.out.println("Created dataframe " + dataframeName + " ("
+				+ timer.duration() + " ms)");
+
+	}
+
+	/**
 	 * When simulation stops, write out the scape as dataframe to R. Does
 	 * nothing if R has not been loaded.
 	 * 
@@ -306,19 +334,8 @@ public class ScapeRInterface extends DefaultScapeListener {
 		try {
 			if (rInterface != null) {
 
-				String dataframeName = getScapeDFRunName(runNumber);
-
-				timer.start();
-
-				assignDataFrame(dataframeName, scape, scape
-						.getPrototypeAgent().getClass().getSuperclass());
-				rInterface.printlnToConsole("Created dataframe "
-						+ dataframeName);
-
-				timer.stop();
-
-				System.out.println("Created dataframe " + dataframeName
-						+ " (" + timer.duration() + " ms)");
+				// create dataframe from scape
+				assignScapeDataFrame(runNumber);
 
 				if (rRunEndCommand != null) {
 

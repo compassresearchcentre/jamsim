@@ -468,14 +468,8 @@ public final class RUtil {
 	 * @return number of dimensions
 	 */
 	public static int getDimensions(REXP rexp) {
-
-		REXPInteger dimAttribute = (REXPInteger) rexp.getAttribute("dim");
-
-		if (dimAttribute != null) {
-			return dimAttribute.asIntegers().length;
-		}
-
-		return 0;
+		int[] dims = rexp.dim();
+		return dims == null ? 0 : dims.length;
 	}
 
 	/**

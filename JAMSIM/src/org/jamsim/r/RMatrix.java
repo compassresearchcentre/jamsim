@@ -3,6 +3,7 @@ package org.jamsim.r;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import net.casper.data.model.CBuilder;
 import net.casper.ext.narrow.NarrowException;
@@ -49,6 +50,11 @@ public class RMatrix implements CBuilder {
 	 */
 	private final double[][] values;
 
+	/**
+	 * Number of rows.
+	 */
+	private int numRows;
+
 	private int currentRowIndex;
 
 	/**
@@ -68,22 +74,27 @@ public class RMatrix implements CBuilder {
 		}
 
 		String[] dimNamesNames = RUtil.getDimNamesNames(rexp);
-
 		rowVariableName =
 				(dimNamesNames == null) ? "" : dimNamesNames[0] + " / "
 						+ dimNamesNames[1];
 		String colVariableName =
 				(dimNamesNames == null) ? "" : dimNamesNames[1];
-
 		this.name =
 				(name == null) ? rowVariableName + " by " + colVariableName
 						: name;
 
 		RList dimnames = rexp.getAttribute("dimnames").asList();
-		rowNames = ((REXPString) dimnames.at(0)).asStrings();
+		if (dimnames.at(0).isString()) {
+			rowNames = ((REXPString) dimnames.at(0)).asStrings();
+		} else {
+			rowNames = null; // no row names
+		}
 		colNames = ((REXPString) dimnames.at(1)).asStrings();
 
 		values = rexp.asDoubleMatrix();
+
+		numRows = rexp.dim()[0];
+
 	}
 
 	/**
@@ -112,45 +123,62 @@ public class RMatrix implements CBuilder {
 	}
 
 	/**
-	 * First column is the rows' variable name. The rest are the column
-	 * dimnames.
+	 * Return column names. If there are row names, then the first column is the
+	 * rows' variable name and the rest are the column dimnames. If there are no
+	 * row names, then the columns are just the dimnames.
 	 * 
 	 * @return column names
 	 */
 	@Override
 	public String[] getColumnNames() {
-		// return (String[])ArrayUtils.addAll(new String[] {rowVariableName},
-		// colNames);
-		return (String[]) ArrayUtils.add(colNames, 0, rowVariableName);
+		if (rowNames == null) {
+			return colNames;
+		} else {
+			// first column is the rows' variable name. The rest are the column
+			// dimnames.
+			return (String[]) ArrayUtils.add(colNames, 0, rowVariableName);
+		}
 	}
 
 	@Override
 	public Class[] getColumnTypes() {
-		Class<?>[] colTypes = new Class<?>[colNames.length + 1];
 
-		// narrow the row names so that if they are numbers,
-		// they will be number sorted not string sorted
-		NarrowUtil nutil = new NarrowUtil();
-		Class<?> rowNamesType = nutil.calcNarrowestType(rowNames, false);
-		try {
-			rowNames = nutil.narrowArray(rowNames, rowNamesType, false);
-		} catch (NarrowException e) {
-			throw new IllegalStateException(e);
+		Class<?>[] colTypes;
+
+		if (rowNames == null) {
+			// no row names. col types all double
+			colTypes = new Class<?>[colNames.length];
+			for (int i = 0; i < colTypes.length; i++) {
+				colTypes[i] = Double.class;
+			}
+
+		} else {
+			// first col is row names
+			colTypes = new Class<?>[colNames.length + 1];
+
+			// narrow the row names so that if they are numbers,
+			// they will be number sorted not string sorted
+			NarrowUtil nutil = new NarrowUtil();
+			Class<?> rowNamesType = nutil.calcNarrowestType(rowNames, false);
+			try {
+				rowNames = nutil.narrowArray(rowNames, rowNamesType, false);
+			} catch (NarrowException e) {
+				throw new IllegalStateException(e);
+			}
+
+			// first col is row dimnames
+			colTypes[0] = rowNamesType;
+
+			for (int i = 1; i < colTypes.length; i++) {
+				colTypes[i] = Double.class;
+			}
 		}
-
-		// first col is row dimnames
-		colTypes[0] = rowNamesType;
-
-		for (int i = 1; i < colTypes.length; i++) {
-			colTypes[i] = Double.class;
-		}
-
 		return colTypes;
 	}
 
 	@Override
 	public Map getConcreteMap() {
-		return new HashMap();
+		return new TreeMap();
 	}
 
 	@Override
@@ -160,7 +188,11 @@ public class RMatrix implements CBuilder {
 
 	@Override
 	public String[] getPrimaryKeyColumns() {
-		return new String[] { rowVariableName };
+		if (rowNames == null) {
+			return null;
+		} else {
+			return new String[] { rowVariableName };
+		}
 	}
 
 	@Override
@@ -171,18 +203,27 @@ public class RMatrix implements CBuilder {
 	@Override
 	public Object[] readRow() throws IOException {
 
-		if (currentRowIndex == rowNames.length) {
+		if (currentRowIndex == numRows) {
 			return null;
 		}
 
-		Object[] row = new Object[colNames.length + 1];
+		Object[] row;
 
-		// first col is row dimnames
-		row[0] = rowNames[currentRowIndex];
-		for (int i = 0; i < colNames.length; i++) {
-			row[i + 1] = values[currentRowIndex][i];
+		if (rowNames == null) {
+			// row names column
+			row = new Object[colNames.length];
+			for (int i = 0; i < colNames.length; i++) {
+				row[i] = values[currentRowIndex][i];
+			}
+		} else {
+			row = new Object[colNames.length + 1];
+
+			// first col is row dimnames
+			row[0] = rowNames[currentRowIndex];
+			for (int i = 0; i < colNames.length; i++) {
+				row[i + 1] = values[currentRowIndex][i];
+			}
 		}
-
 		currentRowIndex++;
 
 		return row;

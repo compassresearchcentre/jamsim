@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. -->
+<project basedir="." default="build" name="JAMSIM">
+    <property environment="env"/>
+    <property name="Models.location" value="../Models"/>
+    <property name="ECLIPSE_HOME" value="../../eclipse-java-ganymede-SR2-win32"/>
+    <property name="BeanShell.location" value="../BeanShell"/>
+    <property name="JRI.location" value="../JRI"/>
+    <property name="Joda.location" value="../Joda"/>
+    <property name="OmanUtil.location" value="../OmanUtil"/>
+    <property name="REngine.location" value="../REngine"/>
+    <property name="casperdatasets.location" value="../casperdatasets"/>
+    <property name="jedit-textarea.location" value="../../Source/jedit/textarea"/>
+    <property name="org.ascape.common.lib.location" value="../org.ascape.common.lib"/>
+    <property name="org.ascape.core.location" value="../org.ascape.core"/>
+    <property name="org.ascape.ui.swing.location" value="../org.ascape.ui.swing"/>
+    <property name="supercsv.location" value="../../Source/SuperCSV"/>
+    <property name="casperdatasets-io.location" value="../casperdatasets-io"/>
+    <property name="casperdatasets-ext.location" value="../casperdatasets-ext"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+    <path id="BeanShell.classpath">
+        <pathelement location="${BeanShell.location}/bin"/>
+    </path>
+    <path id="JRI.classpath">
+        <pathelement location="${JRI.location}/."/>
+    </path>
+    <path id="REngine.classpath">
+        <pathelement location="${REngine.location}/."/>
+        <path refid="JRI.classpath"/>
+    </path>
+    <path id="Plug-in Dependencies.libraryclasspath"/>
+    <path id="org.ascape.common.lib.classpath">
+        <pathelement location="${org.ascape.common.lib.location}/."/>
+        <path refid="Plug-in Dependencies.libraryclasspath"/>
+    </path>
+    <path id="org.ascape.core.classpath">
+        <pathelement location="${org.ascape.core.location}/bin"/>
+        <path refid="Plug-in Dependencies.libraryclasspath"/>
+    </path>
+    <path id="org.ascape.ui.swing.classpath">
+        <pathelement location="${org.ascape.ui.swing.location}/bin"/>
+        <path refid="Plug-in Dependencies.libraryclasspath"/>
+    </path>
+    <path id="Joda.classpath">
+        <pathelement location="${Joda.location}/bin"/>
+        <pathelement location="${Joda.location}/lib/jaxen-core.jar"/>
+        <pathelement location="${Joda.location}/lib/saxpath.jar"/>
+        <pathelement location="${Joda.location}/lib/jdom.jar"/>
+        <pathelement location="${Joda.location}/lib/junit.jar"/>
+        <pathelement location="${Joda.location}/../../Source/joda-time-1.6/joda-time-1.6.jar"/>
+    </path>
+    <path id="casperdatasets.classpath">
+        <pathelement location="${casperdatasets.location}/bin"/>
+    </path>
+    <path id="supercsv.classpath">
+        <pathelement location="${supercsv.location}/bin"/>
+        <pathelement location="${supercsv.location}/spiffy-with_source-all-0.05.jar"/>
+    </path>
+    <path id="casperdatasets-io.classpath">
+        <pathelement location="${casperdatasets-io.location}/bin"/>
+        <pathelement location="${casperdatasets-io.location}/../../Source/commons-beanutils-1.8.0/commons-beanutils-1.8.0.jar"/>
+        <path refid="Joda.classpath"/>
+        <pathelement location="${casperdatasets-io.location}/../../Source/commons-lang-2.4/commons-lang-2.4.jar"/>
+        <pathelement location="${casperdatasets-io.location}/../../Source/poi-3.5-FINAL/poi-3.5-FINAL-20090928.jar"/>
+        <pathelement location="${casperdatasets-io.location}/../../Source/poi-3.5-FINAL/poi-ooxml-3.5-FINAL-20090928.jar"/>
+        <pathelement location="${casperdatasets-io.location}/../../Source/poi-3.5-FINAL/ooxml-lib/dom4j-1.6.1.jar"/>
+        <pathelement location="${casperdatasets-io.location}/../../Source/poi-3.5-FINAL/ooxml-lib/geronimo-stax-api_1.0_spec-1.0.jar"/>
+        <pathelement location="${casperdatasets-io.location}/../../Source/poi-3.5-FINAL/ooxml-lib/ooxml-schemas-1.0.jar"/>
+        <pathelement location="${casperdatasets-io.location}/../../Source/poi-3.5-FINAL/ooxml-lib/xmlbeans-2.3.0.jar"/>
+        <pathelement location="${casperdatasets-io.location}/../../Source/functionalj/dist/functionalj.jar"/>
+        <path refid="casperdatasets.classpath"/>
+        <pathelement location="${casperdatasets-io.location}/../../Source/google-gson-1.4/gson-1.4.jar"/>
+        <path refid="supercsv.classpath"/>
+        <pathelement location="${casperdatasets-io.location}/../../Source/commons-logging-1.1.1/commons-logging-1.1.1.jar"/>
+    </path>
+    <path id="casperdatasets-ext.classpath">
+        <pathelement location="${casperdatasets-ext.location}/bin"/>
+        <path refid="casperdatasets-io.classpath"/>
+        <pathelement location="${casperdatasets-ext.location}/../../Source/functionalj/dist/functionalj.jar"/>
+        <path refid="casperdatasets.classpath"/>
+    </path>
+    <path id="JUnit 4.7.userclasspath">
+        <pathelement location="../../Source/junit4.7/junit-4.7.jar"/>
+        <pathelement location="../../Source/hamcrest-1.2/hamcrest-all-1.2.jar"/>
+    </path>
+    <path id="OmanUtil.classpath">
+        <pathelement location="${OmanUtil.location}/bin"/>
+        <path refid="JUnit 4.7.userclasspath"/>
+        <pathelement location="${OmanUtil.location}/../../Source/commons-lang-2.4/commons-lang-2.4.jar"/>
+        <pathelement location="${OmanUtil.location}/../../Source/commons-io-1.4/commons-io-1.4.jar"/>
+    </path>
+    <path id="jedit-textarea.classpath">
+        <pathelement location="${jedit-textarea.location}/bin"/>
+    </path>
+    <path id="JAMSIM.classpath">
+        <pathelement location="bin"/>
+        <pathelement location="../../Source/colt/lib/colt.jar"/>
+        <pathelement location="../../Source/commons-beanutils-1.8.0/commons-beanutils-1.8.0.jar"/>
+        <path refid="BeanShell.classpath"/>
+        <pathelement location="../../Source/fastutil-5.1.5/fastutil-5.1.5.jar"/>
+        <pathelement location="C:/Program Files/R/R-2.9.1/library/JavaGD/java/javaGD.jar"/>
+        <path refid="REngine.classpath"/>
+        <path refid="org.ascape.common.lib.classpath"/>
+        <path refid="org.ascape.core.classpath"/>
+        <path refid="org.ascape.ui.swing.classpath"/>
+        <pathelement location="../../Source/commons-collections-3.2.1/commons-collections-3.2.1.jar"/>
+        <path refid="casperdatasets-ext.classpath"/>
+        <path refid="casperdatasets-io.classpath"/>
+        <pathelement location="../../Source/commons-logging-1.1.1/commons-logging-1.1.1.jar"/>
+        <path refid="casperdatasets.classpath"/>
+        <path refid="JUnit 4.7.userclasspath"/>
+        <pathelement location="../../Source/xstream-1.3.1/lib/xstream-1.3.1.jar"/>
+        <pathelement location="../../Source/xstream-1.3.1/lib/xpp3_min-1.1.4c.jar"/>
+        <pathelement location="../../Source/xstream-1.3.1/lib/jettison-1.0.1.jar"/>
+        <path refid="OmanUtil.classpath"/>
+        <pathelement location="../../Source/commons-lang-2.4/commons-lang-2.4.jar"/>
+        <pathelement location="../../Source/commons-io-1.4/commons-io-1.4.jar"/>
+        <path refid="JRI.classpath"/>
+        <path refid="jedit-textarea.classpath"/>
+        <pathelement location="../../Source/functionalj/dist/functionalj.jar"/>
+    </path>
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src" excludes="**/*.launch, **/*.uad, **/*.ucd, **/*.uld, **/*.upd, **/*.udd, **/*.uod, **/*.usd, **/*.utd, **/*.uud, **/*.odd, **/*.ead, **/*.ecd, **/*.eld, **/*.epd, **/*.edd, **/*.eod, **/*.esd, **/*.etd, **/*.eud, **/*.urd, **/*.uml, **/*.ecore, **/*.java"/>
+        </copy>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="tests" excludes="**/*.launch, **/*.uad, **/*.ucd, **/*.uld, **/*.upd, **/*.udd, **/*.uod, **/*.usd, **/*.utd, **/*.uud, **/*.odd, **/*.ead, **/*.ecd, **/*.eld, **/*.epd, **/*.edd, **/*.eod, **/*.esd, **/*.etd, **/*.eud, **/*.urd, **/*.uml, **/*.ecore, **/*.java"/>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="bin"/>
+    </target>
+    <target depends="clean" name="cleanall">
+        <ant antfile="${BeanShell.location}/buildE.xml" inheritAll="false" target="clean"/>
+        <ant antfile="${JRI.location}/buildE.xml" inheritAll="false" target="clean"/>
+        <ant antfile="${Joda.location}/buildE.xml" inheritAll="false" target="clean"/>
+        <ant antfile="${OmanUtil.location}/buildE.xml" inheritAll="false" target="clean"/>
+        <ant antfile="${REngine.location}/buildE.xml" inheritAll="false" target="clean"/>
+        <ant antfile="${casperdatasets.location}/buildE.xml" inheritAll="false" target="clean"/>
+        <ant antfile="${jedit-textarea.location}/buildE.xml" inheritAll="false" target="clean"/>
+        <ant antfile="${org.ascape.common.lib.location}/buildE.xml" inheritAll="false" target="clean"/>
+        <ant antfile="${org.ascape.core.location}/buildE.xml" inheritAll="false" target="clean"/>
+        <ant antfile="${org.ascape.ui.swing.location}/buildE.xml" inheritAll="false" target="clean"/>
+        <ant antfile="${supercsv.location}/buildE.xml" inheritAll="false" target="clean"/>
+        <ant antfile="${casperdatasets-io.location}/buildE.xml" inheritAll="false" target="clean"/>
+        <ant antfile="${casperdatasets-ext.location}/buildE.xml" inheritAll="false" target="clean"/>
+    </target>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects">
+        <ant antfile="${BeanShell.location}/buildE.xml" inheritAll="false" target="build-project">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="${JRI.location}/buildE.xml" inheritAll="false" target="build-project">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="${Joda.location}/buildE.xml" inheritAll="false" target="build-project">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="${OmanUtil.location}/buildE.xml" inheritAll="false" target="build-project">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="${REngine.location}/buildE.xml" inheritAll="false" target="build-project">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="${casperdatasets.location}/buildE.xml" inheritAll="false" target="build-project">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="${jedit-textarea.location}/buildE.xml" inheritAll="false" target="build-project">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="${org.ascape.common.lib.location}/buildE.xml" inheritAll="false" target="build-project">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="${org.ascape.core.location}/buildE.xml" inheritAll="false" target="build-project">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="${org.ascape.ui.swing.location}/buildE.xml" inheritAll="false" target="build-project">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="${supercsv.location}/buildE.xml" inheritAll="false" target="build-project">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="${casperdatasets-io.location}/buildE.xml" inheritAll="false" target="build-project">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="${casperdatasets-ext.location}/buildE.xml" inheritAll="false" target="build-project">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+    </target>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="JAMSIM.classpath"/>
+        </javac>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="tests"/>
+            <classpath refid="JAMSIM.classpath"/>
+        </javac>
+    </target>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
+        <ant antfile="${Models.location}/buildE.xml" inheritAll="false" target="clean"/>
+        <ant antfile="${Models.location}/buildE.xml" inheritAll="false" target="build">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+    </target>
+    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
+        <copy todir="${ant.library.dir}">
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </copy>
+        <unzip dest="${ant.library.dir}">
+            <patternset includes="jdtCompilerAdapter.jar"/>
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </unzip>
+    </target>
+    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
+        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+        <antcall target="build"/>
+    </target>
+</project>

@@ -3,7 +3,6 @@ package org.jamsim.r;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 
 import net.casper.io.file.util.ArrayUtil;
 
@@ -287,18 +286,18 @@ public final class RInterfaceHL {
 			 */
 			String exec = "try(eval(parse(text=.expression.)), silent=TRUE)";
 
-			REXP r = rosudaEngine.parseAndEval(exec);
+			REXP rexp = rosudaEngine.parseAndEval(exec);
 
-			if (r == null) {
+			if (rexp == null) {
 				// evaluated OK and returned nothing
 				return null;
-			} else if (r.inherits("try-error")) {
+			} else if (rexp.inherits("try-error")) {
 				// evaluated with error and returned "try-error" object which
 				// contains error message
-				throw new RInterfaceException(r.asString());
+				throw new RInterfaceException(rexp.asString());
 			} else {
 				// evaluated OK and returned object
-				return r;
+				return rexp;
 			}
 
 		} catch (REngineException e) {
