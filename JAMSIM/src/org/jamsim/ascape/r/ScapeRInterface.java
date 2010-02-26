@@ -203,7 +203,7 @@ public class ScapeRInterface extends DefaultScapeListener {
 
 				// create initial dataframe from scape
 				assignScapeDataFrame(runNumber);
-				
+
 				if (startUpFile != null) {
 					try {
 
@@ -472,6 +472,22 @@ public class ScapeRInterface extends DefaultScapeListener {
 	 */
 	public REXP parseEvalPrint(String expr) {
 		return rInterface.parseEvalPrint(expr);
+	}
+
+	/**
+	 * Wraps a parse and try around an eval. The parse will generate syntax
+	 * error messages, and the try will catch parse and evaluation errors and
+	 * return them in the exception as opposed to printing it on the console.
+	 * 
+	 * @param expr
+	 *            expression to try and parse and eval
+	 * @return REXP result of the evaluation.
+	 * @throws RInterfaceException
+	 *             if there is a parse or evaluation error the error message is
+	 *             returned in the exception. Nothing printed to the console.
+	 */
+	public REXP parseEvalTry(String expr) throws RInterfaceException {
+		return rInterface.parseEvalTry(expr);
 	}
 
 	/**

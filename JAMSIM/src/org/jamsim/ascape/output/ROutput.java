@@ -45,7 +45,7 @@ public class ROutput implements OutputDatasetProvider {
 	 *            iteration. Where the string "DATAFRAME" appears, this will be
 	 *            substituted with {@code dataFrameName + run number}.
 	 */
-	public ROutput(String shortName, String name, ScapeRInterface scapeR, 
+	public ROutput(String shortName, String name, ScapeRInterface scapeR,
 			String rCommand) {
 		this.scapeR = scapeR;
 		this.shortName = shortName;
@@ -68,15 +68,14 @@ public class ROutput implements OutputDatasetProvider {
 			throws CDataGridException {
 
 		REXP rexp;
+		// where the string "DATAFRAME" appears,
+		// substitute with {@code dataFrameName + run number}.
+		String cmd =
+				rCommand.replace("DATAFRAME", scapeR.getScapeDFRunName(run));
 
 		try {
-			// where the string "DATAFRAME" appears,
-			// substitute with {@code dataFrameName + run number}.
-			String cmd =
-					rCommand.replace("DATAFRAME", scapeR
-							.getScapeDFRunName(run));
 
-			rexp = scapeR.eval(cmd);
+			rexp = scapeR.parseEvalTry(cmd);
 
 			CBuilder builder;
 
@@ -95,11 +94,11 @@ public class ROutput implements OutputDatasetProvider {
 			return new CDataCacheContainer(builder);
 
 		} catch (RInterfaceException e) {
-			throw new CDataGridException(e);
+			throw new CDataGridException(cmd + ": " + e.getMessage(), e);
 		} catch (REXPMismatchException e) {
-			throw new CDataGridException(e);
+			throw new CDataGridException(cmd + ": " + e.getMessage(), e);
 		} catch (UnsupportedTypeException e) {
-			throw new CDataGridException(e);
+			throw new CDataGridException(cmd + ": " + e.getMessage(), e);
 		}
 	}
 
