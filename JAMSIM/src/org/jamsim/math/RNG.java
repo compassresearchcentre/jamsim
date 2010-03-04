@@ -1,7 +1,7 @@
 package org.jamsim.math;
 
 /**
- * Random Number Generator (RNG).
+ * Random Number Generator (RNG) interface.
  * 
  * @author Oliver Mannion
  * @version $Revision$
@@ -9,11 +9,21 @@ package org.jamsim.math;
 public interface RNG {
 
 	/**
-	 * Returns the next pseudorandom, uniformly distributed double value between
-	 * 0.0 and 1.0 from this random number generator's sequence.
+	 * Returns a uniformly distributed random number in the open interval (0,1)
+	 * (excluding 0 and 1).
 	 * 
-	 * @return pseudo random number in range 0.0d (inclusive) to 1.0d
-	 *         (exclusive)
+	 * @return uniformly distributed pseudo random number
 	 */
-	double next();
+	double nextUniform01();
+
+	/**
+	 * Returns a random number from the Gaussian (normal) distribution with the
+	 * given mean and standard deviation.
+	 * 
+	 * @param mean mean
+	 * @param standardDeviation standard deviation
+	 * @return normally distributed pseudo random number
+	 */
+	double nextGaussian(double mean, double standardDeviation);
+
 }

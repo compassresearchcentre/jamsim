@@ -2,6 +2,7 @@ package org.jamsim.ascape;
 
 import org.ascape.model.Cell;
 import org.ascape.model.Scape;
+import org.jamsim.math.ColtRNG;
 import org.jamsim.math.RNG;
 
 /**
@@ -60,14 +61,7 @@ public class MicroSimCell<D extends ScapeData> extends Cell {
 		}
 
 		if (random == null) {
-			random = new RNG() {
-
-				@Override
-				public double next() {
-					return randomInRange(0.0, 1.0);
-				}
-
-			};
+			random = new ColtRNG();
 		}
 	}
 
