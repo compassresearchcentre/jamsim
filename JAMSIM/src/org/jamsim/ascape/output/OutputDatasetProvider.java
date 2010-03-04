@@ -30,7 +30,7 @@ public interface OutputDatasetProvider {
 	 * 
 	 * @param run
 	 *            simulation run number
-	 * @return output dataset
+	 * @return output dataset, or {@code null}
 	 * @throws CDataGridException
 	 *             if problem creating dataset
 	 */

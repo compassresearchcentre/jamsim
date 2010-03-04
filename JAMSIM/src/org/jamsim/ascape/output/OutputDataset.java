@@ -167,10 +167,15 @@ public class OutputDataset extends DefaultScapeListener {
 			CDataCacheContainer results =
 					outDataset.getOutputDataset(runNumber);
 
-			createNavigatorOutputNode(runNumber, runName, results);
 
-			if (((MicroSimScape<?>) scape).isResultsToFile()) {
-				writeCSV(runName, results);
+			if (results != null) {
+				createNavigatorOutputNode(runNumber, runName, results);
+	
+				if (((MicroSimScape<?>) scape).isResultsToFile()) {
+					writeCSV(runName, results);
+				}
+			} else {
+				// silently ignore null results
 			}
 
 		} catch (IOException e) {

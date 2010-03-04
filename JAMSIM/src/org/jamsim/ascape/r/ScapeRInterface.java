@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.Font;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.TooManyListenersException;
 
@@ -37,6 +38,12 @@ import org.rosuda.REngine.REXPMismatchException;
  * @version $Revision$
  */
 public class ScapeRInterface extends DefaultScapeListener {
+
+	/**
+	 * Support file containing R functions to load into R environment on
+	 * startup.
+	 */
+	private static final String SUPPORT_FILE = "Ascape.r";
 
 	/**
 	 * Serialization ID.
@@ -201,6 +208,8 @@ public class ScapeRInterface extends DefaultScapeListener {
 						+ MAX_PRINT);
 				rInterface.eval("options(max.print=" + MAX_PRINT + ")");
 
+				loadRSupportFunctions();
+
 				// create initial dataframe from scape
 				assignScapeDataFrame(runNumber);
 
@@ -231,6 +240,16 @@ public class ScapeRInterface extends DefaultScapeListener {
 				throw new RuntimeException(e);
 			}
 
+		}
+	}
+
+	private void loadRSupportFunctions() throws RInterfaceException {
+		InputStream ins = getClass().getResourceAsStream(SUPPORT_FILE);
+
+		try {
+			eval(RUtil.readRStream(ins));
+		} catch (IOException e) {
+			throw new RInterfaceException(e);
 		}
 	}
 
@@ -498,7 +517,9 @@ public class ScapeRInterface extends DefaultScapeListener {
 	 */
 	public void help(String expr) {
 		try {
-			REXP rexp = rInterface.parseEvalPrint("help(" + expr + ")");
+			REXP rexp =
+					rInterface
+							.parseEvalPrint("help(\"" + expr.trim() + "\")");
 
 			if (rexp == null || rexp.length() == 0) {
 				// error in expression or no documentation found.

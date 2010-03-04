@@ -28,9 +28,11 @@ public abstract class AbstractMultiRunOutputDataset implements
 	private final List<double[]> valuesFromAllRuns =
 			new LinkedList<double[]>();
 	private final String columnHeading;
+	private final boolean datasetEachRun;
 
 	/**
-	 * Constructor.
+	 * Default constructor. Does not return individual run datasets, instead
+	 * only returns a multi-run dataset at the end of the simulation.
 	 * 
 	 * @param shortName
 	 *            short name. This will become the name of the dataframe created
@@ -43,6 +45,28 @@ public abstract class AbstractMultiRunOutputDataset implements
 	 */
 	public AbstractMultiRunOutputDataset(String shortName, String name,
 			String columnHeading) {
+		this(shortName, name, columnHeading, false);
+	}
+
+	/**
+	 * Master constructor.
+	 * 
+	 * @param shortName
+	 *            short name. This will become the name of the dataframe created
+	 *            in R to hold these results.
+	 * @param name
+	 *            name
+	 * @param columnHeading
+	 *            column heading of the dataset column that contains the value
+	 *            names
+	 * @param datasetEachRun
+	 *            if {@code true} returns a dataset for each run and a multi-run
+	 *            dataset at the end. If {@code false} only returns a multi-run
+	 *            dataset at the end.
+	 */
+	public AbstractMultiRunOutputDataset(String shortName, String name,
+			String columnHeading, boolean datasetEachRun) {
+		this.datasetEachRun = datasetEachRun;
 		this.columnHeading = columnHeading;
 		this.name = name;
 		this.shortName = shortName;
@@ -95,6 +119,28 @@ public abstract class AbstractMultiRunOutputDataset implements
 	public CDataCacheContainer getOutputDataset(int run)
 			throws CDataGridException {
 
+		// Store this run
+		valuesFromAllRuns.add(getValues(run));
+
+		if (datasetEachRun) {
+			return getValuesAsDataset(run);
+		}
+		return null;	
+		
+	}
+
+	/**
+	 * Output dataset for the given run number. This is a dataset wrapped around
+	 * {@link #getValues(int)} and {@link #getValueNames()}.
+	 * 
+	 * @param run
+	 *            run number
+	 * @return collector function values.
+	 * @throws CDataGridException
+	 *             if problem creating dataset
+	 */
+	private CDataCacheContainer getValuesAsDataset(int run)
+			throws CDataGridException {
 		// Set up new Casper container for the results
 		String columnNames = columnHeading + ",Value";
 		final Class<?>[] columnTypes =
@@ -118,10 +164,8 @@ public abstract class AbstractMultiRunOutputDataset implements
 			container.addSingleRow(new Object[] { names[i], values[i] });
 		}
 
-		// Store this run
-		valuesFromAllRuns.add(getValues(run));
-
 		return container;
+
 	}
 
 	@Override

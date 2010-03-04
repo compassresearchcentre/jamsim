@@ -2,6 +2,7 @@ package org.jamsim.ascape.output;
 
 import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.r.RInterfaceException;
+import org.jamsim.r.RUtil;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPDouble;
 import org.rosuda.REngine.REXPMismatchException;
@@ -19,10 +20,10 @@ public class ROutputMultiRun extends AbstractMultiRunOutputDataset {
 
 	private final ScapeRInterface scapeR;
 	private final String rCommand;
-	private final String[] valueNames;
+	private String[] valueNames;
 
 	/**
-	 * Default constructor.
+	 * Master constructor. Value names are supplied as a string array.
 	 * 
 	 * @param shortName
 	 *            short name. This will become the name of the dataframe created
@@ -52,7 +53,33 @@ public class ROutputMultiRun extends AbstractMultiRunOutputDataset {
 	}
 
 	/**
-	 * Default constructor.
+	 * Constructor with value names not supplied. Instead they are retrieved
+	 * from the names attribute of the R expression returned by
+	 * {@link #rCommand}.
+	 * 
+	 * @param shortName
+	 *            short name. This will become the name of the dataframe created
+	 *            in R to hold these results.
+	 * @param name
+	 *            name
+	 * @param columnHeading
+	 *            column heading of the dataset column that contains the value
+	 *            names
+	 * @param scapeR
+	 *            r interface for running the command.
+	 * @param rCommand
+	 *            r command to run on the dataframe at then end of every scape
+	 *            iteration. Where the data frame symbol appears this will be
+	 *            substituted with {@code dataFrameName + run number} - see
+	 *            {@link ScapeRInterface#rcmdReplace(String, int)}.
+	 */
+	public ROutputMultiRun(String shortName, String name,
+			String columnHeading, ScapeRInterface scapeR, String rCommand) {
+		this(shortName, name, columnHeading, null, scapeR, rCommand);
+	}
+
+	/**
+	 * Static constructor that uses an R command to retrieve the value names.
 	 * 
 	 * @param shortName
 	 *            short name. This will become the name of the dataframe created
@@ -72,11 +99,12 @@ public class ROutputMultiRun extends AbstractMultiRunOutputDataset {
 	 *            iteration. Where the data frame symbol appears this will be
 	 *            substituted with {@code dataFrameName + run number} - see
 	 *            {@link ScapeRInterface#rcmdReplace(String, int)}.
+	 * @return {@link ROutputMultiRun}
 	 */
-	public ROutputMultiRun(String shortName, String name,
-			String columnHeading, String valueNameCommand,
+	public static ROutputMultiRun createNamesFromRCommand(String shortName,
+			String name, String columnHeading, String valueNameCommand,
 			ScapeRInterface scapeR, String rCommand) {
-		this(shortName, name, columnHeading, scapeR
+		return new ROutputMultiRun(shortName, name, columnHeading, scapeR
 				.evalReturnString(valueNameCommand), scapeR, rCommand);
 	}
 
@@ -97,6 +125,12 @@ public class ROutputMultiRun extends AbstractMultiRunOutputDataset {
 			if (!(rexp instanceof REXPDouble)) {
 				throw new IllegalArgumentException(cmd + " returned "
 						+ rexp.getClass().getCanonicalName());
+			}
+
+			// if value names unspecified during construction,
+			// get them from the expression
+			if (valueNames == null) {
+				valueNames = RUtil.getNamesAttribute(rexp);
 			}
 
 			return rexp.asDoubles();

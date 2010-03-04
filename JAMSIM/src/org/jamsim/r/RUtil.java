@@ -440,8 +440,8 @@ public final class RUtil {
 	 * @param rexp
 	 *            expression to test
 	 * @return a comma separated string of the rexp classes, eg: {@code
-	 *         "[xtabs, table]"}. If it has not class attribute, returns {@code
-	 *         null}.
+	 *         "[xtabs, table]"}. If it has no class attribute, returns the name
+	 *         of the java class instead (eg: {@code REXPDouble}).
 	 */
 	public static String getClassAttribute(REXP rexp) {
 
@@ -454,6 +454,8 @@ public final class RUtil {
 			// result of mode(x) (except that integer vectors have implicit
 			// class "integer")
 
+			// return the java type instead
+			clazz = new String[] { rexp.getClass().getSimpleName() };
 		} else {
 			clazz = classAttribute.asStrings();
 		}
@@ -461,10 +463,23 @@ public final class RUtil {
 		return Arrays.toString(clazz);
 	}
 
+	public static String[] getNamesAttribute(REXP rexp) {
+
+		REXPString namesAttribute = (REXPString) rexp.getAttribute("names");
+
+		String[] names = null;
+		if (namesAttribute != null) {
+			names = namesAttribute.asStrings();
+		}
+
+		return names;
+	}
+
 	/**
 	 * Get dimension (dim) attribute from rexp.
 	 * 
-	 * @param rexp rexp
+	 * @param rexp
+	 *            rexp
 	 * @return number of dimensions
 	 */
 	public static int getDimensions(REXP rexp) {
@@ -475,7 +490,8 @@ public final class RUtil {
 	/**
 	 * Return the "names" attribute of the "dimnames" attribute.
 	 * 
-	 * @param rexp rexp
+	 * @param rexp
+	 *            rexp
 	 * @return "names" of "dimnames", or {@code null} if there is no "names"
 	 *         attribute.
 	 */
