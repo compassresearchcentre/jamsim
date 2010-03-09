@@ -20,8 +20,10 @@ public interface RNG {
 	 * Returns a random number from the Gaussian (normal) distribution with the
 	 * given mean and standard deviation.
 	 * 
-	 * @param mean mean
-	 * @param standardDeviation standard deviation
+	 * @param mean
+	 *            mean
+	 * @param standardDeviation
+	 *            standard deviation
 	 * @return normally distributed pseudo random number
 	 */
 	double nextGaussian(double mean, double standardDeviation);

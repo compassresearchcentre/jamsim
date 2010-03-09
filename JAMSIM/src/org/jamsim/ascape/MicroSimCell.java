@@ -17,21 +17,11 @@ import org.jamsim.math.RNG;
 public class MicroSimCell<D extends ScapeData> extends Cell {
 
 	private static ScapeData data;
-	private static RNG random;
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 4987400368886624377L;
-
-	/**
-	 * Get random number generator.
-	 * 
-	 * @return random number generator.
-	 */
-	public RNG getRNG() {
-		return random;
-	}
 
 	/**
 	 * Get scape data.
@@ -58,10 +48,6 @@ public class MicroSimCell<D extends ScapeData> extends Cell {
 					(MicroSimScape<ScapeData>) scape;
 
 			data = msScape.getScapeData();
-		}
-
-		if (random == null) {
-			random = new ColtRNG();
 		}
 	}
 

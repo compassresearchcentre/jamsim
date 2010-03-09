@@ -15,6 +15,8 @@ import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
 import net.casper.ext.CasperUtil;
 import net.casper.ext.file.CDataFileDoubleArray;
+import net.casper.ext.file.CDataFileMap;
+import net.casper.ext.swing.CDatasetTableModel;
 import net.casper.io.beans.CMarkedUpRowBean;
 import net.casper.io.file.CBuildFromFile;
 import net.casper.io.file.CDataFile;
@@ -369,7 +371,7 @@ public class FileLoader implements Output {
 	 * 
 	 * @param cdefmap
 	 *            dataset definition
-	 * @return matrix
+	 * @return intervals int map
 	 * @throws IOException
 	 *             problem reading dataset, or dataset columns of the wrong
 	 *             type.
@@ -383,6 +385,33 @@ public class FileLoader implements Output {
 		tmodels.put(cdefmap.getName(), new IntervalsIntMapTableModel(iimap));
 
 		return iimap;
+
+	}
+
+	/**
+	 * Convenience method for loading a casper dataset into a map.
+	 * 
+	 * @param cdefmap
+	 *            dataset definition
+	 * @return matrix
+	 * @throws IOException
+	 *             problem reading dataset, or dataset columns of the wrong
+	 *             type.
+	 * @param <K>
+	 *            map's key type
+	 * @param <V>
+	 *            map's value type
+	 */
+	public <K, V> Map<K, V> loadMap(CDataFileMap<K, V> cdefmap)
+			throws IOException {
+		loadDataset(cdefmap);
+
+		Map<K, V> map = cdefmap.getMap();
+
+		tmodels.put(cdefmap.getName(), new CDatasetTableModel(cdefmap
+				.getContainer()));
+
+		return map;
 
 	}
 

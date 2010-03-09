@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.swing.table.TableModel;
 
 import org.ascape.model.Agent;
+import org.jamsim.math.RNG;
 
 /**
  * Defines data external to a scape that can be accessed by agents. Also defines
@@ -40,4 +41,10 @@ public interface ScapeData {
 	Collection<? extends Agent> getBaseScapeAgents(File basefile)
 			throws IOException;
 
+	/**
+	 * Get random number generator.
+	 * 
+	 * @return random number generator.
+	 */
+	RNG getRNG();
 }
