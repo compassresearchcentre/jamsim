@@ -1,6 +1,5 @@
 package org.jamsim.ascape.navigator;
 
-import java.awt.Font;
 import java.util.Map;
 
 import javax.swing.JTable;
@@ -9,11 +8,14 @@ import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
-import org.ascape.runtime.swing.navigator.PanelViewNode;
 import org.ascape.runtime.swing.navigator.NodesByRunFolder;
+import org.ascape.runtime.swing.navigator.PanelViewNode;
+import org.ascape.runtime.swing.navigator.PanelViewNodeProvider;
 import org.ascape.runtime.swing.navigator.ScapeNode;
+import org.ascape.runtime.swing.navigator.PanelViewTable;
 import org.ascape.runtime.swing.navigator.TreeBuilder;
 import org.jamsim.ascape.MicroSimScape;
+import org.jamsim.ascape.r.PanelViewRCommand;
 import org.omancode.swing.DoubleCellRenderer;
 
 /**
@@ -95,7 +97,9 @@ public class MicroSimScapeNode extends ScapeNode {
 			table.setDefaultRenderer(Double.class, dblRenderer);
 
 			// add PanelViewNode to the tree
-			datasetsNode.add(new PanelViewNode(scape, table)); // NOPMD
+			PanelViewNodeProvider provider = new PanelViewTable(table);
+			PanelViewNode newNode = new PanelViewNode(scape, provider);
+			datasetsNode.add(newNode); // NOPMD
 		}
 
 		// add datasetsNode via the Tree Model
@@ -115,10 +119,12 @@ public class MicroSimScapeNode extends ScapeNode {
 			treeModel.insertNodeInto(dfNode, this, this.getChildCount());
 		}
 
-		Font textFont = new Font("Monospaced", Font.PLAIN, 12);
-
-		treeModel.insertNodeInto(new DataFrameNode(scape, dataFrameName,
-				textFont), dfNode, dfNode.getChildCount());
+		String rcmd = "str(" + dataFrameName + ", max.level=1)";
+		PanelViewNodeProvider provider =
+				new PanelViewRCommand(scape.getScapeRInterface(),
+						dataFrameName, rcmd);
+		treeModel.insertNodeInto(new PanelViewNode(scape, provider), dfNode,
+				dfNode.getChildCount());
 
 	}
 }

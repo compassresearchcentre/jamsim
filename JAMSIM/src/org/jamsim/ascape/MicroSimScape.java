@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
+import javax.swing.tree.DefaultMutableTreeNode;
+
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
 import net.casper.io.beans.CBuildFromCollection;
@@ -17,8 +19,12 @@ import org.ascape.model.Scape;
 import org.ascape.model.space.CollectionSpace;
 import org.ascape.runtime.swing.SwingRunner;
 import org.ascape.runtime.swing.navigator.NodesByRunFolder;
+import org.ascape.runtime.swing.navigator.PanelViewNode;
+import org.ascape.runtime.swing.navigator.PanelViewNodeProvider;
 import org.ascape.util.swing.AscapeGUIUtil;
+import org.jamsim.ascape.navigator.EndOfRunNode;
 import org.jamsim.ascape.navigator.MicroSimScapeNode;
+import org.jamsim.ascape.navigator.OutputNode;
 import org.jamsim.ascape.navigator.RecordedMicroSimTreeBuilder;
 import org.jamsim.ascape.output.OutputDataset;
 import org.jamsim.ascape.output.OutputDatasetProvider;
@@ -195,11 +201,11 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 * 
 	 * @return output tables node
 	 */
-	public NodesByRunFolder getOutputTablesNode() {
+	private NodesByRunFolder getOutputTablesNode() {
 		initScapeNode();
 		return scapeNode.getOutputTablesNode();
 	}
-	
+
 	private void initScapeNode() {
 		if (scapeNode == null) {
 			scapeNode =
@@ -223,6 +229,11 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	public void addOutputDataset(OutputDatasetProvider provider) {
 		addView(new OutputDataset(getOutputTablesNode(), provider,
 				getOutputDirectory()));
+	}
+
+	public void addOutputNode(PanelViewNodeProvider provider) {
+		addView(new OutputNode(getOutputTablesNode(),
+				new EndOfRunNode(new PanelViewNode(scape, provider))));
 	}
 
 	private final Map<String, String> dataFrameNodeMap =
@@ -349,7 +360,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 * 
 	 * @return output directory
 	 */
-	public final String getOutputDirectory() {
+	private String getOutputDirectory() {
 
 		if (outputDirectory == null) {
 			throw new IllegalStateException(

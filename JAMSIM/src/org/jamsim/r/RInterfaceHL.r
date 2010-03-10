@@ -8,10 +8,13 @@
 	## output them to the console when options(warn = 0) for expressions 
 	## evaluated via calls to parseAndEval. 
 	## Errors are not suppressed by JRI and output straight to the console.
+	## Partially derived from source()
 
 	localWarnings <- list()
 	
-	result <- withCallingHandlers(
+	#wrap in try so if it errors this function will continue to execute 
+	#and print any warnings
+	result <- try(withCallingHandlers(
 		.Internal(eval.with.vis(parse(text=expr), .GlobalEnv, baseenv())),
 		
 			warning = function(w) {
@@ -22,9 +25,10 @@
  				## don't print warning to console
 				invokeRestart("muffleWarning")  
 				
-			})
-	
-	if (result$visible) {
+			}
+			))
+			
+	if (!is(result,"try-error") && result$visible) {
 		## print result if visible
 		show(result$value)
 	}
@@ -35,5 +39,7 @@
 	}
 	
 	## return value
-	result$value
+	if (!is(result,"try-error")) {
+		result$value
+	}
 }

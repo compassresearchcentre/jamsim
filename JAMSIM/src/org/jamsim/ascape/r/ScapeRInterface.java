@@ -565,7 +565,7 @@ public class ScapeRInterface extends DefaultScapeListener {
 	 */
 	public String evalCaptureOutput(String expr) throws RInterfaceException {
 		rConsole.startOutputCapture();
-		rInterface.eval(expr);
+		rInterface.parseEvalPrint(expr);
 		return rConsole.stopOutputCapture();
 	}
 

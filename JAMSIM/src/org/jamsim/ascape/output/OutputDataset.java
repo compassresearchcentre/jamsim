@@ -51,7 +51,7 @@ public class OutputDataset extends DefaultScapeListener {
 
 	private int runNumber = 0;
 
-	private boolean multiRunNodeCreated = false;
+	private boolean scapeClosed = false;
 
 	private ScapeRInterface scapeR;
 
@@ -167,10 +167,9 @@ public class OutputDataset extends DefaultScapeListener {
 			CDataCacheContainer results =
 					outDataset.getOutputDataset(runNumber);
 
-
 			if (results != null) {
 				createNavigatorOutputNode(runNumber, runName, results);
-	
+
 				if (((MicroSimScape<?>) scape).isResultsToFile()) {
 					writeCSV(runName, results);
 				}
@@ -205,60 +204,64 @@ public class OutputDataset extends DefaultScapeListener {
 	/**
 	 * Create the multi-run dataset node when the simulation has finished, if
 	 * the {@link OutputDatasetProvider} is a
-	 * {@link MultiRunOutputDatasetProvider}. Optionally output the results to a
-	 * file if {@link MicroSimScape#isResultsToFile()} is true.
+	 * {@link MultiRunOutputDatasetProvider}.
 	 */
 	@Override
 	public void scapeClosing(ScapeEvent scapeEvent) {
 
 		// scapeClosing gets called twice when the scape closes
-		// so we need a flag (multiRunNodeCreated) to make sure
+		// so we need a flag to make sure
 		// it doesn't get called twice
-		if (runNumber > 0
-				&& outDataset instanceof MultiRunOutputDatasetProvider
-				&& !multiRunNodeCreated) {
+		if (runNumber > 0 && !scapeClosed
+				&& outDataset instanceof MultiRunOutputDatasetProvider) {
+			createMultiRunNode();
+		}
 
-			// create multi-run node
+	}
+
+	/**
+	 * Create a multi-run node. Optionally output the results to a file if
+	 * {@link MicroSimScape#isResultsToFile()} is true.
+	 */
+	private void createMultiRunNode() {
+		// create multi-run node
+		try {
+			CDataCacheContainer allRuns =
+					((MultiRunOutputDatasetProvider) outDataset)
+							.getMultiRunDataset();
+
+			scapeClosed = true;
+
 			try {
-				CDataCacheContainer allRuns =
-						((MultiRunOutputDatasetProvider) outDataset)
-								.getMultiRunDataset();
+				String dfName = outDataset.getShortName();
+				scapeR.assignDataFrame(dfName, allRuns);
+				scapeR.printlnToConsole("Created dataframe " + dfName + "("
+						+ outDataset.getName() + ")");
 
-				multiRunNodeCreated = true;
+				REXP rexp = scapeR.eval("meanOfRuns(" + dfName + ")");
+				RDataFrame df = new RDataFrame(allRuns.getCacheName(), rexp);
 
-				try {
-					String dfName = outDataset.getShortName();
-					scapeR.assignDataFrame(dfName, allRuns);
-					scapeR.printlnToConsole("Created dataframe " + dfName
-							+ "(" + outDataset.getName() + ")");
+				CDataCacheContainer meanOfRuns = new CDataCacheContainer(df);
 
-					REXP rexp = scapeR.eval("meanOfRuns(" + dfName + ")");
-					RDataFrame df =
-							new RDataFrame(allRuns.getCacheName(), rexp);
+				createNavigatorOutputNode(NodesByRunFolder.ALLRUNS,
+						meanOfRuns.getCacheName(), meanOfRuns);
 
-					CDataCacheContainer meanOfRuns =
-							new CDataCacheContainer(df);
-
-					createNavigatorOutputNode(NodesByRunFolder.ALLRUNS,
-							meanOfRuns.getCacheName(), meanOfRuns);
-
-					if (((MicroSimScape<?>) scape).isResultsToFile()) {
-						writeCSV(meanOfRuns);
-					}
-
-				} catch (RInterfaceException e) {
-					throw new RuntimeException(e);
-				} catch (REXPMismatchException e) {
-					throw new RuntimeException(e);
-				} catch (UnsupportedTypeException e) {
-					throw new RuntimeException(e);
-				} catch (IOException e) {
-					throw new RuntimeException(e);
+				if (((MicroSimScape<?>) scape).isResultsToFile()) {
+					writeCSV(meanOfRuns);
 				}
 
-			} catch (CDataGridException e) {
+			} catch (RInterfaceException e) {
+				throw new RuntimeException(e);
+			} catch (REXPMismatchException e) {
+				throw new RuntimeException(e);
+			} catch (UnsupportedTypeException e) {
+				throw new RuntimeException(e);
+			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
+
+		} catch (CDataGridException e) {
+			throw new RuntimeException(e);
 		}
 
 	}
