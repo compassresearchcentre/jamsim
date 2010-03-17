@@ -246,7 +246,7 @@ public class FileLoader implements Output {
 	}
 
 	/**
-	 * Load {@link CDataFileDef} from prefs key, then load {@file} using
+	 * Load {@link CDataFileDef} from prefs key, then load {@code file} using
 	 * the the {@link CDataFileDef}.
 	 * 
 	 * @param prefsKey

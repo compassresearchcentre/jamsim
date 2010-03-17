@@ -17,7 +17,6 @@ import org.ascape.model.event.DefaultScapeListener;
 import org.ascape.model.event.ScapeEvent;
 import org.ascape.runtime.swing.navigator.NodesByRunFolder;
 import org.ascape.util.data.StatCollector;
-import org.ascape.view.vis.ChartView;
 import org.jamsim.ascape.MicroSimScape;
 import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.r.RDataFrame;
@@ -54,6 +53,8 @@ public class OutputDataset extends DefaultScapeListener {
 	private boolean scapeClosed = false;
 
 	private ScapeRInterface scapeR;
+	
+	private MicroSimScape<?> msscape;
 
 	/**
 	 * Master constructor.
@@ -96,35 +97,17 @@ public class OutputDataset extends DefaultScapeListener {
 					+ MicroSimScape.class.getSimpleName());
 		}
 
-		scapeR = ((MicroSimScape<?>) scape).getScapeRInterface();
+		msscape = (MicroSimScape<?>) scape;
+		scapeR = msscape.getScapeRInterface();
 
 		if (outDataset instanceof StatCollectorProvider) {
 			addStatCollectors((StatCollectorProvider) outDataset);
 		}
 
 		if (outDataset instanceof ChartProvider) {
-			addChart((ChartProvider) outDataset);
+			msscape.addChart((ChartProvider) outDataset);
 		}
 
-	}
-
-	/**
-	 * Add a chart to the scape.
-	 * 
-	 * @param source
-	 *            a chart provider
-	 */
-	private void addChart(ChartProvider source) {
-		int chartType = source.getChartViewType();
-
-		ChartView chart = new ChartView(chartType);
-
-		scape.addView(chart);
-
-		// setup the chart AFTER adding it to the scape
-		for (String seriesName : source.getChartSeries()) {
-			chart.addSeries(seriesName);
-		}
 	}
 
 	/**
@@ -170,7 +153,7 @@ public class OutputDataset extends DefaultScapeListener {
 			if (results != null) {
 				createNavigatorOutputNode(runNumber, runName, results);
 
-				if (((MicroSimScape<?>) scape).isResultsToFile()) {
+				if (msscape.isResultsToFile()) {
 					writeCSV(runName, results);
 				}
 			} else {
@@ -232,13 +215,21 @@ public class OutputDataset extends DefaultScapeListener {
 
 			scapeClosed = true;
 
+			String dfName = outDataset.getShortName();
 			try {
-				String dfName = outDataset.getShortName();
+
 				scapeR.assignDataFrame(dfName, allRuns);
 				scapeR.printlnToConsole("Created dataframe " + dfName + "("
 						+ outDataset.getName() + ")");
 
-				REXP rexp = scapeR.eval("meanOfRuns(" + dfName + ")");
+			} catch (RInterfaceException e) {
+				throw new RuntimeException("Couldn't create dataframe "
+						+ dfName + ": " + e.getMessage(), e);
+			}
+
+			String rcmd = "meanOfRuns(" + dfName + ")";
+			try {
+				REXP rexp = scapeR.eval(rcmd);
 				RDataFrame df = new RDataFrame(allRuns.getCacheName(), rexp);
 
 				CDataCacheContainer meanOfRuns = new CDataCacheContainer(df);
@@ -246,12 +237,12 @@ public class OutputDataset extends DefaultScapeListener {
 				createNavigatorOutputNode(NodesByRunFolder.ALLRUNS,
 						meanOfRuns.getCacheName(), meanOfRuns);
 
-				if (((MicroSimScape<?>) scape).isResultsToFile()) {
+				if (msscape.isResultsToFile()) {
 					writeCSV(meanOfRuns);
 				}
 
 			} catch (RInterfaceException e) {
-				throw new RuntimeException(e);
+				throw new RuntimeException(rcmd + ": " + e.getMessage(), e);
 			} catch (REXPMismatchException e) {
 				throw new RuntimeException(e);
 			} catch (UnsupportedTypeException e) {

@@ -28,12 +28,15 @@ public class RSwingConsole extends JComponent implements RMainLoopCallbacks {
 	 */
 	private static final long serialVersionUID = -8885521123731152442L;
 
-	private static final String LINESEP = System.getProperty("line.separator");
-
-	/*
-	 * private static final String NEWLINE =
-	 * System.getProperty("line.separator");
+	/**
+	 * Default font for console : Monospaced plain 12 pt.
 	 */
+	public static final Font DEFAULT_FONT =
+			new Font("Monospaced", Font.PLAIN, 12);
+
+	private static final String LINESEP =
+			System.getProperty("line.separator");
+
 	private final JConsole console = new JConsole();
 
 	private final BufferedReader keyboard =
@@ -45,13 +48,26 @@ public class RSwingConsole extends JComponent implements RMainLoopCallbacks {
 
 	private boolean captureOutput = false;
 
-	private StringBuffer capturedOutput;
+	private StringBuffer capturedOutput; // NOPMD
 
 	/**
-	 * Create {@link RSwingConsole} and display the prompt.
+	 * Create {@link RSwingConsole} with default font and display the prompt.
 	 */
 	public RSwingConsole() {
 		this(true);
+	}
+
+	/**
+	 * Create {@link RSwingConsole} with default font.
+	 * 
+	 * @param startWithPrompt
+	 *            show the prompt once R is loaded. If you want to load extra
+	 *            packages and libraries after R is loaded you will want this to
+	 *            be {@code false} and then call
+	 *            {@link #setPromptVisible(boolean)}.
+	 */
+	public RSwingConsole(boolean startWithPrompt) {
+		this(startWithPrompt, null);
 	}
 
 	/**
@@ -61,9 +77,12 @@ public class RSwingConsole extends JComponent implements RMainLoopCallbacks {
 	 *            show the prompt once R is loaded. If you want to load extra
 	 *            packages and libraries after R is loaded you will want this to
 	 *            be {@code false} and then call
-	 * 
+	 *            {@link #setPromptVisible(boolean)}.
+	 * @param font
+	 *            font to use in console. If {@code null} uses
+	 *            {@link #DEFAULT_FONT}.
 	 */
-	public RSwingConsole(boolean startWithPrompt) {
+	public RSwingConsole(boolean startWithPrompt, Font font) {
 		promptVisible = startWithPrompt;
 
 		// set the layout manager to BorderLayout so that when this
@@ -71,12 +90,18 @@ public class RSwingConsole extends JComponent implements RMainLoopCallbacks {
 		// within this component
 		setLayout(new BorderLayout());
 
-		add(console);
+		setConsoleFont((font == null) ? DEFAULT_FONT : font);
 
+		add(console);
 	}
 
-	@Override
-	public void setFont(Font font) {
+	/**
+	 * Set the console font.
+	 * 
+	 * @param font
+	 *            font
+	 */
+	public final void setConsoleFont(Font font) {
 		console.setFont(font);
 	}
 
@@ -128,7 +153,7 @@ public class RSwingConsole extends JComponent implements RMainLoopCallbacks {
 	 * 
 	 * @param promptVisible
 	 *            if {@code true} the console prompt will show when R is ready
-	 *            for input (i.e: when R cals
+	 *            for input (i.e: when R calls
 	 *            {@link #rReadConsole(Rengine, String, int)}).
 	 */
 	public void setPromptVisible(boolean promptVisible) {
@@ -140,12 +165,15 @@ public class RSwingConsole extends JComponent implements RMainLoopCallbacks {
 	}
 
 	/**
-	 * Display the prompt.
+	 * Make the prompt visible and display it immediately. 
 	 */
 	public void printPrompt() {
+		if (!promptVisible) {
+			setPromptVisible(true);
+		}
 		prompt(rPrompt);
 	}
-	
+
 	/**
 	 * Move the current position to the next line.
 	 */

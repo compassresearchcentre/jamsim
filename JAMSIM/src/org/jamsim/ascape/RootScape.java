@@ -12,6 +12,7 @@ import org.jamsim.ascape.output.ROutput;
 import org.jamsim.ascape.output.ROutputMultiRun;
 import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.io.FileLoader;
+import org.jamsim.r.RInterfaceException;
 import org.omancode.io.Output;
 
 /**
@@ -105,7 +106,7 @@ public class RootScape<D extends ScapeData> extends Scape {
 	}
 
 	/**
-	 * Adds R to the base scape.
+	 * Starts R on the base scape.
 	 * <p>
 	 * Uses the lowercase version of the base scape name as the dataframe
 	 * symbol. When evaluating {@code rRunEndCommand} and commands during the
@@ -123,14 +124,22 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 *            creating each new dataframe with a unique name.
 	 * @return scape R interface
 	 */
-	public ScapeRInterface addR(String rRunEndCommand, boolean keepAllRunDFs) {
+	public ScapeRInterface startR(String rRunEndCommand, boolean keepAllRunDFs) {
 
 		try {
 			scapeR =
-					msscape.addR(msscape.getName().toLowerCase(),
+					msscape.startR(msscape.getName().toLowerCase(),
 							"R startup file", rRunEndCommand, false);
 			return scapeR;
 		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} catch (RInterfaceException e) {
+			// output stack trace to stderr
+			e.printStackTrace();
+
+			// output exception message to ascape log tab
+			System.out.print(e.getMessage());
+
 			throw new RuntimeException(e);
 		}
 

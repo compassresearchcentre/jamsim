@@ -27,7 +27,7 @@ public class StatsRows extends AbstractMultiRunOutputDataset implements
 			new LinkedList<CollectorFunction<?>>();
 
 	private final double ratioMultiplier;
-	
+
 	private String[] valueNames;
 
 	/**
@@ -102,21 +102,24 @@ public class StatsRows extends AbstractMultiRunOutputDataset implements
 	 *            short name
 	 * @param name
 	 *            name
-	 * @param scape
-	 *            scape. Used to get the current iteration.
+	 * @param iteratingScape
+	 *            scape. Used by {@link CollectorFunctionPerIteration} to get
+	 *            the current iteration. If {@code null} then will use
+	 *            {@link CollectorFunction} instead.
 	 * @param rows
 	 *            rows to create in the table
 	 * @param columnHeading
 	 *            column heading
 	 * @param predicate
-	 *            predicate to apply to all rows
+	 *            predicate to apply to all rows. If {@code null}, collects data
+	 *            for all members.
 	 * @param <T>
 	 *            type of scape members
 	 */
-	public <T> StatsRows(String shortName, String name, Scape scape,
+	public <T> StatsRows(String shortName, String name, Scape iteratingScape,
 			Collection<StatsFunctionRow<T>> rows, String columnHeading,
 			StatsPredicate<T> predicate) {
-		this(shortName, name, scape, rows, columnHeading, predicate,
+		this(shortName, name, iteratingScape, rows, columnHeading, predicate,
 				DEFAULT_RATIO_MULTIPLIER);
 	}
 
@@ -141,7 +144,8 @@ public class StatsRows extends AbstractMultiRunOutputDataset implements
 	 * @param columnHeading
 	 *            column heading
 	 * @param predicate
-	 *            predicate to apply to all rows
+	 *            predicate to apply to all rows. If {@code null}, collects data
+	 *            for all members.
 	 * @param ratioMultiplier
 	 *            amount to multiple the ratio by (eg: 100 to get percentage)
 	 * @param <T>
@@ -184,7 +188,7 @@ public class StatsRows extends AbstractMultiRunOutputDataset implements
 		stats.add(function);
 
 		this.valueNames = calcValueNames();
-}
+	}
 
 	private StatsRows(String shortName, String name, String columnHeading,
 			double ratioMultiplier) {
@@ -218,7 +222,7 @@ public class StatsRows extends AbstractMultiRunOutputDataset implements
 	public String[] getValueNames() {
 		return valueNames;
 	}
-	
+
 	/**
 	 * Return array of the collector function names.
 	 * 

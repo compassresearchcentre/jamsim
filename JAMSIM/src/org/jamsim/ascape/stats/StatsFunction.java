@@ -22,9 +22,9 @@ public interface StatsFunction<T> extends Serializable {
 	/**
 	 * Value.
 	 * 
-	 * @param pParam scape member
+	 * @param member scape member
 	 * @return value.
 	 */
-	double getValue(T pParam);
+	double getValue(T member);
 
 }

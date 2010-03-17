@@ -1,26 +1,12 @@
 package org.jamsim.ascape.r;
 
-import java.awt.Component;
-import java.awt.Font;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collection;
-import java.util.TooManyListenersException;
-
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 
 import net.casper.data.model.CDataCacheContainer;
 
-import org.ascape.model.event.DefaultScapeListener;
-import org.ascape.model.event.ScapeEvent;
-import org.ascape.runtime.RuntimeEnvironment;
-import org.ascape.runtime.swing.DesktopEnvironment;
-import org.ascape.runtime.swing.UserFrame;
 import org.jamsim.ascape.MicroSimScape;
-import org.jamsim.ascape.output.ROutputMultiRun;
 import org.jamsim.r.RInterfaceException;
 import org.jamsim.r.RInterfaceHL;
 import org.jamsim.r.RSwingConsole;
@@ -30,25 +16,18 @@ import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
 
 /**
- * Connects an Ascape scape to R. When this listener is added to a scape, it
- * will create an RConsole. When the simulation stops, a dataframe of the scape
- * will be created in R.
+ * Exposes scape specific R functionality for a particular scape, as well as
+ * general R functionality.
  * 
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class ScapeRInterface extends DefaultScapeListener {
+public class ScapeRInterface {
 
 	/**
-	 * Support file containing R functions to load into R environment on
-	 * startup.
+	 * 
 	 */
-	private static final String SUPPORT_FILE = "Ascape.r";
-
-	/**
-	 * Serialization ID.
-	 */
-	private static final long serialVersionUID = -5105471052036807288L;
+	private static final long serialVersionUID = 2117340899268748864L;
 
 	/**
 	 * Default dataframe replacement symbol to use if none specified in
@@ -57,23 +36,9 @@ public class ScapeRInterface extends DefaultScapeListener {
 	public static final String DEFAULT_DF_SYMBOL = "DATAFRAME";
 
 	/**
-	 * R Console tab title.
-	 */
-	private static final String RCONSOLE_TAB_TITLE = "R Console";
-
-	private static final int MAX_PRINT = 256;
-
-	/**
 	 * Dataframe replacement symbol.
 	 */
 	private final String dataFrameSymbol;
-
-	/**
-	 * File of R commands to load into R when it is started.
-	 */
-	private final File startUpFile;
-
-	private final String rRunEndCommand;
 
 	/**
 	 * Flag to keep the dataframes from each run in R. This means creating each
@@ -84,173 +49,42 @@ public class ScapeRInterface extends DefaultScapeListener {
 	/**
 	 * R interface.
 	 */
-	private transient RInterfaceHL rInterface = null;
-
-	private final RSwingConsole rConsole;
-
-	private MicroSimScape<?> msScape;
+	private final transient RInterfaceHL rInterface;
 
 	/**
-	 * Flag set after first time scape is closed.
+	 * R console.
 	 */
-	private boolean firstCloseExecuted = false;
+	private final RSwingConsole rConsole;
 
-	private int runNumber = 0;
+	private final MicroSimScape<?> msScape;
 
 	private final ExecutionTimer timer = new ExecutionTimer();
 
 	/**
-	 * Default constructor. Construct with no startup file, no run end command,
-	 * without keeping all run's dataframes, and with {@link #DEFAULT_DF_SYMBOL}
-	 * as the dataframe replacement symbol.
-	 */
-	public ScapeRInterface() {
-		this(DEFAULT_DF_SYMBOL, null, null, false);
-	}
-
-	/**
-	 * Construct {@link #ScapeRInterface()} with a file to load at R startup.
+	 * Constructor.
 	 * 
+	 * @param rLoader
+	 *            R loader
+	 * @param msScape
+	 *            micro simulation scape
 	 * @param dataFrameSymbol
-	 *            replacement symbol. When evaluating {@link #rRunEndCommand}
-	 *            and commands during the creation of output datasets in
-	 *            {@link ROutputMultiRun}, this symbol is searched for and
-	 *            replaced with the current run's dataframe name.
-	 * @param startUpFile
-	 *            file of R commands to load into R when it is started
-	 * @param rRunEndCommand
-	 *            R command to run at the end of each run, or {@code null}.
+	 *            replacement symbol. When evaluating commands that reference
+	 *            the scape dataframe, this symbol is searched for and replaced
+	 *            with the current run's dataframe name.
 	 * @param keepAllRunDFs
 	 *            flag to keep the dataframes from each run in R. This means
 	 *            creating each new dataframe with a unique name.
 	 */
-	public ScapeRInterface(String dataFrameSymbol, File startUpFile,
-			String rRunEndCommand, boolean keepAllRunDFs) {
-		super("R Scape Interface");
+	public ScapeRInterface(RLoader rLoader, MicroSimScape<?> msScape,
+			String dataFrameSymbol, boolean keepAllRunDFs) {
+
 		this.dataFrameSymbol = dataFrameSymbol;
-		this.startUpFile = startUpFile;
+		this.msScape = msScape;
 		this.keepAllRunDFs = keepAllRunDFs;
 
-		rConsole = new RSwingConsole(false);
-		rConsole.setFont(new Font("Monospaced", Font.PLAIN, 12));
-		this.rRunEndCommand = rRunEndCommand;
-	}
+		this.rConsole = rLoader.getRConsole();
+		this.rInterface = rLoader.getRInterface();
 
-	/**
-	 * At the beginning of all runs, print a blank line to the R console.
-	 * 
-	 * @param scapeEvent
-	 *            the scape event
-	 */
-	public void scapeInitialized(ScapeEvent scapeEvent) {
-		if (runNumber == 0) {
-			printlnToConsole("");
-		}
-	}
-
-	/**
-	 * Add the view to the scape, registering it as a listener, and ensuring
-	 * that it hasn't been added to any other scapes.
-	 * 
-	 * @param scapeEvent
-	 *            the event for this scape to make this view the observer of
-	 * @throws TooManyListenersException
-	 *             the too many listeners exception
-	 * @exception TooManyListenersException
-	 *                on attempt to add a scape when one is allready added
-	 */
-	@Override
-	public void scapeAdded(ScapeEvent scapeEvent)
-			throws TooManyListenersException {
-
-		super.scapeAdded(scapeEvent);
-		if (!(scape instanceof MicroSimScape<?>)) {
-			throw new IllegalArgumentException(this.getClass()
-					.getSimpleName()
-					+ " must be added to an instance of "
-					+ MicroSimScape.class.getSimpleName());
-		}
-		msScape = (MicroSimScape<?>) scape;
-
-		loadR();
-
-	}
-
-	/**
-	 * Loads R, creates the R Console as a tab on the console pane, and does any
-	 * initialisation of the R environment.
-	 * 
-	 * Called once at the beginning after the listener has been added to the
-	 * scape. At this point the scape instance variable will have been set.
-	 */
-	private void loadR() {
-		// if running a desktop environment (ie: GUI)
-		RuntimeEnvironment runtime = scape.getRunner().getEnvironment();
-		if (runtime instanceof DesktopEnvironment) {
-
-			// display message on ascape log tab
-			System.out.print("Starting R....");
-
-			// load R
-			try {
-				rInterface = RInterfaceHL.getInstance(rConsole);
-
-				// if R loaded OK, display the R console
-				displayRConsole(
-						((DesktopEnvironment) runtime).getUserFrame(),
-						rConsole);
-
-				// do any initialisation of the R environment
-				rInterface.loadPackage("rJava");
-				rInterface.loadPackage("JavaGD");
-
-				rInterface.printlnToConsole("Setting max.print = "
-						+ MAX_PRINT);
-				rInterface.eval("options(max.print=" + MAX_PRINT + ")");
-
-				loadRSupportFunctions();
-
-				// create initial dataframe from scape
-				assignScapeDataFrame(runNumber);
-
-				if (startUpFile != null) {
-					try {
-
-						rInterface.printlnToConsole("Loading "
-								+ startUpFile.getCanonicalPath());
-
-						parseEvalPrint(RUtil.readRFile(startUpFile));
-
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-
-				// display prompt
-				rConsole.setPromptVisible(true);
-				rConsole.printPrompt();
-
-			} catch (RInterfaceException e) {
-				// output stack trace to stderr
-				e.printStackTrace();
-
-				// output exception message to ascape log tab
-				System.out.print(e.getMessage());
-
-				throw new RuntimeException(e);
-			}
-
-		}
-	}
-
-	private void loadRSupportFunctions() throws RInterfaceException {
-		InputStream ins = getClass().getResourceAsStream(SUPPORT_FILE);
-
-		try {
-			eval(RUtil.readRStream(ins));
-		} catch (IOException e) {
-			throw new RInterfaceException(e);
-		}
 	}
 
 	/**
@@ -262,55 +96,10 @@ public class ScapeRInterface extends DefaultScapeListener {
 	 *             if problem loading the file, or evaluating its contents in R.
 	 */
 	public void loadFile(File file) throws IOException {
-		checkInitialized();
 		try {
 			rInterface.parseEvalTry(file);
 		} catch (RInterfaceException e) {
 			throw new IOException(e);
-		}
-	}
-
-	private void checkInitialized() {
-		if (rInterface == null) {
-			throw new IllegalStateException(
-					"R interface has not been initialized. "
-							+ "Have you added me to a scape?");
-		}
-	}
-
-	/**
-	 * Creates the R Console as a tab on the console pane. If the R console has
-	 * already been created, the method exists silently.
-	 * 
-	 * @param gui
-	 *            main frame of the GUI
-	 * @param rConsole
-	 *            R console to be added to the new R tab.
-	 */
-	private void displayRConsole(UserFrame gui, final Component rConsole) {
-		final JSplitPane consoleSplit = gui.getConsoleSplit();
-		final JTabbedPane consolePane = gui.getConsolePane();
-
-		// if a tab with the R console doesn't exist
-		if (consolePane.indexOfTab(RCONSOLE_TAB_TITLE) == -1) {
-
-			// create R console tab
-			Runnable doWorkRunnable = new Runnable() {
-				public void run() {
-
-					// move the console pane at the bottom up
-					// by changing the split divider location
-					consoleSplit.setDividerLocation(500);
-
-					// add R console tab
-					consolePane.addTab(RCONSOLE_TAB_TITLE, rConsole);
-
-					// switch to R console tab
-					consolePane.setSelectedComponent(rConsole);
-				}
-			};
-			SwingUtilities.invokeLater(doWorkRunnable);
-
 		}
 	}
 
@@ -322,13 +111,13 @@ public class ScapeRInterface extends DefaultScapeListener {
 	 * @throws RInterfaceException
 	 *             if problem during creation
 	 */
-	private void assignScapeDataFrame(int runNumber)
+	public void assignScapeDataFrame(int runNumber)
 			throws RInterfaceException {
 		String dataframeName = getScapeDFRunName(runNumber);
 
 		timer.start();
 
-		assignDataFrame(dataframeName, scape, scape.getPrototypeAgent()
+		assignDataFrame(dataframeName, msScape, msScape.getPrototypeAgent()
 				.getClass().getSuperclass());
 		rInterface.printlnToConsole("Created dataframe " + dataframeName);
 
@@ -337,44 +126,6 @@ public class ScapeRInterface extends DefaultScapeListener {
 		System.out.println("Created dataframe " + dataframeName + " ("
 				+ timer.duration() + " ms)");
 
-	}
-
-	/**
-	 * When simulation stops, write out the scape as dataframe to R. Does
-	 * nothing if R has not been loaded.
-	 * 
-	 * @param scapeEvent
-	 *            the scape event
-	 */
-	@Override
-	public void scapeStopped(ScapeEvent scapeEvent) {
-		runNumber++;
-
-		try {
-			if (rInterface != null) {
-
-				// create dataframe from scape
-				assignScapeDataFrame(runNumber);
-
-				if (rRunEndCommand != null) {
-
-					timer.start();
-
-					String rcmd = rcmdReplace(rRunEndCommand, runNumber);
-
-					rInterface.parseEvalPrint(rcmd);
-
-					timer.stop();
-
-					System.out.println("Executed " + rcmd + " ("
-							+ timer.duration() + " ms)");
-				}
-			}
-
-		} catch (RInterfaceException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e); // NOPMD
-		}
 	}
 
 	/**
@@ -392,22 +143,6 @@ public class ScapeRInterface extends DefaultScapeListener {
 	}
 
 	/**
-	 * Prompt r console prompt when scape closes (ie: end of simulation).
-	 */
-	@Override
-	public void scapeClosing(ScapeEvent scapeEvent) {
-
-		// scapeClosing gets called twice when the scape closes
-		// so we need a flag (firstCloseExecuted) to make sure
-		// it doesn't get called twice
-		if (firstCloseExecuted) {
-			rConsole.printPrompt();
-		} else {
-			firstCloseExecuted = true;
-		}
-	}
-
-	/**
 	 * Return the name of the scape dataframe created for the given run number.
 	 * 
 	 * @param run
@@ -416,7 +151,7 @@ public class ScapeRInterface extends DefaultScapeListener {
 	 */
 	public String getScapeDFRunName(int run) {
 		String dfName =
-				scape.getName().toLowerCase() + (keepAllRunDFs ? run : "");
+				msScape.getName().toLowerCase() + (keepAllRunDFs ? run : "");
 		return dfName;
 	}
 
@@ -546,7 +281,7 @@ public class ScapeRInterface extends DefaultScapeListener {
 	/**
 	 * Print the prompt to the console.
 	 */
-	public void printPrompt() {
+	public final void printPrompt() {
 		rConsole.printPrompt();
 	}
 
@@ -565,7 +300,7 @@ public class ScapeRInterface extends DefaultScapeListener {
 	 */
 	public String evalCaptureOutput(String expr) throws RInterfaceException {
 		rConsole.startOutputCapture();
-		rInterface.parseEvalPrint(expr);
+		parseEvalPrint(expr);
 		return rConsole.stopOutputCapture();
 	}
 
@@ -593,10 +328,22 @@ public class ScapeRInterface extends DefaultScapeListener {
 	 */
 	public void printlnToConsole(String msg) {
 		try {
-			rInterface.printToConsole(msg + "\n");
+			rInterface.printlnToConsole(msg);
 		} catch (RInterfaceException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * Loads a package. If it isn't installed, it is loaded from CRAN.
+	 * 
+	 * @param pack
+	 *            package name
+	 * @throws RInterfaceException
+	 *             if problem loading package.
+	 */
+	public final void loadPackage(String pack) throws RInterfaceException {
+		rInterface.loadPackage(pack);
 	}
 
 }

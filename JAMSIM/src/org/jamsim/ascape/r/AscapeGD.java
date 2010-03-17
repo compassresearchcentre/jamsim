@@ -16,7 +16,7 @@ import org.rosuda.javaGD.JGDPanel;
 
 /**
  * An R graphics device in the Ascape Swing MDI. Make sure the environment
- * variable JAVAGD_CLASS_NAME = "org/jamsim/r/AscapeGD". To create in R,
+ * variable JAVAGD_CLASS_NAME = "org/jamsim/ascape/r/AscapeGD". To create in R,
  * make sure the package JavaGD is loaded, then execute "JavaGD()".
  * 
  * @author Oliver Mannion
@@ -73,7 +73,7 @@ public class AscapeGD extends GDInterface {
 		// ComponentView. Here we bypass adding the PanelView
 		// as a ScapeListener and directly add the frame.
 		SwingEnvironment.DEFAULT_ENVIRONMENT.createFrame(pv);
-		//pv.build();
+		// pv.build();
 
 		// get the frame
 		Container pvFrameImp = pv.getViewFrame().getFrameImp();

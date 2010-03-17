@@ -70,8 +70,8 @@ public class ROutput implements OutputDatasetProvider {
 		REXP rexp;
 		// where the string "DATAFRAME" appears,
 		// substitute with {@code dataFrameName + run number}.
-		String cmd =
-				rCommand.replace("DATAFRAME", scapeR.getScapeDFRunName(run));
+		String cmd = scapeR.rcmdReplace(rCommand, run);
+				
 
 		try {
 

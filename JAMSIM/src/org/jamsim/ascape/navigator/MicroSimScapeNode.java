@@ -107,7 +107,7 @@ public class MicroSimScapeNode extends ScapeNode {
 	}
 
 	/**
-	 * Add a {@link DataFrameNode} under the "Dataframes" folder.
+	 * Add a data frame node under the "Dataframes" folder.
 	 * 
 	 * @param dataFrameName
 	 *            data frame name

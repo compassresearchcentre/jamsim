@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
 import net.casper.io.beans.CBuildFromCollection;
@@ -22,17 +20,22 @@ import org.ascape.runtime.swing.navigator.NodesByRunFolder;
 import org.ascape.runtime.swing.navigator.PanelViewNode;
 import org.ascape.runtime.swing.navigator.PanelViewNodeProvider;
 import org.ascape.util.swing.AscapeGUIUtil;
+import org.ascape.view.vis.ChartView;
 import org.jamsim.ascape.navigator.EndOfRunNode;
 import org.jamsim.ascape.navigator.MicroSimScapeNode;
 import org.jamsim.ascape.navigator.OutputNode;
 import org.jamsim.ascape.navigator.RecordedMicroSimTreeBuilder;
+import org.jamsim.ascape.output.ChartProvider;
 import org.jamsim.ascape.output.OutputDataset;
 import org.jamsim.ascape.output.OutputDatasetProvider;
 import org.jamsim.ascape.output.ROutput;
 import org.jamsim.ascape.output.ROutputMultiRun;
 import org.jamsim.ascape.r.RFileInterface;
+import org.jamsim.ascape.r.RLoader;
 import org.jamsim.ascape.r.ScapeRInterface;
+import org.jamsim.ascape.r.ScapeRListener;
 import org.jamsim.io.FileLoader;
+import org.jamsim.r.RInterfaceException;
 
 /**
  * A Scape with micro-simulation input/output functions including base file
@@ -232,8 +235,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	}
 
 	public void addOutputNode(PanelViewNodeProvider provider) {
-		addView(new OutputNode(getOutputTablesNode(),
-				new EndOfRunNode(new PanelViewNode(scape, provider))));
+		addView(new OutputNode(getOutputTablesNode(), new EndOfRunNode(
+				new PanelViewNode(scape, provider))));
 	}
 
 	private final Map<String, String> dataFrameNodeMap =
@@ -446,23 +449,55 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 * @return scape R interface
 	 * @throws IOException
 	 *             if problem looking up {@code startUpFilePrefsKey}
+	 * @throws RInterfaceException if problem initialising R
 	 */
-	public ScapeRInterface addR(String dataFrameSymbol,
+	public ScapeRInterface startR(String dataFrameSymbol,
 			String startUpFilePrefsKey, String rRunEndCommand,
-			boolean keepAllRunDFs) throws IOException {
-		// add R to scape
-		File rStartup = null;
+			boolean keepAllRunDFs) throws IOException, RInterfaceException {
+		
+		// get startup file
+		File startUpFile = null;
 		if (startUpFilePrefsKey != null) {
-			rStartup = loader.getFile(startUpFilePrefsKey);
+			startUpFile = loader.getFile(startUpFilePrefsKey);
 		}
-		scapeR =
-				new ScapeRInterface(dataFrameSymbol, rStartup,
-						rRunEndCommand, keepAllRunDFs);
-		addView(scapeR);
 
+		// load R
+		RLoader rLoader = new RLoader(startUpFile);
+
+		// create R scape interface
+		scapeR =
+				new ScapeRInterface(rLoader, this, dataFrameSymbol,
+						keepAllRunDFs);
+
+		// add scape R listener that acts on scape events
+		addView(new ScapeRListener(scapeR, rRunEndCommand));
+
+		// display prompt after all setup done
+		scapeR.printPrompt();
+		
+		// create R menu with R file editing functions  
 		new RFileInterface(this, scapeR, loader);
 
 		return scapeR;
+	}
+
+	/**
+	 * Add a chart to the scape.
+	 * 
+	 * @param source
+	 *            a chart provider
+	 */
+	public void addChart(ChartProvider source) {
+		int chartType = source.getChartViewType();
+
+		ChartView chart = new ChartView(chartType);
+		chart.setPersistAfterScapeCloses(true);
+		scape.addView(chart);
+
+		// setup the chart AFTER adding it to the scape
+		for (String seriesName : source.getChartSeries()) {
+			chart.addSeries(seriesName);
+		}
 	}
 
 }

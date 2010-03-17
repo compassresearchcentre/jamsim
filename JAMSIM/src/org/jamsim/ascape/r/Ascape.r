@@ -1,3 +1,11 @@
+cat("Creating function err\n")
+
+err <- function (values) {
+## calc the 95% error from the t Distribution
+## see http://www.cyclismo.org/tutorial/R/confidence.html
+qt(0.975,df=length(values)-1)*sd(values)/sqrt(length(values))
+}
+
 cat("Creating function meanOfRuns\n")
 
 meanOfRuns <- function (multiRunResults) {

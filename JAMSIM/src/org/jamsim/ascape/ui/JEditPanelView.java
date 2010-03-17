@@ -13,7 +13,6 @@ import javax.swing.event.InternalFrameListener;
 
 import org.ascape.model.Scape;
 import org.ascape.model.event.ScapeEvent;
-import org.ascape.runtime.swing.SwingEnvironment;
 import org.ascape.runtime.swing.ViewFrameBridge;
 import org.ascape.util.swing.PanelViewUtil.PanelViewNoStall;
 import org.ascape.view.vis.PanelView;
@@ -158,7 +157,9 @@ public class JEditPanelView extends PanelViewNoStall {
 
 	/**
 	 * Make this an environmentView. This means it persists (ie: not disposed)
-	 * after the scape closes.
+	 * after the scape closes. NB: You also need to make sure we are not removed
+	 * as a listener from the scape when it closes (see
+	 * {@link #scapeNotification(ScapeEvent)}).
 	 * 
 	 * @return {@code false}
 	 */
@@ -172,6 +173,8 @@ public class JEditPanelView extends PanelViewNoStall {
 	 * listener from the scape when it closes. This means our
 	 * {@link JEditPanelView} will still be attached as a listener and will get
 	 * the {@link #scapeCanQuit()} call when the environment quits.
+	 * 
+	 * @param scapeEvent scape event
 	 */
 	@Override
 	public void scapeNotification(ScapeEvent scapeEvent) {
@@ -298,7 +301,8 @@ public class JEditPanelView extends PanelViewNoStall {
 	/**
 	 * Set the {@link PanelViewListener}.
 	 * 
-	 * @param pvl panel view listener
+	 * @param pvl
+	 *            panel view listener
 	 */
 	public void setPanelViewListener(PanelViewListener pvl) {
 		this.pvl = pvl;

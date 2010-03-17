@@ -483,7 +483,7 @@ public final class RInterfaceHL {
 	 * @param pack
 	 *            package name
 	 * @throws RInterfaceException
-	 *             if problem during command evaluation.
+	 *             if problem loading package.
 	 */
 	public void loadPackage(String pack) throws RInterfaceException {
 		String packages = getCurrentPackages();
