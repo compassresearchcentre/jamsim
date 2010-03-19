@@ -55,23 +55,38 @@ public class RLoader {
 	private final RSwingConsole rConsole;
 
 	/**
+	 * Load and initialise R without a startup file.
+	 * 
+	 * @throws RInterfaceException
+	 *             if problem loading or initialising R
+	 */
+	public RLoader() throws RInterfaceException {
+		// create console but don't show the prompt
+		rConsole = new RSwingConsole(false);
+
+		// load & initialise R
+		rInterface = loadR(rConsole);
+		initR();
+	}
+
+	/**
 	 * Construct with a file to load at R startup.
 	 * 
 	 * @param startUpFile
 	 *            file of R commands to load into R when it is started, or
 	 *            {@code null} if no file to load.
 	 * @throws RInterfaceException
-	 *             if problem loading R
+	 *             if problem loading or initialising R
 	 * @throws IOException
 	 *             if problem reading startup file
 	 */
 	public RLoader(File startUpFile) throws RInterfaceException, IOException {
-		// create console but don't show the prompt
-		rConsole = new RSwingConsole(false);
+		this();
 
-		// load & initialise R
-		rInterface = loadR(rConsole);
-		initR(startUpFile);
+		if (startUpFile != null) {
+			loadRFile(startUpFile);
+		}
+
 	}
 
 	/**
@@ -156,16 +171,13 @@ public class RLoader {
 	}
 
 	/**
-	 * Initialises the (already loaded) R environment. Loads required packages,
-	 * support functions, and the startup file if specified.
+	 * Initialises the (already loaded) R environment. Loads required packages
+	 * and support functions and sets options.
 	 * 
 	 * @throws RInterfaceException
 	 *             if problem evaluating initialisation commands
-	 * @throws IOException
-	 *             if problem reading startup file
 	 */
-	private void initR(File startUpFile) throws RInterfaceException,
-			IOException {
+	private void initR() throws RInterfaceException {
 		rInterface.loadPackage("rJava");
 		rInterface.loadPackage("JavaGD");
 
@@ -173,14 +185,23 @@ public class RLoader {
 		rInterface.eval("options(max.print=" + MAX_PRINT + ")");
 
 		loadRSupportFunctions();
+	}
 
-		if (startUpFile != null) {
-			rInterface.printlnToConsole("Loading "
-					+ startUpFile.getCanonicalPath());
+	/**
+	 * Evaluation the contents of a file in R.
+	 * 
+	 * @param file
+	 *            file containing R commands
+	 * @throws RInterfaceException
+	 *             if problem evaluating file
+	 * @throws IOException
+	 *             if problem reading file
+	 */
+	public final void loadRFile(File file) throws RInterfaceException,
+			IOException {
+		rInterface.printlnToConsole("Loading " + file.getCanonicalPath());
 
-			rInterface.parseEvalPrint(RUtil.readRFile(startUpFile));
-		}
-
+		rInterface.parseEvalPrint(RUtil.readRFile(file));
 	}
 
 	/**

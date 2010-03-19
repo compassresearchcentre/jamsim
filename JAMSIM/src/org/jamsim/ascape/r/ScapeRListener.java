@@ -14,11 +14,25 @@ import org.omancode.util.ExecutionTimer;
 public class ScapeRListener extends DefaultScapeListener {
 
 	/**
+	 * Replacement string used to insert the current iteration number into the R
+	 * iteration end command.
+	 */
+	public static final String ITER_REPLACEMENT_STR = "ITERATION_NBR";
+
+	/**
 	 * Serialization ID.
 	 */
 	private static final long serialVersionUID = -5105471052036807288L;
 
-	private final String rRunEndCommand;
+	private final ExecutionTimer timer = new ExecutionTimer();
+
+	private final ScapeRInterface scapeR;
+
+	private final String rIterationEndCmd;
+
+	private final String rRunBeginCmd;
+
+	private final String rRunEndCmd;
 
 	/**
 	 * Flag set after first time scape is closed.
@@ -27,33 +41,57 @@ public class ScapeRListener extends DefaultScapeListener {
 
 	private int runNumber = 0;
 
-	private final ExecutionTimer timer = new ExecutionTimer();
-
-	private final ScapeRInterface scapeR;
-
 	/**
 	 * Default constructor.
 	 * 
 	 * @param scapeR
 	 *            scape R interface
+	 * @param rIterationEndCommand
+	 *            R command to run at the end of each iteration, or {@code null}
+	 *            .
+	 * @param rRunBeginCommand
+	 *            R command to run at the beginning of each run, or {@code null}
+	 *            .
 	 * @param rRunEndCommand
 	 *            R command to run at the end of each run, or {@code null}.
 	 * @throws RInterfaceException
 	 *             if problem evaluating initialisation commands
 	 */
-	public ScapeRListener(ScapeRInterface scapeR, String rRunEndCommand)
-			throws RInterfaceException {
+	public ScapeRListener(ScapeRInterface scapeR,
+			String rIterationEndCommand, String rRunBeginCommand,
+			String rRunEndCommand) throws RInterfaceException {
 		super("R Scape Interface");
 		this.scapeR = scapeR;
-		this.rRunEndCommand = rRunEndCommand;
+		this.rRunBeginCmd = rRunBeginCommand;
+		this.rRunEndCmd = rRunEndCommand;
+		this.rIterationEndCmd = rIterationEndCommand;
+	}
 
-		// create initial dataframe from scape
-		scapeR.assignScapeDataFrame(runNumber);
+	@Override
+	public void scapeIterated(ScapeEvent scapeEvent) {
+
+		if (rIterationEndCmd != null) {
+			// create dataframe from scape
+			try {
+				scapeR.assignScapeDataFrame(runNumber);
+			} catch (RInterfaceException e) {
+				e.printStackTrace();
+				throw new RuntimeException(e); // NOPMD
+			}
+
+			// replace the iteration replacement string with the
+			// current iteration number
+			String rCmd =
+					rIterationEndCmd.replace(ITER_REPLACEMENT_STR, Integer
+							.toString(scape.getIteration()));
+			executeRCommand(rCmd);
+		}
 
 	}
 
 	/**
-	 * At the beginning of all runs, print a blank line to the R console.
+	 * At the beginning of all runs, print a blank line to the R console. If R
+	 * begin command is specified, execute that.
 	 * 
 	 * @param scapeEvent
 	 *            the scape event
@@ -61,6 +99,16 @@ public class ScapeRListener extends DefaultScapeListener {
 	public void scapeInitialized(ScapeEvent scapeEvent) {
 		if (runNumber == 0) {
 			scapeR.printlnToConsole("");
+		}
+
+		if (rRunBeginCmd != null) {
+			try {
+				scapeR.assignScapeDataFrame(0);
+			} catch (RInterfaceException e) {
+				e.printStackTrace();
+				throw new RuntimeException(e); // NOPMD
+			}
+			executeRCommand(rRunBeginCmd);
 		}
 	}
 
@@ -80,24 +128,28 @@ public class ScapeRListener extends DefaultScapeListener {
 			// create dataframe from scape
 			scapeR.assignScapeDataFrame(runNumber);
 
-			if (rRunEndCommand != null) {
-
-				timer.start();
-
-				String rcmd = scapeR.rcmdReplace(rRunEndCommand, runNumber);
-
-				scapeR.parseEvalPrint(rcmd);
-
-				timer.stop();
-
-				System.out.println("Executed " + rcmd + " ("
-						+ timer.duration() + " ms)");
+			if (rRunEndCmd != null) {
+				executeRCommand(rRunEndCmd);
 			}
 
 		} catch (RInterfaceException e) {
 			e.printStackTrace();
 			throw new RuntimeException(e); // NOPMD
 		}
+	}
+
+	private void executeRCommand(String rCommand) {
+
+		timer.start();
+
+		String rcmd = scapeR.rcmdReplace(rCommand, runNumber);
+
+		scapeR.parseEvalPrint(rcmd);
+
+		timer.stop();
+
+		System.out.println("Executed " + rcmd + " (" + timer.duration()
+				+ " ms)");
 	}
 
 	/**

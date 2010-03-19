@@ -11,9 +11,12 @@ import org.jamsim.ascape.output.OutputDatasetDefs;
 import org.jamsim.ascape.output.ROutput;
 import org.jamsim.ascape.output.ROutputMultiRun;
 import org.jamsim.ascape.r.ScapeRInterface;
+import org.jamsim.ascape.r.ScapeRListener;
 import org.jamsim.io.FileLoader;
 import org.jamsim.r.RInterfaceException;
 import org.omancode.io.Output;
+
+import sun.security.action.GetBooleanAction;
 
 /**
  * Root scape that initialises and loads agents into a base microsimulation
@@ -40,7 +43,17 @@ public class RootScape<D extends ScapeData> extends Scape {
 	private final MutableInt numberRuns = new MutableInt(2);
 
 	/**
-	 * Set up the microsimulation.
+	 * Return the microsimulation base scape. i.e: the scape holding the
+	 * microsimulation agents.
+	 * 
+	 * @return microsimulation base scape
+	 */
+	public MicroSimScape<D> getBaseScape() {
+		return msscape;
+	}
+
+	/**
+	 * Set up the microsimulation base scape.
 	 * 
 	 * @param scapeDataCreator
 	 *            scape data creator
@@ -52,10 +65,11 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 *            number of iterations per run
 	 * @param numRuns
 	 *            number of runs
+	 * @return microsimulation base scape
 	 */
-	public void createScape(ScapeDataCreator<D> scapeDataCreator,
-			Agent prototypeAgent, String baseScapeName, int numIterations,
-			int numRuns) {
+	public MicroSimScape<D> createMSScape(
+			ScapeDataCreator<D> scapeDataCreator, Agent prototypeAgent,
+			String baseScapeName, int numIterations, int numRuns) {
 		super.createScape();
 
 		// set up console output
@@ -103,6 +117,7 @@ public class RootScape<D extends ScapeData> extends Scape {
 		// method on each agent doesn't get called
 		msscape.addRule(ITERATE_RULE);
 
+		return msscape;
 	}
 
 	/**
@@ -117,19 +132,17 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 * Uses "R startup file" as the preferences key to lookup the location of
 	 * the R startup file.
 	 * 
-	 * @param rRunEndCommand
-	 *            R command to run at the end of each run, or {@code null}.
 	 * @param keepAllRunDFs
 	 *            flag to keep the dataframes from each run in R. This means
 	 *            creating each new dataframe with a unique name.
 	 * @return scape R interface
 	 */
-	public ScapeRInterface startR(String rRunEndCommand, boolean keepAllRunDFs) {
+	public ScapeRInterface startR(boolean keepAllRunDFs) {
 
 		try {
 			scapeR =
 					msscape.startR(msscape.getName().toLowerCase(),
-							"R startup file", rRunEndCommand, false);
+							"R startup file", false);
 			return scapeR;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -143,6 +156,28 @@ public class RootScape<D extends ScapeData> extends Scape {
 			throw new RuntimeException(e);
 		}
 
+	}
+
+	/**
+	 * Add scape R listener.
+	 * 
+	 * @param rIterationEndCommand
+	 *            R command to run at the end of each iteration, or {@code null}
+	 *            .
+	 * @param rRunBeginCommand
+	 *            R command to run at the beginning of each run, or {@code null}
+	 *            .
+	 * @param rRunEndCommand
+	 *            R command to run at the end of each run, or {@code null}.
+	 */
+	public void addScapeRListener(String rIterationEndCommand,
+			String rRunBeginCommand, String rRunEndCommand) {
+		try {
+			msscape.addView(new ScapeRListener(scapeR, rIterationEndCommand,
+					rRunBeginCommand, rRunEndCommand));
+		} catch (RInterfaceException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**

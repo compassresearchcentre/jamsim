@@ -33,7 +33,6 @@ import org.jamsim.ascape.output.ROutputMultiRun;
 import org.jamsim.ascape.r.RFileInterface;
 import org.jamsim.ascape.r.RLoader;
 import org.jamsim.ascape.r.ScapeRInterface;
-import org.jamsim.ascape.r.ScapeRListener;
 import org.jamsim.io.FileLoader;
 import org.jamsim.r.RInterfaceException;
 
@@ -439,43 +438,47 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 *            searched for and replaced with the current run's dataframe
 	 *            name.
 	 * @param startUpFilePrefsKey
-	 *            if specified will look up this in the preferences and load the
+	 *            if specified will look this up in the preferences and load the
 	 *            file into R.
-	 * @param rRunEndCommand
-	 *            R command to run at the end of each run, or {@code null}.
 	 * @param keepAllRunDFs
 	 *            flag to keep the dataframes from each run in R. This means
 	 *            creating each new dataframe with a unique name.
 	 * @return scape R interface
 	 * @throws IOException
 	 *             if problem looking up {@code startUpFilePrefsKey}
-	 * @throws RInterfaceException if problem initialising R
+	 * @throws RInterfaceException
+	 *             if problem initialising R
 	 */
 	public ScapeRInterface startR(String dataFrameSymbol,
-			String startUpFilePrefsKey, String rRunEndCommand,
-			boolean keepAllRunDFs) throws IOException, RInterfaceException {
-		
-		// get startup file
-		File startUpFile = null;
-		if (startUpFilePrefsKey != null) {
-			startUpFile = loader.getFile(startUpFilePrefsKey);
-		}
+			String startUpFilePrefsKey, boolean keepAllRunDFs)
+			throws IOException, RInterfaceException {
 
 		// load R
-		RLoader rLoader = new RLoader(startUpFile);
+		RLoader rLoader = new RLoader();
 
 		// create R scape interface
 		scapeR =
 				new ScapeRInterface(rLoader, this, dataFrameSymbol,
 						keepAllRunDFs);
 
-		// add scape R listener that acts on scape events
-		addView(new ScapeRListener(scapeR, rRunEndCommand));
-
+		// create initial dataframe from scape
+		// NB: at this point, agent.initialize() will NOT have been called
+		// on the agents. This will effect any getters that have values
+		// that are dependent on initialisation code.
+		scapeR.assignScapeDataFrame(0);
+		
+		// after assigning the scape, load the startup file which
+		// may reference the newly creating scape dataframe
+		if (startUpFilePrefsKey != null) {
+			// get startup file
+			File startUpFile = loader.getFile(startUpFilePrefsKey);
+			rLoader.loadRFile(startUpFile);
+		}
+		
 		// display prompt after all setup done
 		scapeR.printPrompt();
-		
-		// create R menu with R file editing functions  
+
+		// create R menu with R file editing functions
 		new RFileInterface(this, scapeR, loader);
 
 		return scapeR;
