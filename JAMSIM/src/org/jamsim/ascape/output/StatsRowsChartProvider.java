@@ -26,7 +26,7 @@ public class StatsRowsChartProvider implements ChartProvider {
 	 *            {@link ChartProvider#PIE}, {@link ChartProvider#TIME_SERIES}.
 	 * @param aggregation
 	 *            series type, eg: "Count", "Min", "Max", "Var", "StD", "Sum",
-	 *            "Avg"
+	 *            "Average"
 	 * @param stats
 	 *            stats rows that provide the stat collectors for the chart
 	 */

@@ -10,7 +10,7 @@ import javax.swing.tree.DefaultTreeModel;
 
 import org.ascape.runtime.swing.navigator.NodesByRunFolder;
 import org.ascape.runtime.swing.navigator.PanelViewNode;
-import org.ascape.runtime.swing.navigator.PanelViewNodeProvider;
+import org.ascape.runtime.swing.navigator.PanelViewProvider;
 import org.ascape.runtime.swing.navigator.ScapeNode;
 import org.ascape.runtime.swing.navigator.PanelViewTable;
 import org.ascape.runtime.swing.navigator.TreeBuilder;
@@ -41,6 +41,7 @@ public class MicroSimScapeNode extends ScapeNode {
 	private final NodesByRunFolder outputTablesNode;
 	private final DefaultTreeModel treeModel;
 	private DefaultMutableTreeNode dfNode;
+	private DefaultMutableTreeNode graphNode;
 	private final MicroSimScape<?> scape;
 
 	/**
@@ -97,8 +98,8 @@ public class MicroSimScapeNode extends ScapeNode {
 			table.setDefaultRenderer(Double.class, dblRenderer);
 
 			// add PanelViewNode to the tree
-			PanelViewNodeProvider provider = new PanelViewTable(table);
-			PanelViewNode newNode = new PanelViewNode(scape, provider);
+			PanelViewProvider provider = new PanelViewTable(table);
+			PanelViewNode newNode = new PanelViewNode(provider);
 			datasetsNode.add(newNode); // NOPMD
 		}
 
@@ -107,7 +108,8 @@ public class MicroSimScapeNode extends ScapeNode {
 	}
 
 	/**
-	 * Add a data frame node under the "Dataframes" folder.
+	 * Add a data frame node under the "Dataframes" folder. Creates "Dataframes"
+	 * node if it doesn't exist.
 	 * 
 	 * @param dataFrameName
 	 *            data frame name
@@ -120,11 +122,29 @@ public class MicroSimScapeNode extends ScapeNode {
 		}
 
 		String rcmd = "str(" + dataFrameName + ", max.level=1)";
-		PanelViewNodeProvider provider =
+		PanelViewProvider provider =
 				new PanelViewRCommand(scape.getScapeRInterface(),
 						dataFrameName, rcmd);
-		treeModel.insertNodeInto(new PanelViewNode(scape, provider), dfNode,
+		treeModel.insertNodeInto(new PanelViewNode(provider), dfNode,
 				dfNode.getChildCount());
+	}
+
+	/**
+	 * Add a panel view node under "Graphs". Creates "Graphs" node if it doesn't
+	 * exist.
+	 * 
+	 * @param provider
+	 *            provider of the panel view to create node for
+	 */
+	public void addGraphNode(PanelViewProvider provider) {
+		if (graphNode == null) {
+			// create on demand
+			graphNode = new DefaultMutableTreeNode("Graphs");
+			treeModel.insertNodeInto(graphNode, this, this.getChildCount());
+		}
+
+		treeModel.insertNodeInto(new PanelViewNode(provider),
+				graphNode, graphNode.getChildCount());
 
 	}
 }

@@ -18,7 +18,7 @@ import org.ascape.model.space.CollectionSpace;
 import org.ascape.runtime.swing.SwingRunner;
 import org.ascape.runtime.swing.navigator.NodesByRunFolder;
 import org.ascape.runtime.swing.navigator.PanelViewNode;
-import org.ascape.runtime.swing.navigator.PanelViewNodeProvider;
+import org.ascape.runtime.swing.navigator.PanelViewProvider;
 import org.ascape.util.swing.AscapeGUIUtil;
 import org.ascape.view.vis.ChartView;
 import org.jamsim.ascape.navigator.EndOfRunNode;
@@ -233,9 +233,24 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 				getOutputDirectory()));
 	}
 
-	public void addOutputNode(PanelViewNodeProvider provider) {
+	/**
+	 * Setup a scape listener that adds provider as a node under "Output tables"
+	 * at the end of runs.
+	 * 
+	 * @param provider panelview provider
+	 */
+	public void addOutputNode(PanelViewProvider provider) {
 		addView(new OutputNode(getOutputTablesNode(), new EndOfRunNode(
-				new PanelViewNode(scape, provider))));
+				new PanelViewNode(provider))));
+	}
+
+	/**
+	 * Add a panel view node under "Graphs".
+	 * 
+	 * @param provider provider of the panel view to create node for
+	 */
+	public void addGraphNode(PanelViewProvider provider) {
+		scapeNode.addGraphNode(provider);
 	}
 
 	private final Map<String, String> dataFrameNodeMap =
@@ -466,7 +481,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 		// on the agents. This will effect any getters that have values
 		// that are dependent on initialisation code.
 		scapeR.assignScapeDataFrame(0);
-		
+
 		// after assigning the scape, load the startup file which
 		// may reference the newly creating scape dataframe
 		if (startUpFilePrefsKey != null) {
@@ -474,7 +489,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 			File startUpFile = loader.getFile(startUpFilePrefsKey);
 			rLoader.loadRFile(startUpFile);
 		}
-		
+
 		// display prompt after all setup done
 		scapeR.printPrompt();
 

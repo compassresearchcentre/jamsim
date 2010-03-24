@@ -61,6 +61,20 @@ public class ScapeRInterface {
 	private final ExecutionTimer timer = new ExecutionTimer();
 
 	/**
+	 * Expose statically for {@link AscapeGD}.
+	 */
+	public static ScapeRInterface LAST_INSTANCE;
+
+	/**
+	 * Get the scape. For {@link AscapeGD}.
+	 * 
+	 * @return micro simulation scape
+	 */
+	public MicroSimScape<?> getMsScape() {
+		return msScape;
+	}
+
+	/**
 	 * Constructor.
 	 * 
 	 * @param rLoader
@@ -77,7 +91,7 @@ public class ScapeRInterface {
 	 */
 	public ScapeRInterface(RLoader rLoader, MicroSimScape<?> msScape,
 			String dataFrameSymbol, boolean keepAllRunDFs) {
-
+		LAST_INSTANCE = this;
 		this.dataFrameSymbol = dataFrameSymbol;
 		this.msScape = msScape;
 		this.keepAllRunDFs = keepAllRunDFs;

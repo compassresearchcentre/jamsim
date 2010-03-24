@@ -8,9 +8,10 @@ import javax.swing.event.InternalFrameEvent;
 
 import org.ascape.runtime.Runner;
 import org.ascape.runtime.swing.DesktopEnvironment;
-import org.ascape.runtime.swing.SwingEnvironment;
+import org.ascape.runtime.swing.navigator.PanelViewProvider;
 import org.ascape.util.swing.PanelViewUtil;
 import org.ascape.view.vis.PanelView;
+import org.jamsim.ascape.MicroSimScape;
 import org.rosuda.javaGD.GDInterface;
 import org.rosuda.javaGD.JGDPanel;
 
@@ -22,11 +23,13 @@ import org.rosuda.javaGD.JGDPanel;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class AscapeGD extends GDInterface {
+public class AscapeGD extends GDInterface implements PanelViewProvider {
 
 	private static final String WINDOW_TITLE = "R Graphics";
 
 	private PanelView pv;
+
+	private String name = WINDOW_TITLE;
 
 	/**
 	 * The frame within the Ascape Swing MDI that holds the PanelView.
@@ -72,11 +75,33 @@ public class AscapeGD extends GDInterface {
 		// create an MDI frame if the ScapeListener is a
 		// ComponentView. Here we bypass adding the PanelView
 		// as a ScapeListener and directly add the frame.
-		SwingEnvironment.DEFAULT_ENVIRONMENT.createFrame(pv);
+		// SwingEnvironment.DEFAULT_ENVIRONMENT.createFrame(pv);
 		// pv.build();
 
-		// get the frame
-		Container pvFrameImp = pv.getViewFrame().getFrameImp();
+		// get the frame. NB: must have been added to
+		// environment first!
+		// Container pvFrameImp = pv.getViewFrame().getFrameImp();
+		// pvFrame = installFrameListener(pvFrameImp);
+	}
+
+	/**
+	 * Add this GD to the navigator. Exposed so can be called from R, after
+	 * {@link #setName(String)} has been called (from which we get a node
+	 * title).
+	 */
+	public void addToNavigator() {
+		// add as node under graphs
+		MicroSimScape<?> scape = ScapeRInterface.LAST_INSTANCE.getMsScape();
+		scape.addGraphNode(this);
+	}
+
+	@Override
+	public void panelViewAdded(Container pvFrameImp) {
+		pvFrame = (JInternalFrame) pvFrameImp;
+		// pvFrame = installFrameListener(pvFrameImp);
+	}
+
+	private JInternalFrame installFrameListener(Container pvFrameImp) {
 
 		// The pvFrameImp type will depend on what is selected by
 		// the ViewFrameBridge.selectFrameImp method.
@@ -84,7 +109,7 @@ public class AscapeGD extends GDInterface {
 		// which will return a JInternalFrame
 		if (pvFrameImp instanceof JInternalFrame) {
 
-			pvFrame = (JInternalFrame) pvFrameImp;
+			JInternalFrame pvFrame = (JInternalFrame) pvFrameImp;
 
 			// when the frame closes, call closed()
 			pvFrame.addInternalFrameListener(new InternalFrameAdapter() {
@@ -94,11 +119,11 @@ public class AscapeGD extends GDInterface {
 				}
 			});
 
+			return pvFrame;
 		} else {
 			throw new RuntimeException("Unknown frame type "
 					+ pvFrameImp.getClass().getCanonicalName());
 		}
-
 	}
 
 	@Override
@@ -121,7 +146,7 @@ public class AscapeGD extends GDInterface {
 		super.gdActivate();
 		if (pv != null) {
 			pv.requestFocus();
-			setTitle(WINDOW_TITLE
+			setTitle(getName()
 					+ " "
 					+ (getDeviceNumber() > 0 ? "(" + (getDeviceNumber() + 1)
 							+ ")" : "") + " *active*");
@@ -132,7 +157,7 @@ public class AscapeGD extends GDInterface {
 	public void gdDeactivate() {
 		super.gdDeactivate();
 		if (pv != null) {
-			setTitle(WINDOW_TITLE
+			setTitle(getName()
 					+ " "
 					+ (getDeviceNumber() > 0 ? "(" + (getDeviceNumber() + 1)
 							+ ")" : ""));
@@ -143,7 +168,7 @@ public class AscapeGD extends GDInterface {
 	public void gdNewPage(int devNr) { // new API: provides the device Nr.
 		super.gdNewPage(devNr);
 		if (pv != null) {
-			setTitle(WINDOW_TITLE + " (" + (devNr + 1) + ")"
+			setTitle(getName() + " (" + (devNr + 1) + ")"
 					+ (active ? " *active*" : ""));
 		}
 	}
@@ -154,17 +179,45 @@ public class AscapeGD extends GDInterface {
 	 * @param title
 	 *            title.
 	 */
-	public void setTitle(String title) {
+	private void setTitle(String title) {
 		pv.setName(title);
-		pvFrame.setTitle(title);
+		if (pvFrame != null) {
+			pvFrame.setTitle(title);
+		}
 	}
 
 	/**
-	 * Called when the frame is closed by the user clicking on the close button.
+	 * Set name. Called from R after creating device.
+	 * 
+	 * @param name
+	 *            name
+	 */
+	public void setName(String name) {
+		this.name = name;
+		setTitle(name);
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public PanelView getPanelView() {
+		return pv;
+	}
+
+	/**
+	 * Close the device in R.
 	 */
 	public void closed() {
 		if (c != null) {
 			executeDevOff();
 		}
+	}
+
+	@Override
+	public void frameClosed() {
+		// nothing to do
 	}
 }

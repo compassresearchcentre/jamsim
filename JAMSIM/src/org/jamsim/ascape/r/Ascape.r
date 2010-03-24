@@ -6,6 +6,21 @@ err <- function (values) {
 qt(0.975,df=length(values)-1)*sd(values)/sqrt(length(values))
 }
 
+cat("Creating function freq\n")
+
+freq <- function(variable, varname) {
+# frequency table with percent
+# v = variable
+#
+# eg: freq(a(children$msmoke)[,1], "msmoke")
+# eg: freq(a(children$msmoke)[,2], "msmoke")
+tbl <- as.data.frame( table(variable, dnn = varname), responseName = "Frequency")
+tbl$Percent <- prop.table(tbl$Frequency) * 100
+tbl$"Cumulative Percent" <- cumsum (tbl$Percent) 
+tbl
+}
+
+
 cat("Creating function meanOfRuns\n")
 
 meanOfRuns <- function (multiRunResults) {
@@ -60,8 +75,13 @@ activateJavaGD <- function(name, ...) {
 	# if no device in hash, create it and add to hash
 	if (!has.key(name, deviceHash)) {
 		JavaGD(...)
-		## add device nbr to hash
+		# add device nbr to hash
 		deviceHash[[name]] <- dev.cur()
+		
+		# set name on AscapeGD object
+		ascapeGD <- .getJavaGDObject(dev.cur())
+		.jcall(ascapeGD, "V", "setName", name)
+		.jcall(ascapeGD, "V", "addToNavigator")
 	}
 	
 	# get device number

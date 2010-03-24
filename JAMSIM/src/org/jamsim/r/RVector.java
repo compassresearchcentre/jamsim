@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.rosuda.REngine.REXPDouble;
+import org.rosuda.REngine.REXPFactor;
 import org.rosuda.REngine.REXPGenericVector;
 import org.rosuda.REngine.REXPInteger;
 import org.rosuda.REngine.REXPLogical;
@@ -170,6 +171,9 @@ public class RVector {
 			REXPMismatchException {
 		if (rexp instanceof REXPDouble) {
 			return new DoubleArrayList(rexp.asDoubles());
+		} else if (rexp instanceof REXPFactor) {
+			return new IntArrayList(rexp.asIntegers());
+
 		} else if (rexp instanceof REXPInteger) {
 			return new IntArrayList(rexp.asIntegers());
 		} else if (rexp instanceof REXPLogical) {

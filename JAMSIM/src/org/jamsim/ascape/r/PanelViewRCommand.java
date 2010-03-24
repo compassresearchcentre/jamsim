@@ -1,9 +1,10 @@
 package org.jamsim.ascape.r;
 
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 
-import org.ascape.runtime.swing.navigator.PanelViewNodeProvider;
+import org.ascape.runtime.swing.navigator.PanelViewProvider;
 import org.ascape.util.swing.AscapeGUIUtil;
 import org.ascape.util.swing.PanelViewUtil;
 import org.ascape.view.vis.PanelView;
@@ -15,7 +16,7 @@ import org.jamsim.r.RInterfaceException;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class PanelViewRCommand implements PanelViewNodeProvider {
+public class PanelViewRCommand implements PanelViewProvider {
 
 	/**
 	 * Default font for text area text : Monospaced plain 12 pt.
@@ -105,6 +106,16 @@ public class PanelViewRCommand implements PanelViewNodeProvider {
 	@Override
 	public PanelView getPanelView() {
 		return createPanelView(nodeName, rcmd);
+	}
+
+	@Override
+	public void panelViewAdded(Container pvFrameImp) {
+		// nothing to do
+	}
+
+	@Override
+	public void frameClosed() {
+		// nothing to do
 	}
 
 }

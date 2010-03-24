@@ -27,7 +27,7 @@ public class OutputNode extends DefaultScapeListener {
 	private boolean scapeClosed = false;
 
 	/**
-	 * Master constructor.
+	 * Create an output node that appears after iteration/run end.
 	 * 
 	 * @param outputTablesNode
 	 *            navigator output tables tree node

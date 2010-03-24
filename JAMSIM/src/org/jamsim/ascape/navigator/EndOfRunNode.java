@@ -13,9 +13,11 @@ public class EndOfRunNode implements OutputNodeProvider {
 	private final DefaultMutableTreeNode node;
 
 	/**
-	 * Constructor.
+	 * Construct output node provider that provides an existing node at the end
+	 * of the run.
 	 * 
-	 * @param node node
+	 * @param node
+	 *            node
 	 */
 	public EndOfRunNode(DefaultMutableTreeNode node) {
 		this.node = node;
