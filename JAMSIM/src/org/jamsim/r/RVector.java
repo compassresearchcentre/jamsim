@@ -141,6 +141,8 @@ public class RVector {
 			throws UnsupportedTypeException {
 		if (rexp instanceof REXPDouble) {
 			return Double.class;
+		} else if (rexp instanceof REXPFactor) {
+			return String.class;
 		} else if (rexp instanceof REXPInteger) {
 			return Integer.class;
 		} else if (rexp instanceof REXPLogical) {
@@ -172,8 +174,7 @@ public class RVector {
 		if (rexp instanceof REXPDouble) {
 			return new DoubleArrayList(rexp.asDoubles());
 		} else if (rexp instanceof REXPFactor) {
-			return new IntArrayList(rexp.asIntegers());
-
+			return Arrays.asList(rexp.asStrings());
 		} else if (rexp instanceof REXPInteger) {
 			return new IntArrayList(rexp.asIntegers());
 		} else if (rexp instanceof REXPLogical) {

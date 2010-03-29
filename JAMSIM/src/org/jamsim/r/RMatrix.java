@@ -1,7 +1,6 @@
 package org.jamsim.r;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -12,6 +11,7 @@ import net.casper.ext.narrow.NarrowUtil;
 import org.apache.commons.lang.ArrayUtils;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPDouble;
+import org.rosuda.REngine.REXPInteger;
 import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REXPString;
 import org.rosuda.REngine.RList;
@@ -69,7 +69,7 @@ public class RMatrix implements CBuilder {
 	 *             if rexp is not an {@link REXPDouble} or an R table class.
 	 */
 	public RMatrix(String name, REXP rexp) throws REXPMismatchException {
-		if (!RMatrix.isMatrix(rexp) || !(rexp instanceof REXPDouble)) {
+		if (!RMatrix.isMatrix(rexp)) {
 			throw new REXPMismatchException(rexp, "table");
 		}
 
@@ -107,14 +107,8 @@ public class RMatrix implements CBuilder {
 	 */
 	public static boolean isMatrix(REXP rexp) {
 
-		if (rexp instanceof REXPDouble) {
-			if (RUtil.getDimensions(rexp) == 2) {
-				return true;
-			}
-		}
-
-		return false;
-
+		return ((rexp instanceof REXPDouble || rexp instanceof REXPInteger) && (RUtil
+				.getDimensions(rexp) == 2));
 	}
 
 	@Override

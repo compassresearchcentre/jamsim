@@ -1,3 +1,18 @@
+cat("Creating function toArray\n")
+
+toArray <- function (mylist) {
+	## convert list of vectors to an array
+	t(array(unlist(mylist), dim=c(length(mylist[[1]]),length(mylist))))
+}
+
+cat("Creating function a\n")
+
+a <- function (mylist) {
+	## alias for toArray
+	toArray(mylist)
+}
+
+
 cat("Creating function err\n")
 
 err <- function (values) {
@@ -90,3 +105,9 @@ activateJavaGD <- function(name, ...) {
 	# make active
 	invisible(dev.set(which = devNbr))
 } 
+
+cat("Creating function trim\n")
+trim <- function (string) 
+{
+    gsub("^\\s+|\\s+$", "", string)
+}
