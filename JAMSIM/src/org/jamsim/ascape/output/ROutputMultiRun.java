@@ -34,7 +34,9 @@ public class ROutputMultiRun extends AbstractMultiRunOutputDataset {
 	 *            column heading of the dataset column that contains the value
 	 *            names
 	 * @param valueNames
-	 *            name of each value returned in the double vector from R
+	 *            name of each value returned in the double vector from R. If
+	 *            {@code null} then they retrieved from the names attribute of
+	 *            the R expression returned by {@code rCommand}.
 	 * @param scapeR
 	 *            r interface for running the command.
 	 * @param rCommand
@@ -131,6 +133,10 @@ public class ROutputMultiRun extends AbstractMultiRunOutputDataset {
 			// get them from the expression
 			if (valueNames == null) {
 				valueNames = RUtil.getNamesAttribute(rexp);
+				if (valueNames == null) {
+					throw new RInterfaceException(
+							"Result does not supply names attribute.");
+				}
 			}
 
 			return rexp.asDoubles();

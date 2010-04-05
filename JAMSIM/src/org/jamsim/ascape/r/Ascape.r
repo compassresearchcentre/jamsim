@@ -111,3 +111,18 @@ trim <- function (string)
 {
     gsub("^\\s+|\\s+$", "", string)
 }
+
+
+cat("Creating function addRowPercents\n")
+addRowPercents <- function (counts) {
+	#adds row percentages to a set of counts
+	#eg: addRowPercents(yearlyFreq(children$sol, "sol"))
+	pcents <- prop.table(counts,1) * 100
+	
+	# add (%) to the end of column headings
+	dimnames(pcents)[[2]] <- sapply(dimnames(pcents)[[2]], paste, "(%)")
+	
+	combined <- cbind(counts, pcents)
+	names(dimnames(combined)) <- names(dimnames(counts))
+	combined
+}

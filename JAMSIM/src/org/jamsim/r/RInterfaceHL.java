@@ -310,8 +310,8 @@ public final class RInterfaceHL {
 	/**
 	 * Wraps a parse around an eval and prints (shows) result. Returns the
 	 * expression result AND prints it to the console if it is visible, ie: the
-	 * REP parts of the REPL. Errors & warnings are are output to the console,
-	 * ie: doesn't produce Java exceptions for expression errors. Uses R global
+	 * REP parts of the REPL. Errors & warnings are output to the console, ie:
+	 * doesn't produce Java exceptions for expression errors. Uses R global
 	 * environment.
 	 * 
 	 * @param expr
@@ -336,7 +336,7 @@ public final class RInterfaceHL {
 			rosudaEngine.assign(".expression.", expr);
 
 			String exec = ".pep(.expression.)";
-			//String exec = expr;
+			// String exec = expr;
 
 			REXP result = rosudaEngine.parseAndEval(exec);
 
@@ -429,7 +429,6 @@ public final class RInterfaceHL {
 		}
 	}
 
-	
 	/**
 	 * Create an {@link RList} in R as a dataframe.
 	 * 
@@ -490,10 +489,11 @@ public final class RInterfaceHL {
 		if (!packages.contains(pack)) {
 			printlnToConsole("Package " + pack
 					+ " not found. Attempting to download...");
-			eval("install.packages('" + pack + "');library(" + pack + ")");
+			parseEvalPrint("install.packages('" + pack + "');library(" + pack
+					+ ")");
 		} else {
 			printlnToConsole("Loading package: " + pack);
-			eval("library(" + pack + ")");
+			parseEvalPrint("library(" + pack + ")");
 		}
 	}
 
