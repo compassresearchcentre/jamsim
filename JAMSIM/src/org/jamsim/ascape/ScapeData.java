@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.swing.table.TableModel;
 
 import org.ascape.model.Agent;
+import org.jamsim.io.ParameterSet;
 import org.jamsim.math.RNG;
 
 /**
@@ -25,9 +26,19 @@ public interface ScapeData {
 	 * tabulated form, that does not change after loading. The map key is the
 	 * name used for the table in the Navigator.
 	 * 
-	 * @return list of JTables for display in user interface.
+	 * @return map of tables for display.
 	 */
 	Map<String, TableModel> getInputDatasets();
+
+	/**
+	 * Return a map of tables which will be displayed in the Navigator under the
+	 * "Parameter Set" node. These can be any data the simulation wants to make
+	 * available as parameters for manipulation by the user. The map key is the
+	 * name used for the table in the Navigator.
+	 * 
+	 * @return map of tables for display.
+	 */
+	Map<String, ParameterSet> getParameterSets();
 
 	/**
 	 * Return a collection of agents from the base file.
@@ -47,4 +58,12 @@ public interface ScapeData {
 	 * @return random number generator.
 	 */
 	RNG getRNG();
+
+	/**
+	 * After the {@link MicroSimScape} has loaded all agents, it calls
+	 * {@link ScapeData} to do any post load initialization.
+	 * 
+	 * @param msscape the scape utilising this {@link ScapeData}.
+	 */
+	void setScape(MicroSimScape<?> msscape);
 }

@@ -60,6 +60,8 @@ public class ScapeRInterface {
 
 	private final ExecutionTimer timer = new ExecutionTimer();
 
+	private String baseFileUpdateCmd = null;
+
 	/**
 	 * Expose statically for {@link AscapeGD}.
 	 */
@@ -102,6 +104,16 @@ public class ScapeRInterface {
 	}
 
 	/**
+	 * Define the R command that is called by {@link #baseFileUpdated()}.
+	 * 
+	 * @param cmd
+	 *            base file update command, or {@code null} if none
+	 */
+	public void setBaseFileUpdateCmd(String cmd) {
+		this.baseFileUpdateCmd = cmd;
+	}
+
+	/**
 	 * Load a file containing R code into the R environment.
 	 * 
 	 * @param file
@@ -139,7 +151,22 @@ public class ScapeRInterface {
 
 		System.out.println("Created dataframe " + dataframeName + " ("
 				+ timer.duration() + " ms)");
+		
+		if (runNumber == 0) {
+			baseFileUpdated();
+		}
 
+	}
+
+	/**
+	 * Execute the base file update command. Call this when you have changed
+	 * variables and after writing the scape to a dataframe.
+	 */
+	public void baseFileUpdated() {
+		if (baseFileUpdateCmd != null) {
+			parseEvalPrint(baseFileUpdateCmd);
+			System.out.println("Executed " + baseFileUpdateCmd);
+		}
 	}
 
 	/**
@@ -240,6 +267,33 @@ public class ScapeRInterface {
 	 */
 	public REXP parseEvalPrint(String expr) {
 		return rInterface.parseEvalPrint(expr);
+	}
+
+	/**
+	 * Run {@link #rcmdReplace(String, int)} on the rCommand then
+	 * {@link #parseEvalPrint(String)}. Output to log when execution has
+	 * finished.
+	 * 
+	 * @param rCommand
+	 *            R command
+	 * @param runNumber
+	 *            run number
+	 * @return evaluated result
+	 */
+	public REXP parseEvalPrintLogReplace(String rCommand, int runNumber) {
+
+		timer.start();
+
+		String rcmd = rcmdReplace(rCommand, runNumber);
+
+		REXP result = parseEvalPrint(rcmd);
+
+		timer.stop();
+
+		System.out.println("Executed " + rcmd + " (" + timer.duration()
+				+ " ms)");
+
+		return result;
 	}
 
 	/**

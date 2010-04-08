@@ -94,6 +94,9 @@ public class RootScape<D extends ScapeData> extends Scape {
 						prototypeAgent, loader, scapeData);
 		add(msscape);
 
+		// set scape on scape data
+		scapeData.setScape(msscape);
+
 		// load agents
 		msscape.loadAgents();
 
@@ -178,6 +181,18 @@ public class RootScape<D extends ScapeData> extends Scape {
 		} catch (RInterfaceException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * Define the R command that is called by
+	 * {@link ScapeRInterface#baseFileUpdated()} and call it.
+	 * 
+	 * @param cmd
+	 *            base file update command, or {@code null} if none
+	 */
+	public void addBaseFileUpdateRCmd(String cmd) {
+		scapeR.setBaseFileUpdateCmd(cmd);
+		scapeR.baseFileUpdated();
 	}
 
 	/**

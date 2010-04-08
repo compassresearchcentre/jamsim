@@ -237,7 +237,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 * Setup a scape listener that adds provider as a node under "Output tables"
 	 * at the end of runs.
 	 * 
-	 * @param provider panelview provider
+	 * @param provider
+	 *            panelview provider
 	 */
 	public void addOutputNode(PanelViewProvider provider) {
 		addView(new OutputNode(getOutputTablesNode(), new EndOfRunNode(
@@ -247,7 +248,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	/**
 	 * Add a panel view node under "Graphs".
 	 * 
-	 * @param provider provider of the panel view to create node for
+	 * @param provider
+	 *            provider of the panel view to create node for
 	 */
 	public void addGraphNode(PanelViewProvider provider) {
 		scapeNode.addGraphNode(provider);
@@ -444,7 +446,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	}
 
 	/**
-	 * Add R to this scape.
+	 * Add R to this scape and create a dataframe from the scape.
 	 * 
 	 * @param dataFrameSymbol
 	 *            replacement symbol. When evaluating {@code rRunEndCommand} and
@@ -465,8 +467,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 *             if problem initialising R
 	 */
 	public ScapeRInterface startR(String dataFrameSymbol,
-			String startUpFilePrefsKey, boolean keepAllRunDFs)
-			throws IOException, RInterfaceException {
+			String startUpFilePrefsKey, 
+			boolean keepAllRunDFs) throws IOException, RInterfaceException {
 
 		// load R
 		RLoader rLoader = new RLoader();

@@ -16,6 +16,8 @@ import org.ascape.runtime.swing.navigator.PanelViewTable;
 import org.ascape.runtime.swing.navigator.TreeBuilder;
 import org.jamsim.ascape.MicroSimScape;
 import org.jamsim.ascape.r.PanelViewRCommand;
+import org.jamsim.ascape.ui.PanelViewParameterSet;
+import org.jamsim.io.ParameterSet;
 import org.omancode.swing.DoubleCellRenderer;
 
 /**
@@ -70,6 +72,7 @@ public class MicroSimScapeNode extends ScapeNode {
 		treeModel = treeBuilder.getTreeModel();
 
 		addDatasetNodes(scape, treeModel);
+		addParameterSetNodes(scape, treeModel);
 
 		// create the Output Tables node
 		outputTablesNode =
@@ -80,17 +83,51 @@ public class MicroSimScapeNode extends ScapeNode {
 
 	private void addDatasetNodes(MicroSimScape<?> scape,
 			DefaultTreeModel treeModel) {
+		addNodeWithChildrenTables(treeModel, "Datasets", scape.getScapeData()
+				.getInputDatasets());
+	}
 
-		// create Dataset node
-		DefaultMutableTreeNode datasetsNode =
-				new DefaultMutableTreeNode("Datasets");
+	private void addParameterSetNodes(MicroSimScape<?> scape,
+			DefaultTreeModel treeModel) {
+
+		Map<String, ParameterSet> psets =
+				scape.getScapeData().getParameterSets();
+
+		if (psets != null) {
+		
+			// create parent node
+			DefaultMutableTreeNode parentNode =
+					new DefaultMutableTreeNode("Parameter sets");
+	
+			// get all the tables from childrenTables
+			// and add them to the navigator as a Panel View Node
+			for (Map.Entry<String, ParameterSet> entry : psets.entrySet()) {
+	
+				// add PanelViewNode to the tree
+				ParameterSet pset = entry.getValue();
+				PanelViewProvider provider = new PanelViewParameterSet(pset);
+				PanelViewNode newNode = new PanelViewNode(provider);
+				parentNode.add(newNode); // NOPMD
+			}
+	
+			// add parentNode via the Tree Model
+			treeModel.insertNodeInto(parentNode, this, this.getChildCount());
+			
+		}
+	}
+
+	private void addNodeWithChildrenTables(DefaultTreeModel treeModel,
+			String nodeName, Map<String, TableModel> childrenTables) {
+
+		// create parent node
+		DefaultMutableTreeNode parentNode =
+				new DefaultMutableTreeNode(nodeName);
 
 		TableCellRenderer dblRenderer = new DoubleCellRenderer();
 
-		// get all the tables from the scape external data
+		// get all the tables from childrenTables
 		// and add them to the navigator as a Panel View Node
-		for (Map.Entry<String, TableModel> entry : scape.getScapeData()
-				.getInputDatasets().entrySet()) {
+		for (Map.Entry<String, TableModel> entry : childrenTables.entrySet()) {
 
 			TableModel tmodel = entry.getValue();
 			JTable table = new JTable(tmodel); // NOPMD
@@ -100,11 +137,11 @@ public class MicroSimScapeNode extends ScapeNode {
 			// add PanelViewNode to the tree
 			PanelViewProvider provider = new PanelViewTable(table);
 			PanelViewNode newNode = new PanelViewNode(provider);
-			datasetsNode.add(newNode); // NOPMD
+			parentNode.add(newNode); // NOPMD
 		}
 
-		// add datasetsNode via the Tree Model
-		treeModel.insertNodeInto(datasetsNode, this, this.getChildCount());
+		// add parentNode via the Tree Model
+		treeModel.insertNodeInto(parentNode, this, this.getChildCount());
 	}
 
 	/**
@@ -125,8 +162,8 @@ public class MicroSimScapeNode extends ScapeNode {
 		PanelViewProvider provider =
 				new PanelViewRCommand(scape.getScapeRInterface(),
 						dataFrameName, rcmd);
-		treeModel.insertNodeInto(new PanelViewNode(provider), dfNode,
-				dfNode.getChildCount());
+		treeModel.insertNodeInto(new PanelViewNode(provider), dfNode, dfNode
+				.getChildCount());
 	}
 
 	/**
@@ -143,8 +180,8 @@ public class MicroSimScapeNode extends ScapeNode {
 			treeModel.insertNodeInto(graphNode, this, this.getChildCount());
 		}
 
-		treeModel.insertNodeInto(new PanelViewNode(provider),
-				graphNode, graphNode.getChildCount());
+		treeModel.insertNodeInto(new PanelViewNode(provider), graphNode,
+				graphNode.getChildCount());
 
 	}
 }

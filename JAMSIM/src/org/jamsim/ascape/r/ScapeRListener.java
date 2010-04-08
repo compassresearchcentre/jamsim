@@ -67,6 +67,10 @@ public class ScapeRListener extends DefaultScapeListener {
 		this.rIterationEndCmd = rIterationEndCommand;
 	}
 
+	
+	/**
+	 * Run iteration end R command, if any.
+	 */
 	@Override
 	public void scapeIterated(ScapeEvent scapeEvent) {
 
@@ -139,17 +143,7 @@ public class ScapeRListener extends DefaultScapeListener {
 	}
 
 	private void executeRCommand(String rCommand) {
-
-		timer.start();
-
-		String rcmd = scapeR.rcmdReplace(rCommand, runNumber);
-
-		scapeR.parseEvalPrint(rcmd);
-
-		timer.stop();
-
-		System.out.println("Executed " + rcmd + " (" + timer.duration()
-				+ " ms)");
+		scapeR.parseEvalPrintLogReplace(rCommand, runNumber);
 	}
 
 	/**

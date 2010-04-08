@@ -389,7 +389,8 @@ public class FileLoader implements Output {
 	}
 
 	/**
-	 * Convenience method for loading a casper dataset into a map.
+	 * Convenience method for loading a casper dataset into a map. Create table
+	 * model for dataset.
 	 * 
 	 * @param cdefmap
 	 *            dataset definition
@@ -404,12 +405,37 @@ public class FileLoader implements Output {
 	 */
 	public <K, V> Map<K, V> loadMap(CDataFileMap<K, V> cdefmap)
 			throws IOException {
+		return loadMap(cdefmap, true);
+	}
+
+	/**
+	 * Convenience method for loading a casper dataset into a map.
+	 * 
+	 * @param cdefmap
+	 *            dataset definition
+	 * @param tmodel
+	 *            create a table model for this dataset which can be accessed
+	 *            via {@link #getTableModels()}.
+	 * @return matrix
+	 * @throws IOException
+	 *             problem reading dataset, or dataset columns of the wrong
+	 *             type.
+	 * @param <K>
+	 *            map's key type
+	 * @param <V>
+	 *            map's value type
+	 * 
+	 */
+	public <K, V> Map<K, V> loadMap(CDataFileMap<K, V> cdefmap, boolean tmodel)
+			throws IOException {
 		loadDataset(cdefmap);
 
 		Map<K, V> map = cdefmap.getMap();
 
-		tmodels.put(cdefmap.getName(), new CDatasetTableModel(cdefmap
-				.getContainer()));
+		if (tmodel) {
+			tmodels.put(cdefmap.getName(), new CDatasetTableModel(cdefmap
+					.getContainer()));
+		}
 
 		return map;
 
