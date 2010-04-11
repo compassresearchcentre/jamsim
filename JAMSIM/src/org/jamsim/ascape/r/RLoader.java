@@ -115,8 +115,8 @@ public class RLoader {
 	 */
 	private RInterfaceHL loadR(RSwingConsole rcon) throws RInterfaceException {
 		// if running a desktop environment (ie: GUI)
-		RuntimeEnvironment runtime = AscapeGUIUtil.getDesktopEnvironment();
-		if (runtime == null) {
+		DesktopEnvironment desktop = AscapeGUIUtil.getDesktopEnvironment();
+		if (desktop == null) {
 			throw new IllegalStateException(
 					"Not running in desktop environment, "
 							+ "or desktop environment not yet loaded.");
@@ -129,7 +129,7 @@ public class RLoader {
 		RInterfaceHL rint = RInterfaceHL.getInstance(rcon);
 
 		// if R loaded OK, display the R console
-		displayRConsole(((DesktopEnvironment) runtime).getUserFrame(), rcon);
+		displayRConsole(desktop.getUserFrame(), rcon);
 
 		return rint;
 	}
@@ -144,7 +144,7 @@ public class RLoader {
 	 *            R console to be added to the new R tab.
 	 */
 	private void displayRConsole(UserFrame gui, final Component rConsole) {
-		final JSplitPane consoleSplit = gui.getConsoleSplit();
+		//final JSplitPane consoleSplit = gui.getConsoleSplit();
 		final JTabbedPane consolePane = gui.getConsolePane();
 
 		// if a tab with the R console doesn't exist
@@ -156,7 +156,7 @@ public class RLoader {
 
 					// move the console pane at the bottom up
 					// by changing the split divider location
-					consoleSplit.setDividerLocation(500);
+					//consoleSplit.setDividerLocation(800);
 
 					// add R console tab
 					consolePane.addTab(RCONSOLE_TAB_TITLE, rConsole);
