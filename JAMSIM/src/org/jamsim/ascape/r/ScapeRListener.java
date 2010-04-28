@@ -75,7 +75,6 @@ public class ScapeRListener extends DefaultScapeListener {
 	public void scapeIterated(ScapeEvent scapeEvent) {
 
 		if (rIterationEndCmd != null) {
-			// create dataframe from scape
 			try {
 				scapeR.assignScapeDataFrame(runNumber);
 			} catch (RInterfaceException e) {
@@ -101,13 +100,15 @@ public class ScapeRListener extends DefaultScapeListener {
 	 *            the scape event
 	 */
 	public void scapeInitialized(ScapeEvent scapeEvent) {
-		if (runNumber == 0) {
+		runNumber++;
+		
+		if (runNumber == 1) {
 			scapeR.printlnToConsole("");
 		}
 
 		if (rRunBeginCmd != null) {
 			try {
-				scapeR.assignScapeDataFrame(0);
+				scapeR.assignScapeDataFrame(runNumber);
 			} catch (RInterfaceException e) {
 				e.printStackTrace();
 				throw new RuntimeException(e); // NOPMD
@@ -125,8 +126,7 @@ public class ScapeRListener extends DefaultScapeListener {
 	 */
 	@Override
 	public void scapeStopped(ScapeEvent scapeEvent) {
-		runNumber++;
-
+		
 		try {
 
 			// create dataframe from scape

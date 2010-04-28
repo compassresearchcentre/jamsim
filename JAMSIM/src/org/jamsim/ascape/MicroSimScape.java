@@ -275,6 +275,11 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 
 	}
 
+	public void addBasefileNode(String name, String rcmd) {
+		initScapeNode();
+		scapeNode.addBasefileNode(name, rcmd);
+	}
+
 	/**
 	 * Loads this scape with agents from a base file. The location of the base
 	 * file is stored in Preferences. If such a location does not exist, then
@@ -467,11 +472,11 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 *             if problem initialising R
 	 */
 	public ScapeRInterface startR(String dataFrameSymbol,
-			String startUpFilePrefsKey, 
-			boolean keepAllRunDFs) throws IOException, RInterfaceException {
+			String startUpFilePrefsKey, boolean keepAllRunDFs)
+			throws IOException, RInterfaceException {
 
 		// load R
-		RLoader rLoader = new RLoader();
+		RLoader rLoader = RLoader.getInstance();
 
 		// create R scape interface
 		scapeR =
@@ -485,7 +490,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 		scapeR.assignScapeDataFrame(0);
 
 		// after assigning the scape, load the startup file which
-		// may reference the newly creating scape dataframe
+		// may reference the newly created scape dataframe
 		if (startUpFilePrefsKey != null) {
 			// get startup file
 			File startUpFile = loader.getFile(startUpFilePrefsKey);
@@ -496,7 +501,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 		scapeR.printPrompt();
 
 		// create R menu with R file editing functions
-		new RFileInterface(this, scapeR, loader);
+		RFileInterface.getInstance(this, scapeR, loader);
 
 		return scapeR;
 	}

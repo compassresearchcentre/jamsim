@@ -146,31 +146,17 @@ public class AscapeGD extends GDInterface implements PanelViewProvider {
 		super.gdActivate();
 		if (pv != null) {
 			pv.requestFocus();
-			setTitle(getName()
-					+ " "
-					+ (getDeviceNumber() > 0 ? "(" + (getDeviceNumber() + 1)
-							+ ")" : "") + " *active*");
 		}
 	}
 
 	@Override
 	public void gdDeactivate() {
 		super.gdDeactivate();
-		if (pv != null) {
-			setTitle(getName()
-					+ " "
-					+ (getDeviceNumber() > 0 ? "(" + (getDeviceNumber() + 1)
-							+ ")" : ""));
-		}
 	}
 
 	@Override
 	public void gdNewPage(int devNr) { // new API: provides the device Nr.
 		super.gdNewPage(devNr);
-		if (pv != null) {
-			setTitle(getName() + " (" + (devNr + 1) + ")"
-					+ (active ? " *active*" : ""));
-		}
 	}
 
 	/**

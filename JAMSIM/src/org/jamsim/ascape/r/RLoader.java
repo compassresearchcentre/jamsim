@@ -5,11 +5,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
-import org.ascape.runtime.RuntimeEnvironment;
 import org.ascape.runtime.swing.DesktopEnvironment;
 import org.ascape.runtime.swing.UserFrame;
 import org.ascape.util.swing.AscapeGUIUtil;
@@ -25,7 +23,7 @@ import org.jamsim.r.RUtil;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class RLoader {
+public final class RLoader {
 
 	/**
 	 * R Console tab title.
@@ -55,12 +53,13 @@ public class RLoader {
 	private final RSwingConsole rConsole;
 
 	/**
-	 * Load and initialise R without a startup file.
+	 * Load and initialise R without a startup file and add the R console to the
+	 * Ascape GUI.
 	 * 
 	 * @throws RInterfaceException
 	 *             if problem loading or initialising R
 	 */
-	public RLoader() throws RInterfaceException {
+	private RLoader() throws RInterfaceException {
 		// create console but don't show the prompt
 		rConsole = new RSwingConsole(false);
 
@@ -70,7 +69,8 @@ public class RLoader {
 	}
 
 	/**
-	 * Construct with a file to load at R startup.
+	 * Load and initialise R, run a startup file and add the R console to the
+	 * Ascape GUI.
 	 * 
 	 * @param startUpFile
 	 *            file of R commands to load into R when it is started, or
@@ -80,11 +80,103 @@ public class RLoader {
 	 * @throws IOException
 	 *             if problem reading startup file
 	 */
-	public RLoader(File startUpFile) throws RInterfaceException, IOException {
+	private RLoader(File startUpFile) throws RInterfaceException, IOException {
 		this();
 
 		if (startUpFile != null) {
 			loadRFile(startUpFile);
+		}
+
+	}
+
+	private static File staticStartUpFile = null;
+
+	/**
+	 * SingletonHolder is loaded, and the static initializer executed, on the
+	 * first execution of Singleton.getInstance() or the first access to
+	 * SingletonHolder.INSTANCE, not before.
+	 */
+	private static final class SingletonHolder {
+
+		/**
+		 * Singleton instance, with static initializer.
+		 */
+		private static final RLoader INSTANCE = createSingleton();
+
+		/**
+		 * Create singleton instance using static parameters from outer class.
+		 * 
+		 * @return instance
+		 */
+		private static RLoader createSingleton() {
+			try {
+				return new RLoader(staticStartUpFile); //NOPMD
+			} catch (RInterfaceException e) {
+				// a static initializer cannot throw exceptions
+				// but it can throw an ExceptionInInitializerError
+				throw new ExceptionInInitializerError(e);
+			} catch (IOException e) {
+				throw new ExceptionInInitializerError(e);
+			}
+		}
+
+		/**
+		 * Prevent instantiation.
+		 */
+		private SingletonHolder() {
+		}
+
+		/**
+		 * Get singleton instance.
+		 * 
+		 * @return singleton instance.
+		 */
+		public static RLoader getInstance() {
+			return SingletonHolder.INSTANCE;
+		}
+
+	}
+
+	/**
+	 * Load and initialise R, run a startup file and add the R console to the
+	 * Ascape GUI.
+	 * 
+	 * Return the singleton instance. The first time this is called the instance
+	 * will be created using the supplied parameters.
+	 * 
+	 * @param startUpFile
+	 *            file of R commands to load into R when it is started, or
+	 *            {@code null} if no file to load.
+	 * @return singleton instance
+	 * @throws RInterfaceException
+	 *             if problem loading or initialising R
+	 */
+	public static RLoader getInstance(File startUpFile)
+			throws RInterfaceException {
+		staticStartUpFile = startUpFile;
+		return getInstance();
+	}
+
+	/**
+	 * Load and initialise R without a startup file and add the R console to the
+	 * Ascape GUI.
+	 * 
+	 * Returns the singleton instance. The first time this is called the
+	 * instance will be created.
+	 * 
+	 * @return singleton instance
+	 * @throws RInterfaceException
+	 *             if problem loading or initialising R
+	 */
+	public static RLoader getInstance() throws RInterfaceException {
+		try {
+			return SingletonHolder.getInstance();
+		} catch (ExceptionInInitializerError e) {
+
+			// re-throw exception that occurred in the initializer
+			// so our caller can deal with it
+			Throwable exceptionInInit = e.getCause();
+			throw new RInterfaceException(exceptionInInit); // NOPMD
 		}
 
 	}
@@ -125,7 +217,7 @@ public class RLoader {
 		// display message on ascape log tab
 		System.out.print("Starting R....");
 
-		// load R
+		// load R (if not already loaded)
 		RInterfaceHL rint = RInterfaceHL.getInstance(rcon);
 
 		// if R loaded OK, display the R console
@@ -144,7 +236,7 @@ public class RLoader {
 	 *            R console to be added to the new R tab.
 	 */
 	private void displayRConsole(UserFrame gui, final Component rConsole) {
-		//final JSplitPane consoleSplit = gui.getConsoleSplit();
+		// final JSplitPane consoleSplit = gui.getConsoleSplit();
 		final JTabbedPane consolePane = gui.getConsolePane();
 
 		// if a tab with the R console doesn't exist
@@ -156,7 +248,7 @@ public class RLoader {
 
 					// move the console pane at the bottom up
 					// by changing the split divider location
-					//consoleSplit.setDividerLocation(800);
+					// consoleSplit.setDividerLocation(800);
 
 					// add R console tab
 					consolePane.addTab(RCONSOLE_TAB_TITLE, rConsole);
@@ -197,7 +289,7 @@ public class RLoader {
 	 * @throws IOException
 	 *             if problem reading file
 	 */
-	public final void loadRFile(File file) throws RInterfaceException,
+	public void loadRFile(File file) throws RInterfaceException,
 			IOException {
 		rInterface.printlnToConsole("Loading " + file.getCanonicalPath());
 

@@ -27,7 +27,18 @@ public class MultipleRunController extends DefaultScapeListener {
 	private final boolean closeRunner;
 
 	/**
-	 * Default constructor.
+	 * Run scape for numberRuns, closing the runner at the end of the run.
+	 * 
+	 * @param numberRuns
+	 *            number of runs for the simulation. This is a
+	 *            {@link MutableInt} so it can be changed after construction.
+	 */
+	public MultipleRunController(MutableInt numberRuns) {
+		this(numberRuns, true);
+	}
+	
+	/**
+	 * Run scape for numberRuns.
 	 * 
 	 * @param numberRuns
 	 *            number of runs for the simulation. This is a

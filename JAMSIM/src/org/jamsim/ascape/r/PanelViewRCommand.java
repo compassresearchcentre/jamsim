@@ -11,7 +11,9 @@ import org.ascape.view.vis.PanelView;
 import org.jamsim.r.RInterfaceException;
 
 /**
- * Executes an command in R then provides a {@link PanelView} with the results.
+ * Executes an command in R each time {@link #getPanelView()} is called.
+ * Provides a {@link PanelView} with the results of the R command as they would
+ * have been outputted to the R console.
  * 
  * @author Oliver Mannion
  * @version $Revision$

@@ -16,8 +16,6 @@ import org.jamsim.io.FileLoader;
 import org.jamsim.r.RInterfaceException;
 import org.omancode.io.Output;
 
-import sun.security.action.GetBooleanAction;
-
 /**
  * Root scape that initialises and loads agents into a base microsimulation
  * scape.
@@ -210,7 +208,7 @@ public class RootScape<D extends ScapeData> extends Scape {
 		super.createGraphicViews();
 
 		// add multi run controller
-		msscape.addView(new MultipleRunController(numberRuns, true));
+		msscape.addView(new MultipleRunController(numberRuns));
 	}
 
 	/**

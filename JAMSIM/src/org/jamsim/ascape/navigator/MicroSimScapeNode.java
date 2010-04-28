@@ -1,5 +1,6 @@
 package org.jamsim.ascape.navigator;
 
+import java.io.IOException;
 import java.util.Map;
 
 import javax.swing.JTable;
@@ -8,6 +9,10 @@ import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
+import net.casper.data.model.CDataCacheContainer;
+import net.casper.data.model.CDataGridException;
+import net.casper.ext.swing.CDatasetTableModel;
+
 import org.ascape.runtime.swing.navigator.NodesByRunFolder;
 import org.ascape.runtime.swing.navigator.PanelViewNode;
 import org.ascape.runtime.swing.navigator.PanelViewProvider;
@@ -15,7 +20,10 @@ import org.ascape.runtime.swing.navigator.ScapeNode;
 import org.ascape.runtime.swing.navigator.PanelViewTable;
 import org.ascape.runtime.swing.navigator.TreeBuilder;
 import org.jamsim.ascape.MicroSimScape;
+import org.jamsim.ascape.output.OutputDatasetProvider;
+import org.jamsim.ascape.output.ROutput;
 import org.jamsim.ascape.r.PanelViewRCommand;
+import org.jamsim.ascape.r.PanelViewDataset;
 import org.jamsim.ascape.ui.PanelViewParameterSet;
 import org.jamsim.io.ParameterSet;
 import org.omancode.swing.DoubleCellRenderer;
@@ -94,25 +102,25 @@ public class MicroSimScapeNode extends ScapeNode {
 				scape.getScapeData().getParameterSets();
 
 		if (psets != null) {
-		
+
 			// create parent node
 			DefaultMutableTreeNode parentNode =
 					new DefaultMutableTreeNode("Parameter sets");
-	
+
 			// get all the tables from childrenTables
 			// and add them to the navigator as a Panel View Node
 			for (Map.Entry<String, ParameterSet> entry : psets.entrySet()) {
-	
+
 				// add PanelViewNode to the tree
 				ParameterSet pset = entry.getValue();
 				PanelViewProvider provider = new PanelViewParameterSet(pset);
 				PanelViewNode newNode = new PanelViewNode(provider);
 				parentNode.add(newNode); // NOPMD
 			}
-	
+
 			// add parentNode via the Tree Model
 			treeModel.insertNodeInto(parentNode, this, this.getChildCount());
-			
+
 		}
 	}
 
@@ -142,6 +150,16 @@ public class MicroSimScapeNode extends ScapeNode {
 
 		// add parentNode via the Tree Model
 		treeModel.insertNodeInto(parentNode, this, this.getChildCount());
+	}
+
+	public void addBasefileNode(String name, String rcmd) {
+		OutputDatasetProvider basefileDS =
+				new ROutput(name, name, scape.getScapeRInterface(), rcmd);
+
+		PanelViewDataset provider = new PanelViewDataset(basefileDS);
+
+		treeModel.insertNodeInto(new PanelViewNode(provider), this, this
+				.getChildCount());
 	}
 
 	/**

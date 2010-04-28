@@ -112,10 +112,8 @@ public final class RInterfaceHL {
 			throws RInterfaceException {
 		RInterfaceHL.rloopHandler = rloopHandler;
 
-		RInterfaceHL instance = null;
-
 		try {
-			instance = SingletonHolder.getInstance();
+			return SingletonHolder.getInstance();
 		} catch (ExceptionInInitializerError e) {
 
 			// re-throw exception that occurred in the initializer
@@ -123,8 +121,6 @@ public final class RInterfaceHL {
 			Throwable exceptionInInit = e.getCause();
 			throw new RInterfaceException(exceptionInInit); // NOPMD
 		}
-
-		return instance;
 	}
 
 	/**

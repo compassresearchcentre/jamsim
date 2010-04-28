@@ -30,6 +30,7 @@ import org.gjt.sp.jedit.syntax.ModeProvider;
 import org.jamsim.ascape.ui.JEditPanelView;
 import org.jamsim.ascape.ui.PanelViewListener;
 import org.jamsim.io.FileLoader;
+import org.jamsim.r.RInterfaceException;
 import org.omancode.swing.MRUFiles;
 
 /**
@@ -41,7 +42,8 @@ import org.omancode.swing.MRUFiles;
  * @author Oliver Mannion
  * @version $Revision: 64
  */
-public class RFileInterface implements PanelViewListener, MRUFiles.Processor {
+public final class RFileInterface implements PanelViewListener,
+		MRUFiles.Processor {
 
 	private static final FileFilter RFILE_FILTER = new ExtFileFilter("r");
 
@@ -73,7 +75,7 @@ public class RFileInterface implements PanelViewListener, MRUFiles.Processor {
 	 * @throws IOException
 	 *             if problem reading MRU files from prefs
 	 */
-	public RFileInterface(Scape scape, ScapeRInterface scapeR,
+	private RFileInterface(Scape scape, ScapeRInterface scapeR,
 			FileLoader fileloader) throws IOException {
 		this.scape = scape;
 		this.scapeR = scapeR;
@@ -83,6 +85,87 @@ public class RFileInterface implements PanelViewListener, MRUFiles.Processor {
 		addRMenu();
 		addRShortcut();
 		setupJEditModes();
+	}
+
+	private static Scape staticScape = null;
+	private static ScapeRInterface staticScapeR = null;
+	private static FileLoader staticFileloader = null;
+
+	/**
+	 * SingletonHolder is loaded, and the static initializer executed, on the
+	 * first execution of Singleton.getInstance() or the first access to
+	 * SingletonHolder.INSTANCE, not before.
+	 */
+	private static final class SingletonHolder {
+
+		/**
+		 * Singleton instance, with static initializer.
+		 */
+		private static final RFileInterface INSTANCE = createSingleton();
+
+		/**
+		 * Create singleton instance using static parameters from outer class.
+		 * 
+		 * @return instance
+		 */
+		private static RFileInterface createSingleton() {
+			try {
+				return new RFileInterface(staticScape, staticScapeR, // NOPMD
+						staticFileloader);
+			} catch (IOException e) {
+				// a static initializer cannot throw exceptions
+				// but it can throw an ExceptionInInitializerError
+				throw new ExceptionInInitializerError(e);
+			}
+		}
+
+		/**
+		 * Prevent instantiation.
+		 */
+		private SingletonHolder() {
+		}
+
+		/**
+		 * Get singleton instance.
+		 * 
+		 * @return singleton instance.
+		 */
+		public static RFileInterface getInstance() {
+			return SingletonHolder.INSTANCE;
+		}
+
+	}
+
+	/**
+	 * Return the singleton instance. The first time this is called the instance
+	 * will be created using the supplied parameters.
+	 * 
+	 * @param scape
+	 *            scape to add {@link JEditPanelView}s as a listener to.
+	 * @param scapeR
+	 *            scape R
+	 * @param fileloader
+	 *            file loader
+	 * @return an {@link RFileInterface} singleton instance.
+	 * @throws IOException
+	 *             if problem reading MRU files from prefs
+	 */
+	public static RFileInterface getInstance(Scape scape,
+			ScapeRInterface scapeR, FileLoader fileloader) throws IOException {
+		RFileInterface.staticScape = scape;
+		RFileInterface.staticScapeR = scapeR;
+		RFileInterface.staticFileloader = fileloader;
+
+		try {
+			return SingletonHolder.getInstance();
+		} catch (ExceptionInInitializerError e) {
+
+			// re-throw exception that occurred in the initializer
+			// so our caller can deal with it
+			Throwable exceptionInInit = e.getCause();
+			throw new IOException(exceptionInInit); // NOPMD
+		}
+
 	}
 
 	/**
