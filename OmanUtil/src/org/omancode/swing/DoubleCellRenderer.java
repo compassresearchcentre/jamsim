@@ -26,7 +26,7 @@ public class DoubleCellRenderer extends DefaultTableCellRenderer {
 	 * places.
 	 */
 	public DoubleCellRenderer() {
-		this(10);
+		this(2);
 	}
 
 	/**
