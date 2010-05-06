@@ -303,13 +303,25 @@ public final class RLoader {
 	 *             if problem evaluating support function file.
 	 */
 	private void loadRSupportFunctions() throws RInterfaceException {
+		
+		rInterface.printlnToConsole("Loading " + SUPPORT_FILE);
+		
 		InputStream ins = getClass().getResourceAsStream(SUPPORT_FILE);
 
 		try {
-			rInterface.eval(RUtil.readRStream(ins));
+			rInterface.parseEvalPrint(RUtil.readRStream(ins));
 		} catch (IOException e) {
 			throw new RInterfaceException(e);
 		}
 	}
 
+	/**
+	 * Executes the function "ascapeStart" in R.
+	 * 
+	 * @throws RInterfaceException if problem executing ascapeStart
+	 */
+	public void ascapeStart() throws RInterfaceException {
+		rInterface.printlnToConsole("Executing support function ascapeStart()");
+		rInterface.parseEvalPrint("ascapeStart()");
+	}
 }

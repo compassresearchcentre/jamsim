@@ -185,7 +185,8 @@ public final class RInterfaceHL {
 	 * {@link #parseEvalPrint(String)}, does not print the result of the
 	 * expression (ie: does just the E part of the REPL). Any prints within the
 	 * expression or functions called by the expression will print. Warnings
-	 * produced by the expression will not be printed.
+	 * produced by the expression will not be printed (instead they will appear
+	 * next time a command is entered directly into the REPL and executed).
 	 * 
 	 * @param expr
 	 *            expression to evaluate.

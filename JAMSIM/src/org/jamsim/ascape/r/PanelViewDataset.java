@@ -18,7 +18,7 @@ import org.ascape.util.swing.PanelViewUtil;
 import org.ascape.view.vis.PanelView;
 import org.jamsim.ascape.output.OutputDatasetProvider;
 import org.jamsim.ascape.output.ROutput;
-import org.omancode.swing.DoubleCellRenderer;
+import org.jamsim.ascape.ui.UIUtil;
 
 /**
  * Fetches the dataset from a {@link OutputDatasetProvider} each time
@@ -59,7 +59,7 @@ public class PanelViewDataset implements PanelViewProvider {
 			CDataCacheContainer container = outDataset.getOutputDataset(0);
 			TableModel tmodel = new CDatasetTableModel(container, true);
 
-			TableCellRenderer dblRenderer = new DoubleCellRenderer();
+			TableCellRenderer dblRenderer = UIUtil.getDoubleCellRenderer();
 			JTable table = new JTable(tmodel);
 			table.setName(name);
 			table.setDefaultRenderer(Double.class, dblRenderer);

@@ -54,4 +54,9 @@ public class StatsRowsChartProvider implements ChartProvider {
 		return chartType;
 	}
 
+	@Override
+	public String getName() {
+		return stats.getName();
+	}
+
 }

@@ -132,7 +132,10 @@ public class AscapeGD extends GDInterface implements PanelViewProvider {
 		if (pv != null) {
 			c = null;
 
-			pvFrame.doDefaultCloseAction();
+			if (pvFrame != null) {
+				// if frame is open on desktop, close it
+				pvFrame.doDefaultCloseAction();
+			}
 
 			// pv.removeAll();
 			// pv.dispose();

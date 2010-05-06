@@ -19,11 +19,11 @@ import org.ascape.runtime.swing.navigator.NodesByRunFolder;
 import org.ascape.util.data.StatCollector;
 import org.jamsim.ascape.MicroSimScape;
 import org.jamsim.ascape.r.ScapeRInterface;
+import org.jamsim.ascape.ui.UIUtil;
 import org.jamsim.r.RDataFrame;
 import org.jamsim.r.RInterfaceException;
 import org.jamsim.r.UnsupportedTypeException;
 import org.omancode.io.FileUtil;
-import org.omancode.swing.DoubleCellRenderer;
 import org.omancode.util.DateUtil;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
@@ -280,7 +280,7 @@ public class OutputDataset extends DefaultScapeListener {
 	private void createNavigatorOutputNode(int runNumber, String nodeName,
 			TableModel tmodel) {
 
-		TableCellRenderer dblRenderer = new DoubleCellRenderer();
+		TableCellRenderer dblRenderer = UIUtil.getDoubleCellRenderer();
 		JTable table = new JTable(tmodel);
 		table.setName(nodeName);
 		table.setDefaultRenderer(Double.class, dblRenderer);

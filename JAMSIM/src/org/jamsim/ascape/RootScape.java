@@ -41,6 +41,24 @@ public class RootScape<D extends ScapeData> extends Scape {
 	private final MutableInt numberRuns = new MutableInt(2);
 
 	/**
+	 * Create a {@link RootScape} without a name.
+	 */
+	public RootScape() {
+		super();
+	}
+
+	/**
+	 * Create a {@link RootScape} with the given name. This name appears in the
+	 * navigator and Ascape title bar.
+	 * 
+	 * @param name name
+	 */
+	public RootScape(String name) {
+		super();
+		setName(name);
+	}
+
+	/**
 	 * Return the microsimulation base scape. i.e: the scape holding the
 	 * microsimulation agents.
 	 * 

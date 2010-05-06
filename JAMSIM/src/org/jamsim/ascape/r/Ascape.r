@@ -74,6 +74,13 @@ cbind(multiRunResults[1], Mean = meanRuns, Err = errRuns,
 Left = leftRuns, Right = rightRuns, multiRunResults[-1])
 }
 
+ascapeStart <- function() {
+	# remove all graphics devices and the device-name hash
+	# eg: ascapeStart()
+	graphics.off()
+	assign("deviceHash", hash(), envir = .GlobalEnv)
+}
+
 cat("Creating function activateJavaGD\n")
 library(hash)
 activateJavaGD <- function(name, ...) {

@@ -11,11 +11,13 @@ import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
-import org.ascape.model.Scape;
 import org.ascape.model.event.ScapeEvent;
+import org.ascape.runtime.swing.QuitVetoer;
+import org.ascape.runtime.swing.SwingEnvironment;
 import org.ascape.runtime.swing.ViewFrameBridge;
 import org.ascape.util.swing.PanelViewUtil.PanelViewNoStall;
 import org.ascape.view.vis.PanelView;
+import org.ascape.view.vis.PersistentComponentView;
 import org.gjt.sp.jedit.IPropertyManager;
 import org.gjt.sp.jedit.Mode;
 import org.gjt.sp.jedit.buffer.BufferAdapter;
@@ -33,7 +35,8 @@ import org.omancode.io.FileUtil;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class JEditPanelView extends PanelViewNoStall {
+public class JEditPanelView extends PanelViewNoStall implements
+		PersistentComponentView, QuitVetoer {
 
 	private PanelViewListener pvl;
 	private final FileBuffer buffer;
@@ -124,13 +127,10 @@ public class JEditPanelView extends PanelViewNoStall {
 	}
 
 	/**
-	 * Add this a scape listener so it receives scape events.
-	 * 
-	 * @param scape
-	 *            scape
+	 * Create a frame and display this {@link JEditPanelView}.
 	 */
-	public void addToScape(Scape scape) {
-		scape.addView(this);
+	public void display() {
+		SwingEnvironment.DEFAULT_ENVIRONMENT.createFrame(this);
 		addInternalFrameListener();
 	}
 
@@ -168,21 +168,8 @@ public class JEditPanelView extends PanelViewNoStall {
 		return false;
 	}
 
-	/**
-	 * Override default notification behaviour so we are not removed as a
-	 * listener from the scape when it closes. This means our
-	 * {@link JEditPanelView} will still be attached as a listener and will get
-	 * the {@link #scapeCanQuit()} call when the environment quits.
-	 * 
-	 * @param scapeEvent scape event
-	 */
 	@Override
-	public void scapeNotification(ScapeEvent scapeEvent) {
-		notifyScapeUpdated();
-	}
-
-	@Override
-	public boolean scapeCanQuit() {
+	public boolean canQuit() {
 
 		if (pvl == null) {
 			return true;

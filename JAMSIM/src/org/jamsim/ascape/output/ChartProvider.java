@@ -40,5 +40,12 @@ public interface ChartProvider {
 	 * @return collection of series names
 	 */
 	Collection<String> getChartSeries();
+	
+	/**
+	 * Name of chart.
+	 * 
+	 * @return name of chart.
+	 */
+	String getName();
 
 }

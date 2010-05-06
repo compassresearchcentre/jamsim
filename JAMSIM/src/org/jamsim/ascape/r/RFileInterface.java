@@ -348,7 +348,7 @@ public final class RFileInterface implements PanelViewListener,
 		jeditPanel.setPanelViewListener(this);
 		// jeditPanel.addToSwingEnvironment();
 		// scape.addView(jeditPanel);
-		jeditPanel.addToScape(scape);
+		jeditPanel.display();
 	}
 
 	/**

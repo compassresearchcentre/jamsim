@@ -17,6 +17,7 @@ import org.ascape.model.Scape;
 import org.ascape.model.space.CollectionSpace;
 import org.ascape.runtime.swing.SwingRunner;
 import org.ascape.runtime.swing.navigator.NodesByRunFolder;
+import org.ascape.runtime.swing.navigator.PanelViewExisting;
 import org.ascape.runtime.swing.navigator.PanelViewNode;
 import org.ascape.runtime.swing.navigator.PanelViewProvider;
 import org.ascape.util.swing.AscapeGUIUtil;
@@ -275,6 +276,14 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 
 	}
 
+	/**
+	 * Add node which displays the contents of the basefile when clicked on.
+	 * 
+	 * @param name
+	 *            basefile node name
+	 * @param rcmd
+	 *            R command which returns a dataframe, ie: the basefile
+	 */
 	public void addBasefileNode(String name, String rcmd) {
 		initScapeNode();
 		scapeNode.addBasefileNode(name, rcmd);
@@ -477,6 +486,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 
 		// load R
 		RLoader rLoader = RLoader.getInstance();
+		rLoader.ascapeStart();
 
 		// create R scape interface
 		scapeR =
@@ -507,7 +517,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	}
 
 	/**
-	 * Add a chart to the scape.
+	 * Add a chart to the scape. Adds the chart as a listener and also creates a
+	 * node in the navigator for the chart.
 	 * 
 	 * @param source
 	 *            a chart provider
@@ -517,12 +528,16 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 
 		ChartView chart = new ChartView(chartType);
 		chart.setPersistAfterScapeCloses(true);
-		scape.addView(chart);
+
+		// add listener but don't create frame
+		scape.addView(chart, false);
 
 		// setup the chart AFTER adding it to the scape
 		for (String seriesName : source.getChartSeries()) {
 			chart.addSeries(seriesName);
 		}
+
+		addGraphNode(new PanelViewExisting(chart, source.getName()));
 	}
 
 }

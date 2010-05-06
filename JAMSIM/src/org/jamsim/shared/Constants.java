@@ -9,8 +9,11 @@ import org.rosuda.REngine.REXPInteger;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class Constants {
+public final class Constants {
 
+	private Constants() {
+	
+	}
 	
 	/**
 	 * Integer missing value constant.

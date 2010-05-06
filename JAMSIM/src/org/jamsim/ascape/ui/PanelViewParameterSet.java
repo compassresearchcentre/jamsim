@@ -42,13 +42,15 @@ public class PanelViewParameterSet implements PanelViewProvider,
 		this.pset = pset;
 	}
 
+	@Override
 	public String getName() {
 		return pset.getName();
 	}
 
+	@Override
 	public PanelView getPanelView() {
 
-		TableCellRenderer dblRenderer = new DoubleCellRenderer();
+		TableCellRenderer dblRenderer = UIUtil.getDoubleCellRenderer();
 
 		JTable table = new JTable(pset.getTableModel()); // NOPMD
 		table.setName(pset.getName());
@@ -74,51 +76,13 @@ public class PanelViewParameterSet implements PanelViewProvider,
 		return pv;
 	}
 
-	public static PanelView createPanelView(JTable table, Dimension maxSize) {
-		// sizeAllColumnsToHeaderWidths(table);
 
-		// tell the scroll pane enclosing the table to size its viewport
-		// to the smaller of the table's preferred size or maxSize
-		if (maxSize == null) {
-			table
-					.setPreferredScrollableViewportSize(table
-							.getPreferredSize());
-		} else {
-
-			Dimension prefSize = table.getPreferredSize();
-
-			table.setPreferredScrollableViewportSize(PanelViewUtil.min(
-					prefSize, PanelViewUtil.subtract(maxSize,
-							PanelViewUtil.TABLE_BORDER_EDGES)));
-		}
-
-		// allow sorting using the column headers
-		table.setAutoCreateRowSorter(true);
-
-		// do not resize the table column widths when the frame is resized;
-		// instead show the scroll bars
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-
-		// create a new PanelView with the BorderLayout so that when
-		// the panel view is resized so are the components on it
-		// use the name of the table for the name of the Panel
-		PanelView pv =
-				PanelViewUtil.createPanelView(table.getName(),
-						new BorderLayout());
-
-		// In order for the table column headings to be visible,
-		// it must be on a scroll pane
-		JScrollPane scrollPane = new JScrollPane(table);
-
-		pv.add(scrollPane, BorderLayout.CENTER);
-
-		return pv;
-	}
-
+	@Override
 	public void panelViewAdded(Container pvFrameImp) {
 		// nothing to do
 	}
 
+	@Override
 	public void frameClosed() {
 		// nothing to do
 	}
