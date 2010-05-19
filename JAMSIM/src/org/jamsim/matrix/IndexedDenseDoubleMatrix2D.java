@@ -69,12 +69,12 @@ public class IndexedDenseDoubleMatrix2D extends DenseDoubleMatrix2D {
 	}
 
 	/**
-	 * Construct an instance from its constituent parts.
+	 * Construct an instance from a multi column index and a 2D double array.
 	 * 
 	 * @param indexColumnNames
 	 *            column names of the index
 	 * @param index
-	 *            the index
+	 *            a multi-columned index
 	 * @param matrixColumnNames
 	 *            column names of the matrix
 	 * @param matrix
@@ -83,26 +83,25 @@ public class IndexedDenseDoubleMatrix2D extends DenseDoubleMatrix2D {
 	public IndexedDenseDoubleMatrix2D(String[] indexColumnNames,
 			Object[][] index, String[] matrixColumnNames, double[][] matrix) {
 		super(matrix);
-		
+
 		if (index == null) {
 			throw new IllegalArgumentException(
 					"No index supplied for creation of indexed matrix");
 		}
-		
+
 		this.indexColumnNames = Arrays.asList(indexColumnNames);
 		this.index = index;
 		this.matrixColumnNames = Arrays.asList(matrixColumnNames);
 
-
 	}
 
 	/**
-	 * Construct an instance from its constituent parts.
+	 * Construct an instance from a single column index and a 2D double array.
 	 * 
 	 * @param indexColumnNames
 	 *            column names of the index
 	 * @param index
-	 *            the index
+	 *            a single column index
 	 * @param matrixColumnNames
 	 *            column names of the matrix
 	 * @param matrix
@@ -117,7 +116,7 @@ public class IndexedDenseDoubleMatrix2D extends DenseDoubleMatrix2D {
 		if (array == null) {
 			return null;
 		}
-		
+
 		Object[][] padded = new Object[array.length][1];
 
 		for (int i = 0; i < array.length; i++) {

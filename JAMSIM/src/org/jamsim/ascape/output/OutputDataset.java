@@ -265,7 +265,7 @@ public class OutputDataset extends DefaultScapeListener {
 			CDataCacheContainer container) {
 		TableModel tmodel;
 		try {
-			tmodel = new CDatasetTableModel(container, true);
+			tmodel = new CDatasetTableModel(container);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

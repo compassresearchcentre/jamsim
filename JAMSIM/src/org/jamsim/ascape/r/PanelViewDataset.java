@@ -57,7 +57,7 @@ public class PanelViewDataset implements PanelViewProvider {
 
 		try {
 			CDataCacheContainer container = outDataset.getOutputDataset(0);
-			TableModel tmodel = new CDatasetTableModel(container, true);
+			TableModel tmodel = new CDatasetTableModel(container);
 
 			TableCellRenderer dblRenderer = UIUtil.getDoubleCellRenderer();
 			JTable table = new JTable(tmodel);

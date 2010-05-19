@@ -1,8 +1,8 @@
 package org.jamsim.r;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 import net.casper.data.model.CBuilder;
 import net.casper.ext.narrow.NarrowException;
@@ -172,7 +172,7 @@ public class RMatrix implements CBuilder {
 
 	@Override
 	public Map getConcreteMap() {
-		return new TreeMap();
+		return new LinkedHashMap();
 	}
 
 	@Override

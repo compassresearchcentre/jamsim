@@ -1,13 +1,12 @@
 package org.jamsim.r;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import net.casper.data.model.CBuilder;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPGenericVector;
 import org.rosuda.REngine.REXPMismatchException;
@@ -119,13 +118,13 @@ public class RDataFrame implements CBuilder {
 	}
 
 	/**
-	 * Returns a tree map so that rows will be in insertion order (because we
+	 * Returns a LinkedHashMap so that rows will be in insertion order (because we
 	 * also have a null primary key).
 	 * @return tree map
 	 */
 	@Override
 	public Map getConcreteMap() {
-		return new TreeMap();
+		return new LinkedHashMap();
 	}
 
 	@Override

@@ -22,6 +22,7 @@ import org.jamsim.ascape.r.PanelViewRCommand;
 import org.jamsim.ascape.ui.PanelViewParameterSet;
 import org.jamsim.ascape.ui.UIUtil;
 import org.jamsim.io.ParameterSet;
+import org.omancode.swing.DoubleCellRenderer;
 
 /**
  * Navigator tree node for a {@link MicroSimScape}. Same as {@link ScapeNode}
@@ -87,7 +88,7 @@ public class MicroSimScapeNode extends ScapeNode {
 	private void addDatasetNodes(MicroSimScape<?> scape,
 			DefaultTreeModel treeModel) {
 		addNodeWithChildrenTables(treeModel, "Datasets", scape.getScapeData()
-				.getInputDatasets());
+				.getInputDatasets(), new DoubleCellRenderer(10));
 	}
 
 	private void addParameterSetNodes(MicroSimScape<?> scape,
@@ -120,13 +121,11 @@ public class MicroSimScapeNode extends ScapeNode {
 	}
 
 	private void addNodeWithChildrenTables(DefaultTreeModel treeModel,
-			String nodeName, Map<String, TableModel> childrenTables) {
+			String nodeName, Map<String, TableModel> childrenTables, DoubleCellRenderer dblRenderer) {
 
 		// create parent node
 		DefaultMutableTreeNode parentNode =
 				new DefaultMutableTreeNode(nodeName);
-
-		TableCellRenderer dblRenderer = UIUtil.getDoubleCellRenderer();
 
 		// get all the tables from childrenTables
 		// and add them to the navigator as a Panel View Node

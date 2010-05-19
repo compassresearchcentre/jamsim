@@ -4,18 +4,20 @@ import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.prefs.Preferences;
 
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableModel;
 
+import net.casper.data.model.CBuilder;
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
 import net.casper.ext.CasperUtil;
 import net.casper.ext.file.CDataFileDoubleArray;
 import net.casper.ext.file.CDataFileMap;
+import net.casper.ext.narrow.CBuildNarrowedFile;
 import net.casper.ext.swing.CDatasetTableModel;
 import net.casper.io.beans.CMarkedUpRowBean;
 import net.casper.io.file.CBuildFromFile;
@@ -25,6 +27,8 @@ import net.casper.io.file.CDataFileDefLoader;
 import net.casper.io.file.util.ExtFileFilter;
 
 import org.jamsim.casper.CDataFileIntervalsMap;
+import org.jamsim.math.Glimmix;
+import org.jamsim.math.GlimmixTableModel;
 import org.jamsim.math.IntervalsIntMap;
 import org.jamsim.math.IntervalsIntMapTableModel;
 import org.jamsim.matrix.IndexedDenseDoubleMatrix2D;
@@ -59,7 +63,7 @@ public class FileLoader implements Output {
 	 * Swing GUI.
 	 */
 	private final Map<String, TableModel> tmodels =
-			new TreeMap<String, TableModel>();
+			new LinkedHashMap<String, TableModel>();
 
 	/**
 	 * Get a map of {@link TableModel} representations of the loaded datasets,
@@ -315,6 +319,51 @@ public class FileLoader implements Output {
 	}
 
 	/**
+	 * Loads a dataset with no columns or primary key specified. The loaded
+	 * dataset is narrowed. The file to load is specified by looking up the file
+	 * location in the preferences. If the file is not set in the preferences,
+	 * or does not exist, a dialog box is shown allowing the user to select the
+	 * file location. During loading progress is displayed via this instance's
+	 * {@link #output} object (supplied to the constructor).
+	 * 
+	 * @param datasetName
+	 *            name describing the dataset to load. Used to lookup the file
+	 *            location in preferences.
+	 * @throws IOException
+	 *             if there is a problem loading the file.
+	 * @return a casper container
+	 */
+	public CDataCacheContainer loadUnspecifiedDataset(String datasetName)
+			throws IOException {
+
+		// lookup the file from the prefs, or if it doesn't exist
+		// prompt the user
+		File file =
+				getFile(datasetName, "Select file containing dataset \""
+						+ datasetName + "\"",
+						CBuildFromFile.FileTypeFactories.getFilter(), false);
+
+		// load the dataset
+		print("Loading dataset \"" + datasetName + "\" from ["
+				+ file.getPath() + "]. ");
+
+		// load narrowed file. column headings and primary key unspecified
+		CBuilder builder = new CBuildNarrowedFile(file, null);
+		CDataCacheContainer cdcc;
+		try {
+			cdcc = new CDataCacheContainer(builder);
+		} catch (CDataGridException e) {
+			throw new IOException(e);
+		}
+		println("Done. ");
+
+		// save location of file selected in prefs
+		prefs.put(datasetName, file.getPath());
+
+		return cdcc;
+	}
+
+	/**
 	 * Convenience method for loading a casper dataset into a
 	 * {@link IndexedDenseDoubleMatrix2D}. Dataset must be made up of all
 	 * doubles.
@@ -461,6 +510,29 @@ public class FileLoader implements Output {
 		tmodels.put(cdefdouble.getName(), new ArrayTableModel(array));
 
 		return cdefdouble.getDoublesArray();
+	}
+
+	/**
+	 * Load a glimmix model from a SAS glimmix output file.
+	 * 
+	 * @param name name of glimmix model
+	 * @return glimmix model
+	 * @throws IOException if problem loading from file
+	 */
+	public Glimmix loadGlimmix(String name) throws IOException {
+		CDataCacheContainer container = loadUnspecifiedDataset(name);
+		
+		
+		Glimmix glimmix;
+		try {
+			glimmix = new Glimmix(container);
+		} catch (CDataGridException e) {
+			throw new IOException(e);
+		}
+
+		tmodels.put(name, new GlimmixTableModel(glimmix));
+
+		return glimmix;
 	}
 
 	@Override
