@@ -151,7 +151,7 @@ public class ScapeRInterface {
 
 		System.out.println("Created dataframe " + dataframeName + " ("
 				+ timer.duration() + " ms)");
-		
+
 		if (runNumber == 0) {
 			baseFileUpdated();
 		}
@@ -167,6 +167,10 @@ public class ScapeRInterface {
 			parseEvalPrint(baseFileUpdateCmd);
 			System.out.println("Executed " + baseFileUpdateCmd);
 		}
+
+		// OJM
+		REXP globalEnv = rInterface.getGlobalEnvironment();
+		System.out.println(globalEnv);
 	}
 
 	/**
@@ -367,20 +371,35 @@ public class ScapeRInterface {
 	 *             simply return the message "parse error".
 	 */
 	public String evalCaptureOutput(String expr) throws RInterfaceException {
-		rConsole.startOutputCapture();
-		parseEvalPrint(expr);
-		return rConsole.stopOutputCapture();
+		return rInterface.evalCaptureOutput(expr);
 	}
 
 	/**
 	 * Evaluate expression returning a String array. See
+	 * {@link RInterfaceHL#evalReturnStrings(String)}.
+	 * 
+	 * @param expr
+	 *            expression to evaluate.
+	 * @return REXP result of the evaluation.
+	 */
+	public String[] evalReturnStrings(String expr) {
+		try {
+			return rInterface.evalReturnStrings(expr);
+		} catch (RInterfaceException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Evaluate expression that returns a character vector. Returns the
+	 * character vector as a String. See
 	 * {@link RInterfaceHL#evalReturnString(String)}.
 	 * 
 	 * @param expr
 	 *            expression to evaluate.
 	 * @return REXP result of the evaluation.
 	 */
-	public String[] evalReturnString(String expr) {
+	public String evalReturnString(String expr) {
 		try {
 			return rInterface.evalReturnString(expr);
 		} catch (RInterfaceException e) {

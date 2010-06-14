@@ -44,6 +44,8 @@ public class OutputDataset extends DefaultScapeListener {
 
 	private final NodesByRunFolder outputTablesNode;
 
+	private final String nodeGroupName;
+
 	private final OutputDatasetProvider outDataset;
 
 	private final String outputDirectory;
@@ -53,7 +55,7 @@ public class OutputDataset extends DefaultScapeListener {
 	private boolean scapeClosed = false;
 
 	private ScapeRInterface scapeR;
-	
+
 	private MicroSimScape<?> msscape;
 
 	/**
@@ -68,9 +70,29 @@ public class OutputDataset extends DefaultScapeListener {
 	 */
 	public OutputDataset(NodesByRunFolder outputTablesNode,
 			OutputDatasetProvider outDataset, String outputDirectory) {
+		this(outputTablesNode, null, outDataset, outputDirectory);
+	}
+
+	/**
+	 * Master constructor.
+	 * 
+	 * @param outputTablesNode
+	 *            navigator output tables tree node
+	 * @param nodeGroupName
+	 *            node group name or {@code null} if this dataset will appear
+	 *            under outputTablesNode
+	 * @param outDataset
+	 *            {@link OutputDatasetProvider}
+	 * @param outputDirectory
+	 *            destination directory for results output file
+	 */
+	public OutputDataset(NodesByRunFolder outputTablesNode,
+			String nodeGroupName, OutputDatasetProvider outDataset,
+			String outputDirectory) {
 		super(outDataset.getName());
 		this.outDataset = outDataset;
 		this.outputTablesNode = outputTablesNode;
+		this.nodeGroupName = nodeGroupName;
 		this.outputDirectory = FileUtil.addTrailingSlash(outputDirectory);
 	}
 
@@ -285,7 +307,13 @@ public class OutputDataset extends DefaultScapeListener {
 		table.setName(nodeName);
 		table.setDefaultRenderer(Double.class, dblRenderer);
 
-		outputTablesNode.addChildTableNode(runNumber, table);
+		NodesByRunFolder parentNode = outputTablesNode;
+
+		if (nodeGroupName != null) {
+			parentNode = outputTablesNode.getChildGroupNode(nodeGroupName);
+		}
+
+		parentNode.addChildTableNode(runNumber, table);
 
 	}
 

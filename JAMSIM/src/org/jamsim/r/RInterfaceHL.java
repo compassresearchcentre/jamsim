@@ -6,6 +6,7 @@ import java.io.InputStream;
 
 import net.casper.io.file.util.ArrayUtil;
 
+import org.jamsim.shared.Constants;
 import org.rosuda.JRI.RMainLoopCallbacks;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
@@ -222,9 +223,9 @@ public final class RInterfaceHL {
 	 *             if problem during parse or evaluation, or expression does not
 	 *             return a {@link REXPString}.
 	 */
-	public String[] evalReturnString(String expr) throws RInterfaceException {
+	public String[] evalReturnStrings(String expr) throws RInterfaceException {
 		try {
-			REXP rexp = rosudaEngine.parseAndEval(expr);
+			REXP rexp = eval(expr);
 
 			// r command must return a REXPString
 			if (!(rexp instanceof REXPString)) {
@@ -236,9 +237,48 @@ public final class RInterfaceHL {
 			return rexp.asStrings();
 		} catch (REXPMismatchException e) {
 			throw new RInterfaceException(e.getMessage(), e);
-		} catch (REngineException e) {
-			throw new RInterfaceException(e.getMessage(), e);
 		}
+	}
+
+	/**
+	 * Evaluate a String expression in R in the global environment. Returns all
+	 * console output produced by this evaluation. Does not return the
+	 * {@link REXP} produced by the evaluation. This is needed for functions
+	 * like {@code str} which print their output and don't return anything.
+	 * 
+	 * @param expr
+	 *            expression to evaluate.
+	 * @return console output from the evaluation.
+	 * @throws RInterfaceException
+	 *             if problem during parse or evaluation. Parse errors will
+	 *             simply return the message "parse error".
+	 */
+	public String evalCaptureOutput(String expr) throws RInterfaceException {
+		return evalReturnString("capture.output(" + expr + ")");
+	}
+	
+	/**
+	 * Evaluate an expression and test that it returns a {@link REXPString}.
+	 * Return the character vector as one String with newlines between elements.
+	 * 
+	 * @param expr
+	 *            expression to evaluate.
+	 * @return REXP result of the evaluation.
+	 * @throws RInterfaceException
+	 *             if problem during parse or evaluation, or expression does not
+	 *             return a {@link REXPString}.
+	 */
+	public String evalReturnString(String expr) throws RInterfaceException {
+		String[] strs = evalReturnStrings(expr);
+
+		StringBuilder sb = new StringBuilder(1024);
+
+		for (String str : strs) {
+			sb.append(str).append(Constants.NEWLINE);
+		}
+
+		return sb.toString();
+
 	}
 
 	/**
@@ -494,4 +534,7 @@ public final class RInterfaceHL {
 		}
 	}
 
+	public REXP getGlobalEnvironment() {
+		return parseEvalPrint(".GlobalEnv");
+	}
 }

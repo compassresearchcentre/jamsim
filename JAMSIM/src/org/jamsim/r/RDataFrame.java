@@ -52,11 +52,11 @@ public class RDataFrame implements CBuilder {
 
 		this.name = name;
 		colNames = ((REXPString) rexp.getAttribute("names")).asStrings();
-		
+
 		// convert rlist to list of rvectors
 		RList rlist = rexp.asList();
 		rvectors = RUtil.toRVectors(rlist);
-		
+
 		// get column types and number of rows
 		columnTypes = calcColumnTypes(rvectors);
 		numRows = rvectors.get(0).size();
@@ -84,7 +84,6 @@ public class RDataFrame implements CBuilder {
 		return columnTypes;
 	}
 
-
 	/**
 	 * Test whether rexp has a class of data.frame.
 	 * 
@@ -93,7 +92,7 @@ public class RDataFrame implements CBuilder {
 	 * @return true/false
 	 */
 	public static boolean isDataFrame(REXP rexp) {
-		String clazz = RUtil.getClassAttribute(rexp); 
+		String clazz = RUtil.getClassAttribute(rexp);
 		return clazz.contains("data.frame");
 	}
 
@@ -118,8 +117,9 @@ public class RDataFrame implements CBuilder {
 	}
 
 	/**
-	 * Returns a LinkedHashMap so that rows will be in insertion order (because we
-	 * also have a null primary key).
+	 * Returns a LinkedHashMap so that rows will be in insertion order (because
+	 * we also have a null primary key).
+	 * 
 	 * @return tree map
 	 */
 	@Override

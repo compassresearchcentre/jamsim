@@ -18,8 +18,9 @@ import org.rosuda.REngine.RList;
 
 /**
  * An R expression that is a numeric matrix (ie: a 2D numeric vector). The first
- * column of the {@link RMatrix} is taken from the names of the rows of the R
- * table. Implements {@link CBuilder}.
+ * column of the generated dataset is the names of the rows of the matrix (if it
+ * has any).
+ * 
  * 
  * @author Oliver Mannion
  * @version $Revision$
@@ -53,12 +54,14 @@ public class RMatrix implements CBuilder {
 	/**
 	 * Number of rows.
 	 */
-	private int numRows;
+	private final int numRows;
 
 	private int currentRowIndex;
 
 	/**
-	 * Create an {@link RMatrix} from a {@link REXP}.
+	 * Create an {@link RMatrix} from a {@link REXP}. Rexp must be a numeric
+	 * matrix (ie: a {@link REXPDouble} or {@link REXPInteger} with 2
+	 * dimensions). This may includes objects of class "table".
 	 * 
 	 * @param name
 	 *            name. If {@code null}, one will be generated from the column
@@ -75,7 +78,9 @@ public class RMatrix implements CBuilder {
 
 		String[] dimNamesNames = RUtil.getDimNamesNames(rexp);
 		rowVariableName =
-				(dimNamesNames == null) ? "" : dimNamesNames[0] + " / "
+				(dimNamesNames == null) ? "" : dimNamesNames[0]
+						+ (!("".equals(dimNamesNames[0]) || ""
+								.equals(dimNamesNames[1])) ? " / " : "")
 						+ dimNamesNames[1];
 		String colVariableName =
 				(dimNamesNames == null) ? "" : dimNamesNames[1];
@@ -98,8 +103,9 @@ public class RMatrix implements CBuilder {
 	}
 
 	/**
-	 * Test whether rexp is a numeric matrix (ie: a REXPDouble with 2
-	 * dimensions). Includes objects of class "table".
+	 * Test whether rexp is a numeric matrix (ie: a {@link REXPDouble} or
+	 * {@link REXPInteger} with 2 dimensions). Includes objects of class
+	 * "table".
 	 * 
 	 * @param rexp
 	 *            expression to test

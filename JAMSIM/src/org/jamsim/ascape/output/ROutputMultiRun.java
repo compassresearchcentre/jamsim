@@ -107,7 +107,7 @@ public class ROutputMultiRun extends AbstractMultiRunOutputDataset {
 			String name, String columnHeading, String valueNameCommand,
 			ScapeRInterface scapeR, String rCommand) {
 		return new ROutputMultiRun(shortName, name, columnHeading, scapeR
-				.evalReturnString(valueNameCommand), scapeR, rCommand);
+				.evalReturnStrings(valueNameCommand), scapeR, rCommand);
 	}
 
 	@Override

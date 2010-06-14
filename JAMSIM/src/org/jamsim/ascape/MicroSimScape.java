@@ -224,13 +224,29 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	}
 
 	/**
-	 * Add a {@link OutputDatasetProvider} to the scape.
+	 * Add a {@link OutputDatasetProvider} to the scape under the output tables
+	 * node.
 	 * 
 	 * @param provider
 	 *            provider
 	 */
 	public void addOutputDataset(OutputDatasetProvider provider) {
 		addView(new OutputDataset(getOutputTablesNode(), provider,
+				getOutputDirectory()));
+	}
+
+	/**
+	 * Add a {@link OutputDatasetProvider} to the scape under a particular node
+	 * group.
+	 * 
+	 * @param provider
+	 *            provider
+	 * @param groupName
+	 *            of the node group under which to add the dataset node
+	 */
+	public void addOutputDataset(OutputDatasetProvider provider,
+			String groupName) {
+		addView(new OutputDataset(getOutputTablesNode(), groupName, provider,
 				getOutputDirectory()));
 	}
 

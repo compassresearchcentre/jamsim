@@ -3,7 +3,6 @@ package org.jamsim.ascape.navigator;
 import java.util.Map;
 
 import javax.swing.JTable;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -20,7 +19,6 @@ import org.jamsim.ascape.output.ROutput;
 import org.jamsim.ascape.r.PanelViewDataset;
 import org.jamsim.ascape.r.PanelViewRCommand;
 import org.jamsim.ascape.ui.PanelViewParameterSet;
-import org.jamsim.ascape.ui.UIUtil;
 import org.jamsim.io.ParameterSet;
 import org.omancode.swing.DoubleCellRenderer;
 
@@ -121,7 +119,8 @@ public class MicroSimScapeNode extends ScapeNode {
 	}
 
 	private void addNodeWithChildrenTables(DefaultTreeModel treeModel,
-			String nodeName, Map<String, TableModel> childrenTables, DoubleCellRenderer dblRenderer) {
+			String nodeName, Map<String, TableModel> childrenTables,
+			DoubleCellRenderer dblRenderer) {
 
 		// create parent node
 		DefaultMutableTreeNode parentNode =
@@ -146,6 +145,14 @@ public class MicroSimScapeNode extends ScapeNode {
 		treeModel.insertNodeInto(parentNode, this, this.getChildCount());
 	}
 
+	/**
+	 * Add node which displays the contents of the basefile when clicked on.
+	 * 
+	 * @param name
+	 *            basefile node name
+	 * @param rcmd
+	 *            R command which returns a dataframe, ie: the basefile
+	 */
 	public void addBasefileNode(String name, String rcmd) {
 		OutputDatasetProvider basefileDS =
 				new ROutput(name, name, scape.getScapeRInterface(), rcmd);
