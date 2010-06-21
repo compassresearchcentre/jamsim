@@ -8,9 +8,9 @@ import org.rosuda.REngine.REXPDouble;
 import org.rosuda.REngine.REXPMismatchException;
 
 /**
- * A single run output dataset produced by running commands on the scape
- * dataframe in R. Runs the R command when the iteration finishes and returns a
- * casper dataset. The R command must return a numeric (double) vector.
+ * An output dataset produced by running commands on the scape dataframe in R.
+ * Runs the R command when the iteration finishes and returns a casper dataset.
+ * The R command must return a numeric (double) vector.
  * 
  * @author Oliver Mannion
  * @version $Revision$

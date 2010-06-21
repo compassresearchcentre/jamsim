@@ -3,12 +3,13 @@ package org.jamsim.ascape.navigator;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
- * Provides a pre-existing {@link DefaultMutableTreeNode} at the end of a run.
+ * Provides a pre-existing {@link DefaultMutableTreeNode} at the end of all
+ * runs.
  * 
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class EndOfRunNode implements OutputNodeProvider {
+public class EndOfSimNodeProvider implements OutputNodeProvider {
 
 	private final DefaultMutableTreeNode node;
 
@@ -19,12 +20,12 @@ public class EndOfRunNode implements OutputNodeProvider {
 	 * @param node
 	 *            node
 	 */
-	public EndOfRunNode(DefaultMutableTreeNode node) {
+	public EndOfSimNodeProvider(DefaultMutableTreeNode node) {
 		this.node = node;
 	}
 
 	@Override
-	public DefaultMutableTreeNode getEndOfRunOutputNode() {
+	public DefaultMutableTreeNode getEndOfSimOutputNode() {
 		return node;
 	}
 

@@ -5,12 +5,15 @@ import java.io.IOException;
 import java.util.Collection;
 
 import net.casper.data.model.CDataCacheContainer;
+import net.casper.data.model.CDataGridException;
 
 import org.jamsim.ascape.MicroSimScape;
+import org.jamsim.r.RDataFrame;
 import org.jamsim.r.RInterfaceException;
 import org.jamsim.r.RInterfaceHL;
 import org.jamsim.r.RSwingConsole;
 import org.jamsim.r.RUtil;
+import org.jamsim.r.UnsupportedTypeException;
 import org.omancode.util.ExecutionTimer;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
@@ -431,6 +434,58 @@ public class ScapeRInterface {
 	 */
 	public final void loadPackage(String pack) throws RInterfaceException {
 		rInterface.loadPackage(pack);
+	}
+
+	/**
+	 * Execute the r command "meanOfRuns" on the supplied dataset. First saves
+	 * the dataset as a dataframe called {@code dfName} then executes
+	 * "meanOfRuns".
+	 * 
+	 * @param allRuns
+	 *            dataset from all runs. The first variable is the row name and
+	 *            subsequent variables are run values for each row, eg:
+	 * 
+	 *            Category Run 1 Run 2
+	 * 
+	 *            1 0.0039392527 4.189704e-03
+	 * 
+	 *            2 0.0052892006 5.554406e-03
+	 * 
+	 *            3 0.0500477200 4.921984e-02
+	 * 
+	 *            4 0.0061327012 6.273054e-03
+	 * @param dfName
+	 *            dataframe name to create
+	 * @param dfDesc
+	 *            dataframe description
+	 * @return the original dataset plus the additional variables: Mean, Err,
+	 *         Left, Right
+	 * @throws RInterfaceException
+	 *             if problem creating dataframe or executing R command
+	 */
+	public CDataCacheContainer meanOfRuns(CDataCacheContainer allRuns,	
+			String dfName, String dfDesc) throws RInterfaceException {
+
+		// save multi run dataset to R frame
+		assignDataFrame(dfName, allRuns);
+		printlnToConsole("Created dataframe " + dfName + "(" + dfDesc + ")");
+
+		String rcmd = "meanOfRuns(" + dfName + ")";
+		try {
+			// execute meanOfRuns on multi run dataframe
+			REXP rexp = eval(rcmd);
+			RDataFrame df = new RDataFrame(allRuns.getCacheName(), rexp);
+
+			return new CDataCacheContainer(df);
+
+		} catch (CDataGridException e) {
+			throw new RInterfaceException(e);
+		} catch (UnsupportedTypeException e) {
+			throw new RInterfaceException(e);
+		} catch (REXPMismatchException e) {
+			throw new RInterfaceException(e);
+		}
+
 	}
 
 }

@@ -2,9 +2,11 @@ package org.jamsim.ascape.navigator;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import org.jamsim.ascape.output.OutputException;
+
 /**
  * Provider of a simulation output node for a given run number and/or at the end
- * of the run.
+ * of the simulation.
  * 
  * @author Oliver Mannion
  * @version $Revision$
@@ -24,14 +26,18 @@ public interface OutputNodeProvider {
 	 * @param run
 	 *            simulation run number
 	 * @return output node, or {@code null} if none for this run.
+	 * @throws OutputException
+	 *             if problem creating output node
 	 */
-	DefaultMutableTreeNode getOutputNode(int run);
+	DefaultMutableTreeNode getOutputNode(int run) throws OutputException;
 
 	/**
-	 * Output node provided at the end of the run.
+	 * Output node provided at the end of all runs.
 	 * 
 	 * @return output node, or {@code null} if none.
+	 * @throws OutputException
+	 *             if problem creating output node
 	 */
-	DefaultMutableTreeNode getEndOfRunOutputNode();
+	DefaultMutableTreeNode getEndOfSimOutputNode() throws OutputException;
 
 }

@@ -5,12 +5,12 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.ascape.model.event.DefaultScapeListener;
 import org.ascape.model.event.ScapeEvent;
 import org.ascape.model.event.ScapeListener;
-import org.ascape.runtime.swing.navigator.NodesByRunFolder;
+import org.jamsim.ascape.output.OutputException;
 
 /**
  * A {@link ScapeListener} that displays Navigator output nodes after each
- * iteration and/or at the end of the run. Nodes displayed are provided by a
- * {@link OutputNodeProvider}.
+ * iteration and/or at the end of the simulation. Nodes displayed are provided
+ * by a {@link OutputNodeProvider}.
  * 
  * @author Oliver Mannion
  * @version $Revision$
@@ -26,8 +26,11 @@ public class OutputNode extends DefaultScapeListener {
 
 	private boolean scapeClosed = false;
 
+	private final String nodeGroupName;
+
 	/**
-	 * Create an output node that appears after iteration/run end.
+	 * Create an output node that appears under {@code outputTablesNode} after
+	 * iteration and/or simulation end.
 	 * 
 	 * @param outputTablesNode
 	 *            navigator output tables tree node
@@ -36,8 +39,25 @@ public class OutputNode extends DefaultScapeListener {
 	 */
 	public OutputNode(NodesByRunFolder outputTablesNode,
 			OutputNodeProvider nodeProvider) {
+		this(outputTablesNode, null, nodeProvider);
+	}
+
+	/**
+	 * Create an output node that appears after iteration and/or simulation end.
+	 * 
+	 * @param outputTablesNode
+	 *            navigator output tables tree node
+	 * @param nodeGroupName
+	 *            node group name or {@code null} if this node will appear under
+	 *            outputTablesNode
+	 * @param nodeProvider
+	 *            node provider
+	 */
+	public OutputNode(NodesByRunFolder outputTablesNode,
+			String nodeGroupName, OutputNodeProvider nodeProvider) {
 		super(nodeProvider.toString());
 		this.outputTablesNode = outputTablesNode;
+		this.nodeGroupName = nodeGroupName;
 		this.nodeProvider = nodeProvider;
 	}
 
@@ -45,9 +65,14 @@ public class OutputNode extends DefaultScapeListener {
 	public void scapeStopped(ScapeEvent scapeEvent) {
 		runNumber++;
 
-		DefaultMutableTreeNode node = nodeProvider.getOutputNode(runNumber);
-		if (node != null) {
-			addOutputNode(node);
+		try {
+			DefaultMutableTreeNode node =
+					nodeProvider.getOutputNode(runNumber);
+			if (node != null) {
+				addOutputNode(node);
+			}
+		} catch (OutputException e) {
+			throw new RuntimeException(e);
 		}
 
 	}
@@ -66,10 +91,16 @@ public class OutputNode extends DefaultScapeListener {
 	}
 
 	private void createMultiRunNode() {
-		DefaultMutableTreeNode node = nodeProvider.getEndOfRunOutputNode();
-		if (node != null) {
-			addOutputNode(node);
+		try {
+			DefaultMutableTreeNode node =
+					nodeProvider.getEndOfSimOutputNode();
+			if (node != null) {
+				addOutputNode(node);
+			}
+		} catch (OutputException e) {
+			throw new RuntimeException(e);
 		}
+
 	}
 
 	/**
@@ -79,7 +110,16 @@ public class OutputNode extends DefaultScapeListener {
 	 *            node to add
 	 */
 	public void addOutputNode(DefaultMutableTreeNode node) {
-		outputTablesNode.addChildNode(scapeClosed ? NodesByRunFolder.ALLRUNS
+
+		NodesByRunFolder parentNode = outputTablesNode;
+
+		if (nodeGroupName != null) {
+			// get group node at time of creation of child node
+			// creates group node if it does not already exist
+			parentNode = outputTablesNode.getChildGroupNode(nodeGroupName);
+		}
+
+		parentNode.addChildNode(scapeClosed ? NodesByRunFolder.ALLRUNS
 				: runNumber, node);
 	}
 

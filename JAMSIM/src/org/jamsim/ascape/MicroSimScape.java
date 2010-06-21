@@ -16,18 +16,18 @@ import org.ascape.model.Agent;
 import org.ascape.model.Scape;
 import org.ascape.model.space.CollectionSpace;
 import org.ascape.runtime.swing.SwingRunner;
-import org.ascape.runtime.swing.navigator.NodesByRunFolder;
 import org.ascape.runtime.swing.navigator.PanelViewExisting;
 import org.ascape.runtime.swing.navigator.PanelViewNode;
 import org.ascape.runtime.swing.navigator.PanelViewProvider;
 import org.ascape.util.swing.AscapeGUIUtil;
 import org.ascape.view.vis.ChartView;
-import org.jamsim.ascape.navigator.EndOfRunNode;
+import org.jamsim.ascape.navigator.EndOfSimNodeProvider;
 import org.jamsim.ascape.navigator.MicroSimScapeNode;
+import org.jamsim.ascape.navigator.NodesByRunFolder;
+import org.jamsim.ascape.navigator.OutputDatasetNodeProvider;
 import org.jamsim.ascape.navigator.OutputNode;
 import org.jamsim.ascape.navigator.RecordedMicroSimTreeBuilder;
 import org.jamsim.ascape.output.ChartProvider;
-import org.jamsim.ascape.output.OutputDataset;
 import org.jamsim.ascape.output.OutputDatasetProvider;
 import org.jamsim.ascape.output.ROutput;
 import org.jamsim.ascape.output.ROutputMultiRun;
@@ -231,35 +231,40 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 *            provider
 	 */
 	public void addOutputDataset(OutputDatasetProvider provider) {
-		addView(new OutputDataset(getOutputTablesNode(), provider,
-				getOutputDirectory()));
+		addOutputDataset(provider, null);
 	}
 
 	/**
 	 * Add a {@link OutputDatasetProvider} to the scape under a particular node
-	 * group.
+	 * group. 
 	 * 
 	 * @param provider
 	 *            provider
-	 * @param groupName
-	 *            of the node group under which to add the dataset node
+	 * @param nodeGroupName
+	 *            node group name or {@code null} if this dataset will appear
+	 *            under outputTablesNode
 	 */
 	public void addOutputDataset(OutputDatasetProvider provider,
-			String groupName) {
-		addView(new OutputDataset(getOutputTablesNode(), groupName, provider,
-				getOutputDirectory()));
+			String nodeGroupName) {
+
+		OutputDatasetNodeProvider datasetNode =
+				new OutputDatasetNodeProvider(this, provider);
+
+		addView(new OutputNode(getOutputTablesNode(), nodeGroupName,
+				datasetNode));
+
 	}
 
 	/**
 	 * Setup a scape listener that adds provider as a node under "Output tables"
-	 * at the end of runs.
+	 * at the end of all runs.
 	 * 
 	 * @param provider
 	 *            panelview provider
 	 */
-	public void addOutputNode(PanelViewProvider provider) {
-		addView(new OutputNode(getOutputTablesNode(), new EndOfRunNode(
-				new PanelViewNode(provider))));
+	public void addEndOfSimOutputNode(PanelViewProvider provider) {
+		addView(new OutputNode(getOutputTablesNode(),
+				new EndOfSimNodeProvider(new PanelViewNode(provider))));
 	}
 
 	/**
@@ -409,7 +414,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 * 
 	 * @return output directory
 	 */
-	private String getOutputDirectory() {
+	public final String getOutputDirectory() {
 
 		if (outputDirectory == null) {
 			throw new IllegalStateException(
