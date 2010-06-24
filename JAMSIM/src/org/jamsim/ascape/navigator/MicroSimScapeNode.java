@@ -104,8 +104,9 @@ public class MicroSimScapeNode extends ScapeNode {
 			// and add them to the navigator as a Panel View Node
 			for (Map.Entry<String, ParameterSet> entry : psets.entrySet()) {
 
-				// add PanelViewNode to the tree
 				ParameterSet pset = entry.getValue();
+				
+				// add PanelViewNode to the tree
 				PanelViewProvider provider = new PanelViewParameterSet(pset);
 				PanelViewNode newNode = new PanelViewNode(provider);
 				parentNode.add(newNode); // NOPMD

@@ -10,7 +10,7 @@ import javax.swing.tree.MutableTreeNode;
 import org.ascape.model.AscapeObject;
 import org.ascape.runtime.swing.navigator.DefaultTreeBuilder;
 import org.ascape.runtime.swing.navigator.PeformActionOnSelectedNode;
-import org.ascape.runtime.swing.navigator.RightClickPopupMenu;
+import org.ascape.runtime.swing.navigator.RightClickPopupTreeMenu;
 import org.ascape.runtime.swing.navigator.TreeBuilder;
 import org.jamsim.ascape.MicroSimScape;
 
@@ -56,7 +56,7 @@ public class MicroSimTreeBuilder extends DefaultTreeBuilder {
 		mls.addAll(super.getMouseListeners());
 
 		// add listener that calls actionPerformed on the selected node
-		mls.add(new RightClickPopupMenu());
+		mls.add(new RightClickPopupTreeMenu());
 
 		return mls;
 	}

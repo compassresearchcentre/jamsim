@@ -1,6 +1,5 @@
 package org.jamsim.ascape.ui;
 
-import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -8,7 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
@@ -17,7 +15,6 @@ import org.ascape.util.swing.AscapeGUIUtil;
 import org.ascape.util.swing.PanelViewUtil;
 import org.ascape.view.vis.PanelView;
 import org.jamsim.io.ParameterSet;
-import org.omancode.swing.DoubleCellRenderer;
 
 /**
  * Provides a {@link PanelView} based on a {@link ParameterSet}. The
