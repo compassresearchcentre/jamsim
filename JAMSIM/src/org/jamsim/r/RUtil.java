@@ -24,6 +24,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPDouble;
+import org.rosuda.REngine.REXPGenericVector;
 import org.rosuda.REngine.REXPInteger;
 import org.rosuda.REngine.REXPLogical;
 import org.rosuda.REngine.REXPMismatchException;
@@ -463,13 +464,27 @@ public final class RUtil {
 		return Arrays.toString(clazz);
 	}
 
-	public static String[] getNamesAttribute(REXP rexp) {
+	/**
+	 * Get the {@code names} attribute of rexp. Like the R function {@code
+	 * names}, this will return {@code dimnames[[1]]} for a one-dimensional
+	 * array.
+	 * 
+	 * @param rexp
+	 *            r expression
+	 * @return names attribute
+	 * @throws RInterfaceException
+	 *             if problem reading attribute
+	 */
+	public static String[] getNamesAttribute(REXP rexp)
+			throws RInterfaceException {
 
 		REXPString namesAttribute = (REXPString) rexp.getAttribute("names");
 
 		String[] names = null;
 		if (namesAttribute != null) {
 			names = namesAttribute.asStrings();
+		} else if (getDimensions(rexp) == 1) {
+			names = getDimNames(rexp);
 		}
 
 		return names;
@@ -488,12 +503,12 @@ public final class RUtil {
 	}
 
 	/**
-	 * Return the "names" attribute of the "dimnames" attribute.
+	 * Return the {@code names} attribute of the {@code dimnames} attribute.
 	 * 
 	 * @param rexp
 	 *            rexp
-	 * @return "names" of "dimnames", or {@code null} if there is no "names"
-	 *         attribute.
+	 * @return {@code names} of {@code dimnames}, or {@code null} if there is no
+	 *         {@code names} attribute.
 	 */
 	public static String[] getDimNamesNames(REXP rexp) {
 
@@ -506,6 +521,33 @@ public final class RUtil {
 		}
 
 		return dimNamesNames.asStrings();
+
+	}
+
+	/**
+	 * Return the {@code dimnames} attribute.
+	 * 
+	 * @param rexp
+	 *            rexp
+	 * @return {@code dimnames}or {@code null} if there is no {@code dimnames}
+	 *         attribute.
+	 * @throws RInterfaceException
+	 *             if problem determining {@code dimnames} attribute.
+	 */
+	public static String[] getDimNames(REXP rexp) throws RInterfaceException {
+
+		REXPGenericVector dimNames =
+				(REXPGenericVector) rexp.getAttribute("dimnames");
+
+		if (dimNames == null) {
+			return null;
+		}
+
+		try {
+			return dimNames.asList().at(0).asStrings();
+		} catch (REXPMismatchException e) {
+			throw new RInterfaceException(e);
+		}
 
 	}
 

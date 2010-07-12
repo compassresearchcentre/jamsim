@@ -5,7 +5,11 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.prefs.Preferences;
+
+import javax.swing.Action;
 
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
@@ -15,6 +19,7 @@ import net.casper.io.file.CBuildFromFile;
 import org.ascape.model.Agent;
 import org.ascape.model.Scape;
 import org.ascape.model.space.CollectionSpace;
+import org.ascape.runtime.swing.DesktopEnvironment;
 import org.ascape.runtime.swing.SwingRunner;
 import org.ascape.runtime.swing.navigator.PanelViewExisting;
 import org.ascape.runtime.swing.navigator.PanelViewNode;
@@ -34,7 +39,10 @@ import org.jamsim.ascape.output.ROutputMultiRun;
 import org.jamsim.ascape.r.RFileInterface;
 import org.jamsim.ascape.r.RLoader;
 import org.jamsim.ascape.r.ScapeRInterface;
+import org.jamsim.ascape.ui.ParameterSetAction;
+import org.jamsim.ascape.weights.WeightCalculator;
 import org.jamsim.io.FileLoader;
+import org.jamsim.io.ParameterSet;
 import org.jamsim.r.RInterfaceException;
 
 /**
@@ -48,7 +56,8 @@ import org.jamsim.r.RInterfaceException;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class MicroSimScape<D extends ScapeData> extends Scape {
+public class MicroSimScape<D extends ScapeData> extends Scape implements
+		Observer {
 
 	/**
 	 * Serialization.
@@ -236,7 +245,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 
 	/**
 	 * Add a {@link OutputDatasetProvider} to the scape under a particular node
-	 * group. 
+	 * group.
 	 * 
 	 * @param provider
 	 *            provider
@@ -274,6 +283,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	 *            provider of the panel view to create node for
 	 */
 	public void addGraphNode(PanelViewProvider provider) {
+		initScapeNode();
 		scapeNode.addGraphNode(provider);
 	}
 
@@ -311,6 +321,18 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 	}
 
 	/**
+	 * Add a parameter set node under the "Parameter sets" folder. Creates
+	 * "Parameter sets" node if it doesn't exist.
+	 * 
+	 * @param pset
+	 *            parameter set
+	 */
+	public final void addParameterSetNode(ParameterSet pset) {
+		initScapeNode();
+		scapeNode.addParameterSetNode(pset);
+	}
+
+	/**
 	 * Loads this scape with agents from a base file. The location of the base
 	 * file is stored in Preferences. If such a location does not exist, then
 	 * the user is prompted for the base file location. Calls
@@ -326,6 +348,69 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 					+ " has not been added to a scape yet");
 		}
 		setBasefile(prefs.get(BASEFILE_KEY, ""));
+	}
+
+	/**
+	 * Set weights on all agents and set-up observers to register changes when
+	 * the {@link WeightCalculator} changes.
+	 * 
+	 * @param wcalc
+	 *            weight calculator
+	 */
+	public void setWeightCalculator(WeightCalculator wcalc) {
+		// Set scape observer that will refresh dataframe in R
+		// via call to #update
+		wcalc.addObserver(this);
+
+		// Set weights & observers on all agents
+		for (Object agent : this) {
+			MicroSimCell<?> cell = (MicroSimCell<?>) agent;
+			cell.setWeight(wcalc);
+			wcalc.addObserver(cell);
+		}
+
+		// Update dataframe with (potentially changed) weights
+		try {
+			scapeR.assignScapeDataFrame(0);
+		} catch (RInterfaceException e) {
+			throw new RuntimeException(e);
+		}
+
+		// Add navigator node
+		addParameterSetNode(wcalc);
+
+		// Add weightings button to additional toolbar
+		addWeightingsButton(wcalc);
+	}
+
+	/**
+	 * Called after weights have changed (and after all children have been
+	 * reweighted). Here we update the scape dataframe in R.
+	 * 
+	 */
+	@Override
+	public void update(Observable o, Object arg) {
+		try {
+			scapeR.assignScapeDataFrame(0);
+		} catch (RInterfaceException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Add a "Weightings" button to the additional tool bar.
+	 * 
+	 * @param weightings weightings parameter set
+	 */
+	private void addWeightingsButton(ParameterSet weightings) {
+		// create action
+		ParameterSetAction weightingsAction =
+				new ParameterSetAction(weightings, "Weightings", "Weightings");
+		weightingsAction.putValue(Action.SMALL_ICON, DesktopEnvironment
+				.getIcon("Scales"));
+
+		// add button to toolbar
+		AscapeGUIUtil.addAdditionalBarButton(weightingsAction);
 	}
 
 	/**
@@ -519,6 +604,9 @@ public class MicroSimScape<D extends ScapeData> extends Scape {
 		// on the agents. This will effect any getters that have values
 		// that are dependent on initialisation code.
 		scapeR.assignScapeDataFrame(0);
+
+		// add dataframe node for base file
+		addDataFrameNode(dataFrameSymbol);
 
 		// after assigning the scape, load the startup file which
 		// may reference the newly created scape dataframe

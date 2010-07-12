@@ -5,13 +5,13 @@ import javax.swing.table.AbstractTableModel;
 import org.jamsim.math.MutableNumerator;
 
 /**
- * Table Model for a {@link ParameterSet} that allows editing of the
- * {@link ParameterSet}.
+ * Table Model for an array of {@link MutableNumerator}s. Modifications to the
+ * table model update the underlying {@link MutableNumerator}s.
  * 
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class ParameterSetTableModel extends AbstractTableModel {
+public class MutableNumeratorTableModel extends AbstractTableModel {
 
 	/**
 	 * 
@@ -20,21 +20,16 @@ public class ParameterSetTableModel extends AbstractTableModel {
 
 	private static final String[] COLUMN_NAMES = { "Name", "Value" };
 
-	private final String[] rowNames;
-	private final MutableNumerator[] rowValues;
+	private final MutableNumerator[] values;
 
 	/**
 	 * Construct table model.
 	 * 
-	 * @param rowNames
-	 *            row names from parameter set
-	 * @param rowValues
+	 * @param values
 	 *            row values from parameter set
 	 */
-	public ParameterSetTableModel(String[] rowNames,
-			MutableNumerator[] rowValues) {
-		this.rowNames = rowNames;
-		this.rowValues = rowValues;
+	public MutableNumeratorTableModel(MutableNumerator[] values) {
+		this.values = values;
 	}
 
 	@Override
@@ -49,7 +44,7 @@ public class ParameterSetTableModel extends AbstractTableModel {
 
 	@Override
 	public int getRowCount() {
-		return rowValues.length;
+		return values.length;
 	}
 
 	@Override
@@ -77,11 +72,11 @@ public class ParameterSetTableModel extends AbstractTableModel {
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		if (columnIndex == 0) {
 			// names
-			return rowNames[rowIndex];
+			return values[rowIndex].getName();
 
 		} else if (columnIndex == 1) {
 			// values
-			return rowValues[rowIndex];
+			return values[rowIndex].doubleValue();
 
 		} else {
 			throw new IllegalStateException("column " + columnIndex
@@ -99,7 +94,7 @@ public class ParameterSetTableModel extends AbstractTableModel {
 
 		double dvalue = ((Double) value).doubleValue();
 
-		rowValues[row].setNumerator(dvalue);
+		values[row].setNumerator(dvalue);
 		fireTableCellUpdated(row, col);
 
 	}

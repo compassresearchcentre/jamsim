@@ -17,9 +17,9 @@ import org.rosuda.REngine.REXPString;
 import org.rosuda.REngine.RList;
 
 /**
- * An R expression that is a numeric matrix (ie: a 2D numeric vector). The first
- * column of the generated dataset is the names of the rows of the matrix (if it
- * has any).
+ * An R expression that is a numeric matrix (ie: a 2D numeric vector). This
+ * includes objects of class "table". The first column of the generated dataset
+ * is the names of the rows of the matrix (if it has any).
  * 
  * 
  * @author Oliver Mannion
@@ -61,7 +61,7 @@ public class RMatrix implements CBuilder {
 	/**
 	 * Create an {@link RMatrix} from a {@link REXP}. Rexp must be a numeric
 	 * matrix (ie: a {@link REXPDouble} or {@link REXPInteger} with 2
-	 * dimensions). This may includes objects of class "table".
+	 * dimensions). This includes objects of class "table".
 	 * 
 	 * @param name
 	 *            name. If {@code null}, one will be generated from the column

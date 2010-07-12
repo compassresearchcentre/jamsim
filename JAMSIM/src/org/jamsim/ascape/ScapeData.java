@@ -59,11 +59,4 @@ public interface ScapeData {
 	 */
 	RNG getRNG();
 
-	/**
-	 * After the {@link MicroSimScape} has loaded all agents, it calls
-	 * {@link ScapeData} to do any post load initialization.
-	 * 
-	 * @param msscape the scape utilising this {@link ScapeData}.
-	 */
-	void setScape(MicroSimScape<?> msscape);
 }

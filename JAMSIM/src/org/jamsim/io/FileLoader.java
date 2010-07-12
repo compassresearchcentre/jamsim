@@ -251,7 +251,10 @@ public class FileLoader implements Output {
 
 	/**
 	 * Load {@link CDataFileDef} from prefs key, then load {@code file} using
-	 * the the {@link CDataFileDef}.
+	 * the {@link CDataFileDef}. Returns a collection of
+	 * {@link CMarkedUpRowBean}s.
+	 * {@link CMarkedUpRowBean#setMarkedUpRow(net.casper.io.beans.CMarkedUpRow)}
+	 * is called on every bean.
 	 * 
 	 * @param prefsKey
 	 *            preferences key specifying location of {@link CDataFileDef}.
@@ -261,7 +264,7 @@ public class FileLoader implements Output {
 	 *            {@link CMarkedUpRowBean} class to load
 	 * @param <E>
 	 *            type of bean class
-	 * @return casper dataset container
+	 * @return collection of {@link CMarkedUpRowBean}s.
 	 * @throws IOException
 	 *             if problem reading file or creating beans
 	 */
@@ -515,14 +518,15 @@ public class FileLoader implements Output {
 	/**
 	 * Load a glimmix model from a SAS glimmix output file.
 	 * 
-	 * @param name name of glimmix model
+	 * @param name
+	 *            name of glimmix model
 	 * @return glimmix model
-	 * @throws IOException if problem loading from file
+	 * @throws IOException
+	 *             if problem loading from file
 	 */
 	public Glimmix loadGlimmix(String name) throws IOException {
 		CDataCacheContainer container = loadUnspecifiedDataset(name);
-		
-		
+
 		Glimmix glimmix;
 		try {
 			glimmix = new Glimmix(container);

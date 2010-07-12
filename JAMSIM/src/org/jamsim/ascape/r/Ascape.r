@@ -133,3 +133,18 @@ addRowPercents <- function (counts) {
 	names(dimnames(combined)) <- names(dimnames(counts))
 	combined
 }
+
+.getDataObjects <- function (showFunctions = FALSE) 
+{
+	#.getDataObjects()
+	#get a named vector of all the objects in the 
+	#global environment and their class
+	#if showFunctions == TRUE returns functions as well
+	objs <- ls(".GlobalEnv")
+	result <- sapply(objs,function(X) { class(get(X)) })
+	
+	if (showFunctions)
+		result
+	else 
+		result[result != "function"]
+}

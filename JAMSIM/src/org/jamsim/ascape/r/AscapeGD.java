@@ -91,8 +91,8 @@ public class AscapeGD extends GDInterface implements PanelViewProvider {
 	 */
 	public void addToNavigator() {
 		// add as node under graphs
-		MicroSimScape<?> scape = ScapeRInterface.LAST_INSTANCE.getMsScape();
-		scape.addGraphNode(this);
+		MicroSimScape<?> msscape = ScapeRInterface.LAST_INSTANCE.getMsScape();
+		msscape.addGraphNode(this);
 	}
 
 	@Override

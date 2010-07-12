@@ -9,6 +9,7 @@ import org.jamsim.io.FileLoader;
  * 
  * @author Oliver Mannion
  * @version $Revision$
+ * @param <D> scape data type
  */
 public interface ScapeDataCreator<D extends ScapeData> {
 

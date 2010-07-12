@@ -8,7 +8,8 @@ import org.apache.commons.lang.math.NumberUtils;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class MutableNumerator extends Number implements Comparable {
+public class MutableNumerator extends Number implements
+		Comparable<MutableNumerator> {
 
 	/**
 	 * 
@@ -16,45 +17,86 @@ public class MutableNumerator extends Number implements Comparable {
 	private static final long serialVersionUID = -5582099331306228081L;
 
 	private double numerator;
-	private double denominator;
+	private final double denominator;
 	private double fraction;
+
+	private final String name;
+
+	/**
+	 * Construct {@link MutableNumerator} with the name "untitled" and a
+	 * numerator of 0.
+	 * 
+	 * @param denominator
+	 *            denominator
+	 */
+	public MutableNumerator(double denominator) {
+		this("untitled", denominator);
+	}
 
 	/**
 	 * Construct {@link MutableNumerator} with a numerator of 0.
 	 * 
-	 * @param denominator denominator
+	 * @param name
+	 *            name
+	 * @param denominator
+	 *            denominator
 	 */
-	public MutableNumerator(double denominator) {
-		this(0, denominator);
+	public MutableNumerator(String name, double denominator) {
+		this(name, denominator, 0);
 	}
 
 	/**
 	 * Master constructor.
 	 * 
-	 * @param numerator numerator 
-	 * @param denominator denominator
+	 * @param name
+	 *            name
+	 * @param denominator
+	 *            denominator
+	 * @param numerator
+	 *            numerator
 	 */
-	public MutableNumerator(double numerator, double denominator) {
+	public MutableNumerator(String name, double denominator, double numerator) {
+		this.name = name;
 		this.numerator = numerator;
 		this.denominator = denominator;
 		calcFraction();
 	}
 
+	/**
+	 * Return the numerator as a double value.
+	 * 
+	 * @return numerator as double.
+	 */
 	@Override
 	public double doubleValue() {
 		return numerator;
 	}
 
+	/**
+	 * Return the numerator as a double value.
+	 * 
+	 * @return numerator as double.
+	 */
 	@Override
 	public float floatValue() {
 		return (float) numerator;
 	}
 
+	/**
+	 * Return the numerator as a int value.
+	 * 
+	 * @return numerator as int.
+	 */
 	@Override
 	public int intValue() {
 		return (int) numerator;
 	}
 
+	/**
+	 * Return the numerator as a long value.
+	 * 
+	 * @return numerator as long.
+	 */
 	@Override
 	public long longValue() {
 		return (long) numerator;
@@ -63,7 +105,8 @@ public class MutableNumerator extends Number implements Comparable {
 	/**
 	 * Set numerator.
 	 * 
-	 * @param numerator numerator.
+	 * @param numerator
+	 *            numerator.
 	 */
 	public void setNumerator(double numerator) {
 		this.numerator = numerator;
@@ -85,7 +128,7 @@ public class MutableNumerator extends Number implements Comparable {
 
 	@Override
 	public String toString() {
-		return String.valueOf(numerator);
+		return name + ": " + numerator;
 	}
 
 	/**
@@ -95,6 +138,15 @@ public class MutableNumerator extends Number implements Comparable {
 	 */
 	public double getDenominator() {
 		return denominator;
+	}
+
+	/**
+	 * Get name.
+	 * 
+	 * @return name
+	 */
+	public String getName() {
+		return name;
 	}
 
 	/**
@@ -164,9 +216,8 @@ public class MutableNumerator extends Number implements Comparable {
 	 *             if the argument is not a MutableDouble
 	 */
 	@Override
-	public int compareTo(Object obj) {
-		MutableNumerator other = (MutableNumerator) obj;
-		double anotherVal = other.doubleValue();
+	public int compareTo(MutableNumerator obj) {
+		double anotherVal = obj.doubleValue();
 		return NumberUtils.compare(fraction, anotherVal);
 	}
 

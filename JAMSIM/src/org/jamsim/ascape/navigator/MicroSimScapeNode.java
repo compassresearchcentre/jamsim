@@ -45,6 +45,7 @@ public class MicroSimScapeNode extends ScapeNode {
 	private final DefaultTreeModel treeModel;
 	private DefaultMutableTreeNode dfNode;
 	private DefaultMutableTreeNode graphNode;
+	private DefaultMutableTreeNode psNode;
 	private final MicroSimScape<?> scape;
 
 	/**
@@ -88,36 +89,6 @@ public class MicroSimScapeNode extends ScapeNode {
 				.getInputDatasets(), new DoubleCellRenderer(10));
 	}
 
-	private void addParameterSetNodes(MicroSimScape<?> scape,
-			DefaultTreeModel treeModel) {
-
-		Map<String, ParameterSet> psets =
-				scape.getScapeData().getParameterSets();
-
-		if (psets != null) {
-
-			// create parent node
-			DefaultMutableTreeNode parentNode =
-					new DefaultMutableTreeNode("Parameter sets");
-
-			// get all the tables from childrenTables
-			// and add them to the navigator as a Panel View Node
-			for (Map.Entry<String, ParameterSet> entry : psets.entrySet()) {
-
-				ParameterSet pset = entry.getValue();
-				
-				// add PanelViewNode to the tree
-				PanelViewProvider provider = new PanelViewParameterSet(pset);
-				PanelViewNode newNode = new PanelViewNode(provider);
-				parentNode.add(newNode); // NOPMD
-			}
-
-			// add parentNode via the Tree Model
-			treeModel.insertNodeInto(parentNode, this, this.getChildCount());
-
-		}
-	}
-
 	private void addNodeWithChildrenTables(DefaultTreeModel treeModel,
 			String nodeName, Map<String, TableModel> childrenTables,
 			DoubleCellRenderer dblRenderer) {
@@ -145,6 +116,40 @@ public class MicroSimScapeNode extends ScapeNode {
 		treeModel.insertNodeInto(parentNode, this, this.getChildCount());
 	}
 
+	private void addParameterSetNodes(MicroSimScape<?> scape,
+			DefaultTreeModel treeModel) {
+
+		Map<String, ParameterSet> psets =
+				scape.getScapeData().getParameterSets();
+
+		if (psets != null) {
+			for (Map.Entry<String, ParameterSet> entry : psets.entrySet()) {
+				ParameterSet pset = entry.getValue();
+				addParameterSetNode(pset);
+			}
+		}
+	}
+
+	/**
+	 * Add a parameter set node under the "Parameter sets" folder. Creates
+	 * "Parameter sets" node if it doesn't exist.
+	 * 
+	 * @param pset
+	 *            parameter set
+	 */
+	public final void addParameterSetNode(ParameterSet pset) {
+		if (psNode == null) {
+			// create parameter sets parent folder node
+			psNode = new DefaultMutableTreeNode("Parameter sets");
+			treeModel.insertNodeInto(psNode, this, this.getChildCount());
+		}
+
+		// add PanelViewNode to the tree
+		PanelViewProvider provider = new PanelViewParameterSet(pset);
+		PanelViewNode newNode = new PanelViewNode(provider);
+		treeModel.insertNodeInto(newNode, psNode, psNode.getChildCount());
+	}
+	
 	/**
 	 * Add node which displays the contents of the basefile when clicked on.
 	 * 

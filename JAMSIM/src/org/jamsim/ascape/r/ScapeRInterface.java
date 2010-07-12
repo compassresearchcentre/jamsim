@@ -11,6 +11,7 @@ import org.jamsim.ascape.MicroSimScape;
 import org.jamsim.r.RDataFrame;
 import org.jamsim.r.RInterfaceException;
 import org.jamsim.r.RInterfaceHL;
+import org.jamsim.r.RMatrix;
 import org.jamsim.r.RSwingConsole;
 import org.jamsim.r.RUtil;
 import org.jamsim.r.UnsupportedTypeException;
@@ -96,7 +97,6 @@ public class ScapeRInterface {
 	 */
 	public ScapeRInterface(RLoader rLoader, MicroSimScape<?> msScape,
 			String dataFrameSymbol, boolean keepAllRunDFs) {
-		LAST_INSTANCE = this;
 		this.dataFrameSymbol = dataFrameSymbol;
 		this.msScape = msScape;
 		this.keepAllRunDFs = keepAllRunDFs;
@@ -104,6 +104,7 @@ public class ScapeRInterface {
 		this.rConsole = rLoader.getRConsole();
 		this.rInterface = rLoader.getRInterface();
 
+		LAST_INSTANCE = this;
 	}
 
 	/**
@@ -172,8 +173,8 @@ public class ScapeRInterface {
 		}
 
 		// OJM
-		REXP globalEnv = rInterface.getGlobalEnvironment();
-		System.out.println(globalEnv);
+		// REXP globalEnv = rInterface.getGlobalEnvironment();
+		// System.out.println(globalEnv);
 	}
 
 	/**
@@ -227,7 +228,7 @@ public class ScapeRInterface {
 	public void assignDataFrame(String name, Collection<?> col,
 			Class<?> stopClass) throws RInterfaceException {
 		rInterface.assignDataFrame(name, RUtil.toRList(col, stopClass));
-		msScape.addDataFrameNode(name);
+		//msScape.addDataFrameNode(name);
 	}
 
 	/**
@@ -245,7 +246,7 @@ public class ScapeRInterface {
 	public void assignDataFrame(String name, CDataCacheContainer container)
 			throws RInterfaceException {
 		rInterface.assignDataFrame(name, RUtil.toRList(container));
-		msScape.addDataFrameNode(name);
+		//msScape.addDataFrameNode(name);
 	}
 
 	/**
@@ -317,6 +318,22 @@ public class ScapeRInterface {
 	 */
 	public REXP parseEvalTry(String expr) throws RInterfaceException {
 		return rInterface.parseEvalTry(expr);
+	}
+
+	/**
+	 * Calls {@link RInterfaceHL#parseEvalTryReturnRMatrix(String)}.
+	 * 
+	 * @param expr
+	 *            expression
+	 * @return {@link RMatrix}
+	 * @throws RInterfaceException
+	 *             if problem evaluating {@code expr}, including if {@code expr}
+	 *             does not return an expression that can be represented as a
+	 *             {@link RMatrix}.
+	 */
+	public RMatrix parseEvalTryReturnRMatrix(String expr)
+			throws RInterfaceException {
+		return rInterface.parseEvalTryReturnRMatrix(expr);
 	}
 
 	/**
@@ -463,7 +480,7 @@ public class ScapeRInterface {
 	 * @throws RInterfaceException
 	 *             if problem creating dataframe or executing R command
 	 */
-	public CDataCacheContainer meanOfRuns(CDataCacheContainer allRuns,	
+	public CDataCacheContainer meanOfRuns(CDataCacheContainer allRuns,
 			String dfName, String dfDesc) throws RInterfaceException {
 
 		// save multi run dataset to R frame

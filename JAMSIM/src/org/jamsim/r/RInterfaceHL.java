@@ -256,7 +256,7 @@ public final class RInterfaceHL {
 	public String evalCaptureOutput(String expr) throws RInterfaceException {
 		return evalReturnString("capture.output(" + expr + ")");
 	}
-	
+
 	/**
 	 * Evaluate an expression and test that it returns a {@link REXPString}.
 	 * Return the character vector as one String with newlines between elements.
@@ -342,6 +342,37 @@ public final class RInterfaceHL {
 		} catch (REXPMismatchException e) {
 			throw new RInterfaceException(e.getMessage(), e);
 		}
+	}
+
+	/**
+	 * Evaluate {@code expr} returning a {@link RMatrix} or any errors as an
+	 * {@link RInterfaceException}.
+	 * 
+	 * @param expr
+	 *            expression
+	 * @return {@link RMatrix}
+	 * @throws RInterfaceException
+	 *             if problem evaluating {@code expr}, including if {@code expr}
+	 *             does not return an expression that can be represented as a
+	 *             {@link RMatrix}.
+	 */
+	public RMatrix parseEvalTryReturnRMatrix(String expr)
+			throws RInterfaceException {
+		REXP rexp = parseEvalTry(expr);
+
+		if (RMatrix.isMatrix(rexp)) {
+			try {
+				return new RMatrix(expr, rexp);
+			} catch (REXPMismatchException e) {
+				throw new RInterfaceException(e);
+			}
+		} else {
+			throw new RInterfaceException(expr + " returned result of class "
+					+ RUtil.getClassAttribute(rexp) + " with dimensions = "
+					+ RUtil.getDimensions(rexp)
+					+ ".\nCannot be converted to RMatrix.");
+		}
+
 	}
 
 	/**

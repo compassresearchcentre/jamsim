@@ -52,43 +52,6 @@ public final class RLoader {
 	 */
 	private final RSwingConsole rConsole;
 
-	/**
-	 * Load and initialise R without a startup file and add the R console to the
-	 * Ascape GUI.
-	 * 
-	 * @throws RInterfaceException
-	 *             if problem loading or initialising R
-	 */
-	private RLoader() throws RInterfaceException {
-		// create console but don't show the prompt
-		rConsole = new RSwingConsole(false);
-
-		// load & initialise R
-		rInterface = loadR(rConsole);
-		initR();
-	}
-
-	/**
-	 * Load and initialise R, run a startup file and add the R console to the
-	 * Ascape GUI.
-	 * 
-	 * @param startUpFile
-	 *            file of R commands to load into R when it is started, or
-	 *            {@code null} if no file to load.
-	 * @throws RInterfaceException
-	 *             if problem loading or initialising R
-	 * @throws IOException
-	 *             if problem reading startup file
-	 */
-	private RLoader(File startUpFile) throws RInterfaceException, IOException {
-		this();
-
-		if (startUpFile != null) {
-			loadRFile(startUpFile);
-		}
-
-	}
-
 	private static File staticStartUpFile = null;
 
 	/**
@@ -110,7 +73,7 @@ public final class RLoader {
 		 */
 		private static RLoader createSingleton() {
 			try {
-				return new RLoader(staticStartUpFile); //NOPMD
+				return new RLoader(staticStartUpFile); // NOPMD
 			} catch (RInterfaceException e) {
 				// a static initializer cannot throw exceptions
 				// but it can throw an ExceptionInInitializerError
@@ -182,30 +145,60 @@ public final class RLoader {
 	}
 
 	/**
-	 * Get R interface.
+	 * Load and initialise R, run a startup file and add the R console to the
+	 * Ascape GUI.
 	 * 
-	 * @return r interface.
+	 * @param startUpFile
+	 *            file of R commands to load into R when it is started, or
+	 *            {@code null} if no file to load.
+	 * @throws RInterfaceException
+	 *             if problem loading or initialising R
+	 * @throws IOException
+	 *             if problem reading startup file
 	 */
-	public RInterfaceHL getRInterface() {
-		return rInterface;
+	private RLoader(File startUpFile) throws RInterfaceException, IOException {
+		this();
+
+		if (startUpFile != null) {
+			loadRFile(startUpFile);
+		}
+
 	}
 
 	/**
-	 * Get R console.
-	 * 
-	 * @return r console.
-	 */
-	public RSwingConsole getRConsole() {
-		return rConsole;
-	}
-
-	/**
-	 * Loads R and creates the R Console as a tab on the console pane.
+	 * Load and initialise R without a startup file and adds the R console to
+	 * the Ascape GUI.
 	 * 
 	 * @throws RInterfaceException
-	 *             if problem loading R.
+	 *             if problem loading or initialising R
 	 */
-	private RInterfaceHL loadR(RSwingConsole rcon) throws RInterfaceException {
+	private RLoader() throws RInterfaceException {
+		// display message on ascape log tab
+		System.out.print("Starting R....");
+
+		// create console but don't show the prompt
+		rConsole = new RSwingConsole(false);
+
+		// load R (if not already loaded)
+		rInterface = RInterfaceHL.getInstance(rConsole);
+
+		// display the R console on the console pane
+		displayRConsole(rConsole);
+
+		// initialise. Load packages and support functions.
+		initR();
+	}
+
+	/**
+	 * Installs the R Console as a tab on the console pane. If the R console has
+	 * already been installed, the method exists silently.
+	 * 
+	 * @param gui
+	 *            main frame of the GUI
+	 * @param rConsole
+	 *            R console to be added to the new R tab.
+	 */
+	private void displayRConsole(final Component rConsole) {
 		// if running a desktop environment (ie: GUI)
 		DesktopEnvironment desktop = AscapeGUIUtil.getDesktopEnvironment();
 		if (desktop == null) {
@@ -214,28 +207,8 @@ public final class RLoader {
 							+ "or desktop environment not yet loaded.");
 		}
 
-		// display message on ascape log tab
-		System.out.print("Starting R....");
+		UserFrame gui = desktop.getUserFrame();
 
-		// load R (if not already loaded)
-		RInterfaceHL rint = RInterfaceHL.getInstance(rcon);
-
-		// if R loaded OK, display the R console
-		displayRConsole(desktop.getUserFrame(), rcon);
-
-		return rint;
-	}
-
-	/**
-	 * Creates the R Console as a tab on the console pane. If the R console has
-	 * already been created, the method exists silently.
-	 * 
-	 * @param gui
-	 *            main frame of the GUI
-	 * @param rConsole
-	 *            R console to be added to the new R tab.
-	 */
-	private void displayRConsole(UserFrame gui, final Component rConsole) {
 		// final JSplitPane consoleSplit = gui.getConsoleSplit();
 		final JTabbedPane consolePane = gui.getConsolePane();
 
@@ -260,6 +233,24 @@ public final class RLoader {
 			SwingUtilities.invokeLater(doWorkRunnable);
 
 		}
+	}
+
+	/**
+	 * Get R interface.
+	 * 
+	 * @return r interface.
+	 */
+	public RInterfaceHL getRInterface() {
+		return rInterface;
+	}
+
+	/**
+	 * Get R console.
+	 * 
+	 * @return r console.
+	 */
+	public RSwingConsole getRConsole() {
+		return rConsole;
 	}
 
 	/**
@@ -289,8 +280,7 @@ public final class RLoader {
 	 * @throws IOException
 	 *             if problem reading file
 	 */
-	public void loadRFile(File file) throws RInterfaceException,
-			IOException {
+	public void loadRFile(File file) throws RInterfaceException, IOException {
 		rInterface.printlnToConsole("Loading " + file.getCanonicalPath());
 
 		rInterface.parseEvalPrint(RUtil.readRFile(file));
@@ -303,9 +293,9 @@ public final class RLoader {
 	 *             if problem evaluating support function file.
 	 */
 	private void loadRSupportFunctions() throws RInterfaceException {
-		
+
 		rInterface.printlnToConsole("Loading " + SUPPORT_FILE);
-		
+
 		InputStream ins = getClass().getResourceAsStream(SUPPORT_FILE);
 
 		try {
@@ -318,10 +308,12 @@ public final class RLoader {
 	/**
 	 * Executes the function "ascapeStart" in R.
 	 * 
-	 * @throws RInterfaceException if problem executing ascapeStart
+	 * @throws RInterfaceException
+	 *             if problem executing ascapeStart
 	 */
 	public void ascapeStart() throws RInterfaceException {
-		rInterface.printlnToConsole("Executing support function ascapeStart()");
+		rInterface
+				.printlnToConsole("Executing support function ascapeStart()");
 		rInterface.parseEvalPrint("ascapeStart()");
 	}
 }

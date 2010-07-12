@@ -40,22 +40,47 @@ public class RootScape<D extends ScapeData> extends Scape {
 
 	private final MutableInt numberRuns = new MutableInt(2);
 
-	/**
-	 * Create a {@link RootScape} without a name.
-	 */
-	public RootScape() {
-		super();
-	}
+	private final int numIterations;
 
 	/**
-	 * Create a {@link RootScape} with the given name. This name appears in the
-	 * navigator and Ascape title bar.
+	 * Create a {@link RootScape}.
 	 * 
-	 * @param name name
+	 * @param name
+	 *            This name appears in the navigator and Ascape title bar.
+	 * @param numIterations
+	 *            number of iterations per run
+	 * @param numRuns
+	 *            number of runs
 	 */
-	public RootScape(String name) {
+	public RootScape(String name, int numIterations, int numRuns) {
 		super();
+		this.numIterations = numIterations;
 		setName(name);
+		setNumberRuns(numRuns);
+	}
+
+	@Override
+	public void createScape() {
+		super.createScape();
+
+		// don't restart automatically when reached end of iterations
+		setAutoRestart(false);
+
+		// don't start model when ascape starts
+		setStartOnOpen(false);
+
+		// specify iterations
+		try {
+			setStopPeriod(numIterations);
+		} catch (SpatialTemporalException e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
+
+		// set up console output
+		consoleOutput =
+				new ConsoleOutput(this.getRunner().getEnvironment()
+						.getConsole());
+
 	}
 
 	/**
@@ -69,6 +94,19 @@ public class RootScape<D extends ScapeData> extends Scape {
 	}
 
 	/**
+	 * Get the console output.
+	 * 
+	 * @return console output
+	 */
+	public Output getConsoleOutput() {
+		if (consoleOutput == null) {
+			throw new IllegalStateException(
+					"consoleOutput has not been initialized!");
+		}
+		return consoleOutput;
+	}
+
+	/**
 	 * Set up the microsimulation base scape.
 	 * 
 	 * @param scapeDataCreator
@@ -77,21 +115,11 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 *            required by Ascape
 	 * @param baseScapeName
 	 *            name of the base scape
-	 * @param numIterations
-	 *            number of iterations per run
-	 * @param numRuns
-	 *            number of runs
 	 * @return microsimulation base scape
 	 */
-	public MicroSimScape<D> createMSScape(
+	public MicroSimScape<D> createBaseScape(
 			ScapeDataCreator<D> scapeDataCreator, Agent prototypeAgent,
-			String baseScapeName, int numIterations, int numRuns) {
-		super.createScape();
-
-		// set up console output
-		consoleOutput =
-				new ConsoleOutput(this.getRunner().getEnvironment()
-						.getConsole());
+			String baseScapeName) {
 
 		// set up file loader
 		FileLoader loader = new FileLoader(this.getClass(), consoleOutput);
@@ -109,28 +137,6 @@ public class RootScape<D extends ScapeData> extends Scape {
 				new MicroSimScape<D>(new ListSpace(), baseScapeName,
 						prototypeAgent, loader, scapeData);
 		add(msscape);
-
-		// set scape on scape data
-		scapeData.setScape(msscape);
-
-		// load agents
-		msscape.loadAgents();
-
-		// don't restart automatically when reached end of iterations
-		setAutoRestart(false);
-
-		// don't start model when ascape starts
-		setStartOnOpen(false);
-
-		// specify iterations
-		try {
-			setStopPeriod(numIterations);
-		} catch (SpatialTemporalException e) {
-			throw new RuntimeException(e.getMessage(), e);
-		}
-
-		// set number of runs
-		numberRuns.setValue(numRuns);
 
 		// for some reason this needs to be added, otherwise the iterate
 		// method on each agent doesn't get called
@@ -244,7 +250,7 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 * @param numberRuns
 	 *            simulation runs.
 	 */
-	public void setNumberRuns(int numberRuns) {
+	public final void setNumberRuns(int numberRuns) {
 		this.numberRuns.setValue(numberRuns);
 	}
 
