@@ -40,7 +40,7 @@ public class DoubleCellRendererTest {
 		System.out.println(renderer.getText());
 		assertThat(renderer.getText().length(), equalTo(12));
 		
-		renderer = DecimalFormat.getInstance();
+		//renderer = DecimalFormat.getInstance();
 		
 		renderer.setValue(1.12E-19);
 		System.out.println(renderer.getText());

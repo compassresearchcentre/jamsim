@@ -9,8 +9,9 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-
+import org.omancode.util.DateUtil;
 
 /**
  * Static utility class of general purpose file functions.
@@ -38,6 +39,27 @@ public final class FileUtil {
 		}
 		return str.substring(str.length() - 1).equals("\\") ? str : str
 				+ "\\";
+	}
+
+	/**
+	 * Adds an extension to a file name if it doesn't already have the
+	 * extension.
+	 * 
+	 * @param fileName
+	 *            file name
+	 * @param ext
+	 *            extension, eg: ".csv"
+	 * @return {@code fileName} with the extension {@code ext}, or {@code null}
+	 *         if {@code fileName} is {@code null}
+	 */
+	public static String addExtension(String fileName, String ext) {
+
+		if (fileName == null || ext == null) {
+			return fileName;
+		}
+
+		return fileName.substring(fileName.length() - 1).equals(ext) ? fileName
+				: fileName + ext;
 	}
 
 	/**
@@ -138,5 +160,37 @@ public final class FileUtil {
 		Matcher m = INVALID_FILENAME_CHARS_PATTERN.matcher(filename);
 
 		return m.replaceAll("");
+	}
+
+	/**
+	 * Takes a file name, removes any illegal characters and prefixes a date.
+	 * 
+	 * @param fileName
+	 *            file name
+	 * @return date + filename (cleaned)
+	 */
+	public static String cleanDatedName(String fileName) {
+
+		// strip runName of any illegal characters
+		String cleanedRunName = FileUtil.stripInvalidFileNameChars(fileName);
+		String datedfileName =
+				DateUtil.nowToSortableUniqueDateString() + " "
+						+ cleanedRunName;
+		return datedfileName;
+
+	}
+
+	/**
+	 * Makes the path, including any necessary but nonexistent parent
+	 * directories, for the given file name.
+	 * 
+	 * @param fileName
+	 *            file name, eg: "c:\a\b\c\myfile.csv". Will make directory
+	 *            "c:\a\b\c\".
+	 * 
+	 */
+	public static void mkdirs(String fileName) {
+		File file = new File(FilenameUtils.getFullPath(fileName));
+		file.mkdirs();
 	}
 }

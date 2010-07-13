@@ -19,7 +19,8 @@ public class DoubleCellRenderer extends DefaultTableCellRenderer {
 	private static final long serialVersionUID = 5432131198692932810L;
 
 	private final NumberFormat formatter = NumberFormat.getInstance();
-	//private final NumberFormat formatter = new DecimalFormat("0.0000000000");
+
+	// private final NumberFormat formatter = new DecimalFormat("0.0000000000");
 
 	/**
 	 * Construct {@link DoubleCellRenderer} which displays numbers to 10 decimal
@@ -42,7 +43,9 @@ public class DoubleCellRenderer extends DefaultTableCellRenderer {
 
 	@Override
 	public void setValue(Object value) {
-		String text = (value == null) ? "" : formatter.format(value); 
+		String text =
+				(value == null || "".equals(value)) ? "" : formatter
+						.format(value);
 		setText(text);
 	}
 
