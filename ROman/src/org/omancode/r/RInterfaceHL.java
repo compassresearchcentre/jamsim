@@ -3,12 +3,17 @@ package org.omancode.r;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 import net.casper.io.file.util.ArrayUtil;
 
 import org.rosuda.JRI.RMainLoopCallbacks;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
+import org.rosuda.REngine.REXPNull;
 import org.rosuda.REngine.REXPString;
 import org.rosuda.REngine.REngine;
 import org.rosuda.REngine.REngineException;
@@ -45,8 +50,9 @@ public final class RInterfaceHL {
 	/**
 	 * Newline.
 	 */
-	private static final String NEWLINE = System.getProperty("line.separator");
-	
+	private static final String NEWLINE =
+			System.getProperty("line.separator");
+
 	/**
 	 * Private constructor prevents instantiation from other classes.
 	 */
@@ -222,7 +228,7 @@ public final class RInterfaceHL {
 	 * 
 	 * @param expr
 	 *            expression to evaluate.
-	 * @return REXP result of the evaluation.
+	 * @return String array or {@code null}.
 	 * @throws RInterfaceException
 	 *             if problem during parse or evaluation, or expression does not
 	 *             return a {@link REXPString}.
@@ -230,6 +236,10 @@ public final class RInterfaceHL {
 	public String[] evalReturnStrings(String expr) throws RInterfaceException {
 		try {
 			REXP rexp = eval(expr);
+
+			if (rexp instanceof REXPNull) {
+				return null;
+			}
 
 			// r command must return a REXPString
 			if (!(rexp instanceof REXPString)) {
@@ -239,6 +249,79 @@ public final class RInterfaceHL {
 			}
 
 			return rexp.asStrings();
+		} catch (REXPMismatchException e) {
+			throw new RInterfaceException(e.getMessage(), e);
+		}
+	}
+
+	public Map<String, String> evalReturnNamedStringsSorted(String expr)
+			throws RInterfaceException {
+		Map<String, String> namedStrings = new TreeMap<String, String>();
+
+		return evalReturnNamedStrings(expr, namedStrings);
+
+	}
+
+	/**
+	 * Evaluate an expression, testing that it returns a {@link REXPString}, and
+	 * return a map with keys equal to the names of the character vector and
+	 * values equal to the vector values. If the expression returns a
+	 * {@link REXPNull} then an empty map is returned.
+	 * 
+	 * @param expr
+	 *            expression to evaluate.
+	 * @return map of named strings
+	 * @throws RInterfaceException
+	 *             if problem during parse or evaluation, or expression does not
+	 *             return a {@link REXPString}.
+	 */
+	public Map<String, String> evalReturnNamedStrings(String expr)
+			throws RInterfaceException {
+		Map<String, String> namedStrings =
+				new LinkedHashMap<String, String>();
+
+		return evalReturnNamedStrings(expr, namedStrings);
+
+	}
+
+	/**
+	 * Evaluate an expression, testing that it returns a {@link REXPString}, and
+	 * return a map with keys equal to the names of the character vector and
+	 * values equal to the vector values. If the expression returns a
+	 * {@link REXPNull} then an empty map is returned.
+	 * 
+	 * @param expr
+	 *            expression to evaluate.
+	 * @param map
+	 *            to fill with strings
+	 * @return map of named strings
+	 * @throws RInterfaceException
+	 *             if problem during parse or evaluation, or expression does not
+	 *             return a {@link REXPString}.
+	 */
+	public Map<String, String> evalReturnNamedStrings(String expr,
+			Map<String, String> map) throws RInterfaceException {
+		try {
+			REXP rexp = eval(expr);
+
+			// r command must return REXPNull or a REXPString
+			if (rexp instanceof REXPNull) {
+				return Collections.emptyMap();
+			} else if (!(rexp instanceof REXPString)) {
+				throw new RInterfaceException(expr + " returned "
+						+ rexp.getClass().getCanonicalName()
+						+ " instead of REXPString");
+			}
+
+			String[] values = rexp.asStrings();
+			String[] names = RUtil.getNamesAttribute(rexp);
+
+			for (int i = 0; i < values.length; i++) {
+				map.put(names[i], values[i]);
+			}
+
+			return map;
+
 		} catch (REXPMismatchException e) {
 			throw new RInterfaceException(e.getMessage(), e);
 		}
@@ -267,13 +350,18 @@ public final class RInterfaceHL {
 	 * 
 	 * @param expr
 	 *            expression to evaluate.
-	 * @return REXP result of the evaluation.
+	 * @return String with newlines between elements, or {@code null} if expr
+	 *         returns {@code null}.
 	 * @throws RInterfaceException
 	 *             if problem during parse or evaluation, or expression does not
 	 *             return a {@link REXPString}.
 	 */
 	public String evalReturnString(String expr) throws RInterfaceException {
 		String[] strs = evalReturnStrings(expr);
+
+		if (strs == null) {
+			return null;
+		}
 
 		StringBuilder sb = new StringBuilder(1024);
 

@@ -47,3 +47,60 @@
 		result$value
 	}
 }
+
+
+.getObjects <- function (showFunctions = FALSE) 
+{
+	#.getObjects()
+	#get a named vector of all the objects in the 
+	#global environment and their class
+	#if showFunctions == TRUE returns functions as well
+	objs <- ls(".GlobalEnv")
+	result <- sapply(objs,function(X) { class(get(X)) })
+	
+	if (showFunctions)
+		result
+	else 
+		result[result != "function"]
+}
+
+.getParts <- function (o) 
+{
+	#.getParts(obj)
+	#get a named vector of the parts of an
+	#object and their class
+	#if the object has no parts, returns NULL
+    result <- c()
+    if (class(o) == "matrix" || (class(o) == "table" && length(dim(o)) == 2)) {
+    	#matrix (ie: 2d array) and 2d tables
+    	result <- sapply(o[1,], function(X) { class(X) })
+    	if (!is.null(result) && is.null(names(result))) {
+    			names(result) <- paste("[,", c(1:length(result)), "]", sep="") 
+    	} 
+    } else if (mode(o) == "list") {
+    	#lists and dataframes
+        result <- sapply(o, function(X) { class(X) })
+    	if (!is.null(result) && is.null(names(result))) {
+    			names(result) <- paste("[[", c(1:length(result)), "]]", sep="") 
+    	} 
+    }
+    
+    result
+}
+
+.getInfo <- function (o) {
+	#.getInfo(obj)
+	#returns information about an object, or empty chr ""
+	#if there is no information
+	result <- c("")
+
+	if (class(o) == "data.frame") {
+		result  <- paste("(", dim(o)[1], " obs. ", dim(o)[2], " vars)", sep="")
+	} else if (class(o) == "matrix") {
+		result <- paste("(", dim(o)[1], " x ", dim(o)[2], ")", sep="")
+	} else if (class(o) == "list") {
+		result <- paste("(length ", length(o), ")", sep="")
+	}
+	
+	result
+}
