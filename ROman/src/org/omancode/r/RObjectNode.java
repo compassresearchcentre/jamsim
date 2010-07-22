@@ -24,10 +24,10 @@ public class RObjectNode extends LazyMutableTreeNode {
 	private final String name;
 	private final String rClass;
 	private String rname;
-	private String info;
+	private final String info;
 
 	/**
-	 * Construct {@link RObjectNode}.
+	 * Construct {@link RObjectNode} without any info field.
 	 * 
 	 * @param rotb
 	 *            {@link RObjectTreeBuilder}
@@ -37,28 +37,50 @@ public class RObjectNode extends LazyMutableTreeNode {
 	 *            R class name of this object, eg: data.frame, list, matrix etc.
 	 */
 	public RObjectNode(RObjectTreeBuilder rotb, String name, String rClass) {
+		this(rotb, name, rClass, null);
+	}
+
+	/**
+	 * Construct {@link RObjectNode} without any info field.
+	 * 
+	 * @param rotb
+	 *            {@link RObjectTreeBuilder}
+	 * @param name
+	 *            display name
+	 * @param rClass
+	 *            R class name of this object, eg: data.frame, list, matrix etc.
+	 * @param info
+	 *            optional information field (eg: dimensions, length). Can be
+	 *            {@code null}.
+	 * 
+	 */
+	public RObjectNode(RObjectTreeBuilder rotb, String name, String rClass,
+			String info) {
 		super(name);
 		this.rotb = rotb;
 		this.rClass = rClass;
 		this.name = name;
+		this.info = info;
 	}
 
 	@Override
 	public void setParent(MutableTreeNode newParent) {
 		super.setParent(newParent);
 		this.rname = buildRName();
-		this.info = rotb.getInfo(rname);
 	}
 
 	@Override
 	protected void createChildren() {
-		rotb.addNodes(this, rotb.getParts(getRName()));
+		try {
+			rotb.addNodes(this, rotb.getParts(getRName()));
+		} catch (RInterfaceException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
 	public String toString() {
-		return name + "\t (" + rClass + ")"
-				+ ((info == null) ? "" : " " + info);
+		return name + ((info == null) ? "" : "\t (" + info + ")");
 	}
 
 	/**

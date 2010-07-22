@@ -52,40 +52,55 @@
 .getObjects <- function (showFunctions = FALSE) 
 {
 	#.getObjects()
-	#get a named vector of all the objects in the 
-	#global environment and their class
+	#get a list of all the objects in the 
+	#global environment, their class and their info
 	#if showFunctions == TRUE returns functions as well
 	objs <- ls(".GlobalEnv")
-	result <- sapply(objs,function(X) { class(get(X)) })
+	klass <- sapply(objs, function(X) { class(get(X)) })
+	if (!showFunctions) klass <- klass[klass != "function"]
 	
-	if (showFunctions)
-		result
-	else 
-		result[result != "function"]
+	result <- NULL
+	result$names <- names(klass)
+	result$class <- klass
+	result$info <- sapply(result$names, function(X) { .getInfo(get(X)) })
+	
+	names(result$class) <- NULL
+	names(result$info) <- NULL
+    result
 }
 
 .getParts <- function (o) 
 {
-	#.getParts(obj)
-	#get a named vector of the parts of an
-	#object and their class
+	#.getParts(o)
+	#get a list containing the names, class, and info
+	#about the parts of an object
 	#if the object has no parts, returns NULL
-    result <- c()
+    result <- NULL
     if (class(o) == "matrix" || (class(o) == "table" && length(dim(o)) == 2)) {
     	#matrix (ie: 2d array) and 2d tables
-    	result <- sapply(o[1,], function(X) { class(X) })
-    	if (!is.null(result) && is.null(names(result))) {
-    			names(result) <- paste("[,", c(1:length(result)), "]", sep="") 
-    	} 
+    	result$names = .getPartNames(o[1,], "[,", "]")
+    	result$class <- apply(o, 2, class)
+    	result$info <- apply(o, 2, .getInfo)
     } else if (mode(o) == "list") {
     	#lists and dataframes
-        result <- sapply(o, function(X) { class(X) })
-    	if (!is.null(result) && is.null(names(result))) {
-    			names(result) <- paste("[[", c(1:length(result)), "]]", sep="") 
-    	} 
+    	result$names = .getPartNames(o, "[[", "]]")
+        result$class <- sapply(o, class)
+    	result$info <- sapply(o, .getInfo)
     }
-    
+
+	names(result$class) <- NULL
+	names(result$info) <- NULL
     result
+}
+
+.getPartNames <- function (o, left, right) {
+	resultNames <- c()
+	if (!is.null(o) && is.null(names(o))) {
+		resultNames <- paste(left, c(1:length(o)), right, sep="") 
+	}  else {
+		resultNames <- names(o)
+	}
+	resultNames
 }
 
 .getInfo <- function (o) {
@@ -95,11 +110,20 @@
 	result <- c("")
 
 	if (class(o) == "data.frame") {
-		result  <- paste("(", dim(o)[1], " obs. ", dim(o)[2], " vars)", sep="")
+		result  <- paste(class(o), " ", dim(o)[1], " obs. ", dim(o)[2], " vars", sep="")
 	} else if (class(o) == "matrix") {
-		result <- paste("(", dim(o)[1], " x ", dim(o)[2], ")", sep="")
+		result <- paste(class(o), " ", dim(o)[1], " x ", dim(o)[2], sep="")
+	} else if (class(o) == "table") {
+		if (length(dim(o)) == 2)
+			result <- paste(class(o), " ", dim(o)[1], " x ", dim(o)[2], sep="")
+		else if (length(dim(o)) == 1)
+			result <- paste(class(o), " 1 x ", dim(o), sep="")
+		else
+			result <- paste(class(o), " ",length(o), sep="")
 	} else if (class(o) == "list") {
-		result <- paste("(length ", length(o), ")", sep="")
+		result <- paste(class(o), " ",length(o), sep="")
+	} else {
+		result <- paste(class(o), " ",length(o), sep="")
 	}
 	
 	result

@@ -374,6 +374,36 @@ public final class RInterfaceHL {
 	}
 
 	/**
+	 * {@link #parseEvalTry(String)} that returns an {@link RList} or exception.
+	 * 
+	 * @param expr
+	 *            expression to try and parse and eval
+	 * @return rlist, or {@code null} if expr returns REXPNull.
+	 * @throws RInterfaceException
+	 *             if {@code expr} does not return a list
+	 */
+	public RList parseEvalTryAsRList(String expr) throws RInterfaceException {
+		REXP rexp = parseEvalTry(expr);
+
+		if (rexp instanceof REXPNull) {
+			return null;
+			
+		}
+		if (!rexp.isList()) {
+			throw new RInterfaceException(expr + " returned "
+					+ rexp.getClass().getCanonicalName()
+					+ " instead of a list");
+		}
+
+		try {
+			return rexp.asList();
+		} catch (REXPMismatchException e) {
+			throw new RInterfaceException(e);
+		}
+
+	}
+
+	/**
 	 * Wraps a parse and try around an eval. The parse will generate syntax
 	 * error messages, and the try will catch parse and evaluation errors and
 	 * return them in the exception as opposed to printing it on the console.

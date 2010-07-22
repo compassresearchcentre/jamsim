@@ -1,10 +1,11 @@
 package org.omancode.r;
 
-import java.util.Map;
-
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+
+import org.rosuda.REngine.REXPString;
+import org.rosuda.REngine.RList;
 
 /**
  * Builds a tree that represents the objects in an R environment.
@@ -47,7 +48,7 @@ public class RObjectTreeBuilder {
 	}
 
 	/**
-	 * Create {@link RObjectNode} from map of strings underneath parent node.
+	 * Create {@link RObjectNode}s underneath parent node from array of nodes.
 	 * 
 	 * @param parent
 	 *            parent node
@@ -55,41 +56,62 @@ public class RObjectTreeBuilder {
 	 *            map of strings to create {@link RObjectNode}s from.
 	 */
 	public final void addNodes(DefaultMutableTreeNode parent,
-			Map<String, String> nodes) {
+			RObjectNode[] nodes) {
 
-		for (Map.Entry<String, String> entry : nodes.entrySet()) {
-			RObjectNode node =
-					new RObjectNode(this, entry.getKey(), entry.getValue());
+		for (RObjectNode node : nodes) {
 			model.insertNodeInto(node, parent, parent.getChildCount());
 		}
 
 	}
 
-	private Map<String, String> getObjects() throws RInterfaceException {
-		String cmd = ".getObjects()";
-		Map<String, String> namedRObjects =
-				rInterface.evalReturnNamedStrings(cmd);
-		return namedRObjects;
+	private RObjectNode[] getObjects() throws RInterfaceException {
+		String expr = ".getObjects()";
+		return getNodes(expr);
 	}
 
 	/**
-	 * Get the parts that make up an R object, or an empty map if the R object
+	 * Get the parts that make up an R object, or an empty array if the R object
 	 * has no parts.
 	 * 
-	 * @param rname r object name
-	 * @return map of parts
+	 * @param rname
+	 *            r object name
+	 * @return array of nodes created from parts
+	 * @throws RInterfaceException
+	 *             if problem getting part information from R
 	 */
-	public Map<String, String> getParts(String rname) {
+	public RObjectNode[] getParts(String rname) throws RInterfaceException {
 		String expr = ".getParts(" + rname + ")";
+		return getNodes(expr);
+	}
 
-		try {
-			Map<String, String> namedRObjects =
-					rInterface.evalReturnNamedStrings(expr);
+	/**
+	 * Execute an R command that returns a list containing the named {@code chr}
+	 * vectors {@code names}, {@code class}, {@code info}.
+	 * 
+	 * @param expr
+	 *            r expression
+	 * @return array of nodes created from expr
+	 * @throws RInterfaceException
+	 *             if problem evaluating expr
+	 */
+	private RObjectNode[] getNodes(String expr) throws RInterfaceException {
+		RList rlist = rInterface.parseEvalTryAsRList(expr);
 
-			return namedRObjects;
-		} catch (RInterfaceException e) {
-			throw new RuntimeException(e);
+		if (rlist == null) {
+			return new RObjectNode[0];
 		}
+
+		String[] names = ((REXPString) rlist.get("names")).asStrings();
+		String[] klass = ((REXPString) rlist.get("class")).asStrings();
+		String[] info = ((REXPString) rlist.get("info")).asStrings();
+
+		RObjectNode[] nodes = new RObjectNode[names.length];
+
+		for (int i = 0; i < names.length; i++) {
+			nodes[i] = new RObjectNode(this, names[i], klass[i], info[i]);
+		}
+
+		return nodes;
 	}
 
 	/**
