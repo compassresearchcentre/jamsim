@@ -122,20 +122,12 @@ public class RObjectNode extends LazyMutableTreeNode {
 
 	}
 
-	public static String listPartAsIndex(String part) {
-		if (part.startsWith("[")) {
-			return part;
-		}
-
-		return "$" + part;
+	private static String listPartAsIndex(String part) {
+		return (part.charAt(0) == '[') ? part : "$" + part;
 	}
 
-	public static String matrixPartAsIndex(String part) {
-		if (part.startsWith("[")) {
-			return part;
-		}
-
-		return "[,\"" + part + "\"]";
+	private static String matrixPartAsIndex(String part) {
+		return (part.charAt(0) == '[') ? part : "[,\"" + part + "\"]";
 	}
 
 	/**

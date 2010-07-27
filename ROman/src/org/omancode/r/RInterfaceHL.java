@@ -184,7 +184,7 @@ public final class RInterfaceHL {
 			IOException {
 		InputStream ins = getClass().getResourceAsStream(SUPPORT_FILE);
 
-		eval(RUtil.readRStream(ins));
+		parseEvalTry(RUtil.readRStream(ins));
 	}
 
 	/**
