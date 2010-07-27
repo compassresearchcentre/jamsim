@@ -13,9 +13,9 @@ import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.io.MutableNumeratorTableModel;
 import org.jamsim.math.MathUtil;
 import org.jamsim.math.MutableNumerator;
-import org.jamsim.r.RInterfaceException;
-import org.jamsim.r.RUtil;
 import org.jamsim.shared.InvalidDataException;
+import org.omancode.r.RInterfaceException;
+import org.omancode.r.RUtil;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPDouble;
 import org.rosuda.REngine.REXPMismatchException;
@@ -108,7 +108,7 @@ public class SingleVarWeightCalc extends Observable implements
 			throws RInterfaceException {
 		String cmd = "prop.table(table(" + variable + "))";
 
-		REXP rexp = scapeR.eval(cmd);
+		REXP rexp = scapeR.parseEvalTry(cmd);
 
 		// r command must return a REXPDouble
 		if (!(rexp instanceof REXPDouble)) {

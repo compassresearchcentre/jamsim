@@ -6,11 +6,11 @@ import net.casper.data.model.CDataGridException;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.jamsim.ascape.r.ScapeRInterface;
-import org.jamsim.r.RDataFrame;
-import org.jamsim.r.RInterfaceException;
-import org.jamsim.r.RMatrix;
-import org.jamsim.r.RUtil;
-import org.jamsim.r.UnsupportedTypeException;
+import org.omancode.r.RDataFrame;
+import org.omancode.r.RInterfaceException;
+import org.omancode.r.RMatrix;
+import org.omancode.r.RUtil;
+import org.omancode.r.UnsupportedTypeException;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
 

@@ -69,7 +69,7 @@ public class OutputNode extends DefaultScapeListener {
 			DefaultMutableTreeNode node =
 					nodeProvider.getOutputNode(runNumber);
 			if (node != null) {
-				addOutputNode(node);
+				addOutputNode(node, runNumber);
 			}
 		} catch (OutputException e) {
 			throw new RuntimeException(e);
@@ -95,7 +95,7 @@ public class OutputNode extends DefaultScapeListener {
 			DefaultMutableTreeNode node =
 					nodeProvider.getEndOfSimOutputNode();
 			if (node != null) {
-				addOutputNode(node);
+				addOutputNode(node, NodesByRunFolder.ALLRUNS);
 			}
 		} catch (OutputException e) {
 			throw new RuntimeException(e);
@@ -108,8 +108,12 @@ public class OutputNode extends DefaultScapeListener {
 	 * 
 	 * @param node
 	 *            node to add
+	 * @param runNumber
+	 *            the run number subfolder under which to create the child node.
+	 *            If the run number is {@link #ALLRUNS}, then it is created
+	 *            under the "All Runs" node.
 	 */
-	public void addOutputNode(DefaultMutableTreeNode node) {
+	public void addOutputNode(DefaultMutableTreeNode node, int runNumber) {
 
 		NodesByRunFolder parentNode = outputTablesNode;
 
@@ -119,8 +123,7 @@ public class OutputNode extends DefaultScapeListener {
 			parentNode = outputTablesNode.getChildGroupNode(nodeGroupName);
 		}
 
-		parentNode.addChildNode(scapeClosed ? NodesByRunFolder.ALLRUNS
-				: runNumber, node);
+		parentNode.addChildNode(runNumber, node);
 	}
 
 }

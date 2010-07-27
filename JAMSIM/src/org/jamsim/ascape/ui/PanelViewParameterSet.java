@@ -1,18 +1,15 @@
 package org.jamsim.ascape.ui;
 
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JTable;
-import javax.swing.table.TableCellRenderer;
 
 import org.ascape.runtime.swing.navigator.PanelViewProvider;
-import org.ascape.util.swing.AscapeGUIUtil;
-import org.ascape.util.swing.PanelViewUtil;
+import org.ascape.runtime.swing.navigator.PanelViewTable;
 import org.ascape.view.vis.PanelView;
 import org.jamsim.io.ParameterSet;
 
@@ -47,15 +44,9 @@ public class PanelViewParameterSet implements PanelViewProvider,
 	@Override
 	public PanelView getPanelView() {
 
-		TableCellRenderer dblRenderer = UIUtil.getDoubleCellRenderer();
-
-		JTable table = new JTable(pset.getTableModel()); // NOPMD
-		table.setName(pset.getName());
-		table.setDefaultRenderer(Double.class, dblRenderer);
-
-		// Create a PanelView from the Table
-		Dimension desktopSize = AscapeGUIUtil.getDesktopSize();
-		PanelView pv = PanelViewUtil.createPanelView(table, desktopSize);
+		JTable table =
+				UIUtil.createTable(pset.getTableModel(), pset.getName());
+		PanelView pv = PanelViewTable.createPanelView(table);
 
 		// set FlowLayout so button can be seen
 		pv.setLayout(new FlowLayout());
@@ -72,7 +63,6 @@ public class PanelViewParameterSet implements PanelViewProvider,
 
 		return pv;
 	}
-
 
 	@Override
 	public void panelViewAdded(Container pvFrameImp) {

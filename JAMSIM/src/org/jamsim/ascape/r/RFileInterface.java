@@ -30,7 +30,6 @@ import org.gjt.sp.jedit.syntax.ModeProvider;
 import org.jamsim.ascape.ui.JEditPanelView;
 import org.jamsim.ascape.ui.PanelViewListener;
 import org.jamsim.io.FileLoader;
-import org.jamsim.r.RInterfaceException;
 import org.omancode.swing.MRUFiles;
 
 /**
@@ -243,7 +242,7 @@ public final class RFileInterface implements PanelViewListener,
 				try {
 					saveSelectedRFile();
 				} catch (IOException e1) {
-					showErrorDialog(e1);
+					AscapeGUIUtil.showErrorDialog(scape, e1);
 				}
 			}
 		};
@@ -270,7 +269,7 @@ public final class RFileInterface implements PanelViewListener,
 				try {
 					newRFile();
 				} catch (IOException e1) {
-					showErrorDialog(e1);
+					AscapeGUIUtil.showErrorDialog(scape, e1);
 				}
 			}
 		};
@@ -298,7 +297,7 @@ public final class RFileInterface implements PanelViewListener,
 				try {
 					openRFileDialog();
 				} catch (IOException e1) {
-					showErrorDialog(e1);
+					AscapeGUIUtil.showErrorDialog(scape, e1);
 				}
 			}
 		};
@@ -349,23 +348,6 @@ public final class RFileInterface implements PanelViewListener,
 		// jeditPanel.addToSwingEnvironment();
 		// scape.addView(jeditPanel);
 		jeditPanel.display();
-	}
-
-	/**
-	 * Show the error dialog. If we throw an exception from code on the AWT
-	 * event thread when need to explicitly call
-	 * {@link DesktopEnvironment#showErrorDialog(Scape, Exception)}.
-	 * 
-	 * @param e
-	 *            exception thrown
-	 */
-	private void showErrorDialog(Exception e) {
-		if (SwingUtilities.isEventDispatchThread()) {
-			AscapeGUIUtil.getDesktopEnvironment().showErrorDialog(scape, e);
-		} else {
-			throw new RuntimeException(e);
-		}
-
 	}
 
 	/**
@@ -560,7 +542,7 @@ public final class RFileInterface implements PanelViewListener,
 					}
 
 				} catch (IOException e1) {
-					showErrorDialog(e1);
+					AscapeGUIUtil.showErrorDialog(scape, e1);
 				}
 			}
 		}
@@ -574,7 +556,7 @@ public final class RFileInterface implements PanelViewListener,
 		try {
 			openFileInPanel(file);
 		} catch (IOException e) {
-			showErrorDialog(e);
+			AscapeGUIUtil.showErrorDialog(scape, e);
 		}
 	}
 }

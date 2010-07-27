@@ -8,13 +8,14 @@ import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
 
 import org.jamsim.ascape.MicroSimScape;
-import org.jamsim.r.RDataFrame;
-import org.jamsim.r.RInterfaceException;
-import org.jamsim.r.RInterfaceHL;
-import org.jamsim.r.RMatrix;
-import org.jamsim.r.RSwingConsole;
-import org.jamsim.r.RUtil;
-import org.jamsim.r.UnsupportedTypeException;
+import org.omancode.r.RDataFrame;
+import org.omancode.r.RInterfaceException;
+import org.omancode.r.RInterfaceHL;
+import org.omancode.r.RMatrix;
+import org.omancode.r.RObjectTreeBuilder;
+import org.omancode.r.RSwingConsole;
+import org.omancode.r.RUtil;
+import org.omancode.r.UnsupportedTypeException;
 import org.omancode.util.ExecutionTimer;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
@@ -228,7 +229,7 @@ public class ScapeRInterface {
 	public void assignDataFrame(String name, Collection<?> col,
 			Class<?> stopClass) throws RInterfaceException {
 		rInterface.assignDataFrame(name, RUtil.toRList(col, stopClass));
-		//msScape.addDataFrameNode(name);
+		// msScape.addDataFrameNode(name);
 	}
 
 	/**
@@ -246,7 +247,7 @@ public class ScapeRInterface {
 	public void assignDataFrame(String name, CDataCacheContainer container)
 			throws RInterfaceException {
 		rInterface.assignDataFrame(name, RUtil.toRList(container));
-		//msScape.addDataFrameNode(name);
+		// msScape.addDataFrameNode(name);
 	}
 
 	/**
@@ -490,7 +491,7 @@ public class ScapeRInterface {
 		String rcmd = "meanOfRuns(" + dfName + ")";
 		try {
 			// execute meanOfRuns on multi run dataframe
-			REXP rexp = eval(rcmd);
+			REXP rexp = parseEvalTry(rcmd);
 			RDataFrame df = new RDataFrame(allRuns.getCacheName(), rexp);
 
 			return new CDataCacheContainer(df);
@@ -505,4 +506,15 @@ public class ScapeRInterface {
 
 	}
 
+	/**
+	 * Get the R object tree builder.
+	 * 
+	 * @return R object tree builder.
+	 * @throws RInterfaceException
+	 *             if problem during interrogation of R environment
+	 */
+	public RObjectTreeBuilder getRObjectTreeBuilder()
+			throws RInterfaceException {
+		return new RObjectTreeBuilder(rInterface);
+	}
 }

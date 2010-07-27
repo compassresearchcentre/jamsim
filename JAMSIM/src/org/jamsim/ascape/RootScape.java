@@ -13,8 +13,8 @@ import org.jamsim.ascape.output.ROutputMultiRun;
 import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.ascape.r.ScapeRListener;
 import org.jamsim.io.FileLoader;
-import org.jamsim.r.RInterfaceException;
 import org.omancode.io.Output;
+import org.omancode.r.RInterfaceException;
 
 /**
  * Root scape that initialises and loads agents into a base microsimulation
@@ -194,12 +194,16 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 *            .
 	 * @param rRunEndCommand
 	 *            R command to run at the end of each run, or {@code null}.
+	 * @param rSimEndCommand
+	 *            R command to run at the end of the simulation (ie: end of all
+	 *            runs), or {@code null}.
 	 */
 	public void addScapeRListener(String rIterationEndCommand,
-			String rRunBeginCommand, String rRunEndCommand) {
+			String rRunBeginCommand, String rRunEndCommand,
+			String rSimEndCommand) {
 		try {
 			msscape.addView(new ScapeRListener(scapeR, rIterationEndCommand,
-					rRunBeginCommand, rRunEndCommand));
+					rRunBeginCommand, rRunEndCommand, rSimEndCommand));
 		} catch (RInterfaceException e) {
 			throw new RuntimeException(e);
 		}
@@ -231,7 +235,10 @@ public class RootScape<D extends ScapeData> extends Scape {
 	public void createGraphicViews() {
 		super.createGraphicViews();
 
-		// add multi run controller
+		// *** FIX AscapeGUIUtil.getAdditionalBar().removeAll();
+
+		// add multi run controller. this must be added AFTER any output
+		// datasets/nodes
 		msscape.addView(new MultipleRunController(numberRuns));
 	}
 

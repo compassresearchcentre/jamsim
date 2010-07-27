@@ -7,10 +7,10 @@ import java.util.LinkedList;
 
 import javax.swing.JFrame;
 
-import org.jamsim.r.RInterfaceException;
-import org.jamsim.r.RInterfaceHL;
-import org.jamsim.r.RSwingConsole;
-import org.jamsim.r.RUtil;
+import org.omancode.r.RInterfaceException;
+import org.omancode.r.RInterfaceHL;
+import org.omancode.r.RSwingConsole;
+import org.omancode.r.RUtil;
 
 public class RSwingConsoleTest {
 

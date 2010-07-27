@@ -78,7 +78,7 @@ ascapeStart <- function() {
 	# remove all graphics devices and the device-name hash
 	# eg: ascapeStart()
 	graphics.off()
-	assign("deviceHash", hash(), envir = .GlobalEnv)
+	assign(".deviceHash", hash(), envir = .GlobalEnv)
 }
 
 cat("Creating function activateJavaGD\n")
@@ -89,16 +89,16 @@ activateJavaGD <- function(name, ...) {
 	# eg: activateJavaGD("hospadm")
 	# requires: library(hash)
 	
-	# if deviceHash doesn't exist in global environment, create it
-	if (!exists("deviceHash")) {
-		assign("deviceHash", hash(), envir = .GlobalEnv)
+	# if .deviceHash doesn't exist in global environment, create it
+	if (!exists(".deviceHash")) {
+		assign(".deviceHash", hash(), envir = .GlobalEnv)
 	}
 	
 	# if no device in hash, create it and add to hash
-	if (!has.key(name, deviceHash)) {
+	if (!has.key(name, .deviceHash)) {
 		JavaGD(...)
 		# add device nbr to hash
-		deviceHash[[name]] <- dev.cur()
+		.deviceHash[[name]] <- dev.cur()
 		
 		# set name on AscapeGD object
 		ascapeGD <- .getJavaGDObject(dev.cur())
@@ -107,7 +107,7 @@ activateJavaGD <- function(name, ...) {
 	}
 	
 	# get device number
-	devNbr <- deviceHash[[name]]
+	devNbr <- .deviceHash[[name]]
 	
 	# make active
 	invisible(dev.set(which = devNbr))
@@ -132,19 +132,4 @@ addRowPercents <- function (counts) {
 	combined <- cbind(counts, pcents)
 	names(dimnames(combined)) <- names(dimnames(counts))
 	combined
-}
-
-.getDataObjects <- function (showFunctions = FALSE) 
-{
-	#.getDataObjects()
-	#get a named vector of all the objects in the 
-	#global environment and their class
-	#if showFunctions == TRUE returns functions as well
-	objs <- ls(".GlobalEnv")
-	result <- sapply(objs,function(X) { class(get(X)) })
-	
-	if (showFunctions)
-		result
-	else 
-		result[result != "function"]
 }

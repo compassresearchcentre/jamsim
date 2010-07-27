@@ -1,8 +1,8 @@
 package org.jamsim.ascape.output;
 
 import org.jamsim.ascape.r.ScapeRInterface;
-import org.jamsim.r.RInterfaceException;
-import org.jamsim.r.RUtil;
+import org.omancode.r.RInterfaceException;
+import org.omancode.r.RUtil;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPDouble;
 import org.rosuda.REngine.REXPMismatchException;
@@ -61,7 +61,8 @@ public class ROutputMultiRun extends AbstractMultiRunOutputDataset {
 	 * 
 	 * @param shortName
 	 *            short name. This will become the name of the dataframe created
-	 *            in R to hold these results.
+	 *            in R to hold these results. This dataframe is needed to
+	 *            generate an multi-run average over all runs.
 	 * @param name
 	 *            name
 	 * @param columnHeading
@@ -121,7 +122,7 @@ public class ROutputMultiRun extends AbstractMultiRunOutputDataset {
 
 			// System.out.println("Debug R:" + cmd);
 
-			REXP rexp = scapeR.eval(cmd);
+			REXP rexp = scapeR.parseEvalTry(cmd);
 
 			// r command must return a REXPDouble
 			if (!(rexp instanceof REXPDouble)) {

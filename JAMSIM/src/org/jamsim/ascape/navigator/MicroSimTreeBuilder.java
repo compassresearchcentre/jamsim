@@ -17,7 +17,7 @@ import org.jamsim.ascape.MicroSimScape;
 /**
  * {@link TreeBuilder} that creates {@link MicroSimScapeNode} for
  * {@link MicroSimScape} model elements, provides a
- * {@link PeformActionOnSelectedNode} selection listener and *** Same as
+ * {@link PeformActionOnSelectedNode} selection listener and same as
  * {@link DefaultTreeBuilder} for everything else.
  * 
  * @author Oliver Mannion
@@ -50,8 +50,7 @@ public class MicroSimTreeBuilder extends DefaultTreeBuilder {
 
 	@Override
 	public Set<MouseListener> getMouseListeners() {
-		Set<MouseListener> mls =
-				new HashSet<MouseListener>();
+		Set<MouseListener> mls = new HashSet<MouseListener>();
 
 		mls.addAll(super.getMouseListeners());
 

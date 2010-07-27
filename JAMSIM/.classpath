@@ -8,12 +8,6 @@
 			<attribute name="javadoc_location" value="file:/D:/Source/colt/doc/api/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry combineaccessrules="false" kind="src" path="/BeanShell"/>
-	<classpathentry kind="lib" path="D:/Source/fastutil-5.1.5/fastutil-5.1.5.jar" sourcepath="D:/Source/fastutil-5.1.5/src">
-		<attributes>
-			<attribute name="javadoc_location" value="http://fastutil.dsi.unimi.it/docs/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="C:/Program Files/R/R-2.9.1/library/JavaGD/java/javaGD.jar" sourcepath="/org.rosuda.javaGD"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/REngine"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.ascape.core"/>
@@ -48,5 +42,16 @@
 			<attribute name="javadoc_location" value="file:/D:/Source/commons-beanutils-1.8.0/apidocs/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="D:/Source/swing.javabuilder.0.3.FINAL/swing.javabuilder.0.3.FINAL.jar"/>
+	<classpathentry kind="lib" path="D:/Source/swing.javabuilder.0.3.FINAL/lib/beansbinding-1.2.1.jar"/>
+	<classpathentry kind="lib" path="D:/Source/swing.javabuilder.0.3.FINAL/lib/commons-beanutils-core.jar"/>
+	<classpathentry kind="lib" path="D:/Source/swing.javabuilder.0.3.FINAL/lib/commons-logging-1.1.jar"/>
+	<classpathentry kind="lib" path="D:/Source/swing.javabuilder.0.3.FINAL/lib/commons-validator-1.3.1.jar"/>
+	<classpathentry kind="lib" path="D:/Source/swing.javabuilder.0.3.FINAL/lib/jakarta-oro-2.0.8.jar"/>
+	<classpathentry kind="lib" path="D:/Source/swing.javabuilder.0.3.FINAL/lib/jvyaml.jar"/>
+	<classpathentry kind="lib" path="D:/Source/swing.javabuilder.0.3.FINAL/lib/miglayout-3.6.2-swing.jar"/>
+	<classpathentry kind="lib" path="D:/Source/swing.javabuilder.0.3.FINAL/lib/swing-worker-1.2.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ROman"/>
+	<classpathentry kind="lib" path="D:/Source/fastutil-5.1.5/fastutil-5.1.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

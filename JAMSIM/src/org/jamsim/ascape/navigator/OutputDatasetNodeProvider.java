@@ -175,10 +175,9 @@ public class OutputDatasetNodeProvider implements OutputNodeProvider {
 			CDataCacheContainer container) throws IOException {
 
 		TableModel tmodel = new CDatasetTableModel(container);
-		TableCellRenderer dblRenderer = UIUtil.getDoubleCellRenderer();
-		JTable table = new JTable(tmodel);
-		table.setName(nodeName);
-		table.setDefaultRenderer(Double.class, dblRenderer);
+		
+		JTable table =
+			UIUtil.createTable(tmodel, nodeName);
 
 		PanelViewProvider provider = new PanelViewTable(table);
 

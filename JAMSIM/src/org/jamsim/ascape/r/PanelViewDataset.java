@@ -1,11 +1,9 @@
 package org.jamsim.ascape.r;
 
 import java.awt.Container;
-import java.awt.Dimension;
 import java.io.IOException;
 
 import javax.swing.JTable;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
 import net.casper.data.model.CDataCacheContainer;
@@ -13,8 +11,7 @@ import net.casper.data.model.CDataGridException;
 import net.casper.ext.swing.CDatasetTableModel;
 
 import org.ascape.runtime.swing.navigator.PanelViewProvider;
-import org.ascape.util.swing.AscapeGUIUtil;
-import org.ascape.util.swing.PanelViewUtil;
+import org.ascape.runtime.swing.navigator.PanelViewTable;
 import org.ascape.view.vis.PanelView;
 import org.jamsim.ascape.output.OutputDatasetProvider;
 import org.jamsim.ascape.output.ROutput;
@@ -59,13 +56,10 @@ public class PanelViewDataset implements PanelViewProvider {
 			CDataCacheContainer container = outDataset.getOutputDataset(0);
 			TableModel tmodel = new CDatasetTableModel(container);
 
-			TableCellRenderer dblRenderer = UIUtil.getDoubleCellRenderer();
-			JTable table = new JTable(tmodel);
-			table.setName(name);
-			table.setDefaultRenderer(Double.class, dblRenderer);
+			JTable table =
+				UIUtil.createTable(tmodel, name);
 
-			Dimension desktopSize = AscapeGUIUtil.getDesktopSize();
-			return PanelViewUtil.createPanelView(table, desktopSize);
+			return PanelViewTable.createPanelView(table);
 
 		} catch (IOException e) {
 			throw new RuntimeException(e);

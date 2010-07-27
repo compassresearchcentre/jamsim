@@ -2,7 +2,7 @@ package org.jamsim.ascape.r;
 
 import org.ascape.model.event.DefaultScapeListener;
 import org.ascape.model.event.ScapeEvent;
-import org.jamsim.r.RInterfaceException;
+import org.omancode.r.RInterfaceException;
 import org.omancode.util.ExecutionTimer;
 
 /**
@@ -33,6 +33,8 @@ public class ScapeRListener extends DefaultScapeListener {
 	private final String rRunBeginCmd;
 
 	private final String rRunEndCmd;
+	
+	private final String rSimEndCmd;
 
 	/**
 	 * Flag set after first time scape is closed.
@@ -54,20 +56,24 @@ public class ScapeRListener extends DefaultScapeListener {
 	 *            .
 	 * @param rRunEndCommand
 	 *            R command to run at the end of each run, or {@code null}.
+	 * @param rSimEndCommand
+	 *            R command to run at the end of the simulation (ie: end of all
+	 *            runs), or {@code null}.
 	 * @throws RInterfaceException
 	 *             if problem evaluating initialisation commands
 	 */
 	public ScapeRListener(ScapeRInterface scapeR,
 			String rIterationEndCommand, String rRunBeginCommand,
-			String rRunEndCommand) throws RInterfaceException {
+			String rRunEndCommand, String rSimEndCommand)
+			throws RInterfaceException {
 		super("R Scape Interface");
 		this.scapeR = scapeR;
 		this.rRunBeginCmd = rRunBeginCommand;
 		this.rRunEndCmd = rRunEndCommand;
 		this.rIterationEndCmd = rIterationEndCommand;
+		this.rSimEndCmd = rSimEndCommand;
 	}
 
-	
 	/**
 	 * Run iteration end R command, if any.
 	 */
@@ -101,7 +107,7 @@ public class ScapeRListener extends DefaultScapeListener {
 	 */
 	public void scapeInitialized(ScapeEvent scapeEvent) {
 		runNumber++;
-		
+
 		if (runNumber == 1) {
 			scapeR.printlnToConsole("");
 		}
@@ -126,7 +132,7 @@ public class ScapeRListener extends DefaultScapeListener {
 	 */
 	@Override
 	public void scapeStopped(ScapeEvent scapeEvent) {
-		
+
 		try {
 
 			// create dataframe from scape
@@ -159,6 +165,10 @@ public class ScapeRListener extends DefaultScapeListener {
 		// so we need a flag (firstCloseExecuted) to make sure
 		// it doesn't get called twice
 		if (firstCloseExecuted) {
+			if (rSimEndCmd != null) {
+				executeRCommand(rSimEndCmd);
+			}
+
 			scapeR.printPrompt();
 		} else {
 			firstCloseExecuted = true;

@@ -8,7 +8,7 @@ import org.ascape.runtime.swing.navigator.PanelViewProvider;
 import org.ascape.util.swing.AscapeGUIUtil;
 import org.ascape.util.swing.PanelViewUtil;
 import org.ascape.view.vis.PanelView;
-import org.jamsim.r.RInterfaceException;
+import org.omancode.r.RInterfaceException;
 
 /**
  * Executes an command in R each time {@link #getPanelView()} is called.

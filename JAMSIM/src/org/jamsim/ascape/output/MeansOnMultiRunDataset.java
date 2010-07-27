@@ -4,7 +4,7 @@ import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
 
 import org.jamsim.ascape.r.ScapeRInterface;
-import org.jamsim.r.RInterfaceException;
+import org.omancode.r.RInterfaceException;
 
 /**
  * Executes

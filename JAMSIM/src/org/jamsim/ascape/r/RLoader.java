@@ -11,10 +11,10 @@ import javax.swing.SwingUtilities;
 import org.ascape.runtime.swing.DesktopEnvironment;
 import org.ascape.runtime.swing.UserFrame;
 import org.ascape.util.swing.AscapeGUIUtil;
-import org.jamsim.r.RInterfaceException;
-import org.jamsim.r.RInterfaceHL;
-import org.jamsim.r.RSwingConsole;
-import org.jamsim.r.RUtil;
+import org.omancode.r.RInterfaceException;
+import org.omancode.r.RInterfaceHL;
+import org.omancode.r.RSwingConsole;
+import org.omancode.r.RUtil;
 
 /**
  * Create an {@link RSwingConsole}, load and initialise R, and add the console

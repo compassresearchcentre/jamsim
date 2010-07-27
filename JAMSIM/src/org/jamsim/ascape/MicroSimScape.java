@@ -39,11 +39,12 @@ import org.jamsim.ascape.output.ROutputMultiRun;
 import org.jamsim.ascape.r.RFileInterface;
 import org.jamsim.ascape.r.RLoader;
 import org.jamsim.ascape.r.ScapeRInterface;
+import org.jamsim.ascape.ui.AnalysisMenu;
 import org.jamsim.ascape.ui.ParameterSetAction;
 import org.jamsim.ascape.weights.WeightCalculator;
 import org.jamsim.io.FileLoader;
 import org.jamsim.io.ParameterSet;
-import org.jamsim.r.RInterfaceException;
+import org.omancode.r.RInterfaceException;
 
 /**
  * A Scape with micro-simulation input/output functions including base file
@@ -621,6 +622,9 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 
 		// create R menu with R file editing functions
 		RFileInterface.getInstance(this, scapeR, loader);
+		
+		// create Analysis menu
+		//AnalysisMenu.getInstance(scapeR);
 
 		return scapeR;
 	}
