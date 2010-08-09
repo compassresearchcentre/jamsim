@@ -3,6 +3,7 @@ package org.omancode.r;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeSelectionModel;
 
 import org.rosuda.REngine.REXPString;
 import org.rosuda.REngine.RList;
@@ -18,13 +19,12 @@ public class RObjectTreeBuilder {
 
 	private final RInterfaceHL rInterface;
 	private final JTree tree = new JTree();
-	private final DefaultMutableTreeNode root =
-			new DefaultMutableTreeNode("R");
-	private final DefaultTreeModel model = new DefaultTreeModel(root);
+	private final DefaultMutableTreeNode root;
+	private final DefaultTreeModel model;
 
 	/**
-	 * Construct a {@link RObjectTreeBuilder} that will supplies a tree that
-	 * represents all visible object in the R global environment.
+	 * Construct a {@link RObjectTreeBuilder} from the set of objects present at
+	 * time of construction in the R global environment.
 	 * 
 	 * @param rInterface
 	 *            r interface
@@ -33,9 +33,43 @@ public class RObjectTreeBuilder {
 	 */
 	public RObjectTreeBuilder(RInterfaceHL rInterface)
 			throws RInterfaceException {
+		this(rInterface, null);
+	}
+
+	/**
+	 * Construct a {@link RObjectTreeBuilder} from a dataframe or the set of
+	 * objects present at time of construction in the R global environment.
+	 * 
+	 * @param rInterface
+	 *            r interface
+	 * @param dataframe
+	 *            name of a dataframe. If specified only this dataframe will be
+	 *            present in the tree. If {@code null} then all objects in the
+	 *            environment will be present in the tree.
+	 * @throws RInterfaceException
+	 *             if problem getting objects
+	 */
+	public RObjectTreeBuilder(RInterfaceHL rInterface, String dataframe)
+			throws RInterfaceException {
 		this.rInterface = rInterface;
-		addNodes(root, getObjects());
+
+		if (dataframe == null) {
+			root = new DefaultMutableTreeNode("R");
+			model = new DefaultTreeModel(root);
+			addNodes(root, getObjects());
+		} else {
+			root =
+					new RObjectNode(this, dataframe, "data.frame",
+							getInfo(dataframe));
+			root.setParent(null);
+			model = new DefaultTreeModel(root);
+
+		}
+
 		tree.setModel(model);
+		tree.getSelectionModel().setSelectionMode(
+				TreeSelectionModel.SINGLE_TREE_SELECTION);
+
 	}
 
 	/**
@@ -79,7 +113,8 @@ public class RObjectTreeBuilder {
 	 * @throws RInterfaceException
 	 *             if problem getting part information from R
 	 */
-	public RObjectNode[] getParts(String rname) throws RInterfaceException {
+	public final RObjectNode[] getParts(String rname)
+			throws RInterfaceException {
 		String expr = ".getParts(" + rname + ")";
 		return getNodes(expr);
 	}
@@ -122,7 +157,7 @@ public class RObjectTreeBuilder {
 	 *            r object name
 	 * @return info
 	 */
-	public String getInfo(String rname) {
+	public final String getInfo(String rname) {
 		String expr = ".getInfo(" + rname + ")";
 
 		try {

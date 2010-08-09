@@ -18,9 +18,29 @@ import org.rosuda.REngine.RList;
 
 /**
  * An R expression that is a numeric matrix (ie: a 2D numeric vector). This
- * includes objects of class "table". The first column of the generated dataset
- * is the names of the rows of the matrix (if it has any).
+ * includes objects of class "table". eg:
  * 
+ * <pre>
+ * > yearlyFreq(children$single, "single")
+ * 
+ *         single
+ *           1    2
+ *  Year 1  81 1029
+ *  Year 2 131  979
+ *  Year 3 157  953
+ *  Year 4 153  957
+ *  Year 5 156  954
+ * 
+ * > str(yearlyFreq(children$single, "single"))
+ * 
+ * int [1:5, 1:2] 81 131 157 153 156 1029 979 953 957 954
+ * - attr(*, "dimnames")=List of 2
+ * ..$ : chr [1:5] "Year 1" "Year 2" "Year 3" "Year 4" ...
+ * ..$ single: chr [1:2] "1" "2"
+ * </pre>
+ * 
+ * The first column of the generated dataset is the names of the rows of the
+ * matrix (if it has any) eg: {@code "Year 1" "Year 2" "Year 3" "Year 4"}.
  * 
  * @author Oliver Mannion
  * @version $Revision$
@@ -37,7 +57,8 @@ public class RMatrix implements CBuilder {
 
 	/**
 	 * Identifies the name of each row. This will be the first column in the
-	 * resultant dataset. eg: "1,2,3,4,5.."
+	 * resultant dataset. eg: "1,2,3,4,5..". This is an Object[] so it can be
+	 * narrowed to either Integer[] or String[].
 	 */
 	private Object[] rowNames;
 
@@ -68,37 +89,45 @@ public class RMatrix implements CBuilder {
 	 *            and row variable names.
 	 * @param rexp
 	 *            R expression
-	 * @throws REXPMismatchException
+	 * @throws RInterfaceException
 	 *             if rexp is not an {@link REXPDouble} or an R table class.
 	 */
-	public RMatrix(String name, REXP rexp) throws REXPMismatchException {
+	public RMatrix(String name, REXP rexp) throws RInterfaceException {
 		if (!RMatrix.isMatrix(rexp)) {
-			throw new REXPMismatchException(rexp, "table");
+			throw new RInterfaceException(rexp,
+					"Cannot be accessed as a RMatrix");
 		}
 
-		String[] dimNamesNames = RUtil.getDimNamesNames(rexp);
+		// get names of the dimensions (dimnames)
+		String[] namesDimNames = RUtil.getNamesDimNames(rexp);
 		rowVariableName =
-				(dimNamesNames == null) ? "" : dimNamesNames[0]
-						+ (!("".equals(dimNamesNames[0]) || ""
-								.equals(dimNamesNames[1])) ? " / " : "")
-						+ dimNamesNames[1];
+				(namesDimNames == null) ? "" : namesDimNames[0]
+						+ (!("".equals(namesDimNames[0]) || ""
+								.equals(namesDimNames[1])) ? " / " : "")
+						+ namesDimNames[1];
 		String colVariableName =
-				(dimNamesNames == null) ? "" : dimNamesNames[1];
+				(namesDimNames == null) ? "" : namesDimNames[1];
 		this.name =
 				(name == null) ? rowVariableName + " by " + colVariableName
 						: name;
 
-		RList dimnames = rexp.getAttribute("dimnames").asList();
-		if (dimnames.at(0).isString()) {
-			rowNames = ((REXPString) dimnames.at(0)).asStrings();
-		} else {
-			rowNames = null; // no row names
+		try {
+			// get rowNames & colNames from the dimnames attribute
+			RList dimnames = rexp.getAttribute("dimnames").asList();
+			if (dimnames.at(0).isString()) {
+				rowNames = ((REXPString) dimnames.at(0)).asStrings();
+			} else {
+				rowNames = null; // no row names
+			}
+			colNames = ((REXPString) dimnames.at(1)).asStrings();
+
+			// set values
+			values = rexp.asDoubleMatrix();
+			numRows = rexp.dim()[0];
+
+		} catch (REXPMismatchException e) {
+			throw new RInterfaceException(e);
 		}
-		colNames = ((REXPString) dimnames.at(1)).asStrings();
-
-		values = rexp.asDoubleMatrix();
-
-		numRows = rexp.dim()[0];
 
 	}
 

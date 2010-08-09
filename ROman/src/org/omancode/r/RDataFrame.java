@@ -37,29 +37,34 @@ public class RDataFrame implements CBuilder {
 	 *            and row variable names.
 	 * @param rexp
 	 *            R expression
-	 * @throws REXPMismatchException
+	 * @throws RInterfaceException
 	 *             if rexp is not an {@link REXPGenericVector} or an R dataframe
 	 *             class.
 	 * @throws UnsupportedTypeException
 	 *             if {@code rexp} contains a type that cannot be handled
 	 */
-	public RDataFrame(String name, REXP rexp) throws REXPMismatchException,
+	public RDataFrame(String name, REXP rexp) throws RInterfaceException,
 			UnsupportedTypeException {
 		if (!RDataFrame.isDataFrame(rexp)
 				|| !(rexp instanceof REXPGenericVector)) {
-			throw new REXPMismatchException(rexp, "dataframe");
+			throw new RInterfaceException(rexp,
+					"Cannot be accessed as a RDataFrame");
 		}
 
 		this.name = name;
 		colNames = ((REXPString) rexp.getAttribute("names")).asStrings();
 
-		// convert rlist to list of rvectors
-		RList rlist = rexp.asList();
-		rvectors = RUtil.toRVectors(rlist);
+		try {
+			// convert rlist to list of rvectors
+			RList rlist = rexp.asList();
+			rvectors = RUtil.toRVectors(rlist);
 
-		// get column types and number of rows
-		columnTypes = calcColumnTypes(rvectors);
-		numRows = rvectors.get(0).size();
+			// get column types and number of rows
+			columnTypes = calcColumnTypes(rvectors);
+			numRows = rvectors.get(0).size();
+		} catch (REXPMismatchException e) {
+			throw new RInterfaceException(e);
+		}
 	}
 
 	/**

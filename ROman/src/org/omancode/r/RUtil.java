@@ -409,12 +409,12 @@ public final class RUtil {
 	 * @throws UnsupportedTypeException
 	 *             if {@code rlist} contains a type than cannot be converted to
 	 *             an {@link RVector}.
-	 * @throws REXPMismatchException
+	 * @throws RInterfaceException
 	 *             if problem converting a member of the {@code rlist} to a
 	 *             {@link RVector}.
 	 */
 	public static List<RVector> toRVectors(RList rlist)
-			throws UnsupportedTypeException, REXPMismatchException {
+			throws UnsupportedTypeException, RInterfaceException {
 		ArrayList<RVector> rVectors = new ArrayList<RVector>(rlist.size());
 
 		int index = 0;
@@ -510,17 +510,21 @@ public final class RUtil {
 	 * @return {@code names} of {@code dimnames}, or {@code null} if there is no
 	 *         {@code names} attribute.
 	 */
-	public static String[] getDimNamesNames(REXP rexp) {
+	public static String[] getNamesDimNames(REXP rexp) {
 
-		REXPString dimNamesNames =
-				(REXPString) rexp.getAttribute("dimnames").getAttribute(
-						"names");
+		REXP dimNames = rexp.getAttribute("dimnames");
 
-		if (dimNamesNames == null) {
+		if (dimNames == null) {
 			return null;
 		}
 
-		return dimNamesNames.asStrings();
+		REXPString namesDimNames = (REXPString) dimNames.getAttribute("names");
+
+		if (namesDimNames == null) {
+			return null;
+		}
+
+		return namesDimNames.asStrings();
 
 	}
 

@@ -5,9 +5,14 @@ import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+
+import net.casper.data.model.CBuilder;
 
 import org.rosuda.REngine.REXPDouble;
 import org.rosuda.REngine.REXPFactor;
@@ -28,7 +33,7 @@ import org.rosuda.REngine.RList;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class RVector {
+public class RVector implements CBuilder {
 
 	/**
 	 * Vector name.
@@ -47,6 +52,27 @@ public class RVector {
 	private final Class<?> klass;
 
 	/**
+	 * Used by CBuilder. If not null with display as the first column of the
+	 * dataset.
+	 */
+	private final String[] valueNames;
+
+	/**
+	 * Used by CBuilder. Exported column names.
+	 */
+	private final String[] colNames;
+
+	/**
+	 * Used by CBuilder. Exported column types.
+	 */
+	private final Class<?>[] columnTypes;
+
+	/**
+	 * Used by CBuilder. Current position in the vector.
+	 */
+	private int currentPosIndex;
+
+	/**
 	 * Create a new {@link RVector} with given name, value type, a initial size.
 	 * 
 	 * @param name
@@ -60,28 +86,37 @@ public class RVector {
 	 */
 	public RVector(String name, Class<?> klass, int initialSize)
 			throws UnsupportedTypeException {
-		this.name = name;
-		this.values = createList(klass, initialSize);
-
-		if (values == null) {
-			throw new UnsupportedTypeException("Unsupported type "
-					+ klass.getCanonicalName());
-		}
-
-		this.klass = klass;
+		this(name, klass, createList(klass, initialSize), null);
 	}
 
 	/**
-	 * Constructor used by {@link #create(String, Class, int)}.
+	 * Master constructor.
 	 * 
 	 * @param name
+	 *            vector name.
 	 * @param klass
+	 *            type of the values this vector will hold.
 	 * @param values
+	 *            list of values (of all the same type) that this vector will
+	 *            hold.
+	 * @param valueNames
+	 *            names of each of the values, or {@code null} if unnamed.
 	 */
-	private RVector(String name, Class<?> klass, List values) {
+	private RVector(String name, Class<?> klass, List values,
+			String[] valueNames) {
 		this.name = name;
 		this.values = values;
 		this.klass = klass;
+		this.valueNames = valueNames;
+
+		if (valueNames == null) {
+			this.columnTypes = new Class<?>[] { klass };
+			this.colNames = new String[] { "Value" };
+		} else {
+			this.columnTypes = new Class<?>[] { String.class, klass };
+			this.colNames = new String[] { "Name", "Value" };
+		}
+
 	}
 
 	/**
@@ -98,13 +133,12 @@ public class RVector {
 	 *         unsupported type.
 	 */
 	public static RVector create(String name, Class<?> klass, int initialSize) {
-		List values = createList(klass, initialSize);
-
-		if (values == null) {
+		try {
+			List values = createList(klass, initialSize);
+			return new RVector(name, klass, values, null);
+		} catch (UnsupportedTypeException e) {
 			return null;
 		}
-
-		return new RVector(name, klass, values);
 	}
 
 	/**
@@ -117,14 +151,14 @@ public class RVector {
 	 * @throws UnsupportedTypeException
 	 *             if {@code rexp} is of an unsupported type (ie: no
 	 *             corresponding primitive list implementation exists)
-	 * @throws REXPMismatchException
+	 * @throws RInterfaceException
 	 *             if {@code rexp} cannot be converted to a primitive array list
+	 * @throws RInterfaceException
 	 */
 	public RVector(String name, REXPVector rexp)
-			throws UnsupportedTypeException, REXPMismatchException {
-		this.name = name;
-		this.values = createList(rexp);
-		this.klass = calcJavaType(rexp);
+			throws UnsupportedTypeException, RInterfaceException {
+		this(name, calcJavaType(rexp), createList(rexp), RUtil
+				.getNamesAttribute(rexp));
 	}
 
 	/**
@@ -137,7 +171,7 @@ public class RVector {
 	 *             if {@code rexp} is of a type that is not supported (ie: not
 	 *             yet implemented).
 	 */
-	private Class<?> calcJavaType(Object rexp)
+	private static Class<?> calcJavaType(Object rexp)
 			throws UnsupportedTypeException {
 		if (rexp instanceof REXPDouble) {
 			return Double.class;
@@ -166,27 +200,30 @@ public class RVector {
 	 * @throws UnsupportedTypeException
 	 *             if {@code rexp} is of an unsupported type (ie: no
 	 *             corresponding primitive list implementation exists)
-	 * @throws REXPMismatchException
+	 * @throws RInterfaceException
 	 *             if {@code rexp} cannot be converted to a primitive array list
 	 */
-	private List createList(REXPVector rexp) throws UnsupportedTypeException,
-			REXPMismatchException {
-		if (rexp instanceof REXPDouble) {
-			return new DoubleArrayList(rexp.asDoubles());
-		} else if (rexp instanceof REXPFactor) {
-			return Arrays.asList(rexp.asStrings());
-		} else if (rexp instanceof REXPInteger) {
-			return new IntArrayList(rexp.asIntegers());
-		} else if (rexp instanceof REXPLogical) {
-			return new IntArrayList(rexp.asIntegers());
-		} else if (rexp instanceof REXPString) {
-			return Arrays.asList(rexp.asStrings());
-		} else if (rexp instanceof REXPRaw) {
-			return new ByteArrayList(rexp.asBytes());
-		} else {
-			throw new UnsupportedTypeException(rexp.getClass());
+	private static List createList(REXPVector rexp)
+			throws UnsupportedTypeException, RInterfaceException {
+		try {
+			if (rexp instanceof REXPDouble) {
+				return new DoubleArrayList(rexp.asDoubles());
+			} else if (rexp instanceof REXPFactor) {
+				return Arrays.asList(rexp.asStrings());
+			} else if (rexp instanceof REXPInteger) {
+				return new IntArrayList(rexp.asIntegers());
+			} else if (rexp instanceof REXPLogical) {
+				return new IntArrayList(rexp.asIntegers());
+			} else if (rexp instanceof REXPString) {
+				return Arrays.asList(rexp.asStrings());
+			} else if (rexp instanceof REXPRaw) {
+				return new ByteArrayList(rexp.asBytes());
+			} else {
+				throw new UnsupportedTypeException(rexp.getClass());
+			}
+		} catch (REXPMismatchException e) {
+			throw new RInterfaceException(e);
 		}
-
 	}
 
 	/**
@@ -201,11 +238,13 @@ public class RVector {
 	 * @param initialSize
 	 *            number of elements in the list. Used to initial the list to
 	 *            this size.
-	 * @returns primitive list, or {@code null} if no corresponding primitive
-	 *          list implementation exists
+	 * @throws UnsupportedTypeException
+	 *             if no corresponding primitive list implementation exists
+	 * @returns primitive list
 	 */
-	private static List createList(Class<?> klass, int initialSize) {
-		List values = null;
+	private static List createList(Class<?> klass, int initialSize)
+			throws UnsupportedTypeException {
+		List values;
 
 		if (klass == double.class || klass == Double.class) {
 			values = new DoubleArrayList(initialSize);
@@ -231,6 +270,9 @@ public class RVector {
 			values = new ArrayList<String>(initialSize);
 		} else if (klass.isArray()) {
 			values = new RList(initialSize, false);
+		} else {
+			throw new UnsupportedTypeException("Unsupported type "
+					+ klass.getCanonicalName());
 		}
 
 		return values;
@@ -276,7 +318,7 @@ public class RVector {
 	/**
 	 * Get the list containing all the values of this vector.
 	 * 
-	 * @return List containing this vector's vales.
+	 * @return List containing this vector's values.
 	 */
 	@SuppressWarnings("unchecked")
 	public List getValues() {
@@ -346,5 +388,55 @@ public class RVector {
 			return super.toString();
 		}
 		return name;
+	}
+
+	@Override
+	public void close() {
+		// nothing to do
+	}
+
+	@Override
+	public String[] getColumnNames() {
+		return colNames;
+	}
+
+	@Override
+	public Class[] getColumnTypes() {
+		return columnTypes;
+	}
+
+	@Override
+	public Map getConcreteMap() {
+		return new LinkedHashMap();
+	}
+
+	@Override
+	public String[] getPrimaryKeyColumns() {
+		return null;
+	}
+
+	@Override
+	public void open() throws IOException {
+		currentPosIndex = 0;
+	}
+
+	@Override
+	public Object[] readRow() throws IOException {
+
+		if (currentPosIndex == size()) {
+			return null;
+		}
+
+		Object[] row = new Object[colNames.length];
+
+		int index = 0;
+		if (valueNames != null) {
+			row[index++] = valueNames[currentPosIndex];
+		}
+
+		row[index] = getValue(currentPosIndex);
+
+		currentPosIndex++;
+		return row;
 	}
 }

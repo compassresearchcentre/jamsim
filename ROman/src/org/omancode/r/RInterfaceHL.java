@@ -387,7 +387,7 @@ public final class RInterfaceHL {
 
 		if (rexp instanceof REXPNull) {
 			return null;
-			
+
 		}
 		if (!rexp.isList()) {
 			throw new RInterfaceException(expr + " returned "
@@ -481,20 +481,7 @@ public final class RInterfaceHL {
 	public RMatrix parseEvalTryReturnRMatrix(String expr)
 			throws RInterfaceException {
 		REXP rexp = parseEvalTry(expr);
-
-		if (RMatrix.isMatrix(rexp)) {
-			try {
-				return new RMatrix(expr, rexp);
-			} catch (REXPMismatchException e) {
-				throw new RInterfaceException(e);
-			}
-		} else {
-			throw new RInterfaceException(expr + " returned result of class "
-					+ RUtil.getClassAttribute(rexp) + " with dimensions = "
-					+ RUtil.getDimensions(rexp)
-					+ ".\nCannot be converted to RMatrix.");
-		}
-
+		return new RMatrix(expr, rexp);
 	}
 
 	/**
