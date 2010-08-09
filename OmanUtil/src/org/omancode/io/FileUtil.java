@@ -72,21 +72,55 @@ public final class FileUtil {
 	 *             if file not found or problem reading the file
 	 */
 	public static String readFile(File file) throws IOException {
-		FileReader fr = new FileReader(file);
-		String contents = IOUtils.toString(fr);
+		FileReader reader = new FileReader(file);
+		String contents = IOUtils.toString(reader);
 
 		// release file after loading,
 		// instead of waiting for VM exit/garbage collection
-		fr.close();
+		reader.close();
 
 		return contents;
 
 	}
 
+	/**
+	 * Read contents of a class resource as a String. Closes file after reading.
+	 * 
+	 * @param klass
+	 *            class
+	 * @param filename
+	 *            resource name. Usually this will be the name of a file in same
+	 *            directory as the class file.
+	 * @return contents of the resource
+	 * @throws IOException
+	 *             if problem locating or reading resource
+	 */
+	public static String readResource(Class<?> klass, String filename)
+			throws IOException {
+		InputStream stream = klass.getResourceAsStream(filename);
+		String contents = IOUtils.toString(stream);
+
+		// release file after loading,
+		// instead of waiting for VM exit/garbage collection
+		stream.close();
+
+		return contents;
+	}
+
+	/**
+	 * Write string to a file.
+	 * 
+	 * @param file
+	 *            file
+	 * @param contents
+	 *            contents
+	 * @throws IOException
+	 *             if problem writing
+	 */
 	public static void writeFile(File file, String contents)
 			throws IOException {
-		FileWriter fw = new FileWriter(file);
-		IOUtils.write(contents, fw);
+		FileWriter writer = new FileWriter(file);
+		IOUtils.write(contents, writer);
 	}
 
 	/**
