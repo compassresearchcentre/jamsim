@@ -10,9 +10,10 @@ import org.omancode.r.RDataFrame;
 import org.omancode.r.RInterfaceException;
 import org.omancode.r.RMatrix;
 import org.omancode.r.RUtil;
+import org.omancode.r.RVector;
 import org.omancode.r.UnsupportedTypeException;
 import org.rosuda.REngine.REXP;
-import org.rosuda.REngine.REXPMismatchException;
+import org.rosuda.REngine.REXPVector;
 
 /**
  * A single run output dataset produced by running commands on the scape
@@ -71,10 +72,10 @@ public class ROutput implements OutputDatasetProvider {
 		// where the string "DATAFRAME" appears,
 		// substitute with {@code dataFrameName + run number}.
 		String cmd = scapeR.rcmdReplace(rCommand, run);
-				
 
 		try {
 
+			System.out.println(cmd);
 			rexp = scapeR.parseEvalTry(cmd);
 
 			CBuilder builder;
@@ -83,6 +84,8 @@ public class ROutput implements OutputDatasetProvider {
 				builder = new RMatrix(getName(), rexp);
 			} else if (RDataFrame.isDataFrame(rexp)) {
 				builder = new RDataFrame(getName(), rexp);
+			} else if (rexp instanceof REXPVector) {
+				builder = new RVector(getName(), (REXPVector) rexp);
 			} else {
 				throw new NotImplementedException(cmd
 						+ " returned rexp of class "
@@ -94,8 +97,6 @@ public class ROutput implements OutputDatasetProvider {
 			return new CDataCacheContainer(builder);
 
 		} catch (RInterfaceException e) {
-			throw new CDataGridException(cmd + ": " + e.getMessage(), e);
-		} catch (REXPMismatchException e) {
 			throw new CDataGridException(cmd + ": " + e.getMessage(), e);
 		} catch (UnsupportedTypeException e) {
 			throw new CDataGridException(cmd + ": " + e.getMessage(), e);

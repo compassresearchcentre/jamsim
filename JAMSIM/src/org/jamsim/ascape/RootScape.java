@@ -170,14 +170,12 @@ public class RootScape<D extends ScapeData> extends Scape {
 							"R startup file", false);
 			return scapeR;
 		} catch (IOException e) {
-			throw new RuntimeException(e);
-		} catch (RInterfaceException e) {
 			// output stack trace to stderr
 			e.printStackTrace();
 
 			// output exception message to ascape log tab
 			System.out.print(e.getMessage());
-
+			
 			throw new RuntimeException(e);
 		}
 

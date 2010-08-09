@@ -12,8 +12,8 @@ import org.omancode.r.RInterfaceException;
 
 /**
  * Executes an command in R each time {@link #getPanelView()} is called.
- * Provides a {@link PanelView} with the results of the R command as they would
- * have been outputted to the R console.
+ * Provides a {@link PanelView} with the text results of the R command as they
+ * would have been outputed to the R console.
  * 
  * @author Oliver Mannion
  * @version $Revision$

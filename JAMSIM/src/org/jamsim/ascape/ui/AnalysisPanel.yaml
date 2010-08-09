@@ -1,8 +1,0 @@
-JPanel:
-    - JScrollPane(name=scrollTree): JTree(name=rObjects)
-    - JLabel(name=lNameLbl, text=Analysis Window)
-    - JTextField(name=fName, text=First Name)
-    - MigLayout: |
-        [grow, 300]     [pref] 
-        lNameLbl       fName
-        scrollTree

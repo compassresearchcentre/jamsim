@@ -37,9 +37,9 @@ public class ScapeRListener extends DefaultScapeListener {
 	private final String rSimEndCmd;
 
 	/**
-	 * Flag set after first time scape is closed.
+	 * Counts number of times the scape is closed.
 	 */
-	private boolean firstCloseExecuted = false;
+	private int scapeClosingCount = 0;
 
 	private int runNumber = 0;
 
@@ -160,19 +160,23 @@ public class ScapeRListener extends DefaultScapeListener {
 	 */
 	@Override
 	public void scapeClosing(ScapeEvent scapeEvent) {
-
-		// scapeClosing gets called twice when the scape closes
-		// so we need a flag (firstCloseExecuted) to make sure
-		// it doesn't get called twice
-		if (firstCloseExecuted) {
+		scapeClosingCount++;
+		
+		// scapeClosing gets called 3 times. 
+		// Twice when the scape closes at the end of a
+		// simulation run, and once when the application closes
+		// or the model is reloaded
+		if (scapeClosingCount == 2) {
+			// execute rSimEndCmd on the second scapeClosing
+			// this occurs after the multi-run datasets
+			// have been created.
+			
 			if (rSimEndCmd != null) {
 				executeRCommand(rSimEndCmd);
 			}
 
 			scapeR.printPrompt();
-		} else {
-			firstCloseExecuted = true;
-		}
+		} 
 	}
 
 }

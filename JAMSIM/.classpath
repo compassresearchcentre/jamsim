@@ -42,7 +42,11 @@
 			<attribute name="javadoc_location" value="file:/D:/Source/commons-beanutils-1.8.0/apidocs/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="D:/Source/swing.javabuilder.0.3.FINAL/swing.javabuilder.0.3.FINAL.jar"/>
+	<classpathentry kind="lib" path="D:/Source/swing.javabuilder.0.3.FINAL/swing.javabuilder.0.3.FINAL.jar" sourcepath="D:/Source/swing.javabuilder.0.3.FINAL/source/src.zip">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/D:/Source/swing.javabuilder.0.3.FINAL/docs/api/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="D:/Source/swing.javabuilder.0.3.FINAL/lib/beansbinding-1.2.1.jar"/>
 	<classpathentry kind="lib" path="D:/Source/swing.javabuilder.0.3.FINAL/lib/commons-beanutils-core.jar"/>
 	<classpathentry kind="lib" path="D:/Source/swing.javabuilder.0.3.FINAL/lib/commons-logging-1.1.jar"/>

@@ -486,12 +486,14 @@ public class ScapeRInterface {
 
 		// save multi run dataset to R frame
 		assignDataFrame(dfName, allRuns);
-		printlnToConsole("Created dataframe " + dfName + "(" + dfDesc + ")");
+		printlnToConsole("Created multi-run dataframe " + dfName + "("
+				+ dfDesc + ")");
 
-		String rcmd = "meanOfRuns(" + dfName + ")";
+		String rcmd = dfName + " <- meanOfRuns(" + dfName + ")";
 		try {
 			// execute meanOfRuns on multi run dataframe
-			REXP rexp = parseEvalTry(rcmd);
+			parseEvalTry(rcmd);
+			REXP rexp = parseEvalTry(dfName);
 			RDataFrame df = new RDataFrame(allRuns.getCacheName(), rexp);
 
 			return new CDataCacheContainer(df);
@@ -500,21 +502,25 @@ public class ScapeRInterface {
 			throw new RInterfaceException(e);
 		} catch (UnsupportedTypeException e) {
 			throw new RInterfaceException(e);
-		} catch (REXPMismatchException e) {
-			throw new RInterfaceException(e);
 		}
-
 	}
 
 	/**
-	 * Get the R object tree builder.
+	 * Creates a new R object tree builder with the set of R objects present in
+	 * the global environment at time of creation.
 	 * 
 	 * @return R object tree builder.
 	 * @throws RInterfaceException
 	 *             if problem during interrogation of R environment
 	 */
-	public RObjectTreeBuilder getRObjectTreeBuilder()
+	public RObjectTreeBuilder createRObjectTreeBuilder()
 			throws RInterfaceException {
+/*		
 		return new RObjectTreeBuilder(rInterface);
+*/
+		
+		return new RObjectTreeBuilder(rInterface, getMsScape().getName()
+				.toLowerCase());
+		
 	}
 }

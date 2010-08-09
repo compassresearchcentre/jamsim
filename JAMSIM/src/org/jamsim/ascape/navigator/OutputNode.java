@@ -18,7 +18,7 @@ import org.jamsim.ascape.output.OutputException;
 public class OutputNode extends DefaultScapeListener {
 	private static final long serialVersionUID = -5105471052036807288L;
 
-	private final NodesByRunFolder outputTablesNode;
+	private final SubFolderNode outputTablesNode;
 
 	private final OutputNodeProvider nodeProvider;
 
@@ -37,7 +37,7 @@ public class OutputNode extends DefaultScapeListener {
 	 * @param nodeProvider
 	 *            node provider
 	 */
-	public OutputNode(NodesByRunFolder outputTablesNode,
+	public OutputNode(SubFolderNode outputTablesNode,
 			OutputNodeProvider nodeProvider) {
 		this(outputTablesNode, null, nodeProvider);
 	}
@@ -53,7 +53,7 @@ public class OutputNode extends DefaultScapeListener {
 	 * @param nodeProvider
 	 *            node provider
 	 */
-	public OutputNode(NodesByRunFolder outputTablesNode,
+	public OutputNode(SubFolderNode outputTablesNode,
 			String nodeGroupName, OutputNodeProvider nodeProvider) {
 		super(nodeProvider.toString());
 		this.outputTablesNode = outputTablesNode;
@@ -95,7 +95,7 @@ public class OutputNode extends DefaultScapeListener {
 			DefaultMutableTreeNode node =
 					nodeProvider.getEndOfSimOutputNode();
 			if (node != null) {
-				addOutputNode(node, NodesByRunFolder.ALLRUNS);
+				addOutputNode(node, SubFolderNode.ALLRUNS);
 			}
 		} catch (OutputException e) {
 			throw new RuntimeException(e);
@@ -115,15 +115,15 @@ public class OutputNode extends DefaultScapeListener {
 	 */
 	public void addOutputNode(DefaultMutableTreeNode node, int runNumber) {
 
-		NodesByRunFolder parentNode = outputTablesNode;
+		SubFolderNode parentNode = outputTablesNode;
 
 		if (nodeGroupName != null) {
 			// get group node at time of creation of child node
 			// creates group node if it does not already exist
-			parentNode = outputTablesNode.getChildGroupNode(nodeGroupName);
+			parentNode = outputTablesNode.getGroupSubFolderNode(nodeGroupName);
 		}
 
-		parentNode.addChildNode(runNumber, node);
+		parentNode.addChildNode(node, runNumber);
 	}
 
 }

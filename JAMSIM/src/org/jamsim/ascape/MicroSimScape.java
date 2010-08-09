@@ -10,6 +10,7 @@ import java.util.Observer;
 import java.util.prefs.Preferences;
 
 import javax.swing.Action;
+import javax.swing.tree.TreePath;
 
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
@@ -28,18 +29,18 @@ import org.ascape.util.swing.AscapeGUIUtil;
 import org.ascape.view.vis.ChartView;
 import org.jamsim.ascape.navigator.EndOfSimNodeProvider;
 import org.jamsim.ascape.navigator.MicroSimScapeNode;
-import org.jamsim.ascape.navigator.NodesByRunFolder;
 import org.jamsim.ascape.navigator.OutputDatasetNodeProvider;
 import org.jamsim.ascape.navigator.OutputNode;
 import org.jamsim.ascape.navigator.RecordedMicroSimTreeBuilder;
+import org.jamsim.ascape.navigator.SubFolderNode;
 import org.jamsim.ascape.output.ChartProvider;
 import org.jamsim.ascape.output.OutputDatasetProvider;
 import org.jamsim.ascape.output.ROutput;
 import org.jamsim.ascape.output.ROutputMultiRun;
+import org.jamsim.ascape.r.PanelViewDataset;
 import org.jamsim.ascape.r.RFileInterface;
 import org.jamsim.ascape.r.RLoader;
 import org.jamsim.ascape.r.ScapeRInterface;
-import org.jamsim.ascape.ui.AnalysisMenu;
 import org.jamsim.ascape.ui.ParameterSetAction;
 import org.jamsim.ascape.weights.WeightCalculator;
 import org.jamsim.io.FileLoader;
@@ -214,7 +215,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 * 
 	 * @return output tables node
 	 */
-	private NodesByRunFolder getOutputTablesNode() {
+	private SubFolderNode getOutputTablesNode() {
 		initScapeNode();
 		return scapeNode.getOutputTablesNode();
 	}
@@ -275,6 +276,31 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	public void addEndOfSimOutputNode(PanelViewProvider provider) {
 		addView(new OutputNode(getOutputTablesNode(),
 				new EndOfSimNodeProvider(new PanelViewNode(provider))));
+	}
+
+	/**
+	 * Add a panel view node under "User Tables".
+	 * 
+	 * @param provider
+	 *            provider
+	 * @param groupName
+	 *            name of group sub folder to add node under, or {@code null} to
+	 *            add directly under "User Tables".
+	 */
+	public void addUserNode(OutputDatasetProvider provider, String groupName) {
+		initScapeNode();
+		PanelViewNode newNode =
+				scapeNode.addUserNode(new PanelViewDataset(provider),
+						groupName);
+
+		try {
+			AscapeGUIUtil.getNavigator().setSelectionPath(
+					new TreePath(newNode.getPath()));
+		} catch (RuntimeException e) {
+			scapeNode.removeNodeFromParent(newNode);
+			throw e;
+		}
+
 	}
 
 	/**
@@ -401,7 +427,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	/**
 	 * Add a "Weightings" button to the additional tool bar.
 	 * 
-	 * @param weightings weightings parameter set
+	 * @param weightings
+	 *            weightings parameter set
 	 */
 	private void addWeightingsButton(ParameterSet weightings) {
 		// create action
@@ -622,9 +649,6 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 
 		// create R menu with R file editing functions
 		RFileInterface.getInstance(this, scapeR, loader);
-		
-		// create Analysis menu
-		//AnalysisMenu.getInstance(scapeR);
 
 		return scapeR;
 	}

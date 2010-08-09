@@ -8,17 +8,17 @@ import javax.swing.table.TableModel;
 
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
+import net.casper.ext.swing.CDataRuntimeException;
 import net.casper.ext.swing.CDatasetTableModel;
 
 import org.ascape.runtime.swing.navigator.PanelViewProvider;
 import org.ascape.runtime.swing.navigator.PanelViewTable;
 import org.ascape.view.vis.PanelView;
 import org.jamsim.ascape.output.OutputDatasetProvider;
-import org.jamsim.ascape.output.ROutput;
 import org.jamsim.ascape.ui.UIUtil;
 
 /**
- * Fetches the dataset from a {@link OutputDatasetProvider} each time
+ * Fetches the dataset for run 0 from a {@link OutputDatasetProvider} each time
  * {@link #getPanelView()} is called. Provides a {@link PanelView} with the
  * dataset.
  * 
@@ -42,8 +42,8 @@ public class PanelViewDataset implements PanelViewProvider {
 	}
 
 	/**
-	 * Fetches the dataset from a {@link ROutput} and display a
-	 * {@link PanelView} with the table output.
+	 * Fetches the dataset from run 0 of a {@link OutputDatasetProvider} and
+	 * display a {@link PanelView} with the table output.
 	 * 
 	 * @param rcmd
 	 *            R command to execute
@@ -56,15 +56,14 @@ public class PanelViewDataset implements PanelViewProvider {
 			CDataCacheContainer container = outDataset.getOutputDataset(0);
 			TableModel tmodel = new CDatasetTableModel(container);
 
-			JTable table =
-				UIUtil.createTable(tmodel, name);
+			JTable table = UIUtil.createTable(tmodel, name);
 
 			return PanelViewTable.createPanelView(table);
 
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new CDataRuntimeException(e);
 		} catch (CDataGridException e) {
-			throw new RuntimeException(e);
+			throw new CDataRuntimeException(e);
 		}
 
 	}

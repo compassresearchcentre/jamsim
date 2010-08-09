@@ -10,24 +10,23 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
-import org.ascape.runtime.swing.navigator.PanelViewNode;
 import org.ascape.runtime.swing.navigator.PopupMenuProvider;
 import org.jamsim.ascape.MicroSimScape;
 import org.jamsim.ascape.output.Saveable;
 import org.omancode.io.FileUtil;
 
 /**
- * Navigator node that displays subfolders of {@link PanelViewNode}s for
- * simulation runs. A sub folder can be a run subfolder, eg: "Run 1", "Run 2",
- * .... "All Runs" etc. or a group subfolder (which has it's own run subfolders
- * under it).
+ * Navigator node that displays subfolders of nodes for simulation runs. A sub
+ * folder can be a run subfolder, eg: "Run 1", "Run 2", .... "All Runs" etc. or
+ * a group subfolder (which has it's own run subfolders under it).
  * 
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class NodesByRunFolder extends DefaultMutableTreeNode implements
+public class SubFolderNode extends DefaultMutableTreeNode implements
 		PopupMenuProvider, Saveable {
 
 	/**
@@ -37,11 +36,11 @@ public class NodesByRunFolder extends DefaultMutableTreeNode implements
 	private final DefaultTreeModel treeModel;
 	private final MicroSimScape<?> msscape;
 
-	private final Map<Integer, NodesByRunFolder> runNodes =
-			new HashMap<Integer, NodesByRunFolder>();
+	private final Map<Integer, SubFolderNode> runNodes =
+			new HashMap<Integer, SubFolderNode>();
 
-	private final Map<String, NodesByRunFolder> groupNodes =
-			new HashMap<String, NodesByRunFolder>();
+	private final Map<String, SubFolderNode> groupNodes =
+			new HashMap<String, SubFolderNode>();
 
 	private final String allRunsNodeName;
 
@@ -53,7 +52,7 @@ public class NodesByRunFolder extends DefaultMutableTreeNode implements
 	public static final int ALLRUNS = 0;
 
 	/**
-	 * Construct a {@link NodesByRunFolder} with the All Runs node named
+	 * Construct a {@link SubFolderNode} with the All Runs node named
 	 * "All runs".
 	 * 
 	 * @param name
@@ -63,13 +62,13 @@ public class NodesByRunFolder extends DefaultMutableTreeNode implements
 	 * @param treeModel
 	 *            tree model to add children nodes
 	 */
-	public NodesByRunFolder(String name, MicroSimScape<?> scape,
+	public SubFolderNode(String name, MicroSimScape<?> scape,
 			DefaultTreeModel treeModel) {
 		this(name, scape, treeModel, "All runs");
 	}
 
 	/**
-	 * Construct a {@link NodesByRunFolder}.
+	 * Construct a {@link SubFolderNode}.
 	 * 
 	 * @param name
 	 *            name of node in the tree
@@ -81,7 +80,7 @@ public class NodesByRunFolder extends DefaultMutableTreeNode implements
 	 *            name of node 0, ie: the node that contains results for all
 	 *            runs
 	 */
-	public NodesByRunFolder(String name, MicroSimScape<?> scape,
+	public SubFolderNode(String name, MicroSimScape<?> scape,
 			DefaultTreeModel treeModel, String allRunsNodeName) {
 		super(name);
 		this.msscape = scape;
@@ -90,7 +89,8 @@ public class NodesByRunFolder extends DefaultMutableTreeNode implements
 	}
 
 	/**
-	 * Add a child {@link PanelViewNode} under the appropriate run subfolder.
+	 * Add a child node directly under the appropriate run subfolder for this
+	 * node.
 	 * 
 	 * @param runNumber
 	 *            the run number subfolder under which to create the child node.
@@ -99,9 +99,36 @@ public class NodesByRunFolder extends DefaultMutableTreeNode implements
 	 * @param newNode
 	 *            panel view node
 	 */
-	public void addChildNode(int runNumber, DefaultMutableTreeNode newNode) {
-		NodesByRunFolder runParent = getRunSubFolderNode(runNumber);
+	public void addChildNode(MutableTreeNode newNode, int runNumber) {
+		SubFolderNode runParent = getRunSubFolderNode(runNumber);
 		treeModel.insertNodeInto(newNode, runParent, runParent
+				.getChildCount());
+	}
+
+	/**
+	 * Add a child node directly under this node.
+	 * 
+	 * @param newNode
+	 *            panel view node
+	 */
+	public void addChildNode(MutableTreeNode newNode) {
+		addChildNode(newNode, null);
+	}
+
+	/**
+	 * Add a child node directly under the group node.
+	 * 
+	 * @param newNode
+	 *            panel view node
+	 * @param groupName
+	 *            name of group sub folder to add node under, or {@code null} to
+	 *            add directly under this node.
+	 */
+	public void addChildNode(MutableTreeNode newNode, String groupName) {
+		SubFolderNode groupNode =
+				(groupName == null) ? this : getGroupSubFolderNode(groupName);
+
+		treeModel.insertNodeInto(newNode, groupNode, groupNode
 				.getChildCount());
 	}
 
@@ -113,21 +140,20 @@ public class NodesByRunFolder extends DefaultMutableTreeNode implements
 	 *            a run number, or {@link #ALLRUNS} for the "All Runs" node.
 	 * @return run folder node, eg: "Run 1", "Run 2", .... "All Runs" etc.
 	 */
-	public NodesByRunFolder getRunSubFolderNode(int runNumber) {
+	public SubFolderNode getRunSubFolderNode(int runNumber) {
 
-		NodesByRunFolder runNode = runNodes.get(runNumber);
+		SubFolderNode runNode = runNodes.get(runNumber);
 
 		// create node if it doesn't already exist
 		if (runNode == null) {
 
 			if (runNumber == ALLRUNS) {
 				runNode =
-						new NodesByRunFolder(allRunsNodeName, msscape,
-								treeModel);
+						new SubFolderNode(allRunsNodeName, msscape, treeModel);
 
 			} else {
 				runNode =
-						new NodesByRunFolder("Run " + runNumber, msscape,
+						new SubFolderNode("Run " + runNumber, msscape,
 								treeModel);
 			}
 			runNodes.put(runNumber, runNode);
@@ -140,34 +166,34 @@ public class NodesByRunFolder extends DefaultMutableTreeNode implements
 	}
 
 	/**
-	 * Add a {@link NodesByRunFolder} group subfolder.
+	 * Add a {@link SubFolderNode} group subfolder.
 	 * 
 	 * @param groupName
 	 *            name of the group node
 	 * @return newly created group node
 	 */
-	public NodesByRunFolder addChildGroupNode(String groupName) {
-		NodesByRunFolder groupNode =
-				new NodesByRunFolder(groupName, msscape, treeModel);
+	private SubFolderNode addGroupSubFolderNode(String groupName) {
+		SubFolderNode groupNode =
+				new SubFolderNode(groupName, msscape, treeModel);
 		treeModel.insertNodeInto(groupNode, this, this.getChildCount());
 		groupNodes.put(groupName, groupNode);
 		return groupNode;
 	}
 
 	/**
-	 * Gets a {@link NodesByRunFolder} child group subfolder. If it doesn't
-	 * exist, it is created.
+	 * Gets a {@link SubFolderNode} child group subfolder. If it doesn't exist,
+	 * it is created.
 	 * 
 	 * @param groupName
 	 *            name of the group node
 	 * @return group node
 	 */
-	public NodesByRunFolder getChildGroupNode(String groupName) {
-		NodesByRunFolder groupNode = groupNodes.get(groupName);
+	public SubFolderNode getGroupSubFolderNode(String groupName) {
+		SubFolderNode groupNode = groupNodes.get(groupName);
 
 		// create node if it doesn't already exist
 		if (groupNode == null) {
-			groupNode = addChildGroupNode(groupName);
+			groupNode = addGroupSubFolderNode(groupName);
 		}
 
 		return groupNode;
@@ -179,7 +205,7 @@ public class NodesByRunFolder extends DefaultMutableTreeNode implements
 	 * @return popup menu.
 	 */
 	public JPopupMenu getPopupMenu() {
-		String label = "Save to CSV (" + toString() + ")"; 
+		String label = "Save to CSV (" + toString() + ")";
 
 		JPopupMenu popup = new JPopupMenu();
 		JMenuItem item = new JMenuItem(label);
@@ -231,7 +257,7 @@ public class NodesByRunFolder extends DefaultMutableTreeNode implements
 
 	/**
 	 * Get a string representation of this node's path, from the top most parent
-	 * {@link NodesByRunFolder}. eg: "Output Tables\Frequency Table\Run 1"
+	 * {@link SubFolderNode}. eg: "Output Tables\Frequency Table\Run 1"
 	 * 
 	 * @param includeThisNode
 	 *            include this node in the path
@@ -242,7 +268,7 @@ public class NodesByRunFolder extends DefaultMutableTreeNode implements
 		StringBuilder sb = new StringBuilder(256);
 
 		for (TreeNode node : nodes) {
-			if (node instanceof NodesByRunFolder
+			if (node instanceof SubFolderNode
 					&& (includeThisNode || !node.equals(this))) {
 				sb.append(node.toString());
 				sb.append("\\");

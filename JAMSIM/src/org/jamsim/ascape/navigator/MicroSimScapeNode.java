@@ -6,6 +6,7 @@ import javax.swing.JTable;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.MutableTreeNode;
 
 import org.ascape.runtime.swing.navigator.PanelViewNode;
 import org.ascape.runtime.swing.navigator.PanelViewProvider;
@@ -41,11 +42,33 @@ public class MicroSimScapeNode extends ScapeNode {
 	 */
 	private static final long serialVersionUID = 2933396206340650491L;
 
-	private final NodesByRunFolder outputTablesNode;
 	private final DefaultTreeModel treeModel;
+
+	/**
+	 * Output tables nodes.
+	 */
+	private final SubFolderNode outputTablesNode;
+
+	/**
+	 * Data frame node.
+	 */
 	private DefaultMutableTreeNode dfNode;
+
+	/**
+	 * Graphs node.
+	 */
 	private DefaultMutableTreeNode graphNode;
+
+	/**
+	 * User tables node.
+	 */
+	private SubFolderNode userNode;
+
+	/**
+	 * Parameter sets node.
+	 */
 	private DefaultMutableTreeNode psNode;
+
 	private final MicroSimScape<?> scape;
 
 	/**
@@ -54,7 +77,7 @@ public class MicroSimScapeNode extends ScapeNode {
 	 * 
 	 * @return output tables node
 	 */
-	public NodesByRunFolder getOutputTablesNode() {
+	public SubFolderNode getOutputTablesNode() {
 		return outputTablesNode;
 	}
 
@@ -78,7 +101,7 @@ public class MicroSimScapeNode extends ScapeNode {
 
 		// create the Output Tables node
 		outputTablesNode =
-				new NodesByRunFolder("Output Tables", scape, treeModel);
+				new SubFolderNode("Output Tables", scape, treeModel);
 		treeModel
 				.insertNodeInto(outputTablesNode, this, this.getChildCount());
 	}
@@ -149,7 +172,7 @@ public class MicroSimScapeNode extends ScapeNode {
 		PanelViewNode newNode = new PanelViewNode(provider);
 		treeModel.insertNodeInto(newNode, psNode, psNode.getChildCount());
 	}
-	
+
 	/**
 	 * Add node which displays the contents of the basefile when clicked on.
 	 * 
@@ -207,5 +230,33 @@ public class MicroSimScapeNode extends ScapeNode {
 		treeModel.insertNodeInto(new PanelViewNode(provider), graphNode,
 				graphNode.getChildCount());
 
+	}
+
+	/**
+	 * Add a panel view node under "User Tables". Creates "User Tables" node if
+	 * it doesn't exist.
+	 * 
+	 * @param provider
+	 *            provider of the panel view to create node for
+	 * @param groupName
+	 *            of group sub folder to add node under, or {@code null} if to
+	 *            add directly under "User Tables".
+	 * @return newly added node
+	 */
+	public PanelViewNode addUserNode(PanelViewProvider provider,
+			String groupName) {
+		if (userNode == null) {
+			// create on demand
+			userNode = new SubFolderNode("User Tables", scape, treeModel);
+			treeModel.insertNodeInto(userNode, this, this.getChildCount());
+		}
+
+		PanelViewNode newNode = new PanelViewNode(provider);
+		userNode.addChildNode(newNode, groupName);
+		return newNode;
+	}
+
+	public void removeNodeFromParent(MutableTreeNode node) {
+		treeModel.removeNodeFromParent(node);
 	}
 }
