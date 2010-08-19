@@ -57,7 +57,7 @@ public class MicroSimScapeNode extends ScapeNode {
 	/**
 	 * Graphs node.
 	 */
-	private DefaultMutableTreeNode graphNode;
+	private SubFolderNode graphNode;
 
 	/**
 	 * User tables node.
@@ -219,16 +219,22 @@ public class MicroSimScapeNode extends ScapeNode {
 	 * 
 	 * @param provider
 	 *            provider of the panel view to create node for
+	 * @param subFolderName
+	 *            of navigator subfolder under "Graphs" to create node, or
+	 *            {@code null} to create node directly under "Graphs"
+	 * @return newly added node
 	 */
-	public void addGraphNode(PanelViewProvider provider) {
+	public PanelViewNode addGraphNode(PanelViewProvider provider,
+			String subFolderName) {
 		if (graphNode == null) {
 			// create on demand
-			graphNode = new DefaultMutableTreeNode("Graphs");
+			graphNode = new SubFolderNode("Graphs", scape, treeModel);
 			treeModel.insertNodeInto(graphNode, this, this.getChildCount());
 		}
 
-		treeModel.insertNodeInto(new PanelViewNode(provider), graphNode,
-				graphNode.getChildCount());
+		PanelViewNode newNode = new PanelViewNode(provider);
+		graphNode.addChildNode(newNode, subFolderName);
+		return newNode;
 
 	}
 
@@ -238,13 +244,13 @@ public class MicroSimScapeNode extends ScapeNode {
 	 * 
 	 * @param provider
 	 *            provider of the panel view to create node for
-	 * @param groupName
-	 *            of group sub folder to add node under, or {@code null} if to
+	 * @param subFolderName
+	 *            name of sub folder to add node under, or {@code null} if to
 	 *            add directly under "User Tables".
 	 * @return newly added node
 	 */
 	public PanelViewNode addUserNode(PanelViewProvider provider,
-			String groupName) {
+			String subFolderName) {
 		if (userNode == null) {
 			// create on demand
 			userNode = new SubFolderNode("User Tables", scape, treeModel);
@@ -252,10 +258,16 @@ public class MicroSimScapeNode extends ScapeNode {
 		}
 
 		PanelViewNode newNode = new PanelViewNode(provider);
-		userNode.addChildNode(newNode, groupName);
+		userNode.addChildNode(newNode, subFolderName);
 		return newNode;
 	}
 
+	/**
+	 * Remove node via the tree model (so as to generate events).
+	 * 
+	 * @param node
+	 *            node to remove
+	 */
 	public void removeNodeFromParent(MutableTreeNode node) {
 		treeModel.removeNodeFromParent(node);
 	}

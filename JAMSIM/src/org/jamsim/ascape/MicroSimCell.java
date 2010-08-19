@@ -8,7 +8,6 @@ import net.casper.io.beans.CMarkedUpRow;
 import net.casper.io.beans.CMarkedUpRowBean;
 
 import org.ascape.model.Cell;
-import org.ascape.model.Scape;
 import org.jamsim.ascape.weights.WeightCalculator;
 
 /**
@@ -35,37 +34,19 @@ public abstract class MicroSimCell<D extends ScapeData> extends Cell
 	 * 
 	 * @return scape data
 	 */
+	@SuppressWarnings("unchecked")
 	public D getScapeData() {
 		return (D) data;
 	}
 
 	/**
-	 * Called once when the scape is created and the prototype agent is set.
-	 * Sets up global static variables.
-	 * 
-	 * @param scape
-	 *            scape
-	 */
-	@Override
-	public void setScape(Scape scape) {
-		super.setScape(scape);
-
-		if (data == null) {
-			MicroSimScape<ScapeData> msScape =
-					(MicroSimScape<ScapeData>) scape;
-
-			data = msScape.getScapeData();
-		}
-	}
-
-	/**
-	 * Set the {@link ScapeData} data globals common to all patients. Exposed
-	 * for testing purposes.
+	 * Set the {@link ScapeData} data globals common to all {@link MicroSimCell}
+	 * s.
 	 * 
 	 * @param inData
 	 *            data
 	 */
-	public void setData(ScapeData inData) {
+	public static void setData(ScapeData inData) {
 		data = inData;
 	}
 

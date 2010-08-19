@@ -3,6 +3,7 @@ package org.jamsim.ascape.r;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
 
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
@@ -61,7 +62,7 @@ public class ScapeRInterface {
 	 */
 	private final RSwingConsole rConsole;
 
-	private final MicroSimScape<?> msScape;
+	private final MicroSimScape<?> msscape;
 
 	private final ExecutionTimer timer = new ExecutionTimer();
 
@@ -78,7 +79,7 @@ public class ScapeRInterface {
 	 * @return micro simulation scape
 	 */
 	public MicroSimScape<?> getMsScape() {
-		return msScape;
+		return msscape;
 	}
 
 	/**
@@ -99,13 +100,41 @@ public class ScapeRInterface {
 	public ScapeRInterface(RLoader rLoader, MicroSimScape<?> msScape,
 			String dataFrameSymbol, boolean keepAllRunDFs) {
 		this.dataFrameSymbol = dataFrameSymbol;
-		this.msScape = msScape;
+		this.msscape = msScape;
 		this.keepAllRunDFs = keepAllRunDFs;
 
 		this.rConsole = rLoader.getRConsole();
 		this.rInterface = rLoader.getRInterface();
 
 		LAST_INSTANCE = this;
+	}
+
+	/**
+	 * Evaluate the contents of a file in R with a "loading" message printed to
+	 * the console. The file is evaluated relative to the folder it is in.
+	 * 
+	 * @param file
+	 *            file containing R commands
+	 * @throws IOException
+	 *             if problem reading or evaluating file
+	 */
+	public void loadRFile(File file) throws IOException {
+		if (file != null) {
+
+			// change working directory to same directory as file
+			// so any source() commands with relative paths will
+			// be relative to the directory of startUpFile
+			String curWd = rInterface.getWd();
+			rInterface.setWd(file.getParent());
+
+			rInterface.printlnToConsole("Loading " + file.getCanonicalPath());
+
+			// rInterface.parseEvalPrint(RUtil.readRFile(file));
+			rInterface.loadFile(file);
+
+			// reset working directory
+			rInterface.setWd(curWd);
+		}
 	}
 
 	/**
@@ -119,19 +148,19 @@ public class ScapeRInterface {
 	}
 
 	/**
-	 * Load a file containing R code into the R environment.
+	 * Create a hash in R from a {@link Map}. Requires the {@code hash} R
+	 * package to have been loaded.
 	 * 
-	 * @param file
-	 *            text file of R code.
-	 * @throws IOException
-	 *             if problem loading the file, or evaluating its contents in R.
+	 * @param name
+	 *            name of hash
+	 * @param map
+	 *            map to write out as hash
+	 * @throws RInterfaceException
+	 *             if problem creating hash
 	 */
-	public void loadFile(File file) throws IOException {
-		try {
-			rInterface.parseEvalTry(file);
-		} catch (RInterfaceException e) {
-			throw new IOException(e);
-		}
+	public void assignHash(String name, Map<String, ?> map)
+			throws RInterfaceException {
+		rInterface.assignHash(name, map);
 	}
 
 	/**
@@ -148,7 +177,7 @@ public class ScapeRInterface {
 
 		timer.start();
 
-		assignDataFrame(dataframeName, msScape, msScape.getPrototypeAgent()
+		assignDataFrame(dataframeName, msscape, msscape.getPrototypeAgent()
 				.getClass().getSuperclass());
 		rInterface.printlnToConsole("Created dataframe " + dataframeName);
 
@@ -201,7 +230,7 @@ public class ScapeRInterface {
 	 */
 	public String getScapeDFRunName(int run) {
 		String dfName =
-				msScape.getName().toLowerCase() + (keepAllRunDFs ? run : "");
+				msscape.getName().toLowerCase() + (keepAllRunDFs ? run : "");
 		return dfName;
 	}
 
@@ -515,12 +544,12 @@ public class ScapeRInterface {
 	 */
 	public RObjectTreeBuilder createRObjectTreeBuilder()
 			throws RInterfaceException {
-/*		
-		return new RObjectTreeBuilder(rInterface);
-*/
-		
+		/*
+		 * return new RObjectTreeBuilder(rInterface);
+		 */
+
 		return new RObjectTreeBuilder(rInterface, getMsScape().getName()
 				.toLowerCase());
-		
+
 	}
 }

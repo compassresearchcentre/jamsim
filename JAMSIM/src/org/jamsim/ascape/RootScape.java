@@ -1,5 +1,6 @@
 package org.jamsim.ascape;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.lang.mutable.MutableInt;
@@ -24,6 +25,8 @@ import org.omancode.r.RInterfaceException;
  * @version $Revision$
  * 
  * @param <D>
+ *            a scape data class that defines data external to the scape for use
+ *            by agents, and for loading agents.
  */
 public class RootScape<D extends ScapeData> extends Scape {
 
@@ -33,8 +36,10 @@ public class RootScape<D extends ScapeData> extends Scape {
 	private static final long serialVersionUID = 7744671548962486008L;
 
 	private MicroSimScape<D> msscape;
-
+	
 	private transient Output consoleOutput;
+
+	private FileLoader loader;
 
 	private ScapeRInterface scapeR;
 
@@ -81,6 +86,9 @@ public class RootScape<D extends ScapeData> extends Scape {
 				new ConsoleOutput(this.getRunner().getEnvironment()
 						.getConsole());
 
+		// set up file loader
+		loader = new FileLoader(this.getClass(), consoleOutput);
+
 	}
 
 	/**
@@ -109,33 +117,19 @@ public class RootScape<D extends ScapeData> extends Scape {
 	/**
 	 * Set up the microsimulation base scape.
 	 * 
-	 * @param scapeDataCreator
-	 *            scape data creator
 	 * @param prototypeAgent
 	 *            required by Ascape
 	 * @param baseScapeName
 	 *            name of the base scape
 	 * @return microsimulation base scape
 	 */
-	public MicroSimScape<D> createBaseScape(
-			ScapeDataCreator<D> scapeDataCreator, Agent prototypeAgent,
-			String baseScapeName) {
-
-		// set up file loader
-		FileLoader loader = new FileLoader(this.getClass(), consoleOutput);
-
-		// load scape data
-		D scapeData;
-		try {
-			scapeData = scapeDataCreator.create(loader);
-		} catch (IOException e) {
-			throw new RuntimeException(e.getMessage(), e);
-		}
+	public MicroSimScape<D> createBaseScape(String baseScapeName,
+			Agent prototypeAgent) {
 
 		// create scape of agents
 		msscape =
 				new MicroSimScape<D>(new ListSpace(), baseScapeName,
-						prototypeAgent, loader, scapeData);
+						prototypeAgent, loader);
 		add(msscape);
 
 		// for some reason this needs to be added, otherwise the iterate
@@ -146,39 +140,40 @@ public class RootScape<D extends ScapeData> extends Scape {
 	}
 
 	/**
-	 * Starts R on the base scape.
+	 * Starts R on the base scape and creates a dataframe from the scape.
 	 * <p>
 	 * Uses the lowercase version of the base scape name as the dataframe
 	 * symbol. When evaluating {@code rRunEndCommand} and commands during the
 	 * creation of output datasets in {@link ROutput} and
 	 * {@link ROutputMultiRun}, this symbol is searched for and replaced with
 	 * the current run's dataframe name.
-	 * <p>
-	 * Uses "R startup file" as the preferences key to lookup the location of
-	 * the R startup file.
 	 * 
 	 * @param keepAllRunDFs
 	 *            flag to keep the dataframes from each run in R. This means
 	 *            creating each new dataframe with a unique name.
 	 * @return scape R interface
+	 * @throws IOException
+	 *             if problem starting R
 	 */
-	public ScapeRInterface startR(boolean keepAllRunDFs) {
+	public ScapeRInterface loadR(boolean keepAllRunDFs) throws IOException {
+		scapeR = msscape.loadR(msscape.getName().toLowerCase(), false);
+		return scapeR;
+	}
 
-		try {
-			scapeR =
-					msscape.startR(msscape.getName().toLowerCase(),
-							"R startup file", false);
-			return scapeR;
-		} catch (IOException e) {
-			// output stack trace to stderr
-			e.printStackTrace();
+	/**
+	 * Run commands in the R startup file.
+	 * 
+	 * Uses "R startup file" as the preferences key to lookup the location of
+	 * the R startup file.
+	 * 
+	 * @throws IOException if problem loading file 
+	 */
+	public void loadRStartupFile() throws IOException {
 
-			// output exception message to ascape log tab
-			System.out.print(e.getMessage());
-			
-			throw new RuntimeException(e);
-		}
+		// get startup file
+		File startUpFile = loader.getFile("R startup file");
 
+		scapeR.loadRFile(startUpFile);
 	}
 
 	/**
@@ -238,6 +233,15 @@ public class RootScape<D extends ScapeData> extends Scape {
 		// add multi run controller. this must be added AFTER any output
 		// datasets/nodes
 		msscape.addView(new MultipleRunController(numberRuns));
+
+		if (scapeR != null) {
+			// display prompt after all setup done
+			scapeR.printPrompt();
+
+			// add a dataframe information node
+			msscape.addDataFrameNode(scapeR.getScapeDFRunName(0));
+
+		}
 	}
 
 	/**
@@ -276,6 +280,15 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 */
 	public void setWriteResultsToFile(boolean write) {
 		msscape.setResultsToFile(write);
+	}
+
+	/**
+	 * Get {@link FileLoader}.
+	 * 
+	 * @return file loader
+	 */
+	public FileLoader getLoader() {
+		return loader;
 	}
 
 }

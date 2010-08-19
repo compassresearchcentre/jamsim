@@ -88,11 +88,16 @@ public class AscapeGD extends GDInterface implements PanelViewProvider {
 	 * Add this GD to the navigator. Exposed so can be called from R, after
 	 * {@link #setName(String)} has been called (from which we get a node
 	 * title).
+	 * 
+	 * @param subFolderName
+	 *            of navigator subfolder under "Graphs" to create node, or
+	 *            empty string to create node directly under "Graphs"
 	 */
-	public void addToNavigator() {
+	public void addToNavigator(String subFolderName) {
 		// add as node under graphs
 		MicroSimScape<?> msscape = ScapeRInterface.LAST_INSTANCE.getMsScape();
-		msscape.addGraphNode(this);
+		msscape.addGraphNode(this, "".equals(subFolderName) ? null //NOPMD
+				: subFolderName); 
 	}
 
 	@Override

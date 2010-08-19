@@ -40,6 +40,14 @@ public interface ScapeData {
 	 */
 	Map<String, ParameterSet> getParameterSets();
 
+
+	/**
+	 * Get random number generator.
+	 * 
+	 * @return random number generator.
+	 */
+	RNG getRNG();
+
 	/**
 	 * Return a collection of agents from the base file.
 	 * 
@@ -49,14 +57,13 @@ public interface ScapeData {
 	 * @throws IOException
 	 *             if problem loading from base file
 	 */
-	Collection<? extends Agent> getBaseScapeAgents(File basefile)
-			throws IOException;
-
+	Collection<? extends Agent> loadAgents(File basefile) throws IOException;
+	
 	/**
-	 * Get random number generator.
+	 * Get the data dictionary.
 	 * 
-	 * @return random number generator.
+	 * @return data dictionary
 	 */
-	RNG getRNG();
+	DataDictionary getDataDictionary();
 
 }

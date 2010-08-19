@@ -86,7 +86,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	private File basefile = null;
 
 	/**
-	 * Used to help load the base file.
+	 * Used to help load files.
 	 */
 	private final FileLoader loader;
 
@@ -121,7 +121,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 * Global data external to scape. Used by agents of this scape and used to
 	 * load these agents.
 	 */
-	private final D scapeData;
+	private D scapeData;
 
 	/**
 	 * Return the {@link ScapeData} object. This method allows agents to access
@@ -161,18 +161,12 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 * @param loader
 	 *            file loader object which provides preferences, an select file
 	 *            dialog, and output services
-	 * @param scapeData
-	 *            a class that specifies data external to the scape and
-	 *            available for global access by agents via
-	 *            {@link #getScapeData()}. This class also specifies how base
-	 *            agents are loaded (from file, database etc.)
 	 */
 	public MicroSimScape(CollectionSpace space, String name,
-			Agent prototypeAgent, FileLoader loader, D scapeData) {
+			Agent prototypeAgent, FileLoader loader) {
 		super(space);
 		this.loader = loader;
 		this.prefs = loader.getPrefs();
-		this.scapeData = scapeData;
 
 		// set prototype agent after setting scapeData
 		// in case the agent wants to make use of scapeData
@@ -180,10 +174,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 
 		setName(name);
 
-		// load the patient scape with patient agents
-		// loadAgents();
-
-		// tell the patients scape not to auto create, otherwise
+		// tell the scape not to auto create, otherwise
 		// it will remove the agents we've added to it and
 		// replace them with clones with parameter values of 0
 		// this.setAutoCreate(false);
@@ -206,6 +197,17 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	@Override
 	public void createScape() {
 		AscapeGUIUtil.setNavigatorTreeBuilder(TREE_BUILDER);
+	}
+
+	@Override
+	public void createGraphicViews() {
+		if (wcalc != null) {
+			// Add navigator node
+			addParameterSetNode(wcalc);
+
+			// Add weightings button to additional toolbar
+			addWeightingsButton(wcalc);
+		}
 	}
 
 	/**
@@ -283,15 +285,16 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 * 
 	 * @param provider
 	 *            provider
-	 * @param groupName
-	 *            name of group sub folder to add node under, or {@code null} to
-	 *            add directly under "User Tables".
+	 * @param subFolderName
+	 *            name of sub folder to add node under, or {@code null} to add
+	 *            directly under "User Tables".
 	 */
-	public void addUserNode(OutputDatasetProvider provider, String groupName) {
+	public void addUserNode(OutputDatasetProvider provider,
+			String subFolderName) {
 		initScapeNode();
 		PanelViewNode newNode =
 				scapeNode.addUserNode(new PanelViewDataset(provider),
-						groupName);
+						subFolderName);
 
 		try {
 			AscapeGUIUtil.getNavigator().setSelectionPath(
@@ -310,16 +313,34 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 *            provider of the panel view to create node for
 	 */
 	public void addGraphNode(PanelViewProvider provider) {
+		addGraphNode(provider, null);
+	}
+
+	/**
+	 * Add a panel view node under a subfolder of "Graphs".
+	 * 
+	 * @param provider
+	 *            provider of the panel view to create node for
+	 * @param subFolderName
+	 *            of navigator subfolder under "Graphs" to create node, or
+	 *            {@code null} to create node directly under "Graphs"
+	 */
+	public void addGraphNode(PanelViewProvider provider, String subFolderName) {
 		initScapeNode();
-		scapeNode.addGraphNode(provider);
+		scapeNode.addGraphNode(provider, subFolderName);
 	}
 
 	private final Map<String, String> dataFrameNodeMap =
 			new HashMap<String, String>();
 
+	private WeightCalculator wcalc;
+
 	/**
 	 * Add a data frame node to the navigator. Exits silently without creating a
 	 * duplicate if a node of the same name already exists.
+	 * 
+	 * Must be called after Navigator has been created, eg: in
+	 * createGraphicViews or later.
 	 * 
 	 * @param name
 	 *            dataframe name in R
@@ -360,24 +381,6 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	}
 
 	/**
-	 * Loads this scape with agents from a base file. The location of the base
-	 * file is stored in Preferences. If such a location does not exist, then
-	 * the user is prompted for the base file location. Calls
-	 * {@link #setBasefile(String)} to do the work.
-	 * 
-	 * <p>
-	 * The method must be called after construction and after the scape has been
-	 * added to its parent, so that the scape variable is available.
-	 */
-	public void loadAgents() {
-		if (scape == null) {
-			throw new IllegalStateException(name
-					+ " has not been added to a scape yet");
-		}
-		setBasefile(prefs.get(BASEFILE_KEY, ""));
-	}
-
-	/**
 	 * Set weights on all agents and set-up observers to register changes when
 	 * the {@link WeightCalculator} changes.
 	 * 
@@ -385,6 +388,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 *            weight calculator
 	 */
 	public void setWeightCalculator(WeightCalculator wcalc) {
+		this.wcalc = wcalc;
+
 		// Set scape observer that will refresh dataframe in R
 		// via call to #update
 		wcalc.addObserver(this);
@@ -402,12 +407,6 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		} catch (RInterfaceException e) {
 			throw new RuntimeException(e);
 		}
-
-		// Add navigator node
-		addParameterSetNode(wcalc);
-
-		// Add weightings button to additional toolbar
-		addWeightingsButton(wcalc);
 	}
 
 	/**
@@ -454,68 +453,101 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	}
 
 	/**
-	 * Sets the base file to the specified file. The base file can be specified
-	 * from the model parameters. If the base file doesn't exist, then a file
-	 * chooser dialog is displayed to allow the user to select. If specified or
-	 * selected, any existing agents are removed and the base file is loaded.
+	 * Loads this scape with agents from a base file. The location of the base
+	 * file is stored in Preferences. If such a location does not exist, then
+	 * the user is prompted for the base file location.
+	 * 
+	 * The method must be called after construction and after the scape has been
+	 * added to its parent, so that the scape variable is available.
+	 * 
+	 * @param scapeData
+	 *            provides method to load agents. Also used by agents during
+	 *            their initialisation to obtain globals.
+	 * @throws IOException
+	 *             if problem loading the agents
+	 */
+	public void loadAgents(D scapeData) throws IOException {
+		if (scape == null) {
+			throw new IllegalStateException(name
+					+ " has not been added to a scape yet");
+		}
+		this.scapeData = scapeData;
+		MicroSimCell.setData(scapeData);
+
+		loadBasefile(prefs.get(BASEFILE_KEY, ""));
+	}
+
+	/**
+	 * Change the base file to the specified file after agents have already been
+	 * loaded. If the base file doesn't exist, then a file chooser dialog is
+	 * displayed to allow the user to select. If specified or selected, any
+	 * existing agents are removed and the base file is loaded.
+	 * 
+	 * This method is used when setting the base file variable from the model
+	 * parameters.
+	 * 
+	 * @param bfileName
+	 *            base file to load
+	 */
+	public void setBasefile(String bfileName) {
+
+		// bfileName will be null when editing the base file text area in the
+		// model parameters, before enter is pressed
+		if (bfileName != null) {
+			try {
+				loadBasefile(bfileName);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
+	/**
+	 * Sets the base file to the specified file and loads it. If the base file
+	 * doesn't exist, then a file chooser dialog is displayed to allow the user
+	 * to select.
 	 * 
 	 * @param bfileName
 	 *            base file to load
 	 * @throws IOException
+	 *             if problem loading the base file
 	 */
-	public final void setBasefile(String bfileName) {
+	private void loadBasefile(String bfileName) throws IOException {
+		File newBaseFile = new File(bfileName);
 
-		// bfileName will be null when editing the base file text area in the
-		// model parameters, before enter is pressed
-		// bfileName will be the empty string "" when there are no saved
-		// preferences
-		if (bfileName != null) {
-			File newBaseFile = new File(bfileName);
-
-			// if the new base file doesn't exist then show a file chooser
-			// dialog for the user to select one
-			if (!newBaseFile.exists()) {
-				newBaseFile =
-						loader.showOpenDialog("Select base file to load",
-								null, CBuildFromFile.FileTypeFactories
-										.getFilter());
-			}
-
-			// if we have a passed in, or selected base file, then load it
-			// and set the base file instance variable
-			if (newBaseFile != null) {
-
-				try {
-					basefile = newBaseFile;
-
-					// remove all existing agents (if any are present
-					// from previous loads this session)
-					clear();
-
-					println("Loading base file [" + basefile.getPath()
-							+ "]...... ");
-
-					// AscapeGUIUtil.flushConsoleLog(this);
-					// Thread.yield();
-
-					Collection<? extends Agent> col =
-							scapeData.getBaseScapeAgents(basefile);
-					addAll(col);
-
-					for (Agent a : col) {
-						a.setScape(this);
-					}
-
-					println("Done. " + size() + " " + getName() + " created.");
-
-					// save the base file to the prefs
-					prefs.put(BASEFILE_KEY, basefile.getPath());
-
-				} catch (IOException e) {
-					throw new RuntimeException(e.getMessage(), e); // NOPMD }
-				}
-			}
+		// if the new base file doesn't exist then show a file chooser
+		// dialog for the user to select one
+		if (!newBaseFile.exists()) {
+			newBaseFile =
+					loader.showOpenDialog("Select base file to load", null,
+							CBuildFromFile.FileTypeFactories.getFilter());
 		}
+
+		// if we have a passed in, or selected base file, then load it
+		// and set the base file instance variable
+		if (newBaseFile != null) {
+
+			basefile = newBaseFile;
+
+			// remove all existing agents (if any are present
+			// from previous loads this session)
+			clear();
+
+			println("Loading base file [" + basefile.getPath() + "]...... ");
+
+			Collection<? extends Agent> col = scapeData.loadAgents(basefile);
+			addAll(col);
+
+			for (Agent a : col) {
+				a.setScape(this);
+			}
+
+			println("Done. " + size() + " " + getName() + " created.");
+
+			// save the base file to the prefs
+			prefs.put(BASEFILE_KEY, basefile.getPath());
+		}
+
 	}
 
 	private void loadOutputDirectory() {
@@ -594,7 +626,11 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	}
 
 	/**
-	 * Add R to this scape and create a dataframe from the scape.
+	 * Add R to this scape, create a dataframe in R from the scape, and create data
+	 * dictionary named "dict" in R.
+	 * 
+	 * Agents and ScapeData must have already been created via a call to
+	 * {@link #loadAgents(ScapeData)} prior to calling this.
 	 * 
 	 * @param dataFrameSymbol
 	 *            replacement symbol. When evaluating {@code rRunEndCommand} and
@@ -602,21 +638,16 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 *            {@link ROutput} and {@link ROutputMultiRun}, this symbol is
 	 *            searched for and replaced with the current run's dataframe
 	 *            name.
-	 * @param startUpFilePrefsKey
-	 *            if specified will look this up in the preferences and load the
-	 *            file into R.
 	 * @param keepAllRunDFs
 	 *            flag to keep the dataframes from each run in R. This means
 	 *            creating each new dataframe with a unique name.
 	 * @return scape R interface
 	 * @throws IOException
-	 *             if problem looking up {@code startUpFilePrefsKey}
-	 * @throws RInterfaceException
-	 *             if problem initialising R
+	 *             if problem looking up {@code startUpFilePrefsKey} or
+	 *             initialising R
 	 */
-	public ScapeRInterface startR(String dataFrameSymbol,
-			String startUpFilePrefsKey, boolean keepAllRunDFs)
-			throws IOException, RInterfaceException {
+	public ScapeRInterface loadR(String dataFrameSymbol, boolean keepAllRunDFs)
+			throws IOException {
 
 		// load R
 		RLoader rLoader = RLoader.getInstance();
@@ -633,19 +664,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		// that are dependent on initialisation code.
 		scapeR.assignScapeDataFrame(0);
 
-		// add dataframe node for base file
-		addDataFrameNode(dataFrameSymbol);
-
-		// after assigning the scape, load the startup file which
-		// may reference the newly created scape dataframe
-		if (startUpFilePrefsKey != null) {
-			// get startup file
-			File startUpFile = loader.getFile(startUpFilePrefsKey);
-			rLoader.loadRFile(startUpFile);
-		}
-
-		// display prompt after all setup done
-		scapeR.printPrompt();
+		scapeR.assignHash("dict", scapeData.getDataDictionary().getMap());
 
 		// create R menu with R file editing functions
 		RFileInterface.getInstance(this, scapeR, loader);

@@ -1,5 +1,7 @@
 package org.jamsim.ascape.ui;
 
+import java.awt.event.KeyEvent;
+
 import javax.swing.Action;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -83,6 +85,7 @@ public final class AnalysisMenu {
 	 */
 	private void addMenu() {
 		menu = new JMenu("Analysis");
+		menu.setMnemonic(KeyEvent.VK_A);
 
 		AscapeGUIUtil.addMenu(menu);
 	}

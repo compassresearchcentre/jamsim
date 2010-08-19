@@ -31,7 +31,7 @@ public class FileBuffer extends JEditBuffer {
 	 * Create a {@link FileBuffer} without specifying a file.
 	 */
 	public FileBuffer() {
-
+		// empty constructor
 	}
 
 	/**

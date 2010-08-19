@@ -65,8 +65,10 @@ public class RUICommandPanel extends JPanel {
 		// System.out.println(rCmd);
 
 		try {
+			if (!ruiCmd.isChart()) {
 			scapeR.getMsScape().addUserNode(convert(ruiCmd),
 					ruiCmd.getName());
+			}
 		} catch (CDataRuntimeException e) {
 			AscapeGUIUtil.showErrorDialog(null, e);
 		}

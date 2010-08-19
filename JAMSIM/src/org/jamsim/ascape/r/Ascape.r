@@ -83,10 +83,10 @@ ascapeStart <- function() {
 
 cat("Creating function activateJavaGD\n")
 library(hash)
-activateJavaGD <- function(name, ...) {
+activateJavaGD <- function(name, subFolderName = "", ...) {
 	# activate, or create if it doesn't exist, a JavaGD device by name
-	# eg: activateJavaGD("gp")
-	# eg: activateJavaGD("hospadm")
+	# eg: activateJavaGD("hadmtot")
+	# eg: activateJavaGD("gender", "base file")
 	# requires: library(hash)
 	
 	# if .deviceHash doesn't exist in global environment, create it
@@ -94,20 +94,22 @@ activateJavaGD <- function(name, ...) {
 		assign(".deviceHash", hash(), envir = .GlobalEnv)
 	}
 	
+	hashname <- paste(name, subFolderName)
+	
 	# if no device in hash, create it and add to hash
-	if (!has.key(name, .deviceHash)) {
+	if (!has.key(hashname, .deviceHash)) {
 		JavaGD(...)
 		# add device nbr to hash
-		.deviceHash[[name]] <- dev.cur()
+		.deviceHash[[hashname]] <- dev.cur()
 		
 		# set name on AscapeGD object
 		ascapeGD <- .getJavaGDObject(dev.cur())
 		.jcall(ascapeGD, "V", "setName", name)
-		.jcall(ascapeGD, "V", "addToNavigator")
+		.jcall(ascapeGD, "V", "addToNavigator", subFolderName)
 	}
 	
 	# get device number
-	devNbr <- .deviceHash[[name]]
+	devNbr <- .deviceHash[[hashname]]
 	
 	# make active
 	invisible(dev.set(which = devNbr))

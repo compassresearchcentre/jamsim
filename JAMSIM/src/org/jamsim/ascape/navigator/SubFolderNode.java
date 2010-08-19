@@ -58,7 +58,7 @@ public class SubFolderNode extends DefaultMutableTreeNode implements
 	 * @param name
 	 *            name of node in the tree
 	 * @param scape
-	 *            scape that children nodes will be associated with
+	 *            used to get the output directory when saving nodes
 	 * @param treeModel
 	 *            tree model to add children nodes
 	 */
@@ -73,7 +73,7 @@ public class SubFolderNode extends DefaultMutableTreeNode implements
 	 * @param name
 	 *            name of node in the tree
 	 * @param scape
-	 *            scape that children nodes will be associated with
+	 *            used to get the output directory when saving nodes
 	 * @param treeModel
 	 *            tree model to add children nodes
 	 * @param allRunsNodeName

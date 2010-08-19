@@ -15,14 +15,13 @@ import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
+import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
 import net.casper.io.file.util.ExtFileFilter;
 
 import org.apache.commons.io.FilenameUtils;
 import org.ascape.model.Scape;
-import org.ascape.runtime.swing.DesktopEnvironment;
 import org.ascape.util.swing.AscapeGUIUtil;
 import org.ascape.view.vis.PanelView;
 import org.gjt.sp.jedit.Mode;
@@ -82,7 +81,6 @@ public final class RFileInterface implements PanelViewListener,
 		this.prefs = fileloader.getPrefs();
 		this.mruFiles = new MRUFiles(this, prefs, MRU_PREFS_KEY, MRU_SIZE);
 		addRMenu();
-		addRShortcut();
 		setupJEditModes();
 	}
 
@@ -175,6 +173,7 @@ public final class RFileInterface implements PanelViewListener,
 	 */
 	private void addRMenu() {
 		JMenu rMenu = new JMenu("R");
+		rMenu.setMnemonic(KeyEvent.VK_R);
 
 		rMenu.add(new JMenuItem(getNewRFileAction()));
 		rMenu.add(new JMenuItem(getOpenRFileAction()));
@@ -191,6 +190,9 @@ public final class RFileInterface implements PanelViewListener,
 	/**
 	 * Install the keyboard shortcuts. Calls {@link #executeSelectedRFile()}
 	 * when triggered.
+	 * NB: F6 and F8 need to be installed as a global shortcut, or removed
+	 * from JSplitPane if installed as a JMenuItem shortcut. See
+	 * http://forums.sun.com/thread.jspa?threadID=662036
 	 */
 	private void addRShortcut() {
 
@@ -204,13 +206,7 @@ public final class RFileInterface implements PanelViewListener,
 							executeSelectedRFile();
 
 							return true;
-						} else if (e.getKeyCode() == KeyEvent.VK_F1
-								&& e.getID() == KeyEvent.KEY_PRESSED) {
-
-							executeRHelp();
-							return true;
-						}
-
+						} 
 						return false;
 
 					}
@@ -235,7 +231,7 @@ public final class RFileInterface implements PanelViewListener,
 	 * @return action
 	 */
 	private Action getSaveFileAction() {
-		Action saveAction = new AbstractAction() {
+		Action action = new AbstractAction() {
 
 			public void actionPerformed(ActionEvent e) {
 
@@ -246,13 +242,17 @@ public final class RFileInterface implements PanelViewListener,
 				}
 			}
 		};
-		saveAction.putValue(Action.NAME, "Save R file");
-		saveAction.putValue(Action.SHORT_DESCRIPTION, "Save R file");
+		action.putValue(Action.NAME, "Save R file");
+		action.putValue(Action.SHORT_DESCRIPTION, "Save R file");
+		action.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_S);
+		action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(
+				KeyEvent.VK_S, ActionEvent.CTRL_MASK));
+
 		/*
 		 * openAction.putValue(Action.SMALL_ICON, DesktopEnvironment
 		 * .getIcon("OpenArrow"));
 		 */
-		return saveAction;
+		return action;
 
 	}
 
@@ -262,7 +262,7 @@ public final class RFileInterface implements PanelViewListener,
 	 * @return action
 	 */
 	private Action getNewRFileAction() {
-		Action newAction = new AbstractAction() {
+		Action action = new AbstractAction() {
 
 			public void actionPerformed(ActionEvent e) {
 
@@ -273,9 +273,10 @@ public final class RFileInterface implements PanelViewListener,
 				}
 			}
 		};
-		newAction.putValue(Action.NAME, "New R file");
-		newAction.putValue(Action.SHORT_DESCRIPTION, "New R file");
-		return newAction;
+		action.putValue(Action.NAME, "New R file");
+		action.putValue(Action.SHORT_DESCRIPTION, "New R file");
+		action.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_N);
+		return action;
 
 	}
 
@@ -290,7 +291,7 @@ public final class RFileInterface implements PanelViewListener,
 	 * @return action
 	 */
 	private Action getOpenRFileAction() {
-		Action openAction = new AbstractAction() {
+		Action action = new AbstractAction() {
 
 			public void actionPerformed(ActionEvent e) {
 
@@ -301,13 +302,14 @@ public final class RFileInterface implements PanelViewListener,
 				}
 			}
 		};
-		openAction.putValue(Action.NAME, "Open R file");
-		openAction.putValue(Action.SHORT_DESCRIPTION, "Open R file");
+		action.putValue(Action.NAME, "Open R file");
+		action.putValue(Action.SHORT_DESCRIPTION, "Open R file");
+		action.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_O);
 		/*
 		 * openAction.putValue(Action.SMALL_ICON, DesktopEnvironment
 		 * .getIcon("OpenArrow"));
 		 */
-		return openAction;
+		return action;
 
 	}
 
@@ -357,22 +359,26 @@ public final class RFileInterface implements PanelViewListener,
 	 * @return action
 	 */
 	private Action getRunAction() {
-		Action openAction = new AbstractAction() {
+		Action action = new AbstractAction() {
 
 			public void actionPerformed(ActionEvent e) {
-
 				executeSelectedRFile();
 			}
 		};
-		String desc = "Execute R code (F8)";
+		String desc = "Execute R code";
 
-		openAction.putValue(Action.NAME, desc);
-		openAction.putValue(Action.SHORT_DESCRIPTION, desc);
+		action.putValue(Action.NAME, desc);
+		action.putValue(Action.SHORT_DESCRIPTION, desc);
+		action.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_X);
+		action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(
+				KeyEvent.VK_F5, 0));
+
+		
 		/*
 		 * openAction.putValue(Action.SMALL_ICON, DesktopEnvironment
 		 * .getIcon("OpenArrow"));
 		 */
-		return openAction;
+		return action;
 
 	}
 
@@ -383,16 +389,20 @@ public final class RFileInterface implements PanelViewListener,
 	 * @return action
 	 */
 	private Action getRHelpAction() {
-		Action openAction = new AbstractAction() {
+		Action action = new AbstractAction() {
 
 			public void actionPerformed(ActionEvent e) {
 				executeRHelp();
 			}
 		};
-		String description = "R Help (F1)";
-		openAction.putValue(Action.NAME, description);
-		openAction.putValue(Action.SHORT_DESCRIPTION, description);
-		return openAction;
+		String description = "R Help";
+		action.putValue(Action.NAME, description);
+		action.putValue(Action.SHORT_DESCRIPTION, description);
+		action.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_H);
+		action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(
+				KeyEvent.VK_F1, 0));
+
+		return action;
 
 	}
 

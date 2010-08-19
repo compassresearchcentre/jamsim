@@ -329,7 +329,8 @@ public class JEditPanelView extends PanelViewNoStall implements
 	 *             if problem saving buffer.
 	 */
 	public void saveBuffer() throws IOException {
-		if (buffer.isDirty()) {
+		// save if dirty, or completely empty (allows saving of new empty file)
+		if (buffer.isDirty() || buffer.getLength() == 0) {
 			buffer.save();
 			updateFrameTitle();
 		}

@@ -1,7 +1,6 @@
 package org.jamsim.ascape.r;
 
 import java.awt.Component;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -52,8 +51,6 @@ public final class RLoader {
 	 */
 	private final RSwingConsole rConsole;
 
-	private static File staticStartUpFile = null;
-
 	/**
 	 * SingletonHolder is loaded, and the static initializer executed, on the
 	 * first execution of Singleton.getInstance() or the first access to
@@ -73,12 +70,10 @@ public final class RLoader {
 		 */
 		private static RLoader createSingleton() {
 			try {
-				return new RLoader(staticStartUpFile); // NOPMD
-			} catch (RInterfaceException e) {
+				return new RLoader(); // NOPMD
+			} catch (IOException e) {
 				// a static initializer cannot throw exceptions
 				// but it can throw an ExceptionInInitializerError
-				throw new ExceptionInInitializerError(e);
-			} catch (IOException e) {
 				throw new ExceptionInInitializerError(e);
 			}
 		}
@@ -101,28 +96,7 @@ public final class RLoader {
 	}
 
 	/**
-	 * Load and initialise R, run a startup file and add the R console to the
-	 * Ascape GUI.
-	 * 
-	 * Return the singleton instance. The first time this is called the instance
-	 * will be created using the supplied parameters.
-	 * 
-	 * @param startUpFile
-	 *            file of R commands to load into R when it is started, or
-	 *            {@code null} if no file to load.
-	 * @return singleton instance
-	 * @throws RInterfaceException
-	 *             if problem loading or initialising R
-	 */
-	public static RLoader getInstance(File startUpFile)
-			throws RInterfaceException {
-		staticStartUpFile = startUpFile;
-		return getInstance();
-	}
-
-	/**
-	 * Load and initialise R without a startup file and add the R console to the
-	 * Ascape GUI.
+	 * Load and initialise R and add the R console to the Ascape GUI.
 	 * 
 	 * Returns the singleton instance. The first time this is called the
 	 * instance will be created.
@@ -145,34 +119,13 @@ public final class RLoader {
 	}
 
 	/**
-	 * Load and initialise R, run a startup file and add the R console to the
-	 * Ascape GUI.
-	 * 
-	 * @param startUpFile
-	 *            file of R commands to load into R when it is started, or
-	 *            {@code null} if no file to load.
-	 * @throws RInterfaceException
-	 *             if problem loading or initialising R
-	 * @throws IOException
-	 *             if problem reading startup file
-	 */
-	private RLoader(File startUpFile) throws RInterfaceException, IOException {
-		this();
-
-		if (startUpFile != null) {
-			loadRFile(startUpFile);
-		}
-
-	}
-
-	/**
 	 * Load and initialise R without a startup file and adds the R console to
 	 * the Ascape GUI.
 	 * 
 	 * @throws RInterfaceException
 	 *             if problem loading or initialising R
 	 */
-	private RLoader() throws RInterfaceException {
+	private RLoader() throws IOException {
 		// display message on ascape log tab
 		System.out.print("Starting R....");
 
@@ -258,9 +211,9 @@ public final class RLoader {
 	 * and support functions and sets options.
 	 * 
 	 * @throws RInterfaceException
-	 *             if problem evaluating initialisation commands
+	 *             if problem loading/evaluating initialisation commands
 	 */
-	private void initR() throws RInterfaceException {
+	private void initR() throws IOException {
 		rInterface.loadPackage("rJava");
 		rInterface.loadPackage("JavaGD");
 
@@ -271,38 +224,16 @@ public final class RLoader {
 	}
 
 	/**
-	 * Evaluation the contents of a file in R.
-	 * 
-	 * @param file
-	 *            file containing R commands
-	 * @throws RInterfaceException
-	 *             if problem evaluating file
-	 * @throws IOException
-	 *             if problem reading file
-	 */
-	public void loadRFile(File file) throws RInterfaceException, IOException {
-		rInterface.printlnToConsole("Loading " + file.getCanonicalPath());
-
-		rInterface.parseEvalPrint(RUtil.readRFile(file));
-	}
-
-	/**
 	 * Load the support functions.
 	 * 
-	 * @throws RInterfaceException
-	 *             if problem evaluating support function file.
+	 * @throws IOException
+	 *             if problem loading or evaluating support function file.
 	 */
-	private void loadRSupportFunctions() throws RInterfaceException {
-
+	private void loadRSupportFunctions() throws IOException {
 		rInterface.printlnToConsole("Loading " + SUPPORT_FILE);
 
 		InputStream ins = getClass().getResourceAsStream(SUPPORT_FILE);
-
-		try {
-			rInterface.parseEvalPrint(RUtil.readRStream(ins));
-		} catch (IOException e) {
-			throw new RInterfaceException(e);
-		}
+		rInterface.parseEvalPrint(RUtil.readRStream(ins));
 	}
 
 	/**
