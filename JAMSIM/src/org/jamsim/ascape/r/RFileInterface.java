@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -59,8 +58,6 @@ public final class RFileInterface implements PanelViewListener,
 
 	private final Scape scape;
 
-	private final Preferences prefs;
-
 	/**
 	 * Construct a {@link RFileInterface}.
 	 * 
@@ -78,8 +75,9 @@ public final class RFileInterface implements PanelViewListener,
 		this.scape = scape;
 		this.scapeR = scapeR;
 		this.fileloader = fileloader;
-		this.prefs = fileloader.getPrefs();
-		this.mruFiles = new MRUFiles(this, prefs, MRU_PREFS_KEY, MRU_SIZE);
+		this.mruFiles =
+				new MRUFiles(this, fileloader.getPrefs(), MRU_PREFS_KEY,
+						MRU_SIZE);
 		addRMenu();
 		setupJEditModes();
 	}
@@ -189,9 +187,8 @@ public final class RFileInterface implements PanelViewListener,
 
 	/**
 	 * Install the keyboard shortcuts. Calls {@link #executeSelectedRFile()}
-	 * when triggered.
-	 * NB: F6 and F8 need to be installed as a global shortcut, or removed
-	 * from JSplitPane if installed as a JMenuItem shortcut. See
+	 * when triggered. NB: F6 and F8 need to be installed as a global shortcut,
+	 * or removed from JSplitPane if installed as a JMenuItem shortcut. See
 	 * http://forums.sun.com/thread.jspa?threadID=662036
 	 */
 	private void addRShortcut() {
@@ -206,7 +203,7 @@ public final class RFileInterface implements PanelViewListener,
 							executeSelectedRFile();
 
 							return true;
-						} 
+						}
 						return false;
 
 					}
@@ -373,7 +370,6 @@ public final class RFileInterface implements PanelViewListener,
 		action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(
 				KeyEvent.VK_F5, 0));
 
-		
 		/*
 		 * openAction.putValue(Action.SMALL_ICON, DesktopEnvironment
 		 * .getIcon("OpenArrow"));

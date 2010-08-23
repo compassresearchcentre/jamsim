@@ -18,8 +18,7 @@ import org.rosuda.REngine.REXPVector;
 /**
  * A single run output dataset produced by running commands on the scape
  * dataframe. Runs the R command when the iteration finishes and returns a
- * casper dataset. Currently supports R commands that return a table or a
- * dataset.
+ * casper dataset.
  * 
  * @author Oliver Mannion
  * @version $Revision$
@@ -75,7 +74,7 @@ public class ROutput implements OutputDatasetProvider {
 
 		try {
 
-			System.out.println(cmd);
+			System.out.println("Routput: " + cmd);
 			rexp = scapeR.parseEvalTry(cmd);
 
 			CBuilder builder;

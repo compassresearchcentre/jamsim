@@ -9,73 +9,20 @@ import javax.swing.JMenuItem;
 import org.ascape.util.swing.AscapeGUIUtil;
 
 /**
- * Analysis menu. Provides analysis menu items.
+ * Analysis menu. Provides analysis menu items. Implemented as a singleton.
  * 
  * @author Oliver Mannion
  * @version $Revision$
  * 
  */
-public final class AnalysisMenu {
-
+public enum AnalysisMenu {
+	
+	/**
+	 * Singleton instance.
+	 */
+	INSTANCE;
+		
 	private JMenu menu; 
-
-	private AnalysisMenu() {
-		// do nothing
-	}
-
-	/**
-	 * SingletonHolder is loaded, and the static initializer executed, on the
-	 * first execution of Singleton.getInstance() or the first access to
-	 * SingletonHolder.INSTANCE, not before.
-	 */
-	private static final class SingletonHolder {
-
-		/**
-		 * Singleton instance, with static initializer.
-		 */
-		private static final AnalysisMenu INSTANCE = createSingleton();
-
-		/**
-		 * Create singleton instance using static parameters from outer class.
-		 * 
-		 * @return instance
-		 */
-		private static AnalysisMenu createSingleton() {
-			try {
-				return new AnalysisMenu(); // NOPMD
-			} catch (Exception e) {
-				// a static initializer cannot throw exceptions
-				// but it can throw an ExceptionInInitializerError
-				throw new ExceptionInInitializerError(e);
-			}
-		}
-
-		/**
-		 * Prevent instantiation.
-		 */
-		private SingletonHolder() {
-		}
-
-		/**
-		 * Get singleton instance.
-		 * 
-		 * @return singleton instance.
-		 */
-		public static AnalysisMenu getInstance() {
-			return SingletonHolder.INSTANCE;
-		}
-
-	}
-
-	/**
-	 * Return the singleton instance. The first time this is called the instance
-	 * will be created using the supplied parameters.
-	 * 
-	 * @return an {@link AnalysisMenu} singleton instance.
-	 */
-	public static AnalysisMenu getInstance() {
-		return SingletonHolder.getInstance();
-	}
 
 	/**
 	 * Add the Analysis menu to the menu bar.

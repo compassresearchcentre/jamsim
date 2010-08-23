@@ -83,7 +83,7 @@ ascapeStart <- function() {
 
 cat("Creating function activateJavaGD\n")
 library(hash)
-activateJavaGD <- function(name, subFolderName = "", ...) {
+activateJavaGD <- function(name, subFolderName = "", selectNode = FALSE, ...) {
 	# activate, or create if it doesn't exist, a JavaGD device by name
 	# eg: activateJavaGD("hadmtot")
 	# eg: activateJavaGD("gender", "base file")
@@ -113,6 +113,12 @@ activateJavaGD <- function(name, subFolderName = "", ...) {
 	
 	# make active
 	invisible(dev.set(which = devNbr))
+
+	if (selectNode) {
+		ascapeGD <- .getJavaGDObject(dev.cur())
+		.jcall(ascapeGD, "V", "selectNode")
+	}
+
 } 
 
 cat("Creating function trim\n")

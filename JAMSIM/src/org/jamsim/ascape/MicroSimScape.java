@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -40,8 +41,11 @@ import org.jamsim.ascape.output.ROutputMultiRun;
 import org.jamsim.ascape.r.PanelViewDataset;
 import org.jamsim.ascape.r.RFileInterface;
 import org.jamsim.ascape.r.RLoader;
+import org.jamsim.ascape.r.ScapeRCommand;
 import org.jamsim.ascape.r.ScapeRInterface;
+import org.jamsim.ascape.ui.AnalysisMenu;
 import org.jamsim.ascape.ui.ParameterSetAction;
+import org.jamsim.ascape.ui.ScapeRCommandAction;
 import org.jamsim.ascape.weights.WeightCalculator;
 import org.jamsim.io.FileLoader;
 import org.jamsim.io.ParameterSet;
@@ -208,6 +212,20 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 			// Add weightings button to additional toolbar
 			addWeightingsButton(wcalc);
 		}
+
+		// setup analysis menu
+		List<ScapeRCommand> commands = scapeData.getAnalysisMenuCommands(scapeR);
+		if (commands != null) {
+			AnalysisMenu amenu = AnalysisMenu.INSTANCE;
+
+			// clear from previous sim (if any)
+			amenu.removeAll();
+
+			for (ScapeRCommand cmd : commands) {
+				amenu.addMenuItem(new ScapeRCommandAction(scapeR, cmd));
+			}
+		}
+
 	}
 
 	/**
@@ -324,10 +342,12 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 * @param subFolderName
 	 *            of navigator subfolder under "Graphs" to create node, or
 	 *            {@code null} to create node directly under "Graphs"
+	 * @return the newly created node
 	 */
-	public void addGraphNode(PanelViewProvider provider, String subFolderName) {
+	public PanelViewNode addGraphNode(PanelViewProvider provider,
+			String subFolderName) {
 		initScapeNode();
-		scapeNode.addGraphNode(provider, subFolderName);
+		return scapeNode.addGraphNode(provider, subFolderName);
 	}
 
 	private final Map<String, String> dataFrameNodeMap =
@@ -626,8 +646,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	}
 
 	/**
-	 * Add R to this scape, create a dataframe in R from the scape, and create data
-	 * dictionary named "dict" in R.
+	 * Add R to this scape, create a dataframe in R from the scape, and create
+	 * data dictionary named "dict" in R.
 	 * 
 	 * Agents and ScapeData must have already been created via a call to
 	 * {@link #loadAgents(ScapeData)} prior to calling this.
@@ -664,7 +684,10 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		// that are dependent on initialisation code.
 		scapeR.assignScapeDataFrame(0);
 
-		scapeR.assignHash("dict", scapeData.getDataDictionary().getMap());
+		DataDictionary dict = scapeData.getDataDictionary();
+		if (dict != null) {
+			scapeR.setDictionary(dict);
+		}
 
 		// create R menu with R file editing functions
 		RFileInterface.getInstance(this, scapeR, loader);

@@ -8,6 +8,7 @@ import java.util.Map;
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
 
+import org.jamsim.ascape.DataDictionary;
 import org.jamsim.ascape.MicroSimScape;
 import org.omancode.r.RDataFrame;
 import org.omancode.r.RInterfaceException;
@@ -66,7 +67,9 @@ public class ScapeRInterface {
 
 	private final ExecutionTimer timer = new ExecutionTimer();
 
-	private String baseFileUpdateCmd = null;
+	private String baseFileUpdateCmd;
+	
+	private DataDictionary dict;
 
 	/**
 	 * Expose statically for {@link AscapeGD}.
@@ -163,6 +166,27 @@ public class ScapeRInterface {
 		rInterface.assignHash(name, map);
 	}
 
+	/**
+	 * Assign data dictionary to the R variable "dict".
+	 * 
+	 * @param dict dictionary
+	 * 
+	 * @throws RInterfaceException if problem creating dictionary
+	 */
+	public void setDictionary(DataDictionary dict) throws RInterfaceException {
+		assignHash("dict", dict.getMap());
+		this.dict = dict;
+	}
+	
+	/**
+	 * Get the data dictionary.
+	 * 
+	 * @return data dictionary.
+	 */
+	public DataDictionary getDictionary() {
+		return dict;
+	}
+	
 	/**
 	 * Create a dataframe from the scape.
 	 * 

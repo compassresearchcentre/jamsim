@@ -8,7 +8,9 @@ import javax.swing.event.InternalFrameEvent;
 
 import org.ascape.runtime.Runner;
 import org.ascape.runtime.swing.DesktopEnvironment;
+import org.ascape.runtime.swing.navigator.PanelViewNode;
 import org.ascape.runtime.swing.navigator.PanelViewProvider;
+import org.ascape.util.swing.AscapeGUIUtil;
 import org.ascape.util.swing.PanelViewUtil;
 import org.ascape.view.vis.PanelView;
 import org.jamsim.ascape.MicroSimScape;
@@ -30,6 +32,8 @@ public class AscapeGD extends GDInterface implements PanelViewProvider {
 	private PanelView pv;
 
 	private String name = WINDOW_TITLE;
+
+	private PanelViewNode node;
 
 	/**
 	 * The frame within the Ascape Swing MDI that holds the PanelView.
@@ -90,14 +94,25 @@ public class AscapeGD extends GDInterface implements PanelViewProvider {
 	 * title).
 	 * 
 	 * @param subFolderName
-	 *            of navigator subfolder under "Graphs" to create node, or
-	 *            empty string to create node directly under "Graphs"
+	 *            of navigator subfolder under "Graphs" to create node, or empty
+	 *            string to create node directly under "Graphs"
 	 */
 	public void addToNavigator(String subFolderName) {
 		// add as node under graphs
 		MicroSimScape<?> msscape = ScapeRInterface.LAST_INSTANCE.getMsScape();
-		msscape.addGraphNode(this, "".equals(subFolderName) ? null //NOPMD
-				: subFolderName); 
+		node =
+				msscape.addGraphNode(this, "".equals(subFolderName) ? null
+						: subFolderName);
+	}
+
+	/**
+	 * Select the Navigator node for this {@link AscapeGD} if it exists,
+	 * otherwise exit silently.
+	 */
+	public void selectNode() {
+		if (node != null) {
+			AscapeGUIUtil.selectNavigatorNode(node);
+		}
 	}
 
 	@Override

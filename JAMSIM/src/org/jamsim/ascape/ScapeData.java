@@ -3,11 +3,14 @@ package org.jamsim.ascape;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.table.TableModel;
 
 import org.ascape.model.Agent;
+import org.jamsim.ascape.r.ScapeRCommand;
+import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.io.ParameterSet;
 import org.jamsim.math.RNG;
 
@@ -66,4 +69,12 @@ public interface ScapeData {
 	 */
 	DataDictionary getDataDictionary();
 
+	/**
+	 * Get list of commands for the Analysis Menu.
+	 * 
+	 * @param scapeR scape R interface
+	 * @return list of commands
+	 */
+
+	List<ScapeRCommand> getAnalysisMenuCommands(ScapeRInterface scapeR);
 }
