@@ -214,7 +214,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		}
 
 		// setup analysis menu
-		List<ScapeRCommand> commands = scapeData.getAnalysisMenuCommands(scapeR);
+		List<ScapeRCommand> commands =
+				scapeData.getAnalysisMenuCommands(scapeR);
 		if (commands != null) {
 			AnalysisMenu amenu = AnalysisMenu.INSTANCE;
 

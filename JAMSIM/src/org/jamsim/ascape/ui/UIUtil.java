@@ -5,6 +5,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
 import org.omancode.swing.DoubleCellRenderer;
+import org.omancode.swing.JTableExcelStyleEdit;
 import org.omancode.swing.SwingUtil;
 
 /**
@@ -38,9 +39,15 @@ public final class UIUtil {
 	 * @return table
 	 */
 	public static JTable createTable(TableModel tmodel, String name) {
-		JTable table = new JTable(tmodel); // NOPMD
+		JTableExcelStyleEdit table = new JTableExcelStyleEdit(tmodel); // NOPMD
 		table.setName(name);
 
+		// allow cell selection instead of row selection
+		table.setCellSelectionEnabled(true);
+		
+		// prevent non editable cells from receiving focus
+		table.setPreventNonEditCellFocus(true);
+		
 		TableCellRenderer dblRenderer = getDoubleCellRenderer();
 		table.setDefaultRenderer(Double.class, dblRenderer);
 		

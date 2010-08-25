@@ -26,6 +26,8 @@ public interface WeightCalculator extends ParameterSet {
 	/**
 	 * Adds an observer to the set of observers for this object, provided that
 	 * it is not the same as some observer already in the set.
+	 * 
+	 * @param o observer
 	 */
 	void addObserver(Observer o);
 

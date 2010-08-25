@@ -56,6 +56,12 @@ public class SingleVarWeightCalc extends Observable implements
 	private final AbstractTableModel tableModel;
 
 	/**
+	 * Weights are between 0 and 1. Adjustment factor used for display purposes
+	 * only.
+	 */
+	private static final int ADJ_FACTOR = 100;
+
+	/**
 	 * Construct a set of weightings at each factor level of {@code
 	 * variableName}.
 	 * 
@@ -84,7 +90,8 @@ public class SingleVarWeightCalc extends Observable implements
 		this.weights =
 				factorLevelWeights.values().toArray(
 						new MutableNumerator[factorLevelWeights.size()]);
-		this.tableModel = new MutableNumeratorTableModel(weights);
+		this.tableModel =
+				new MutableNumeratorTableModel(weights, ADJ_FACTOR, 1);
 
 		validate();
 
@@ -203,8 +210,8 @@ public class SingleVarWeightCalc extends Observable implements
 		}
 
 		if (!MathUtil.equals(total, 1)) {
-			throw new InvalidDataException("sol reweights (" + total
-					+ ") must add to 1");
+			throw new InvalidDataException("Weights (" + total * ADJ_FACTOR
+					+ ") must add to " + ADJ_FACTOR);
 		}
 
 	}
