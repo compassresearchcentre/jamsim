@@ -21,7 +21,8 @@ public class MutableNumeratorTableModel extends AbstractTableModel {
 	 */
 	private static final long serialVersionUID = 3155978328221657804L;
 
-	private static final String[] COLUMN_NAMES = { "Name", "Value (%)" };
+	private static final String[] COLUMN_NAMES =
+			{ "Level", "Base (%)", "Weighting (%)" };
 
 	private final MutableNumerator[] values;
 
@@ -88,7 +89,7 @@ public class MutableNumeratorTableModel extends AbstractTableModel {
 
 	@Override
 	public int getColumnCount() {
-		return 2;
+		return 3;
 	}
 
 	@Override
@@ -102,7 +103,7 @@ public class MutableNumeratorTableModel extends AbstractTableModel {
 			// names
 			return String.class;
 
-		} else if (c == 1) {
+		} else if (c == 1 || c == 2) {
 			// values
 			return Double.class;
 
@@ -114,7 +115,7 @@ public class MutableNumeratorTableModel extends AbstractTableModel {
 	@Override
 	public boolean isCellEditable(int row, int col) {
 		// values column is editable
-		return (col == 1);
+		return (col == 2);
 	}
 
 	@Override
@@ -124,6 +125,10 @@ public class MutableNumeratorTableModel extends AbstractTableModel {
 			return values[rowIndex].getName();
 
 		} else if (columnIndex == 1) {
+			// original values
+			return values[rowIndex].getOriginalValue() * adjFactor;
+
+		} else if (columnIndex == 2) {
 			// values
 			return values[rowIndex].doubleValue() * adjFactor;
 
@@ -136,7 +141,7 @@ public class MutableNumeratorTableModel extends AbstractTableModel {
 	@Override
 	public void setValueAt(Object value, int row, int col) {
 
-		if (col != 1) {
+		if (col != 2) {
 			throw new IllegalStateException("column " + col
 					+ " is not editable");
 		}

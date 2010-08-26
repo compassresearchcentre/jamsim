@@ -17,10 +17,12 @@ public class MutableNumerator extends Number implements
 	private static final long serialVersionUID = -5582099331306228081L;
 
 	private double numerator;
+	private final double originalNumerator;
 	private final double denominator;
 	private double fraction;
 
 	private final String name;
+
 
 	/**
 	 * Construct {@link MutableNumerator} with the name "untitled" and a
@@ -57,6 +59,7 @@ public class MutableNumerator extends Number implements
 	 */
 	public MutableNumerator(String name, double denominator, double numerator) {
 		this.name = name;
+		this.originalNumerator = numerator;
 		this.numerator = numerator;
 		this.denominator = denominator;
 		calcFraction();
@@ -72,6 +75,15 @@ public class MutableNumerator extends Number implements
 		return numerator;
 	}
 
+	/**
+	 * Get the original numerator, ie: the numerator when this was constructed. 
+	 *
+	 * @return original numerator
+	 */
+	public double getOriginalValue() {
+		return originalNumerator;
+	}
+	
 	/**
 	 * Return the numerator as a double value.
 	 * 
