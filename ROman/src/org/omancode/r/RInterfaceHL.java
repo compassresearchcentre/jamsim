@@ -175,15 +175,11 @@ public final class RInterfaceHL {
 	/**
 	 * Load support functions from support file.
 	 * 
-	 * @throws RInterfaceException
-	 *             if problem loading file
 	 * @throws IOException
 	 *             if problem loading file
 	 */
-	private void loadRSupportFunctions() throws RInterfaceException,
-			IOException {
+	private void loadRSupportFunctions() throws IOException {
 		InputStream ins = getClass().getResourceAsStream(SUPPORT_FILE);
-
 		parseEvalTry(RUtil.readRStream(ins));
 	}
 
@@ -365,9 +361,11 @@ public final class RInterfaceHL {
 
 		StringBuilder sb = new StringBuilder(1024);
 
-		for (String str : strs) {
-			sb.append(str).append(NEWLINE);
+		for (int i = 0; i < strs.length - 1; i++) {
+			sb.append(strs[i]).append(NEWLINE);
 		}
+
+		sb.append(strs[strs.length - 1]);
 
 		return sb.toString();
 
@@ -535,14 +533,11 @@ public final class RInterfaceHL {
 	 * @param file
 	 *            text file to evaluate in R
 	 * @return REXP result of the evaluation.
-	 * @throws RInterfaceException
-	 *             if problem during evaluation. See
-	 *             {@link #parseEvalTry(String)}.
 	 * @throws IOException
-	 *             if file cannot be read.
+	 *             if file cannot be read or problem during evaluation. See
+	 *             {@link #parseEvalTry(String)}.
 	 */
-	public REXP parseEvalTry(File file) throws IOException,
-			RInterfaceException {
+	public REXP parseEvalTry(File file) throws IOException {
 		try {
 			return parseEvalTry(RUtil.readRFile(file));
 		} catch (RInterfaceException e) {
@@ -632,6 +627,34 @@ public final class RInterfaceHL {
 	}
 
 	/**
+	 * Create a hash in R from a {@link Map}. Requires the {@code hash} R
+	 * package to have been loaded.
+	 * 
+	 * @param name
+	 *            name of hash
+	 * @param map
+	 *            map to write out as hash
+	 * @throws RInterfaceException
+	 *             if problem creating hash
+	 */
+	public void assignHash(String name, Map<String, ?> map)
+			throws RInterfaceException {
+
+		// create new hash
+		parseEvalTry(name + " <- hash()");
+		
+		for (Map.Entry<String, ?> entry : map.entrySet()) {
+			String key = entry.getKey();
+			Object value = entry.getValue();
+			
+			// convert value to REXP and store in hash
+			REXP rexp = RUtil.toREXP(value);
+			assign(".hashValue", rexp);
+			parseEvalTry(name + "[[\"" + key + "\"]] <- .hashValue");
+		}
+	}
+
+	/**
 	 * Get R_DEFAULT_PACKAGES.
 	 * 
 	 * @return default packages
@@ -674,7 +697,55 @@ public final class RInterfaceHL {
 		}
 	}
 
-	public REXP getGlobalEnvironment() {
-		return parseEvalPrint(".GlobalEnv");
+	/**
+	 * Evaluate the contents of a file in R using the source() function.
+	 * 
+	 * @param file
+	 *            file containing R commands
+	 * @throws IOException
+	 *             if problem getting file path
+	 */
+	public void loadFile(File file) throws IOException {
+		String filename = sanitiseFilePath(file.getCanonicalPath());
+
+		String expr = "source(\"" + filename + "\")";
+		parseEvalPrint(expr);
+	}
+
+	/**
+	 * Sanitise a file path for use in R.
+	 * 
+	 * @param filePath
+	 *            file path
+	 * @return sanitised file path
+	 */
+	private String sanitiseFilePath(String filePath) {
+		return filePath.replace(String.valueOf(File.separatorChar), String
+				.valueOf(File.separatorChar)
+				+ File.separatorChar);
+	}
+
+	/**
+	 * Get the working directory.
+	 * 
+	 * @return working directory
+	 * @throws RInterfaceException
+	 *             if probleming reading directory
+	 */
+	public String getWd() throws RInterfaceException {
+		return evalReturnString("getwd()");
+	}
+
+	/**
+	 * Set the working directory. NB: this sets the working directory in not
+	 * just R, but the java application environment.
+	 * 
+	 * @param dir
+	 *            working directory
+	 * @throws RInterfaceException
+	 *             if problem setting directory
+	 */
+	public void setWd(String dir) throws RInterfaceException {
+		parseEvalTry("setwd(\"" + sanitiseFilePath(dir) + "\")");
 	}
 }

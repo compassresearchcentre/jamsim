@@ -109,14 +109,42 @@ public final class RUtil {
 			return new REXPDouble((double[]) array);
 		} else if (arrayClass == int[].class) {
 			return new REXPInteger((int[]) array);
-		} else if (arrayClass == boolean[].class) {
-			return new REXPLogical((boolean[]) array);
 		} else if (arrayClass == String[].class) {
 			return new REXPString((String[]) array);
+		} else if (arrayClass == boolean[].class) {
+			return new REXPLogical((boolean[]) array);
 		} else {
 			throw new IllegalArgumentException("Cannot convert "
 					+ arrayClass.getCanonicalName() + " to R object");
 		}
+	}
+
+	/**
+	 * Convert Object to REXP.
+	 * 
+	 * @param value
+	 *            object
+	 * @return REXP
+	 */
+	public static REXP toREXP(Object value) {
+
+		if (value == null) {
+			return new REXPNull();
+		} else if (value instanceof Double) {
+			return new REXPDouble((Double) value);
+		} else if (value instanceof Integer) {
+			return new REXPInteger((Integer) value);
+		} else if (value instanceof String) {
+			return new REXPString((String) value);
+		} else if (value instanceof Boolean) {
+			return new REXPLogical((Boolean) value);
+		} else if (value instanceof Character) {
+			return new REXPString(((Character) value).toString());
+		} else {
+			throw new IllegalArgumentException("Cannot convert "
+					+ value.getClass().getCanonicalName() + " to R object");
+		}
+
 	}
 
 	/**
@@ -518,7 +546,8 @@ public final class RUtil {
 			return null;
 		}
 
-		REXPString namesDimNames = (REXPString) dimNames.getAttribute("names");
+		REXPString namesDimNames =
+				(REXPString) dimNames.getAttribute("names");
 
 		if (namesDimNames == null) {
 			return null;
@@ -598,4 +627,13 @@ public final class RUtil {
 		return StringUtils.remove(expr, "\r");
 	}
 
+	/**
+	 * Returns a string representing the boolean value in R.
+	 * 
+	 * @param bool boolean
+	 * @return "TRUE", or "FALSE"
+	 */
+	public static String rBoolean(boolean bool) {
+		return bool ? "TRUE" : "FALSE";
+	}
 }

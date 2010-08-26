@@ -11,36 +11,21 @@ import java.util.Map;
  */
 public interface RUICommand {
 
+
+	/**
+	 * Generate an R command text string from the UI elements. 
+	 * 
+	 * @param uiElements UI elements
+	 * @return R command text string
+	 */
+	String generateCmdText(Map<String, Object> uiElements);
+	
 	/**
 	 * Get {@link RUICommand} name.
 	 * 
 	 * @return name
 	 */
 	String getName();
-
-	/**
-	 * Get name of R variable the command is being applied to.
-	 * 
-	 * @return variable name
-	 */
-	String getVariableName();
-
-	/**
-	 * Sets the UI elements. Must be called before {@link #getVariableName()}
-	 * and {@link #getRCommand()}.
-	 * 
-	 * @param uiElements
-	 *            UI elements
-	 */
-	void setUIElements(Map<String, Object> uiElements);
-
-	/**
-	 * Command to execute in R. Generated from uiElements supplied by
-	 * {@link #setUIElements(Map)}.
-	 * 
-	 * @return r command
-	 */
-	String getRCommand();
 
 	/**
 	 * JavaBuilder YAML UI definition that defines the GUI.
@@ -50,5 +35,12 @@ public interface RUICommand {
 	 *             if problem reading YAML
 	 */
 	String getYAML() throws IOException;
+
+	/**
+	 * Does this command produce a chart?
+	 * 
+	 * @return {@code true} if this command produce a chart.
+	 */
+	boolean isChart();
 
 }
