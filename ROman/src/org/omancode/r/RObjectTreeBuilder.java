@@ -125,7 +125,8 @@ public class RObjectTreeBuilder {
 	 * 
 	 * @param expr
 	 *            r expression
-	 * @return array of nodes created from expr
+	 * @return array of nodes created from expr, or an array with nothing if
+	 *         expr returns nothing.
 	 * @throws RInterfaceException
 	 *             if problem evaluating expr
 	 */
