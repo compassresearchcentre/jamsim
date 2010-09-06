@@ -630,10 +630,40 @@ public final class RUtil {
 	/**
 	 * Returns a string representing the boolean value in R.
 	 * 
-	 * @param bool boolean
+	 * @param bool
+	 *            boolean
 	 * @return "TRUE", or "FALSE"
 	 */
 	public static String rBoolean(boolean bool) {
 		return bool ? "TRUE" : "FALSE";
+	}
+
+	/**
+	 * Returns a vector expression, eg: {@code c("a","b","c")} from the supplied
+	 * strings.
+	 * 
+	 * @param strs string array to turn into vector expression
+	 * @return vector expression
+	 */
+	public static String toVectorExpr(String[] strs) {
+		if (strs == null) { 
+			return "c()";
+		}
+		
+		StringBuffer sb = new StringBuffer();
+		sb.append("c(");
+		
+		int i = 0;
+		for (; i < strs.length - 1; i++) {
+			sb.append('\"');
+			sb.append(strs[i]);
+			sb.append("\",");
+		}
+		
+		sb.append('\"');
+		sb.append(strs[i]);
+		sb.append("\")");
+		
+		return sb.toString();
 	}
 }

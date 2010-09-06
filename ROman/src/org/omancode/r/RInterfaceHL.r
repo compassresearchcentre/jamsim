@@ -50,15 +50,17 @@
 }
 
 
-.getObjects <- function (showFunctions = FALSE) 
+.getObjects <- function (include = "all", exclude = "function") 
 {
-	#.getObjects()
+	#.getObjects() #show all except functions
+	#.getObjects(exclude="") #show all including functions
+	#.getObjects(c("data.frame","numeric") #show only dataframes and numeric vec
 	#get a list of all the objects in the 
 	#global environment, their class and their info
 	#if showFunctions == TRUE returns functions as well
 	objs <- ls(".GlobalEnv")
 	klass <- sapply(objs, function(X) { class(get(X)) })
-	if (!showFunctions) klass <- klass[klass != "function"]
+	klass <- .filter(klass, include, exclude)
 	
 	result <- NULL
 	result$names <- names(klass)
@@ -70,23 +72,70 @@
     result
 }
 
-.getParts <- function (o) 
+.filter <- function (vec, include = "all", exclude = "function") {
+	#.filter(c("a","b","c"), c("c","a"))
+	vec[.filteredIndices(vec,include,exclude)]
+}
+
+.filteredIndices <- function (vec, include = "all", exclude = "function") {
+	#.filteredIndices(c("a","b","c"), c("c","a"))
+	if (any(include != "all")) {
+		vec %in% include
+	} else {
+		!vec %in% exclude
+	}
+}
+
+.getParts <- function (o, include = "all", exclude = "function") 
 {
 	#.getParts(o)
+	#.getParts(o, "integer")
+	#.getParts(o, "logical")
+	#.getParts(c(1,2,3))
 	#get a list containing the names, class, and info
 	#about the parts of an object
-	#if the object has no parts, returns NULL
+	#if the object has no parts (or all parts are filtered out), returns NULL
     result <- NULL
+    
     if (class(o) == "matrix" || (class(o) == "table" && length(dim(o)) == 2)) {
     	#matrix (ie: 2d array) and 2d tables
-    	result$names = .getPartNames(o[1,], "[,", "]")
-    	result$class <- apply(o, 2, class)
-    	result$info <- apply(o, 2, .getInfo)
+    	klass <- apply(o, 2, class)
+
+        if (is.null(names(klass))) {
+        	#unnamed, so give it some names
+        	names(klass) <- .getPartNames(o[1,])
+    	}
+
+    	#just test first class because the rest will be the same
+    	#since this is a matrix/table
+    	if(.filteredIndices(klass[1], include, exclude)) {
+			result$names <- names(klass)
+			result$class <- klass
+			result$info <- apply(o, 2, .getInfo)
+		}
+    	
     } else if (mode(o) == "list") {
     	#lists and dataframes
-    	result$names = .getPartNames(o, "[[", "]]")
-        result$class <- sapply(o, class)
-    	result$info <- sapply(o, .getInfo)
+    	
+        klass <- sapply(o, class)
+        
+        if (is.null(names(klass))) {
+        	#unnamed, so give it some names
+        	names(klass) <- .getPartNames(o)
+    	}
+    	
+    	#filter out elements based on class
+		selection <- .filteredIndices(klass, include, exclude)
+		ofiltered <- o[selection]
+		klassf <- klass[selection]
+		
+		#if we have any elements
+		if (length(ofiltered) > 1) {
+			result$names <- names(klassf)
+			result$class <- klassf
+	
+			result$info <- sapply(ofiltered, .getInfo)
+		}
     }
 
 	names(result$class) <- NULL
@@ -94,10 +143,20 @@
     result
 }
 
-.getPartNames <- function (o, left, right) {
+.getPartNames <- function (o) {
+	#.getPartNames(children)
+	#.getPartNames(children$accom)
+	#.getPartNames(array(c(1),c(2,2))[1,])
 	resultNames <- c()
+	#if o has no names, then use number index as a name
 	if (!is.null(o) && is.null(names(o))) {
-		resultNames <- paste(left, c(1:length(o)), right, sep="") 
+		if (mode(o) == "list") {
+			#lists and dataframes
+			resultNames <- paste("[[", c(1:length(o)), "]]", sep="")
+		} else {
+			#matrix (ie: 2d array) and 2d tables
+			resultNames <- paste("[,", c(1:length(o)), "]", sep="")
+		}
 	}  else {
 		resultNames <- names(o)
 	}
@@ -123,6 +182,8 @@
 			result <- paste(class(o), " ",length(o), sep="")
 	} else if (class(o) == "list") {
 		result <- paste(class(o), " ",length(o), sep="")
+	} else if (class(o) == "function") {
+		result <- class(o)
 	} else {
 		result <- paste(class(o), " ",length(o), sep="")
 	}

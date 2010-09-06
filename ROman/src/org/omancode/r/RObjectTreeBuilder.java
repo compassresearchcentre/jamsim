@@ -21,10 +21,11 @@ public class RObjectTreeBuilder {
 	private final JTree tree = new JTree();
 	private final DefaultMutableTreeNode root;
 	private final DefaultTreeModel model;
+	private final String include;
 
 	/**
-	 * Construct a {@link RObjectTreeBuilder} from the set of objects present at
-	 * time of construction in the R global environment.
+	 * Construct a {@link RObjectTreeBuilder} from the set of all objects
+	 * present at time of construction in the R global environment.
 	 * 
 	 * @param rInterface
 	 *            r interface
@@ -33,7 +34,7 @@ public class RObjectTreeBuilder {
 	 */
 	public RObjectTreeBuilder(RInterfaceHL rInterface)
 			throws RInterfaceException {
-		this(rInterface, null);
+		this(rInterface, null, "all");
 	}
 
 	/**
@@ -46,12 +47,37 @@ public class RObjectTreeBuilder {
 	 *            name of a dataframe. If specified only this dataframe will be
 	 *            present in the tree. If {@code null} then all objects in the
 	 *            environment will be present in the tree.
+	 * @param includeClass
+	 *            specify a single class of object to display, or {@code null}
+	 *            to display objects of any class.
 	 * @throws RInterfaceException
 	 *             if problem getting objects
 	 */
-	public RObjectTreeBuilder(RInterfaceHL rInterface, String dataframe)
-			throws RInterfaceException {
+	public RObjectTreeBuilder(RInterfaceHL rInterface, String dataframe,
+			String includeClass) throws RInterfaceException {
+		this(rInterface, dataframe, new String[] { includeClass });
+	}
+
+	/**
+	 * Construct a {@link RObjectTreeBuilder} from a dataframe or the set of
+	 * objects present at time of construction in the R global environment.
+	 * 
+	 * @param rInterface
+	 *            r interface
+	 * @param dataframe
+	 *            name of a dataframe. If specified only this dataframe will be
+	 *            present in the tree. If {@code null} then all objects in the
+	 *            environment will be present in the tree.
+	 * @param includeClass
+	 *            specify the classes of object to display, or {@code null} to
+	 *            display objects of any class.
+	 * @throws RInterfaceException
+	 *             if problem getting objects
+	 */
+	public RObjectTreeBuilder(RInterfaceHL rInterface, String dataframe,
+			String[] includeClass) throws RInterfaceException {
 		this.rInterface = rInterface;
+		this.include = RUtil.toVectorExpr(includeClass);
 
 		if (dataframe == null) {
 			root = new DefaultMutableTreeNode("R");
@@ -99,7 +125,7 @@ public class RObjectTreeBuilder {
 	}
 
 	private RObjectNode[] getObjects() throws RInterfaceException {
-		String expr = ".getObjects()";
+		String expr = ".getObjects(include=" + include + ")";
 		return getNodes(expr);
 	}
 
@@ -115,7 +141,7 @@ public class RObjectTreeBuilder {
 	 */
 	public final RObjectNode[] getParts(String rname)
 			throws RInterfaceException {
-		String expr = ".getParts(" + rname + ")";
+		String expr = ".getParts(" + rname + ", include=" + include + ")";
 		return getNodes(expr);
 	}
 

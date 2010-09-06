@@ -11,15 +11,23 @@ import java.util.Map;
  */
 public interface RUICommand {
 
+	/**
+	 * The types of variable class this command works on. eg: "list",
+	 * "data.frame", "integer" etc. Or {@code null} to work on all objects.
+	 * 
+	 * @return string array of class type names.
+	 */
+	String[] getVariableTypes();
 
 	/**
-	 * Generate an R command text string from the UI elements. 
+	 * Generate an R command text string from the UI elements.
 	 * 
-	 * @param uiElements UI elements
+	 * @param uiElements
+	 *            UI elements
 	 * @return R command text string
 	 */
 	String generateCmdText(Map<String, Object> uiElements);
-	
+
 	/**
 	 * Get {@link RUICommand} name.
 	 * 
