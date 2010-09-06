@@ -566,14 +566,14 @@ public class ScapeRInterface {
 	 * @throws RInterfaceException
 	 *             if problem during interrogation of R environment
 	 */
-	public RObjectTreeBuilder createRObjectTreeBuilder()
+	public RObjectTreeBuilder createRObjectTreeBuilder(String[] includeClasses)
 			throws RInterfaceException {
 		/*
 		 * return new RObjectTreeBuilder(rInterface);
 		 */
 
 		return new RObjectTreeBuilder(rInterface, getMsScape().getName()
-				.toLowerCase());
+				.toLowerCase(), includeClasses);
 
 	}
 }

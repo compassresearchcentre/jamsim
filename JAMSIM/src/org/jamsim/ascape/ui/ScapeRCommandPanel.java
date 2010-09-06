@@ -4,12 +4,10 @@ import java.awt.Window;
 import java.io.IOException;
 import java.util.Map;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTree;
 
-import net.casper.ext.swing.CDataRuntimeException;
-
-import org.ascape.util.swing.AscapeGUIUtil;
 import org.jamsim.ascape.r.ScapeRCommand;
 import org.jamsim.ascape.r.ScapeRInterface;
 import org.javabuilders.BuildResult;
@@ -53,7 +51,9 @@ public class ScapeRCommandPanel extends JPanel {
 	public ScapeRCommandPanel(ScapeRInterface scapeR, Window window,
 			ScapeRCommand rCmd) throws IOException {
 		this.scapeR = scapeR;
-		this.rObjects = scapeR.createRObjectTreeBuilder().getTree();
+		this.rObjects =
+				scapeR.createRObjectTreeBuilder(rCmd.getVariableTypes())
+						.getTree();
 		this.window = window;
 		this.rCmd = rCmd;
 		this.uiElements = SwingJavaBuilder.build(this, rCmd.getYAML());
@@ -62,19 +62,31 @@ public class ScapeRCommandPanel extends JPanel {
 	@SuppressWarnings("unused")
 	private void ok() {
 		try {
+
+			String cmdtext = rCmd.generateCmdText(uiElements);
+			System.out.println(cmdtext);
+
 			if (rCmd.isChart()) {
 				scapeR.parseEvalTry(rCmd.generateCmdText(uiElements));
 			} else {
 				scapeR.getMsScape().addUserNode(
 						rCmd.generateROutput(uiElements), rCmd.getName());
 			}
-		} catch (CDataRuntimeException e) {
-			AscapeGUIUtil.showErrorDialog(null, e);
-		} catch (RInterfaceException e) {
-			AscapeGUIUtil.showErrorDialog(null, e);
-		}
 
-		closeFrame();
+			closeFrame();
+		} catch (RuntimeException e) {
+			showErrorDialog(e);
+		} catch (RInterfaceException e) {
+			showErrorDialog(e);
+		}
+	}
+
+	private void showErrorDialog(Exception e) {
+		String message =
+				(e.getCause() == null) ? e.getMessage() : e.getCause()
+						.getMessage();
+		JOptionPane.showMessageDialog(this, message, "Exception",
+				JOptionPane.ERROR_MESSAGE);
 	}
 
 	@SuppressWarnings("unused")
@@ -85,7 +97,7 @@ public class ScapeRCommandPanel extends JPanel {
 	private void closeFrame() {
 		window.setVisible(false);
 	}
-	
+
 	public static String getSelectedNodeName(Map<String, Object> uiElements) {
 		JTree rObjects = (JTree) uiElements.get("rObjects");
 		RObjectNode node =

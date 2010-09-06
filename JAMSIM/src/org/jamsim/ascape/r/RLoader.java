@@ -214,13 +214,14 @@ public final class RLoader {
 	 *             if problem loading/evaluating initialisation commands
 	 */
 	private void initR() throws IOException {
+		//rInterface.loadRSupportFunctions();
 		rInterface.loadPackage("rJava");
 		rInterface.loadPackage("JavaGD");
 
 		rInterface.printlnToConsole("Setting max.print = " + MAX_PRINT);
 		rInterface.eval("options(max.print=" + MAX_PRINT + ")");
 
-		loadRSupportFunctions();
+		loadAscapeRSupportFunctions();
 	}
 
 	/**
@@ -229,7 +230,7 @@ public final class RLoader {
 	 * @throws IOException
 	 *             if problem loading or evaluating support function file.
 	 */
-	private void loadRSupportFunctions() throws IOException {
+	private void loadAscapeRSupportFunctions() throws IOException {
 		rInterface.printlnToConsole("Loading " + SUPPORT_FILE);
 
 		InputStream ins = getClass().getResourceAsStream(SUPPORT_FILE);
