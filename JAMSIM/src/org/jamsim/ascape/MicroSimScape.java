@@ -18,6 +18,7 @@ import net.casper.data.model.CDataGridException;
 import net.casper.io.beans.CBuildFromCollection;
 import net.casper.io.file.CBuildFromFile;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.ascape.model.Agent;
 import org.ascape.model.Scape;
 import org.ascape.model.space.CollectionSpace;
@@ -36,9 +37,10 @@ import org.jamsim.ascape.navigator.RecordedMicroSimTreeBuilder;
 import org.jamsim.ascape.navigator.SubFolderNode;
 import org.jamsim.ascape.output.ChartProvider;
 import org.jamsim.ascape.output.OutputDatasetProvider;
+import org.jamsim.ascape.output.REXPDatasetProvider;
 import org.jamsim.ascape.output.ROutput;
-import org.jamsim.ascape.output.ROutputMultiRun;
-import org.jamsim.ascape.r.PanelViewDataset;
+import org.jamsim.ascape.output.ROutput1DMultiRun;
+import org.jamsim.ascape.r.PanelViewDatasetProvider;
 import org.jamsim.ascape.r.RFileInterface;
 import org.jamsim.ascape.r.RLoader;
 import org.jamsim.ascape.r.ScapeRCommand;
@@ -50,6 +52,9 @@ import org.jamsim.ascape.weights.WeightCalculator;
 import org.jamsim.io.FileLoader;
 import org.jamsim.io.ParameterSet;
 import org.omancode.r.RInterfaceException;
+import org.rosuda.REngine.REXP;
+import org.rosuda.REngine.REXPDouble;
+import org.rosuda.REngine.REXPReference;
 
 /**
  * A Scape with micro-simulation input/output functions including base file
@@ -256,8 +261,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	}
 
 	/**
-	 * Add a {@link OutputDatasetProvider} to the scape under the output tables
-	 * node.
+	 * Add a {@link OutputDatasetProvider} which provides nodes at the end of
+	 * runs/simulation under the output tables node.
 	 * 
 	 * @param provider
 	 *            provider
@@ -267,8 +272,9 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	}
 
 	/**
-	 * Add a {@link OutputDatasetProvider} to the scape under a particular node
-	 * group.
+	 * Add a {@link OutputDatasetProvider} which provides nodes at the end of
+	 * runs/simulation under a particular node group under the output tables
+	 * node.
 	 * 
 	 * @param provider
 	 *            provider
@@ -300,7 +306,17 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	}
 
 	/**
-	 * Add a panel view node under "User Tables".
+	 * Add a dataset node under "User Tables". The node is automatically opened
+	 * after it is added.
+	 * 
+	 * Takes a provider instead of a dataset directly, so the provider can serve
+	 * up whatever it wants each time the node is opened.
+	 * 
+	 * Takes a {@link OutputDatasetNodeProvider} instead of a
+	 * {@link PanelViewProvider} because a dataset is the most likely type of
+	 * node to be produced and we can do the wrapping in a PanelView for the
+	 * caller.
+	 * 
 	 * 
 	 * @param provider
 	 *            provider
@@ -312,7 +328,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 			String subFolderName) {
 		initScapeNode();
 		PanelViewNode newNode =
-				scapeNode.addUserNode(new PanelViewDataset(provider),
+				scapeNode.addUserNode(new PanelViewDatasetProvider(provider),
 						subFolderName);
 
 		try {
@@ -322,7 +338,38 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 			scapeNode.removeNodeFromParent(newNode);
 			throw e;
 		}
+	}
 
+	/**
+	 * Add an Output table immediately, ie: not via the Scape Listener
+	 * {@link OutputDatasetNodeProvider}.
+	 * 
+	 * @param provider
+	 *            provider
+	 * @param subFolderName
+	 *            name of sub folder to add node under, or {@code null} to add
+	 *            directly under "Output Tables".
+	 */
+	public void addOutputNode(OutputDatasetProvider provider,
+			String subFolderName) {
+		initScapeNode();
+		scapeNode.addOutputNode(new PanelViewDatasetProvider(provider),
+				subFolderName);
+	}
+
+	/**
+	 * Convenience method that can be called from R without having to cast
+	 * provider.
+	 * 
+	 * @param provider
+	 *            provider
+	 * @param subFolderName
+	 *            name of sub folder to add node under, or {@code null} to add
+	 *            directly under "Output Tables".
+	 */
+	public void addOutputNode(REXPDatasetProvider provider,
+			String subFolderName) {
+		addOutputNode((OutputDatasetProvider) provider, subFolderName);
 	}
 
 	/**
@@ -656,7 +703,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 * @param dataFrameSymbol
 	 *            replacement symbol. When evaluating {@code rRunEndCommand} and
 	 *            commands during the creation of output datasets in
-	 *            {@link ROutput} and {@link ROutputMultiRun}, this symbol is
+	 *            {@link ROutput} and {@link ROutput1DMultiRun}, this symbol is
 	 *            searched for and replaced with the current run's dataframe
 	 *            name.
 	 * @param keepAllRunDFs
@@ -671,13 +718,24 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 			throws IOException {
 
 		// load R
-		RLoader rLoader = RLoader.getInstance();
-		rLoader.ascapeStart();
+
+		RLoader rLoader;
+		try {
+			rLoader = RLoader.INSTANCE;
+		} catch (ExceptionInInitializerError e) {
+
+			// re-throw exception that occurred in the initializer
+			// as an exception our caller can deal with
+			Throwable eInInit = e.getCause();
+			throw new RInterfaceException(eInInit.getMessage(), eInInit); // NOPMD
+		}
 
 		// create R scape interface
 		scapeR =
 				new ScapeRInterface(rLoader, this, dataFrameSymbol,
 						keepAllRunDFs);
+
+		rLoader.ascapeStart();
 
 		// create initial dataframe from scape
 		// NB: at this point, agent.initialize() will NOT have been called
@@ -719,5 +777,4 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 
 		addGraphNode(new PanelViewExisting(chart, source.getName()));
 	}
-
 }

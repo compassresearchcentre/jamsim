@@ -20,7 +20,7 @@ import org.jamsim.matrix.IndexedDenseDoubleMatrix2D;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public abstract class AbstractMultiRunOutputDataset implements
+public abstract class Abstract1DMultiRunOutputDataset implements
 		MultiRunOutputDatasetProvider {
 
 	private final String name;
@@ -43,7 +43,7 @@ public abstract class AbstractMultiRunOutputDataset implements
 	 *            column heading of the dataset column that contains the value
 	 *            names
 	 */
-	public AbstractMultiRunOutputDataset(String shortName, String name,
+	public Abstract1DMultiRunOutputDataset(String shortName, String name,
 			String columnHeading) {
 		this(shortName, name, columnHeading, false);
 	}
@@ -64,7 +64,7 @@ public abstract class AbstractMultiRunOutputDataset implements
 	 *            dataset at the end. If {@code false} only returns a multi-run
 	 *            dataset at the end.
 	 */
-	public AbstractMultiRunOutputDataset(String shortName, String name,
+	public Abstract1DMultiRunOutputDataset(String shortName, String name,
 			String columnHeading, boolean datasetEachRun) {
 		this.datasetEachRun = datasetEachRun;
 		this.columnHeading = columnHeading;

@@ -5,7 +5,7 @@ import java.util.LinkedList;
 
 import org.ascape.model.Scape;
 import org.ascape.util.data.StatCollector;
-import org.jamsim.ascape.output.AbstractMultiRunOutputDataset;
+import org.jamsim.ascape.output.Abstract1DMultiRunOutputDataset;
 import org.jamsim.ascape.output.StatCollectorProvider;
 
 /**
@@ -15,7 +15,7 @@ import org.jamsim.ascape.output.StatCollectorProvider;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class StatsRows extends AbstractMultiRunOutputDataset implements
+public class StatsRows extends Abstract1DMultiRunOutputDataset implements
 		StatCollectorProvider {
 
 	/**

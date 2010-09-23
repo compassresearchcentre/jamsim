@@ -155,9 +155,9 @@ public class OutputDatasetNodeProvider implements OutputNodeProvider {
 			return createNode(runName, results);
 
 		} catch (IOException e) {
-			throw new OutputException(e);
+			throw new OutputException(e.getMessage(), e);
 		} catch (CDataGridException e) {
-			throw new OutputException(e);
+			throw new OutputException(e.getMessage(), e);
 		}
 	}
 

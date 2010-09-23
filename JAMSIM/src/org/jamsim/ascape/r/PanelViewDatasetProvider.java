@@ -25,18 +25,18 @@ import org.jamsim.ascape.ui.UIUtil;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class PanelViewDataset implements PanelViewProvider {
+public class PanelViewDatasetProvider implements PanelViewProvider {
 
 	private final OutputDatasetProvider dsprovider;
 	private final String nodeName;
 
 	/**
-	 * Create a {@link PanelViewDataset} with default font.
+	 * Create a {@link PanelViewDatasetProvider} with default font.
 	 * 
 	 * @param outDataset
 	 *            output dataset provider
 	 */
-	public PanelViewDataset(OutputDatasetProvider outDataset) {
+	public PanelViewDatasetProvider(OutputDatasetProvider outDataset) {
 		this.nodeName = outDataset.getName();
 		this.dsprovider = outDataset;
 	}

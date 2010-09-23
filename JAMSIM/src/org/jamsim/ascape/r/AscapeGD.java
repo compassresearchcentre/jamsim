@@ -99,7 +99,7 @@ public class AscapeGD extends GDInterface implements PanelViewProvider {
 	 */
 	public void addToNavigator(String subFolderName) {
 		// add as node under graphs
-		MicroSimScape<?> msscape = ScapeRInterface.LAST_INSTANCE.getMsScape();
+		MicroSimScape<?> msscape = ScapeRInterface.getLastMsScape();
 		node =
 				msscape.addGraphNode(this, "".equals(subFolderName) ? null
 						: subFolderName);

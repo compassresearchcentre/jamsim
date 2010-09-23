@@ -12,6 +12,13 @@ import net.casper.data.model.CDataGridException;
 public interface MultiRunOutputDatasetProvider extends OutputDatasetProvider {
 
 	/**
+	 * Output dataset short name. Can be used as an ID.
+	 * 
+	 * @return short name
+	 */
+	String getShortName();
+	
+	/**
 	 * Dataset returned at the end of all runs.
 	 * 
 	 * @return casper dataset

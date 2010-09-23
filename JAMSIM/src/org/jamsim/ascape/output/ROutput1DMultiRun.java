@@ -16,7 +16,7 @@ import org.rosuda.REngine.REXPMismatchException;
  * @version $Revision$
  * 
  */
-public class ROutputMultiRun extends AbstractMultiRunOutputDataset {
+public class ROutput1DMultiRun extends Abstract1DMultiRunOutputDataset {
 
 	private final ScapeRInterface scapeR;
 	private final String rCommand;
@@ -45,7 +45,7 @@ public class ROutputMultiRun extends AbstractMultiRunOutputDataset {
 	 *            substituted with {@code dataFrameName + run number} - see
 	 *            {@link ScapeRInterface#rcmdReplace(String, int)}.
 	 */
-	public ROutputMultiRun(String shortName, String name,
+	public ROutput1DMultiRun(String shortName, String name,
 			String columnHeading, String[] valueNames,
 			ScapeRInterface scapeR, String rCommand) {
 		super(shortName, name, columnHeading);
@@ -76,7 +76,7 @@ public class ROutputMultiRun extends AbstractMultiRunOutputDataset {
 	 *            substituted with {@code dataFrameName + run number} - see
 	 *            {@link ScapeRInterface#rcmdReplace(String, int)}.
 	 */
-	public ROutputMultiRun(String shortName, String name,
+	public ROutput1DMultiRun(String shortName, String name,
 			String columnHeading, ScapeRInterface scapeR, String rCommand) {
 		this(shortName, name, columnHeading, null, scapeR, rCommand);
 	}
@@ -102,12 +102,12 @@ public class ROutputMultiRun extends AbstractMultiRunOutputDataset {
 	 *            iteration. Where the data frame symbol appears this will be
 	 *            substituted with {@code dataFrameName + run number} - see
 	 *            {@link ScapeRInterface#rcmdReplace(String, int)}.
-	 * @return {@link ROutputMultiRun}
+	 * @return {@link ROutput1DMultiRun}
 	 */
-	public static ROutputMultiRun createNamesFromRCommand(String shortName,
+	public static ROutput1DMultiRun createNamesFromRCommand(String shortName,
 			String name, String columnHeading, String valueNameCommand,
 			ScapeRInterface scapeR, String rCommand) {
-		return new ROutputMultiRun(shortName, name, columnHeading, scapeR
+		return new ROutput1DMultiRun(shortName, name, columnHeading, scapeR
 				.evalReturnStrings(valueNameCommand), scapeR, rCommand);
 	}
 

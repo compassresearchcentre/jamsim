@@ -9,20 +9,22 @@ import javax.swing.JMenuItem;
 import org.ascape.util.swing.AscapeGUIUtil;
 
 /**
- * Analysis menu. Provides analysis menu items. Implemented as a singleton.
+ * Analysis menu. Provides analysis menu items. Implemented as a singleton (as
+ * per Effective Java recommendation p18: "a single-element enum type is the
+ * best way to implement a singleton").
  * 
  * @author Oliver Mannion
  * @version $Revision$
  * 
  */
 public enum AnalysisMenu {
-	
+
 	/**
 	 * Singleton instance.
 	 */
 	INSTANCE;
-		
-	private JMenu menu; 
+
+	private JMenu menu;
 
 	/**
 	 * Add the Analysis menu to the menu bar.
@@ -40,17 +42,17 @@ public enum AnalysisMenu {
 	/**
 	 * Add a menu item to the Analysis menu.
 	 * 
-	 * @param action action to add as a menu item.
+	 * @param action
+	 *            action to add as a menu item.
 	 */
 	public void addMenuItem(Action action) {
 		if (menu == null) {
 			addMenu();
 		}
-		
+
 		menu.add(new JMenuItem(action));
 	}
 
-	
 	/**
 	 * Remove all items from the Analysis menu.
 	 */

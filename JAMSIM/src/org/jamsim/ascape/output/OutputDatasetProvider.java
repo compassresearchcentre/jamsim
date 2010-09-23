@@ -12,13 +12,6 @@ import net.casper.data.model.CDataGridException;
 public interface OutputDatasetProvider {
 
 	/**
-	 * Output dataset short name. Can be used as an ID.
-	 * 
-	 * @return short name
-	 */
-	String getShortName();
-	
-	/**
 	 * Output dataset name.
 	 * 
 	 * @return name

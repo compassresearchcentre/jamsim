@@ -10,7 +10,7 @@ import org.ascape.model.space.ListSpace;
 import org.ascape.model.space.SpatialTemporalException;
 import org.jamsim.ascape.output.OutputDatasetDefs;
 import org.jamsim.ascape.output.ROutput;
-import org.jamsim.ascape.output.ROutputMultiRun;
+import org.jamsim.ascape.output.ROutput1DMultiRun;
 import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.ascape.r.ScapeRListener;
 import org.jamsim.io.FileLoader;
@@ -36,7 +36,7 @@ public class RootScape<D extends ScapeData> extends Scape {
 	private static final long serialVersionUID = 7744671548962486008L;
 
 	private MicroSimScape<D> msscape;
-	
+
 	private transient Output consoleOutput;
 
 	private FileLoader loader;
@@ -145,7 +145,7 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 * Uses the lowercase version of the base scape name as the dataframe
 	 * symbol. When evaluating {@code rRunEndCommand} and commands during the
 	 * creation of output datasets in {@link ROutput} and
-	 * {@link ROutputMultiRun}, this symbol is searched for and replaced with
+	 * {@link ROutput1DMultiRun}, this symbol is searched for and replaced with
 	 * the current run's dataframe name.
 	 * 
 	 * @param keepAllRunDFs
@@ -166,7 +166,8 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 * Uses "R startup file" as the preferences key to lookup the location of
 	 * the R startup file.
 	 * 
-	 * @throws IOException if problem loading file 
+	 * @throws IOException
+	 *             if problem loading file
 	 */
 	public void loadRStartupFile() throws IOException {
 
@@ -187,16 +188,21 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 *            .
 	 * @param rRunEndCommand
 	 *            R command to run at the end of each run, or {@code null}.
+	 * @param rSimBeginCommand
+	 *            R command to run at the beginning of the simulation (ie:
+	 *            during construction of the {@link ScapeRListener}), or {@code
+	 *            null}.
 	 * @param rSimEndCommand
 	 *            R command to run at the end of the simulation (ie: end of all
 	 *            runs), or {@code null}.
 	 */
 	public void addScapeRListener(String rIterationEndCommand,
 			String rRunBeginCommand, String rRunEndCommand,
-			String rSimEndCommand) {
+			String rSimBeginCommand, String rSimEndCommand) {
 		try {
 			msscape.addView(new ScapeRListener(scapeR, rIterationEndCommand,
-					rRunBeginCommand, rRunEndCommand, rSimEndCommand));
+					rRunBeginCommand, rRunEndCommand, rSimBeginCommand,
+					rSimEndCommand));
 		} catch (RInterfaceException e) {
 			throw new RuntimeException(e);
 		}
@@ -242,7 +248,7 @@ public class RootScape<D extends ScapeData> extends Scape {
 			msscape.addDataFrameNode(scapeR.getScapeDFRunName(0));
 
 		}
-		
+
 	}
 
 	/**

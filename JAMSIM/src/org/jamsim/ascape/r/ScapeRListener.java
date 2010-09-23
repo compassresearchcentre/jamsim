@@ -33,7 +33,7 @@ public class ScapeRListener extends DefaultScapeListener {
 	private final String rRunBeginCmd;
 
 	private final String rRunEndCmd;
-	
+
 	private final String rSimEndCmd;
 
 	/**
@@ -56,6 +56,10 @@ public class ScapeRListener extends DefaultScapeListener {
 	 *            .
 	 * @param rRunEndCommand
 	 *            R command to run at the end of each run, or {@code null}.
+	 * @param rSimBeginCommand
+	 *            R command to run at the beginning of the simulation (ie:
+	 *            during construction of this {@link ScapeRListener}), or
+	 *            {@code null}.
 	 * @param rSimEndCommand
 	 *            R command to run at the end of the simulation (ie: end of all
 	 *            runs), or {@code null}.
@@ -64,14 +68,18 @@ public class ScapeRListener extends DefaultScapeListener {
 	 */
 	public ScapeRListener(ScapeRInterface scapeR,
 			String rIterationEndCommand, String rRunBeginCommand,
-			String rRunEndCommand, String rSimEndCommand)
-			throws RInterfaceException {
+			String rRunEndCommand, String rSimBeginCommand,
+			String rSimEndCommand) throws RInterfaceException {
 		super("R Scape Interface");
 		this.scapeR = scapeR;
 		this.rRunBeginCmd = rRunBeginCommand;
 		this.rRunEndCmd = rRunEndCommand;
 		this.rIterationEndCmd = rIterationEndCommand;
 		this.rSimEndCmd = rSimEndCommand;
+		
+		if (rSimBeginCommand != null) {
+			executeRCommand(rSimBeginCommand);
+		}
 	}
 
 	/**
@@ -161,8 +169,8 @@ public class ScapeRListener extends DefaultScapeListener {
 	@Override
 	public void scapeClosing(ScapeEvent scapeEvent) {
 		scapeClosingCount++;
-		
-		// scapeClosing gets called 3 times. 
+
+		// scapeClosing gets called 3 times.
 		// Twice when the scape closes at the end of a
 		// simulation run, and once when the application closes
 		// or the model is reloaded
@@ -170,13 +178,13 @@ public class ScapeRListener extends DefaultScapeListener {
 			// execute rSimEndCmd on the second scapeClosing
 			// this occurs after the multi-run datasets
 			// have been created.
-			
+
 			if (rSimEndCmd != null) {
 				executeRCommand(rSimEndCmd);
 			}
 
 			scapeR.printPrompt();
-		} 
+		}
 	}
 
 }

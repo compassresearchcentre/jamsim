@@ -12,13 +12,13 @@ import org.omancode.r.RInterfaceException;
 
 /**
  * Executes an command in R each time {@link #getPanelView()} is called.
- * Provides a {@link PanelView} with the text results of the R command as they
- * would have been outputed to the R console.
+ * Provides a {@link PanelView} with the text results of the R command as it
+ * would have been output to the R console.
  * 
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class PanelViewRCommand implements PanelViewProvider {
+public class PanelViewRTextCommand implements PanelViewProvider {
 
 	/**
 	 * Default font for text area text : Monospaced plain 12 pt.
@@ -33,7 +33,7 @@ public class PanelViewRCommand implements PanelViewProvider {
 	private final Font font;
 
 	/**
-	 * Create a {@link PanelViewRCommand} with default font.
+	 * Create a {@link PanelViewRTextCommand} with default font.
 	 * 
 	 * @param scapeR
 	 *            scape R interface
@@ -42,13 +42,13 @@ public class PanelViewRCommand implements PanelViewProvider {
 	 * @param rcmd
 	 *            R command to execute
 	 */
-	public PanelViewRCommand(ScapeRInterface scapeR, String nodeName,
+	public PanelViewRTextCommand(ScapeRInterface scapeR, String nodeName,
 			String rcmd) {
 		this(scapeR, nodeName, rcmd, null);
 	}
 
 	/**
-	 * Create a {@link PanelViewRCommand} that will execute an R command and
+	 * Create a {@link PanelViewRTextCommand} that will execute an R command and
 	 * return the result in a {@link PanelView}.
 	 * 
 	 * @param scapeR
@@ -61,7 +61,7 @@ public class PanelViewRCommand implements PanelViewProvider {
 	 *            font to use in textarea that displays dataframe details. If
 	 *            {@code null} uses {@link #DEFAULT_FONT}.
 	 */
-	public PanelViewRCommand(ScapeRInterface scapeR, String nodeName,
+	public PanelViewRTextCommand(ScapeRInterface scapeR, String nodeName,
 			String rcmd, Font font) {
 		this.scapeR = scapeR;
 		this.nodeName = nodeName;

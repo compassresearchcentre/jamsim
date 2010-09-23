@@ -1,5 +1,6 @@
 package org.jamsim.ascape.weights;
 
+import java.awt.Component;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Observable;
@@ -184,16 +185,22 @@ public class SingleVarWeightCalc extends Observable implements
 	 * Process a change to the underlying weights. Validates them and displays a
 	 * prompt if there is a problem. Then notifies all {@link Observer}s that
 	 * there has been a change.
+	 * 
+	 * @param parentComponent
+	 *            used to place message dialog box
 	 */
 	@Override
-	public void update() {
+	public void update(Component parentComponent) {
+		validateAndNotify();
+		JOptionPane.showMessageDialog(parentComponent, "Weights updated.");
+	}
 
+	private void validateAndNotify() {
 		if (validateWithPrompt()) {
 			// notify all observers
 			setChanged();
 			notifyObservers();
 		}
-
 	}
 
 	/**
@@ -243,14 +250,17 @@ public class SingleVarWeightCalc extends Observable implements
 	}
 
 	@Override
-	public void resetDefaults() {
+	public void resetDefaults(Component parentComponent) {
 
 		for (MutableNumerator num : weights) {
 			num.setNumerator(num.getDenominator());
 		}
 
 		tableModel.fireTableDataChanged();
-		update();
+
+		validateAndNotify();
+		JOptionPane.showMessageDialog(parentComponent,
+				"Weights reset to base.");
 	}
 
 }

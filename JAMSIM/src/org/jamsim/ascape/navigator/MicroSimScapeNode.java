@@ -16,11 +16,11 @@ import org.ascape.runtime.swing.navigator.TreeBuilder;
 import org.jamsim.ascape.MicroSimScape;
 import org.jamsim.ascape.output.OutputDatasetProvider;
 import org.jamsim.ascape.output.ROutput;
-import org.jamsim.ascape.r.PanelViewDataset;
-import org.jamsim.ascape.r.PanelViewRCommand;
+import org.jamsim.ascape.r.PanelViewDatasetProvider;
+import org.jamsim.ascape.r.PanelViewRTextCommand;
 import org.jamsim.ascape.ui.PanelViewParameterSet;
+import org.jamsim.ascape.ui.UIUtil;
 import org.jamsim.io.ParameterSet;
-import org.omancode.swing.DoubleCellRenderer;
 
 /**
  * Navigator tree node for a {@link MicroSimScape}. Same as {@link ScapeNode}
@@ -109,12 +109,11 @@ public class MicroSimScapeNode extends ScapeNode {
 	private void addDatasetNodes(MicroSimScape<?> scape,
 			DefaultTreeModel treeModel) {
 		addNodeWithChildrenTables(treeModel, "Datasets", scape.getScapeData()
-				.getInputDatasets(), new DoubleCellRenderer(10));
+				.getInputDatasets());
 	}
 
 	private void addNodeWithChildrenTables(DefaultTreeModel treeModel,
-			String nodeName, Map<String, TableModel> childrenTables,
-			DoubleCellRenderer dblRenderer) {
+			String nodeName, Map<String, TableModel> childrenTables) {
 
 		// create parent node
 		DefaultMutableTreeNode parentNode =
@@ -124,10 +123,8 @@ public class MicroSimScapeNode extends ScapeNode {
 		// and add them to the navigator as a Panel View Node
 		for (Map.Entry<String, TableModel> entry : childrenTables.entrySet()) {
 
-			TableModel tmodel = entry.getValue();
-			JTable table = new JTable(tmodel); // NOPMD
-			table.setName(entry.getKey());
-			table.setDefaultRenderer(Double.class, dblRenderer);
+			JTable table =
+					UIUtil.createTable(entry.getValue(), entry.getKey());
 
 			// add PanelViewNode to the tree
 			PanelViewProvider provider = new PanelViewTable(table);
@@ -183,9 +180,10 @@ public class MicroSimScapeNode extends ScapeNode {
 	 */
 	public void addBasefileNode(String name, String rcmd) {
 		OutputDatasetProvider basefileDS =
-				new ROutput(name, name, scape.getScapeRInterface(), rcmd);
+				new ROutput(name, scape.getScapeRInterface(), rcmd);
 
-		PanelViewDataset provider = new PanelViewDataset(basefileDS);
+		PanelViewDatasetProvider provider =
+				new PanelViewDatasetProvider(basefileDS);
 
 		treeModel.insertNodeInto(new PanelViewNode(provider), this, this
 				.getChildCount());
@@ -207,7 +205,7 @@ public class MicroSimScapeNode extends ScapeNode {
 
 		String rcmd = "str(" + dataFrameName + ", max.level=1)";
 		PanelViewProvider provider =
-				new PanelViewRCommand(scape.getScapeRInterface(),
+				new PanelViewRTextCommand(scape.getScapeRInterface(),
 						dataFrameName, rcmd);
 		treeModel.insertNodeInto(new PanelViewNode(provider), dfNode, dfNode
 				.getChildCount());
@@ -259,6 +257,23 @@ public class MicroSimScapeNode extends ScapeNode {
 
 		PanelViewNode newNode = new PanelViewNode(provider);
 		userNode.addChildNode(newNode, subFolderName);
+		return newNode;
+	}
+
+	/**
+	 * Add a panel view node under "Output Tables".
+	 * 
+	 * @param provider
+	 *            provider
+	 * @param subFolderName
+	 *            name of sub folder to add node under, or {@code null} to add
+	 *            directly under "Output Tables".
+	 * @return newly added node
+	 */
+	public PanelViewNode addOutputNode(PanelViewProvider provider,
+			String subFolderName) {
+		PanelViewNode newNode = new PanelViewNode(provider);
+		outputTablesNode.addChildNode(newNode, subFolderName);
 		return newNode;
 	}
 

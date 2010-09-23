@@ -25,6 +25,7 @@ public class PanelViewParameterSet implements PanelViewProvider,
 		ActionListener {
 
 	private final ParameterSet pset;
+	private PanelView pv;
 
 	/**
 	 * Construct {@link PanelViewParameterSet} from {@link ParameterSet}.
@@ -46,7 +47,7 @@ public class PanelViewParameterSet implements PanelViewProvider,
 
 		JTable table =
 				UIUtil.createTable(pset.getTableModel(), pset.getName());
-		PanelView pv = PanelViewTable.createPanelView(table);
+		pv = PanelViewTable.createPanelView(table);
 
 		// set FlowLayout so button can be seen
 		pv.setLayout(new FlowLayout());
@@ -77,9 +78,9 @@ public class PanelViewParameterSet implements PanelViewProvider,
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if ("update".equals(e.getActionCommand())) {
-			pset.update();
+			pset.update(pv);
 		} else {
-			pset.resetDefaults();
+			pset.resetDefaults(pv);
 		}
 	}
 

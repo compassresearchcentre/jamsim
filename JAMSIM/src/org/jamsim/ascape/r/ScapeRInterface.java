@@ -76,6 +76,10 @@ public class ScapeRInterface {
 	 */
 	public static ScapeRInterface LAST_INSTANCE;
 
+	public static MicroSimScape<?> getLastMsScape() {
+		return LAST_INSTANCE.getMsScape();
+	}
+	
 	/**
 	 * Get the scape. For {@link AscapeGD}.
 	 * 

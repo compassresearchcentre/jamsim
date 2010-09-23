@@ -8,7 +8,6 @@
 			<attribute name="javadoc_location" value="file:/D:/Source/colt/doc/api/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Program Files/R/R-2.9.1/library/JavaGD/java/javaGD.jar" sourcepath="/org.rosuda.javaGD"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/REngine"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.ascape.core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.ascape.ui.swing"/>
@@ -57,5 +56,6 @@
 	<classpathentry kind="lib" path="D:/Source/swing.javabuilder.0.3.FINAL/lib/swing-worker-1.2.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ROman"/>
 	<classpathentry kind="lib" path="D:/Source/fastutil-5.1.5/fastutil-5.1.5.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.rosuda.javaGD"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

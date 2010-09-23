@@ -72,7 +72,7 @@ public class OutputNode extends DefaultScapeListener {
 				addOutputNode(node, runNumber);
 			}
 		} catch (OutputException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException(e.getMessage(), e);
 		}
 
 	}
