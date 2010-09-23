@@ -129,8 +129,8 @@ public final class RInterfaceHL {
 
 			// re-throw exception that occurred in the initializer
 			// so our caller can deal with it
-			Throwable exceptionInInit = e.getCause();
-			throw new RInterfaceException(exceptionInInit); // NOPMD
+			Throwable eInInit = e.getCause();
+			throw new RInterfaceException(eInInit.getMessage(), eInInit); // NOPMD
 		}
 	}
 
@@ -161,35 +161,37 @@ public final class RInterfaceHL {
 		System.setProperty("jri.ignore.ule", "yes");
 
 		try {
+
+			// ends up loading jri.dll via a System.loadLibrary("jri") call
+			// in org.rosuda.JRI.Rengine
+			// which looks in java.library.path for jri.dll
 			rosudaEngine =
 					new JRIEngine(new String[] { "--no-save" }, rloopHandler);
 
-			// loadRSupportFunctions();
-
 		} catch (REngineException e) {
-			throw new RInterfaceException(e);
+
+			// output diagnosis information
+			System.err.format("%s=%s%n", "java.library.path", System
+					.getProperty("java.library.path"));
+			System.err.format("%s=%s%n", "Path", System.getenv().get("Path"));
+			System.err.format("%s=%s%n", "R_HOME", System.getenv().get(
+					"R_HOME"));
+
+			throw new RInterfaceException(e.getMessage(), e);
 		}
-		/*
-		 * } catch (IOException e) { throw new RInterfaceException(e); } catch
-		 * (REXPMismatchException e) { throw new RInterfaceException(e); }
-		 */
 	}
 
 	/**
 	 * Load support functions from support file. Provides support functions for
 	 * {@link #parseEvalPrint(String)}.
 	 * 
-	 * @throws RuntimeException
+	 * @throws IOException
 	 *             if problem loading file
 	 */
-	public void loadRSupportFunctions() {
+	public void loadRSupportFunctions() throws IOException {
 		if (!supportFunctionsLoaded) {
 			InputStream ins = getClass().getResourceAsStream(SUPPORT_FILE);
-			try {
-				parseEvalTry(RUtil.readRStream(ins));
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
+			parseEvalTry(RUtil.readRStream(ins));
 			supportFunctionsLoaded = true;
 		}
 	}
@@ -542,7 +544,11 @@ public final class RInterfaceHL {
 					"REngine has not been initialized.");
 		}
 
-		loadRSupportFunctions();
+		try {
+			loadRSupportFunctions();
+		} catch (IOException e1) {
+			throw new RuntimeException(e1);
+		}
 
 		try {
 

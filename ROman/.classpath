@@ -3,7 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/casperdatasets"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/JRI"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/REngine"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/casperdatasets-io"/>
 	<classpathentry kind="lib" path="D:/Source/commons-beanutils-1.8.0/commons-beanutils-core-1.8.0.jar"/>
@@ -26,5 +25,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/BeanShell"/>
 	<classpathentry kind="lib" path="D:/Source/fastutil-5.1.5/fastutil-5.1.5.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OmanUtil"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/JRI"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

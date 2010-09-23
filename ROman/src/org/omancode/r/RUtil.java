@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import net.casper.data.model.CBuilder;
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
 import net.casper.data.model.CDataRowSet;
@@ -21,6 +22,7 @@ import net.casper.io.beans.util.BeanPropertyInspector;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPDouble;
@@ -642,28 +644,66 @@ public final class RUtil {
 	 * Returns a vector expression, eg: {@code c("a","b","c")} from the supplied
 	 * strings.
 	 * 
-	 * @param strs string array to turn into vector expression
+	 * @param strs
+	 *            string array to turn into vector expression
 	 * @return vector expression
 	 */
 	public static String toVectorExpr(String[] strs) {
-		if (strs == null) { 
+		if (strs == null) {
 			return "c()";
 		}
-		
+
 		StringBuffer sb = new StringBuffer();
 		sb.append("c(");
-		
+
 		int i = 0;
 		for (; i < strs.length - 1; i++) {
 			sb.append('\"');
 			sb.append(strs[i]);
 			sb.append("\",");
 		}
-		
+
 		sb.append('\"');
 		sb.append(strs[i]);
 		sb.append("\")");
-		
+
 		return sb.toString();
+	}
+
+	/**
+	 * Converts an REXP to a {@link CDataCacheContainer}.
+	 * 
+	 * @param rexp rexp
+	 * @param name name of dataset
+	 * @return dataset
+	 * @throws RInterfaceException if problem with conversion
+	 */
+	public static CDataCacheContainer toCDataSet(REXP rexp, String name)
+			throws RInterfaceException {
+
+		try {
+			CBuilder builder;
+
+			if (RMatrix.isMatrix(rexp)) {
+				builder = new RMatrix(name, rexp);
+			} else if (RDataFrame.isDataFrame(rexp)) {
+				builder = new RDataFrame(name, rexp);
+			} else if (rexp instanceof REXPVector) {
+				builder = new RVector(name, (REXPVector) rexp);
+			} else {
+				throw new NotImplementedException(" REXP of class "
+						+ RUtil.getClassAttribute(rexp)
+						+ ".\nConversion of this class to "
+						+ "dataset not yet implemented.");
+			}
+
+			return new CDataCacheContainer(builder);
+
+		} catch (UnsupportedTypeException e) {
+			throw new RInterfaceException(e.getMessage(), e);
+		} catch (CDataGridException e) {
+			throw new RInterfaceException(e.getMessage(), e);
+		}
+
 	}
 }
