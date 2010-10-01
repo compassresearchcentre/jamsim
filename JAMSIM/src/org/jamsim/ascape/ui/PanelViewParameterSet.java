@@ -4,19 +4,22 @@ import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.prefs.Preferences;
 
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 
 import org.ascape.runtime.swing.navigator.PanelViewProvider;
 import org.ascape.runtime.swing.navigator.PanelViewTable;
 import org.ascape.view.vis.PanelView;
 import org.jamsim.io.ParameterSet;
+import org.jamsim.shared.InvalidDataException;
 
 /**
  * Provides a {@link PanelView} based on a {@link ParameterSet}. The
- * {@link PanelView} contains a table of the {@link ParameterSet} as well as a
- * update button.
+ * {@link PanelView} contains a table of the {@link ParameterSet} as well as
+ * update and reset/default buttons.
  * 
  * @author Oliver Mannion
  * @version $Revision$
@@ -25,6 +28,7 @@ public class PanelViewParameterSet implements PanelViewProvider,
 		ActionListener {
 
 	private final ParameterSet pset;
+	private final Preferences prefs;
 	private PanelView pv;
 
 	/**
@@ -32,9 +36,12 @@ public class PanelViewParameterSet implements PanelViewProvider,
 	 * 
 	 * @param pset
 	 *            parameter set
+	 * @param prefs
+	 *            preferences
 	 */
-	public PanelViewParameterSet(ParameterSet pset) {
+	public PanelViewParameterSet(ParameterSet pset, Preferences prefs) {
 		this.pset = pset;
+		this.prefs = prefs;
 	}
 
 	@Override
@@ -77,11 +84,28 @@ public class PanelViewParameterSet implements PanelViewProvider,
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if ("update".equals(e.getActionCommand())) {
-			pset.update(pv);
-		} else {
-			pset.resetDefaults(pv);
+		String cmd = e.getActionCommand();
+		if ("update".equals(cmd)) {
+			update();
+		} else if ("reset".equals(cmd)) {
+			reset();
 		}
 	}
 
+	private void update() {
+		try {
+			pset.validateAndNotify();
+			pset.saveState(prefs);
+			JOptionPane.showMessageDialog(pv, "Updated.");
+		} catch (InvalidDataException e) {
+			// display message box
+			JOptionPane.showMessageDialog(pv, e.getMessage());
+		}
+	}
+
+	private void reset() {
+		pset.resetDefaults();
+		pset.saveState(prefs);
+		JOptionPane.showMessageDialog(pv, "Reset to defaults.");
+	}
 }

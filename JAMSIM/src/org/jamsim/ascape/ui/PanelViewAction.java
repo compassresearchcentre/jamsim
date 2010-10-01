@@ -10,12 +10,12 @@ import org.ascape.runtime.swing.navigator.PanelViewProvider;
 import org.jamsim.io.ParameterSet;
 
 /**
- * Action that displays a {@link PanelViewParameterSet} when performed.
+ * Action that displays a {@link PanelView} when performed.
  * 
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class ParameterSetAction extends AbstractAction {
+public class PanelViewAction extends AbstractAction {
 
 	/**
 	 * 
@@ -25,18 +25,18 @@ public class ParameterSetAction extends AbstractAction {
 	private final PanelViewNode pvNode;
 
 	/**
-	 * Construct {@link ParameterSetAction} from {@link ParameterSet}.
+	 * Construct {@link PanelViewAction} from {@link ParameterSet}.
 	 * 
-	 * @param pset
-	 *            parameter set to display when action performed.
+	 * @param provider
+	 *            provider of panel view when action performed.
 	 * @param name
 	 *            action name
 	 * @param description
 	 *            action short description
 	 */
-	public ParameterSetAction(ParameterSet pset, String name,
+	public PanelViewAction(PanelViewProvider provider, String name,
 			String description) {
-		PanelViewProvider provider = new PanelViewParameterSet(pset);
+	
 		pvNode = new PanelViewNode(provider);
 
 		putValue(Action.NAME, name);

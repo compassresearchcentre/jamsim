@@ -97,7 +97,7 @@ public class MicroSimScapeNode extends ScapeNode {
 		treeModel = treeBuilder.getTreeModel();
 
 		addDatasetNodes(scape, treeModel);
-		addParameterSetNodes(scape, treeModel);
+		addParameterSetNodes(scape);
 
 		// create the Output Tables node
 		outputTablesNode =
@@ -136,8 +136,7 @@ public class MicroSimScapeNode extends ScapeNode {
 		treeModel.insertNodeInto(parentNode, this, this.getChildCount());
 	}
 
-	private void addParameterSetNodes(MicroSimScape<?> scape,
-			DefaultTreeModel treeModel) {
+	private void addParameterSetNodes(MicroSimScape<?> scape) {
 
 		Map<String, ParameterSet> psets =
 				scape.getScapeData().getParameterSets();
@@ -145,7 +144,7 @@ public class MicroSimScapeNode extends ScapeNode {
 		if (psets != null) {
 			for (Map.Entry<String, ParameterSet> entry : psets.entrySet()) {
 				ParameterSet pset = entry.getValue();
-				addParameterSetNode(pset);
+				addParameterSetNode(new PanelViewParameterSet(pset, scape.getPrefs()));
 			}
 		}
 	}
@@ -154,10 +153,10 @@ public class MicroSimScapeNode extends ScapeNode {
 	 * Add a parameter set node under the "Parameter sets" folder. Creates
 	 * "Parameter sets" node if it doesn't exist.
 	 * 
-	 * @param pset
-	 *            parameter set
+	 * @param provider
+	 *            panel view provider
 	 */
-	public final void addParameterSetNode(ParameterSet pset) {
+	public final void addParameterSetNode(PanelViewProvider provider) {
 		if (psNode == null) {
 			// create parameter sets parent folder node
 			psNode = new DefaultMutableTreeNode("Parameter sets");
@@ -165,11 +164,10 @@ public class MicroSimScapeNode extends ScapeNode {
 		}
 
 		// add PanelViewNode to the tree
-		PanelViewProvider provider = new PanelViewParameterSet(pset);
 		PanelViewNode newNode = new PanelViewNode(provider);
 		treeModel.insertNodeInto(newNode, psNode, psNode.getChildCount());
 	}
-
+	
 	/**
 	 * Add node which displays the contents of the basefile when clicked on.
 	 * 

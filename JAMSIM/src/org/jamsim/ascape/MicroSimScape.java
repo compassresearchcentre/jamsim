@@ -18,7 +18,6 @@ import net.casper.data.model.CDataGridException;
 import net.casper.io.beans.CBuildFromCollection;
 import net.casper.io.file.CBuildFromFile;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.ascape.model.Agent;
 import org.ascape.model.Scape;
 import org.ascape.model.space.CollectionSpace;
@@ -46,15 +45,13 @@ import org.jamsim.ascape.r.RLoader;
 import org.jamsim.ascape.r.ScapeRCommand;
 import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.ascape.ui.AnalysisMenu;
-import org.jamsim.ascape.ui.ParameterSetAction;
+import org.jamsim.ascape.ui.PanelViewAction;
+import org.jamsim.ascape.ui.PanelViewParameterSet;
+import org.jamsim.ascape.ui.PanelViewWeightCalculators;
 import org.jamsim.ascape.ui.ScapeRCommandAction;
 import org.jamsim.ascape.weights.WeightCalculator;
 import org.jamsim.io.FileLoader;
-import org.jamsim.io.ParameterSet;
 import org.omancode.r.RInterfaceException;
-import org.rosuda.REngine.REXP;
-import org.rosuda.REngine.REXPDouble;
-import org.rosuda.REngine.REXPReference;
 
 /**
  * A Scape with micro-simulation input/output functions including base file
@@ -103,6 +100,21 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 * Prefs for loading/saving location of base file.
 	 */
 	private final Preferences prefs;
+
+	/**
+	 * Map of data frames added. Used to prevent addition of duplicates.
+	 */
+	private final Map<String, String> dataFrameNodeMap =
+			new HashMap<String, String>();
+	/**
+	 * {@link WeightCalculator} for this scape.
+	 */
+	private WeightCalculator wcalc;
+
+	/**
+	 * Panel to manipulate weights.
+	 */
+	private transient PanelViewProvider wcalcPanel;
 
 	/**
 	 * Get whether {@link OutputDataset}s for this scape should write their
@@ -194,6 +206,15 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	}
 
 	/**
+	 * Get preferences used by this scape.
+	 * 
+	 * @return preferences
+	 */
+	public Preferences getPrefs() {
+		return prefs;
+	}
+
+	/**
 	 * Set the Navigator Tree Builder here. At this point the SwingEnvironment
 	 * exists. We can't do this in {@link #createGraphicViews()} because at that
 	 * point the navigator has already been built (see the order of scape
@@ -210,14 +231,19 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 
 	@Override
 	public void createGraphicViews() {
-		if (wcalc != null) {
+		if (wcalcPanel == null && wcalc != null) {
+			// create simple single weight panel
+			wcalcPanel = new PanelViewParameterSet(wcalc, prefs);
+		}
+		
+		if (wcalcPanel != null) {
 			// Add navigator node
-			addParameterSetNode(wcalc);
+			addParameterSetNode(wcalcPanel);
 
 			// Add weightings button to additional toolbar
-			addWeightingsButton(wcalc);
-		}
+			addWeightingsButton(wcalcPanel);
 
+		}
 		// setup analysis menu
 		List<ScapeRCommand> commands =
 				scapeData.getAnalysisMenuCommands(scapeR);
@@ -398,11 +424,6 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		return scapeNode.addGraphNode(provider, subFolderName);
 	}
 
-	private final Map<String, String> dataFrameNodeMap =
-			new HashMap<String, String>();
-
-	private WeightCalculator wcalc;
-
 	/**
 	 * Add a data frame node to the navigator. Exits silently without creating a
 	 * duplicate if a node of the same name already exists.
@@ -440,12 +461,31 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 * Add a parameter set node under the "Parameter sets" folder. Creates
 	 * "Parameter sets" node if it doesn't exist.
 	 * 
-	 * @param pset
-	 *            parameter set
+	 * @param provider
+	 *            panel view provider
 	 */
-	public final void addParameterSetNode(ParameterSet pset) {
+	public final void addParameterSetNode(PanelViewProvider provider) {
 		initScapeNode();
-		scapeNode.addParameterSetNode(pset);
+		scapeNode.addParameterSetNode(provider);
+	}
+
+	/**
+	 * Set the {@link PanelViewProvider} used to provide the UI to interact with
+	 * the weights.
+	 * 
+	 * @param wcalcPanel weight calculator panel provider
+	 */
+	public void setWeightCalculatorPanelView(PanelViewProvider wcalcPanel) {
+		this.wcalcPanel = wcalcPanel;
+	}
+
+	/**
+	 * Get the current {@link WeightCalculator}.
+	 * 
+	 * @return wcalc
+	 */
+	public WeightCalculator getWeightCalculator() {
+		return wcalc;
 	}
 
 	/**
@@ -475,6 +515,9 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		} catch (RInterfaceException e) {
 			throw new RuntimeException(e);
 		}
+
+		// Save weight calculator name to prefs
+		prefs.put(WeightCalculator.WCALC_KEY, wcalc.getName());
 	}
 
 	/**
@@ -492,15 +535,16 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	}
 
 	/**
-	 * Add a "Weightings" button to the additional tool bar.
+	 * Add a "Weightings" button to the additional tool bar that displays a
+	 * {@link PanelViewWeightCalculators}.
 	 * 
 	 * @param weightings
 	 *            weightings parameter set
 	 */
-	private void addWeightingsButton(ParameterSet weightings) {
+	private void addWeightingsButton(PanelViewProvider provider) {
 		// create action
-		ParameterSetAction weightingsAction =
-				new ParameterSetAction(weightings, "Weightings", "Weightings");
+		PanelViewAction weightingsAction =
+				new PanelViewAction(provider, "Weightings", "Weightings");
 		weightingsAction.putValue(Action.SMALL_ICON, DesktopEnvironment
 				.getIcon("Scales"));
 

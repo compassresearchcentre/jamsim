@@ -1,12 +1,10 @@
 package org.jamsim.ascape.weights;
 
-import java.awt.Component;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Observable;
-import java.util.Observer;
+import java.util.prefs.Preferences;
 
-import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
@@ -41,13 +39,13 @@ public class SingleVarWeightCalc extends Observable implements
 	private final String variableDesc;
 
 	/**
-	 * Variable factor levels and their weighting.
+	 * Variable factor levels and their weighting. A map version for lookup.
 	 */
 	private final Map<Double, MutableNumerator> factorLevelWeights;
 
 	/**
 	 * Weights at each factor level. An array version of
-	 * {@link #factorLevelWeights}.
+	 * {@link #factorLevelWeights} for iteration.
 	 */
 	private final MutableNumerator[] weights;
 
@@ -96,6 +94,35 @@ public class SingleVarWeightCalc extends Observable implements
 
 		validate();
 
+	}
+
+	/**
+	 * Construct a set of weightings at each factor level of {@code
+	 * variableName} and load the initial values of the weight numerators from
+	 * prefs.
+	 * 
+	 * @param scapeR
+	 *            scape R interface
+	 * @param rVariable
+	 *            the R variable that will be used as the basis for weighting,
+	 *            eg: {@code children$sol1}
+	 * @param variableName
+	 *            the name of the R variable, eg: {@code sol1}
+	 * @param variableDesc
+	 *            description of the R variable. Used for display purposes.
+	 * @param prefs
+	 *            Preferences that store the state of the weightings
+	 * @throws RInterfaceException
+	 *             if problem reading category proportions of {@code variable}
+	 *             from R
+	 * @throws InvalidDataException
+	 *             if weights do not sum to 1. See {@link #validate()}.
+	 */
+	public SingleVarWeightCalc(ScapeRInterface scapeR, String rVariable,
+			String variableName, String variableDesc, Preferences prefs)
+			throws RInterfaceException, InvalidDataException {
+		this(scapeR, rVariable, variableName, variableDesc);
+		loadState(prefs);
 	}
 
 	/**
@@ -177,30 +204,37 @@ public class SingleVarWeightCalc extends Observable implements
 	}
 
 	@Override
-	public String getName() {
-		return "Weightings - " + variableDesc;
+	public final String getName() {
+		return variableDesc;
 	}
 
-	/**
-	 * Process a change to the underlying weights. Validates them and displays a
-	 * prompt if there is a problem. Then notifies all {@link Observer}s that
-	 * there has been a change.
-	 * 
-	 * @param parentComponent
-	 *            used to place message dialog box
-	 */
 	@Override
-	public void update(Component parentComponent) {
-		validateAndNotify();
-		JOptionPane.showMessageDialog(parentComponent, "Weights updated.");
+	public TableModel getTableModel() {
+		return tableModel;
 	}
 
-	private void validateAndNotify() {
-		if (validateWithPrompt()) {
-			// notify all observers
-			setChanged();
-			notifyObservers();
+	@Override
+	public void validateAndNotify() throws InvalidDataException {
+		validate();
+
+		// notify all observers
+		setChanged();
+		notifyObservers();
+	}
+
+	@Override
+	public void resetDefaults() {
+
+		// reset weights
+		for (MutableNumerator num : weights) {
+			num.setNumerator(num.getDenominator());
 		}
+		tableModel.fireTableDataChanged();
+
+		// notify all observers
+		setChanged();
+		notifyObservers();
+
 	}
 
 	/**
@@ -223,44 +257,36 @@ public class SingleVarWeightCalc extends Observable implements
 
 	}
 
-	/**
-	 * Validate, and show a message box if validation fails.
-	 * 
-	 * @return {@code true} if validation succeeds
-	 */
-	public boolean validateWithPrompt() {
-		boolean result = true;
+	@Override
+	public final void loadState(Preferences prefs) {
+		String key = WeightCalculator.WCALC_KEY + " " + getName();
+		String savedNumStr = prefs.get(key, "");
 
-		try {
-			validate();
-		} catch (InvalidDataException e) {
-			result = false;
+		if (savedNumStr.length() > 0) {
+			tableModel.fireTableDataChanged();
 
-			// display message box
-			JOptionPane.showMessageDialog(null, e.getMessage());
+			String[] savedNums = savedNumStr.split(",");
 
+			if (savedNums.length == weights.length) {
+				for (int i = 0; i < weights.length; i++) {
+					weights[i].setNumerator(Double.parseDouble(savedNums[i]));
+				}
+			}
 		}
-
-		return result;
 	}
 
 	@Override
-	public TableModel getTableModel() {
-		return tableModel;
-	}
+	public void saveState(Preferences prefs) {
+		StringBuffer sb = new StringBuffer(32);
 
-	@Override
-	public void resetDefaults(Component parentComponent) {
-
-		for (MutableNumerator num : weights) {
-			num.setNumerator(num.getDenominator());
+		// construct string of numerators
+		for (int i = 0; i < weights.length - 1; i++) {
+			sb.append(weights[i].doubleValue());
+			sb.append(", ");
 		}
+		sb.append(weights[weights.length - 1].doubleValue());
 
-		tableModel.fireTableDataChanged();
-
-		validateAndNotify();
-		JOptionPane.showMessageDialog(parentComponent,
-				"Weights reset to base.");
+		String key = WeightCalculator.WCALC_KEY + " " + getName();
+		prefs.put(key, sb.toString());
 	}
-
 }

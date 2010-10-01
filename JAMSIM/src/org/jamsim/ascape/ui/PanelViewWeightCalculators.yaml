@@ -1,0 +1,10 @@
+JPanel(name=panel):
+    - JComboBox(name=selector, onAction=selectorChanged)
+    - JScrollPane(name=tablePane)
+    - JButton(name=update, text=Update, onAction=update)
+    - JButton(name=reset, text=Defaults, onAction=reset)
+    - MigLayout: |
+        [grow]      
+        selector       
+        tablePane
+        update=1,reset=1

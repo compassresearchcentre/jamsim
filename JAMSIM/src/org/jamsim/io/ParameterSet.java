@@ -1,8 +1,11 @@
 package org.jamsim.io;
 
-import java.awt.Component;
+import java.util.Observer;
+import java.util.prefs.Preferences;
 
 import javax.swing.table.TableModel;
+
+import org.jamsim.shared.InvalidDataException;
 
 /**
  * A set of parameters. The parameters are represented by a {@link TableModel}.
@@ -14,25 +17,21 @@ public interface ParameterSet {
 
 	/**
 	 * Reset the parameters to their default values.
-	 * 
-     * @param parentComponent determines the <code>Frame</code> in
-     *		which the dialog is displayed; if <code>null</code>,
-     *		or if the <code>parentComponent</code> has no
-     *		<code>Frame</code>, a default <code>Frame</code> is used
 	 */
-	void resetDefaults(Component parentComponent);
+	void resetDefaults();
 
 	/**
 	 * Process a change to the parameter set (ie: the underlying
-	 * {@link TableModel}). External methods should call this after making any
-	 * changes to the underlying {@link TableModel}.
+	 * {@link TableModel}). Validates the values then notifies all
+	 * {@link Observer}s that there has been a change.
 	 * 
-     * @param parentComponent determines the <code>Frame</code> in
-     *		which the dialog is displayed; if <code>null</code>,
-     *		or if the <code>parentComponent</code> has no
-     *		<code>Frame</code>, a default <code>Frame</code> is used
+	 * External methods should call this after making any changes to the
+	 * underlying {@link TableModel}.
+	 * 
+	 * @throws InvalidDataException
+	 *             if the underlying {@link TableModel} values are invalid
 	 */
-	void update(Component parentComponent);
+	void validateAndNotify() throws InvalidDataException;
 
 	/**
 	 * Name of this {@link ParameterSet}.
@@ -47,4 +46,19 @@ public interface ParameterSet {
 	 * @return table model
 	 */
 	TableModel getTableModel();
+	
+	/**
+	 * Save the state to the preferences.
+	 * 
+	 * @param prefs preferences.
+	 */
+	void saveState(Preferences prefs);
+
+	/**
+	 * Load the state from preferences.
+	 * 
+	 * @param prefs preferences.
+	 */
+	void loadState(Preferences prefs);
+	
 }

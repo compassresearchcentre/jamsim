@@ -44,14 +44,21 @@ public final class UIUtil {
 
 		// allow cell selection instead of row selection
 		table.setCellSelectionEnabled(true);
-		
+
 		// prevent non editable cells from receiving focus
 		table.setPreventNonEditCellFocus(true);
-		
+
 		TableCellRenderer dblRenderer = getDoubleCellRenderer();
 		table.setDefaultRenderer(Double.class, dblRenderer);
-		
+
 		SwingUtil.packAllColumns(table, 5);
+
+		// allow sorting using the column headers
+		table.setAutoCreateRowSorter(true);
+
+		// do not resize the table column widths when the frame is resized;
+		// instead show the scroll bars
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
 		return table;
 

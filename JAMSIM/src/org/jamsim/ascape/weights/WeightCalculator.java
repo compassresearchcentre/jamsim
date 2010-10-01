@@ -13,6 +13,12 @@ import org.jamsim.io.ParameterSet;
  * @version $Revision$
  */
 public interface WeightCalculator extends ParameterSet {
+	
+	/**
+	 * Preference key used to store the last used weight calculator between
+	 * runs.
+	 */
+	String WCALC_KEY = "weight calculator";
 
 	/**
 	 * Return the appropriate factor weight based on the values in {@code vars}.
@@ -30,5 +36,5 @@ public interface WeightCalculator extends ParameterSet {
 	 * @param o observer
 	 */
 	void addObserver(Observer o);
-
+	
 }
