@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JUnit 4.7"/>
 	<classpathentry kind="lib" path="D:/Source/commons-lang-2.4/commons-lang-2.4.jar" sourcepath="D:/Source/commons-lang-2.4/commons-lang-2.4-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:/D:/Source/commons-lang-2.4/commons-lang-2.4-javadoc.jar!/"/>
@@ -13,6 +12,7 @@
 			<attribute name="javadoc_location" value="jar:file:/D:/Source/commons-io-1.4/commons-io-1.4-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="D:/eclipse-modeling-helios-incubation-win32/plugins/org.hamcrest.library_1.1.0.v20090501071000.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
