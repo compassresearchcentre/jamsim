@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OmanUtil
+Bundle-SymbolicName: OmanUtil
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: OmanUtil.jar,
+ commons-lang-2.4/commons-lang-2.4.jar,
+ commons-io-1.4/commons-io-1.4.jar
+Export-Package: org.omancode.io,
+ org.omancode.io.tests,
+ org.omancode.swing,
+ org.omancode.swing.tests,
+ org.omancode.util,
+ org.omancode.util.tests
