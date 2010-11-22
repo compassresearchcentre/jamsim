@@ -11,7 +11,8 @@ import org.ascape.model.Cell;
 import org.jamsim.ascape.weights.WeightCalculator;
 
 /**
- * {@link MicroSimCell} handles global data for all derived agents.
+ * {@link MicroSimCell} is a {@link Cell} that provides functionality for
+ * getting/setting {@link ScapeData} and weights.
  * 
  * @author Oliver Mannion
  * @version $Revision$

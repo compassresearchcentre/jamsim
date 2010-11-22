@@ -62,8 +62,8 @@ public class JEditPanelView extends PanelViewNoStall implements
 					"/org/gjt/sp/jedit/jedit_keys.props"));
 			PROPS.putAll(FileUtil.loadProperties(TextArea.class,
 					"/org/gjt/sp/jedit/jedit.props"));
-			PROPS.putAll(FileUtil.loadProperties(TextArea.class,
-					"/org/gjt/sp/jedit/properties"));
+			PROPS.putAll(FileUtil.loadProperties(JEditPanelView.class,
+					"JEditPanelView.props"));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

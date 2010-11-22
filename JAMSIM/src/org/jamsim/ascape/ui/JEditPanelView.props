@@ -1,0 +1,15 @@
+#jEdit properties
+#Syntax colours
+view.style.keyword2=color:#cc0000
+view.style.keyword1=color:#cc0000
+view.style.literal1=color:#2a00ff
+view.style.comment4=color:#99ff99
+view.style.comment1=color:#3f7f5f
+
+# Tab width
+buffer.tabSize=4
+
+# Indent width
+buffer.indentSize=4
+
+buffer.folding=explicit

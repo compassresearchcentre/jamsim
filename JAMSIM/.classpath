@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="tests"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.6.0_17"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="D:/Source/colt/lib/colt.jar" sourcepath="D:/Source/colt/src">
 		<attributes>
 			<attribute name="javadoc_location" value="file:/D:/Source/colt/doc/api/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry combineaccessrules="false" kind="src" path="/REngine"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.ascape.core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.ascape.ui.swing"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/casperdatasets-ext"/>
@@ -18,7 +16,6 @@
 	<classpathentry kind="lib" path="D:/Source/xstream-1.3.1/lib/xstream-1.3.1.jar"/>
 	<classpathentry kind="lib" path="D:/Source/xstream-1.3.1/lib/xpp3_min-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="D:/Source/xstream-1.3.1/lib/jettison-1.0.1.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/OmanUtil"/>
 	<classpathentry kind="lib" path="D:/Source/commons-lang-2.4/commons-lang-2.4.jar" sourcepath="D:/Source/commons-lang-2.4/commons-lang-2.4-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:/D:/Source/commons-lang-2.4/commons-lang-2.4-javadoc.jar!/"/>
@@ -29,8 +26,6 @@
 			<attribute name="javadoc_location" value="jar:file:/D:/Source/commons-io-1.4/commons-io-1.4-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry combineaccessrules="false" kind="src" path="/jedit-textarea"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/JRI"/>
 	<classpathentry kind="lib" path="D:/Source/functionalj/dist/functionalj.jar" sourcepath="D:/Source/functionalj/src/main/java">
 		<attributes>
 			<attribute name="javadoc_location" value="file:/D:/Source/functionalj/javadoc/"/>
@@ -43,8 +38,12 @@
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/ROman"/>
 	<classpathentry kind="lib" path="D:/Source/fastutil-5.1.5/fastutil-5.1.5.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.rosuda.javaGD"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/javabuilder-swing-1.0.1"/>
 	<classpathentry kind="lib" path="resource"/>
+	<classpathentry kind="lib" path="C:/Program Files/R/R-2.11.1/library/rJava/jri/REngine.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/R/R-2.11.1/library/rJava/jri/JRI.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/R/R-2.11.1/library/JavaGD/java/javaGD.jar"/>
+	<classpathentry kind="lib" path="D:/workspace/jedit/build/jedit-textArea.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.omancode.util"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
