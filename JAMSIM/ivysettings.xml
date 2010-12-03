@@ -1,0 +1,16 @@
+<ivysettings>
+	<include url="${ivy.default.settings.dir}/ivysettings.xml" />
+	<!-- default, i.e use local, shared and public resolvers -->
+	<settings defaultResolver="default" />
+	<resolvers>
+
+		<!-- the javabuilders maven repo -->
+		<ibiblio name="javabuilders" root="http://javabuilders.googlecode.com/svn/repo/"
+			m2compatible="true" />
+
+	</resolvers>
+	<modules>
+		<!--  define resolvers for specific modules -->
+		<module organisation="org.javabuilders" resolver="javabuilders" />
+	</modules>
+</ivysettings>

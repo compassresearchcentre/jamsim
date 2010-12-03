@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivy-module version="2.0" >
+    <info
+        organisation="local"
+        module="jamsim"
+        status="integration">
+	</info>
+	<dependencies>
+       
+        <dependency org="commons-lang" name="commons-lang" rev="latest.integration"/>
+
+        <dependency org="org.javabuilders" name="javabuilder-swing" rev="1.1-RC4"/>
+        <dependency org="org.slf4j" name="slf4j-log4j12" rev="latest.integration"/>
+
+        <dependency org="cern" name="colt" rev="latest.integration">
+	        <exclude name="concurrent" />
+        </dependency>
+
+        <dependency org="org.rosuda" name="JRI" rev="latest.integration"/>
+        <dependency org="org.rosuda" name="REngine" rev="latest.integration">
+        	<exclude name="JRIEngine.*" matcher="regexp"/>
+        	<exclude name="RserveEngine.*" matcher="regexp"/>
+        </dependency> 
+        <dependency org="org.rosuda" name="javaGD" rev="latest.integration"/>
+
+        <dependency org="dsi.unimi.it" name="fastutil" rev="latest.integration">
+        </dependency>
+        
+    </dependencies>
+</ivy-module>

@@ -19,7 +19,6 @@ import javax.swing.filechooser.FileFilter;
 
 import net.casper.io.file.util.ExtFileFilter;
 
-import org.apache.commons.io.FilenameUtils;
 import org.ascape.model.Scape;
 import org.ascape.util.swing.AscapeGUIUtil;
 import org.ascape.view.vis.PanelView;
@@ -28,6 +27,7 @@ import org.gjt.sp.jedit.syntax.ModeProvider;
 import org.jamsim.ascape.ui.JEditPanelView;
 import org.jamsim.ascape.ui.PanelViewListener;
 import org.jamsim.io.FileLoader;
+import org.omancode.io.FileUtil;
 import org.omancode.swing.MRUFiles;
 
 /**
@@ -438,7 +438,7 @@ public final class RFileInterface implements PanelViewListener,
 			if (newFile != null) {
 
 				// add R file ext if no ext specified
-				if ("".equals(FilenameUtils.getExtension(newFile
+				if ("".equals(FileUtil.getExtenstion(newFile
 						.getCanonicalPath()))) {
 					newFile = new File(newFile.getCanonicalFile() + R_EXT);
 				}
