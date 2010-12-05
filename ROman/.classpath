@@ -3,28 +3,9 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/casperdatasets"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/REngine"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/casperdatasets-io"/>
-	<classpathentry kind="lib" path="D:/Source/commons-beanutils-1.8.0/commons-beanutils-core-1.8.0.jar"/>
-	<classpathentry kind="lib" path="D:/Source/commons-beanutils-1.8.0/commons-beanutils-1.8.0.jar" sourcepath="D:/Source/commons-beanutils-1.8.0/src">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/D:/Source/commons-beanutils-1.8.0/apidocs/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="D:/Source/commons-io-1.4/commons-io-1.4.jar" sourcepath="D:/Source/commons-io-1.4/commons-io-1.4-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/D:/Source/commons-io-1.4/commons-io-1.4-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="D:/Source/commons-lang-2.4/commons-lang-2.4.jar" sourcepath="D:/Source/commons-lang-2.4/commons-lang-2.4-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/D:/Source/commons-lang-2.4/commons-lang-2.4-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/casperdatasets-ext"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/BeanShell"/>
-	<classpathentry kind="lib" path="D:/Source/fastutil-5.1.5/fastutil-5.1.5.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/OmanUtil"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/JRI"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.omancode.util"/>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?ivyXmlPath=ivy.xml&amp;confs=*"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
