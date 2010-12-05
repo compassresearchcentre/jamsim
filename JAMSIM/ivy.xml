@@ -25,6 +25,9 @@
 
         <dependency org="dsi.unimi.it" name="fastutil" rev="latest.integration">
         </dependency>
+
+        <dependency org="org.jedit" name="jedit-textArea" rev="latest.integration">
+        </dependency>
         
     </dependencies>
 </ivy-module>

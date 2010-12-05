@@ -7,14 +7,8 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/casperdatasets-ext"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/casperdatasets-io"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/casperdatasets"/>
-	<classpathentry kind="lib" path="D:/Source/functionalj/dist/functionalj.jar" sourcepath="D:/Source/functionalj/src/main/java">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/D:/Source/functionalj/javadoc/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/ROman"/>
 	<classpathentry kind="lib" path="resource"/>
-	<classpathentry kind="lib" path="D:/workspace/jedit/build/jedit-textArea.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.omancode.util"/>
 	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?ivyXmlPath=ivy.xml&amp;confs=*&amp;ivySettingsPath=%24%7Bworkspace_loc%3AJAMSIM%2Fivysettings.xml%7D&amp;loadSettingsOnDemand=false&amp;propertyFiles=&amp;doRetrieve=true&amp;retrievePattern=lib%2F%5Bartifact%5D-%5Brevision%5D%28-%5Bclassifier%5D%29.%5Bext%5D&amp;retrieveSync=true&amp;retrieveConfs=*&amp;retrieveTypes=*"/>
 	<classpathentry kind="output" path="bin"/>
