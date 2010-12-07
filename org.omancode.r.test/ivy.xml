@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivy-module version="2.0" >
+    <info
+        organisation="local"
+        module="org.omancode.r.test"
+        status="integration">
+	</info>
+	<dependencies>
+
+        <dependency org="org.rosuda" name="JRI" rev="latest.integration"/>
+        <dependency org="org.beanshell" name="bsh" rev="2.0b4patched"/>
+        
+        
+    </dependencies>
+</ivy-module>
