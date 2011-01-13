@@ -7,13 +7,13 @@ import java.util.LinkedList;
 
 import javax.swing.JFrame;
 
-import org.omancode.r.RInterfaceException;
-import org.omancode.r.RInterfaceHL;
-import org.omancode.r.RSwingConsole;
+import org.omancode.r.RFaceException;
+import org.omancode.r.RFace;
+import org.omancode.r.ui.RSwingConsole;
 
 public class RSwingConsoleTest {
 
-	private RInterfaceHL rInterface;
+	private RFace rInterface;
 	private final Collection<Person> people1 = new LinkedList<Person>();
 	
 	public RSwingConsoleTest() {
@@ -49,7 +49,7 @@ public class RSwingConsoleTest {
 			
 			//System.out.println(rInterface.evalMean(new double[] {1,2,3,4,5}));
 			
-		} catch (RInterfaceException e) {
+		} catch (RFaceException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -62,13 +62,13 @@ public class RSwingConsoleTest {
 
 		try {
 			// load R
-			rInterface = RInterfaceHL.getInstance(rConsole);
+			rInterface = RFace.getInstance(rConsole);
 
 			// load
 			rInterface.loadPackage("rJava");
 			rInterface.loadPackage("JavaGD");
 
-		} catch (RInterfaceException e) {
+		} catch (RFaceException e) {
 
 			// output stack trace to stderr
 			e.printStackTrace();
