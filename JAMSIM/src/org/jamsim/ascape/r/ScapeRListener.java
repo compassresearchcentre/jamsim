@@ -2,8 +2,7 @@ package org.jamsim.ascape.r;
 
 import org.ascape.model.event.DefaultScapeListener;
 import org.ascape.model.event.ScapeEvent;
-import org.omancode.r.RInterfaceException;
-import org.omancode.util.ExecutionTimer;
+import org.omancode.r.RFaceException;
 
 /**
  * R related operations performed on scape events.
@@ -23,8 +22,6 @@ public class ScapeRListener extends DefaultScapeListener {
 	 * Serialization ID.
 	 */
 	private static final long serialVersionUID = -5105471052036807288L;
-
-	private final ExecutionTimer timer = new ExecutionTimer();
 
 	private final ScapeRInterface scapeR;
 
@@ -63,13 +60,13 @@ public class ScapeRListener extends DefaultScapeListener {
 	 * @param rSimEndCommand
 	 *            R command to run at the end of the simulation (ie: end of all
 	 *            runs), or {@code null}.
-	 * @throws RInterfaceException
+	 * @throws RFaceException
 	 *             if problem evaluating initialisation commands
 	 */
 	public ScapeRListener(ScapeRInterface scapeR,
 			String rIterationEndCommand, String rRunBeginCommand,
 			String rRunEndCommand, String rSimBeginCommand,
-			String rSimEndCommand) throws RInterfaceException {
+			String rSimEndCommand) throws RFaceException {
 		super("R Scape Interface");
 		this.scapeR = scapeR;
 		this.rRunBeginCmd = rRunBeginCommand;
@@ -91,7 +88,7 @@ public class ScapeRListener extends DefaultScapeListener {
 		if (rIterationEndCmd != null) {
 			try {
 				scapeR.assignScapeDataFrame(runNumber);
-			} catch (RInterfaceException e) {
+			} catch (RFaceException e) {
 				e.printStackTrace();
 				throw new RuntimeException(e); // NOPMD
 			}
@@ -123,7 +120,7 @@ public class ScapeRListener extends DefaultScapeListener {
 		if (rRunBeginCmd != null) {
 			try {
 				scapeR.assignScapeDataFrame(runNumber);
-			} catch (RInterfaceException e) {
+			} catch (RFaceException e) {
 				e.printStackTrace();
 				throw new RuntimeException(e); // NOPMD
 			}
@@ -150,7 +147,7 @@ public class ScapeRListener extends DefaultScapeListener {
 				executeRCommand(rRunEndCmd);
 			}
 
-		} catch (RInterfaceException e) {
+		} catch (RFaceException e) {
 			e.printStackTrace();
 			throw new RuntimeException(e); // NOPMD
 		}

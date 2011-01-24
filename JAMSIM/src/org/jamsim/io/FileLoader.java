@@ -14,17 +14,16 @@ import javax.swing.table.TableModel;
 import net.casper.data.model.CBuilder;
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
+import net.casper.data.model.CMarkedUpRowBean;
 import net.casper.ext.CasperUtil;
-import net.casper.ext.file.CDataFileDoubleArray;
-import net.casper.ext.file.CDataFileMap;
+import net.casper.ext.file.def.CDataFileDoubleArray;
+import net.casper.ext.file.def.CDataFileMap;
 import net.casper.ext.narrow.CBuildNarrowedFile;
 import net.casper.ext.swing.CDatasetTableModel;
-import net.casper.io.beans.CMarkedUpRowBean;
-import net.casper.io.file.CBuildFromFile;
-import net.casper.io.file.CDataFile;
-import net.casper.io.file.CDataFileDef;
-import net.casper.io.file.CDataFileDefLoader;
-import net.casper.io.file.util.ExtFileFilter;
+import net.casper.io.file.def.CDataFile;
+import net.casper.io.file.def.CDataFileDef;
+import net.casper.io.file.def.CDataFileDefLoader;
+import net.casper.io.file.in.CBuildFromFile;
 
 import org.jamsim.casper.CDataFileIntervalsMap;
 import org.jamsim.math.Glimmix;
@@ -33,11 +32,12 @@ import org.jamsim.math.IntervalsIntMap;
 import org.jamsim.math.IntervalsIntMapTableModel;
 import org.jamsim.matrix.IndexedDenseDoubleMatrix2D;
 import org.jamsim.matrix.IndexedMatrixTableModel;
-import org.omancode.io.Output;
-import org.omancode.io.OutputToPrintStream;
-import org.omancode.swing.ArrayTableModel;
-import org.omancode.swing.PrefsOrOpenFileChooser;
-import org.omancode.swing.PrefsOrSaveFileChooser;
+import org.omancode.util.io.ExtFileFilter;
+import org.omancode.util.io.Output;
+import org.omancode.util.io.OutputToPrintStream;
+import org.omancode.util.swing.ArrayTableModel;
+import org.omancode.util.swing.PrefsOrOpenFileChooser;
+import org.omancode.util.swing.PrefsOrSaveFileChooser;
 
 /**
  * File loader that loads datasets, and objects based on datasets, from files.
@@ -351,7 +351,7 @@ public class FileLoader implements Output {
 				+ file.getPath() + "]. ");
 
 		// load narrowed file. column headings and primary key unspecified
-		CBuilder builder = new CBuildNarrowedFile(file, null);
+		CBuilder builder = new CBuildNarrowedFile(file).setConvertMissing(true);
 		CDataCacheContainer cdcc;
 		try {
 			cdcc = new CDataCacheContainer(builder);

@@ -16,7 +16,7 @@ import javax.swing.tree.TreeNode;
 import org.ascape.runtime.swing.navigator.PopupMenuProvider;
 import org.jamsim.ascape.MicroSimScape;
 import org.jamsim.ascape.output.Saveable;
-import org.omancode.io.FileUtil;
+import org.omancode.util.io.FileUtil;
 
 /**
  * Navigator node that displays subfolders of nodes for simulation runs. A sub

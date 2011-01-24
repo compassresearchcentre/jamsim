@@ -1,5 +1,6 @@
 package org.jamsim.ascape.r;
 
+import java.beans.IntrospectionException;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -7,20 +8,22 @@ import java.util.Map;
 
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
+import net.casper.data.model.CMarkedUpRowBean;
 
 import org.jamsim.ascape.DataDictionary;
 import org.jamsim.ascape.MicroSimScape;
-import org.omancode.r.RDataFrame;
-import org.omancode.r.RInterfaceException;
-import org.omancode.r.RInterfaceHL;
-import org.omancode.r.RMatrix;
-import org.omancode.r.RObjectTreeBuilder;
-import org.omancode.r.RSwingConsole;
-import org.omancode.r.RUtil;
-import org.omancode.r.UnsupportedTypeException;
+import org.omancode.r.RFaceException;
+import org.omancode.r.RFace;
+import org.omancode.r.types.RDataFrame;
+import org.omancode.r.types.RMatrix;
+import org.omancode.r.types.RVectorList;
+import org.omancode.r.types.UnsupportedTypeException;
+import org.omancode.r.ui.RObjectTreeBuilder;
+import org.omancode.r.ui.RSwingConsole;
 import org.omancode.util.ExecutionTimer;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
+import org.rosuda.REngine.RList;
 
 /**
  * Exposes scape specific R functionality for a particular scape, as well as
@@ -56,7 +59,7 @@ public class ScapeRInterface {
 	/**
 	 * R interface.
 	 */
-	private final transient RInterfaceHL rInterface;
+	private final transient RFace rInterface;
 
 	/**
 	 * R console.
@@ -68,7 +71,7 @@ public class ScapeRInterface {
 	private final ExecutionTimer timer = new ExecutionTimer();
 
 	private String baseFileUpdateCmd;
-	
+
 	private DataDictionary dict;
 
 	/**
@@ -79,7 +82,7 @@ public class ScapeRInterface {
 	public static MicroSimScape<?> getLastMsScape() {
 		return LAST_INSTANCE.getMsScape();
 	}
-	
+
 	/**
 	 * Get the scape. For {@link AscapeGD}.
 	 * 
@@ -162,26 +165,28 @@ public class ScapeRInterface {
 	 *            name of hash
 	 * @param map
 	 *            map to write out as hash
-	 * @throws RInterfaceException
+	 * @throws RFaceException
 	 *             if problem creating hash
 	 */
 	public void assignHash(String name, Map<String, ?> map)
-			throws RInterfaceException {
+			throws RFaceException {
 		rInterface.assignHash(name, map);
 	}
 
 	/**
 	 * Assign data dictionary to the R variable "dict".
 	 * 
-	 * @param dict dictionary
+	 * @param dict
+	 *            dictionary
 	 * 
-	 * @throws RInterfaceException if problem creating dictionary
+	 * @throws RFaceException
+	 *             if problem creating dictionary
 	 */
-	public void setDictionary(DataDictionary dict) throws RInterfaceException {
+	public void setDictionary(DataDictionary dict) throws RFaceException {
 		assignHash("dict", dict.getMap());
 		this.dict = dict;
 	}
-	
+
 	/**
 	 * Get the data dictionary.
 	 * 
@@ -190,17 +195,17 @@ public class ScapeRInterface {
 	public DataDictionary getDictionary() {
 		return dict;
 	}
-	
+
 	/**
 	 * Create a dataframe from the scape.
 	 * 
 	 * @param runNumber
 	 *            run number. Used in the naming of the dataframe
-	 * @throws RInterfaceException
+	 * @throws RFaceException
 	 *             if problem during creation
 	 */
-	public void assignScapeDataFrame(int runNumber)
-			throws RInterfaceException {
+	@SuppressWarnings("unchecked")
+	public void assignScapeDataFrame(int runNumber) throws RFaceException {
 		String dataframeName = getScapeDFRunName(runNumber);
 
 		timer.start();
@@ -257,8 +262,8 @@ public class ScapeRInterface {
 	 * @return dataframe name
 	 */
 	public String getScapeDFRunName(int run) {
-		String dfName =
-				msscape.getName().toLowerCase() + (keepAllRunDFs ? run : "");
+		String dfName = msscape.getName().toLowerCase()
+				+ (keepAllRunDFs ? run : "");
 		return dfName;
 	}
 
@@ -280,13 +285,20 @@ public class ScapeRInterface {
 	 *            {@code stopClass}'s subclasses. {@code stopClass}'s getter
 	 *            methods and superclass getter methods are not converted to
 	 *            columns in the dataframe.
-	 * @throws RInterfaceException
+	 * @throws RFaceException
 	 *             if Collection cannot be read, or dataframe cannot be created.
 	 */
-	public void assignDataFrame(String name, Collection<?> col,
-			Class<?> stopClass) throws RInterfaceException {
-		rInterface.assignDataFrame(name, RUtil.toRList(col, stopClass));
-		// msScape.addDataFrameNode(name);
+	public void assignDataFrame(String name,
+			Collection<? extends CMarkedUpRowBean> col, Class<?> stopClass)
+			throws RFaceException {
+		try {
+			RList rlist = new RVectorList(col, stopClass).addCMarkedUpRow(col)
+					.asRList();
+
+			rInterface.assignDataFrame(name, rlist);
+		} catch (IntrospectionException e) {
+			throw new RFaceException(e.getMessage(), e);
+		}
 	}
 
 	/**
@@ -298,34 +310,34 @@ public class ScapeRInterface {
 	 *            the name of the dataframe to create in R.
 	 * @param container
 	 *            the casper container to convert.
-	 * @throws RInterfaceException
+	 * @throws RFaceException
 	 *             if Collection cannot be read, or dataframe cannot be created.
 	 */
 	public void assignDataFrame(String name, CDataCacheContainer container)
-			throws RInterfaceException {
-		rInterface.assignDataFrame(name, RUtil.toRList(container));
+			throws RFaceException {
+		rInterface.assignDataFrame(name, new RVectorList(container).asRList());
 		// msScape.addDataFrameNode(name);
 	}
 
 	/**
 	 * Evaluate a String expression in R in the global environment. See
-	 * {@link RInterfaceHL#eval(String)}.
+	 * {@link RFace#eval(String)}.
 	 * 
 	 * @param expr
 	 *            expression to evaluate.
 	 * @return REXP result of the evaluation.
-	 * @throws RInterfaceException
+	 * @throws RFaceException
 	 *             if problem during parse or evaluation. Parse errors will
 	 *             simply return the message "parse error".
 	 */
-	public REXP eval(String expr) throws RInterfaceException {
+	public REXP eval(String expr) throws RFaceException {
 		return rInterface.eval(expr);
 	}
 
 	/**
 	 * Evaluate an expression printing to the console any errors (including
 	 * syntactic) and the expression if it is visible. See
-	 * {@link RInterfaceHL#parseEvalPrint(String)}.
+	 * {@link RFace#parseEvalPrint(String)}.
 	 * 
 	 * @param expr
 	 *            expression to evaluate
@@ -370,27 +382,27 @@ public class ScapeRInterface {
 	 * @param expr
 	 *            expression to try and parse and eval
 	 * @return REXP result of the evaluation.
-	 * @throws RInterfaceException
+	 * @throws RFaceException
 	 *             if there is a parse or evaluation error the error message is
 	 *             returned in the exception. Nothing printed to the console.
 	 */
-	public REXP parseEvalTry(String expr) throws RInterfaceException {
+	public REXP parseEvalTry(String expr) throws RFaceException {
 		return rInterface.parseEvalTry(expr);
 	}
 
 	/**
-	 * Calls {@link RInterfaceHL#parseEvalTryReturnRMatrix(String)}.
+	 * Calls {@link RFace#parseEvalTryReturnRMatrix(String)}.
 	 * 
 	 * @param expr
 	 *            expression
 	 * @return {@link RMatrix}
-	 * @throws RInterfaceException
+	 * @throws RFaceException
 	 *             if problem evaluating {@code expr}, including if {@code expr}
 	 *             does not return an expression that can be represented as a
 	 *             {@link RMatrix}.
 	 */
 	public RMatrix parseEvalTryReturnRMatrix(String expr)
-			throws RInterfaceException {
+			throws RFaceException {
 		return rInterface.parseEvalTryReturnRMatrix(expr);
 	}
 
@@ -402,9 +414,8 @@ public class ScapeRInterface {
 	 */
 	public void help(String expr) {
 		try {
-			REXP rexp =
-					rInterface
-							.parseEvalPrint("help(\"" + expr.trim() + "\")");
+			REXP rexp = rInterface.parseEvalPrint("help(\"" + expr.trim()
+					+ "\")");
 
 			if (rexp == null || rexp.length() == 0) {
 				// error in expression or no documentation found.
@@ -444,17 +455,17 @@ public class ScapeRInterface {
 	 * @param expr
 	 *            expression to evaluate.
 	 * @return console output from the evaluation.
-	 * @throws RInterfaceException
+	 * @throws RFaceException
 	 *             if problem during parse or evaluation. Parse errors will
 	 *             simply return the message "parse error".
 	 */
-	public String evalCaptureOutput(String expr) throws RInterfaceException {
+	public String evalCaptureOutput(String expr) throws RFaceException {
 		return rInterface.evalCaptureOutput(expr);
 	}
 
 	/**
 	 * Evaluate expression returning a String array. See
-	 * {@link RInterfaceHL#evalReturnStrings(String)}.
+	 * {@link RFace#evalReturnStrings(String)}.
 	 * 
 	 * @param expr
 	 *            expression to evaluate.
@@ -463,7 +474,7 @@ public class ScapeRInterface {
 	public String[] evalReturnStrings(String expr) {
 		try {
 			return rInterface.evalReturnStrings(expr);
-		} catch (RInterfaceException e) {
+		} catch (RFaceException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -471,7 +482,7 @@ public class ScapeRInterface {
 	/**
 	 * Evaluate expression that returns a character vector. Returns the
 	 * character vector as a String. See
-	 * {@link RInterfaceHL#evalReturnString(String)}.
+	 * {@link RFace#evalReturnString(String)}.
 	 * 
 	 * @param expr
 	 *            expression to evaluate.
@@ -480,7 +491,7 @@ public class ScapeRInterface {
 	public String evalReturnString(String expr) {
 		try {
 			return rInterface.evalReturnString(expr);
-		} catch (RInterfaceException e) {
+		} catch (RFaceException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -494,7 +505,7 @@ public class ScapeRInterface {
 	public void printlnToConsole(String msg) {
 		try {
 			rInterface.printlnToConsole(msg);
-		} catch (RInterfaceException e) {
+		} catch (RFaceException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -504,10 +515,10 @@ public class ScapeRInterface {
 	 * 
 	 * @param pack
 	 *            package name
-	 * @throws RInterfaceException
+	 * @throws RFaceException
 	 *             if problem loading package.
 	 */
-	public final void loadPackage(String pack) throws RInterfaceException {
+	public final void loadPackage(String pack) throws RFaceException {
 		rInterface.loadPackage(pack);
 	}
 
@@ -535,16 +546,16 @@ public class ScapeRInterface {
 	 *            dataframe description
 	 * @return the original dataset plus the additional variables: Mean, Err,
 	 *         Left, Right
-	 * @throws RInterfaceException
+	 * @throws RFaceException
 	 *             if problem creating dataframe or executing R command
 	 */
 	public CDataCacheContainer meanOfRuns(CDataCacheContainer allRuns,
-			String dfName, String dfDesc) throws RInterfaceException {
+			String dfName, String dfDesc) throws RFaceException {
 
 		// save multi run dataset to R frame
 		assignDataFrame(dfName, allRuns);
-		printlnToConsole("Created multi-run dataframe " + dfName + "("
-				+ dfDesc + ")");
+		printlnToConsole("Created multi-run dataframe " + dfName + "(" + dfDesc
+				+ ")");
 
 		String rcmd = dfName + " <- meanOfRuns(" + dfName + ")";
 		try {
@@ -556,9 +567,9 @@ public class ScapeRInterface {
 			return new CDataCacheContainer(df);
 
 		} catch (CDataGridException e) {
-			throw new RInterfaceException(e);
+			throw new RFaceException(e);
 		} catch (UnsupportedTypeException e) {
-			throw new RInterfaceException(e);
+			throw new RFaceException(e);
 		}
 	}
 
@@ -567,11 +578,11 @@ public class ScapeRInterface {
 	 * the global environment at time of creation.
 	 * 
 	 * @return R object tree builder.
-	 * @throws RInterfaceException
+	 * @throws RFaceException
 	 *             if problem during interrogation of R environment
 	 */
 	public RObjectTreeBuilder createRObjectTreeBuilder(String[] includeClasses)
-			throws RInterfaceException {
+			throws RFaceException {
 		/*
 		 * return new RObjectTreeBuilder(rInterface);
 		 */

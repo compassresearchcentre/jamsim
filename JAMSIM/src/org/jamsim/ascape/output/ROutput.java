@@ -4,8 +4,8 @@ import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
 
 import org.jamsim.ascape.r.ScapeRInterface;
-import org.omancode.r.RInterfaceException;
-import org.omancode.r.RUtil;
+import org.omancode.r.RFaceException;
+import org.omancode.r.types.CBuildFromREXP;
 import org.rosuda.REngine.REXP;
 
 /**
@@ -60,9 +60,9 @@ public class ROutput implements OutputDatasetProvider {
 
 			System.out.println("Routput: " + cmd);
 			rexp = scapeR.parseEvalTry(cmd);
-			return RUtil.toCDataSet(rexp, getName());
+			return new CDataCacheContainer(new CBuildFromREXP(rexp, name));
 
-		} catch (RInterfaceException e) {
+		} catch (RFaceException e) {
 			throw new CDataGridException(cmd + ": " + e.getMessage(), e);
 		} 
 	}

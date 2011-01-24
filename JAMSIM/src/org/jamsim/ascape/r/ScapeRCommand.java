@@ -3,7 +3,7 @@ package org.jamsim.ascape.r;
 import java.util.Map;
 
 import org.jamsim.ascape.output.ROutput;
-import org.omancode.r.RUICommand;
+import org.omancode.r.ui.RUICommand;
 
 /**
  * An {@link RUICommand} that also provides an {@link ROutput}. 

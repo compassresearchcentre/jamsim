@@ -12,8 +12,8 @@ import org.jamsim.ascape.r.ScapeRCommand;
 import org.jamsim.ascape.r.ScapeRInterface;
 import org.javabuilders.BuildResult;
 import org.javabuilders.swing.SwingJavaBuilder;
-import org.omancode.r.RInterfaceException;
-import org.omancode.r.RObjectNode;
+import org.omancode.r.RFaceException;
+import org.omancode.r.ui.RObjectNode;
 
 /**
  * A panel that displays a {@link ScapeRCommand}. When OK is clicked a new user
@@ -76,7 +76,7 @@ public class ScapeRCommandPanel extends JPanel {
 			closeFrame();
 		} catch (RuntimeException e) {
 			showErrorDialog(e);
-		} catch (RInterfaceException e) {
+		} catch (RFaceException e) {
 			showErrorDialog(e);
 		}
 	}

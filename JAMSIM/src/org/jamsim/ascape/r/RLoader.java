@@ -10,10 +10,10 @@ import javax.swing.SwingUtilities;
 import org.ascape.runtime.swing.DesktopEnvironment;
 import org.ascape.runtime.swing.UserFrame;
 import org.ascape.util.swing.AscapeGUIUtil;
-import org.omancode.r.RInterfaceException;
-import org.omancode.r.RInterfaceHL;
-import org.omancode.r.RSwingConsole;
+import org.omancode.r.RFaceException;
+import org.omancode.r.RFace;
 import org.omancode.r.RUtil;
+import org.omancode.r.ui.RSwingConsole;
 
 /**
  * Create an {@link RSwingConsole}, load and initialise R, and add the console
@@ -51,7 +51,7 @@ public enum RLoader {
 	/**
 	 * R interface.
 	 */
-	private final transient RInterfaceHL rInterface;
+	private final transient RFace rInterface;
 
 	/**
 	 * R console.
@@ -74,7 +74,7 @@ public enum RLoader {
 
 		// load R (if not already loaded)
 		try {
-			rInterface = RInterfaceHL.getInstance(rConsole);
+			rInterface = RFace.getInstance(rConsole);
 
 			// display the R console on the console pane
 			displayRConsole(rConsole);
@@ -139,7 +139,7 @@ public enum RLoader {
 	 * 
 	 * @return r interface.
 	 */
-	public RInterfaceHL getRInterface() {
+	public RFace getRInterface() {
 		return rInterface;
 	}
 
@@ -156,7 +156,7 @@ public enum RLoader {
 	 * Initialises the (already loaded) R environment. Loads required packages
 	 * and support functions and sets options.
 	 * 
-	 * @throws RInterfaceException
+	 * @throws RFaceException
 	 *             if problem loading/evaluating initialisation commands
 	 */
 	private void initR() throws IOException {
@@ -186,10 +186,10 @@ public enum RLoader {
 	/**
 	 * Executes the function "ascapeStart" in R.
 	 * 
-	 * @throws RInterfaceException
+	 * @throws RFaceException
 	 *             if problem executing ascapeStart
 	 */
-	public void ascapeStart() throws RInterfaceException {
+	public void ascapeStart() throws RFaceException {
 		rInterface
 				.printlnToConsole("Executing support function ascapeStart()");
 		rInterface.parseEvalPrint("ascapeStart()");

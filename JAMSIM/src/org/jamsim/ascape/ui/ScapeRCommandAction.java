@@ -11,11 +11,10 @@ import javax.swing.JPanel;
 import org.ascape.util.swing.AscapeGUIUtil;
 import org.jamsim.ascape.r.ScapeRCommand;
 import org.jamsim.ascape.r.ScapeRInterface;
-import org.omancode.r.RUICommand;
 
 /**
  * Action that opens a {@link ScapeRCommandPanel} displaying the specified
- * {@link RUICommand}.
+ * {@link ScapeRCommand}.
  * 
  * @author Oliver Mannion
  * @version $Revision$
@@ -31,10 +30,12 @@ public class ScapeRCommandAction extends AbstractAction {
 	private final ScapeRInterface scapeR;
 
 	/**
-	 * Construct a {@link ScapeRCommandAction} from the {@link RUICommand}.
+	 * Construct a {@link ScapeRCommandAction} from the {@link ScapeRCommand}.
 	 * 
-	 * @param scapeR scape R interface
-	 * @param rCmd RUI command
+	 * @param scapeR
+	 *            scape R interface
+	 * @param rCmd
+	 *            scape R command
 	 */
 	public ScapeRCommandAction(ScapeRInterface scapeR, ScapeRCommand rCmd) {
 		this.scapeR = scapeR;

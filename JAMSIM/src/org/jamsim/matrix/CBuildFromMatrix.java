@@ -5,11 +5,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import net.casper.data.model.CBuilder;
-import net.casper.ext.narrow.NarrowException;
-import net.casper.ext.narrow.NarrowUtil;
-import net.casper.io.file.util.ArrayUtil;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.omancode.rmt.cellreader.narrow.NarrowException;
+import org.omancode.rmt.cellreader.narrow.NarrowUtil;
+import org.omancode.util.ArrayUtil;
 
 /**
  * Create a casper dataset from a matrix.
@@ -75,17 +75,16 @@ public class CBuildFromMatrix implements CBuilder {
 	public Class[] getColumnTypes() {
 
 		Object[][] indexT = ArrayUtil.transpose(index);
-		NarrowUtil nutil = new NarrowUtil();
 		Class<?>[] columnTypes = new Class<?>[numColumns];
 		int col;
 
 		// calculate narrowest index column types
 		// narrow transposed index
 		for (col = 0; col < indexT.length; col++) {
-			columnTypes[col] = nutil.calcNarrowestType(indexT[col], false);
+			columnTypes[col] = NarrowUtil.calcNarrowestType(indexT[col], false);
 			try {
 				indexT[col] =
-						nutil.narrowArray(indexT[col], columnTypes[col],
+					NarrowUtil.narrowArray(indexT[col], columnTypes[col],
 								false);
 			} catch (NarrowException e) {
 				throw new IllegalStateException(e);

@@ -17,8 +17,6 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
-import net.casper.io.file.util.ExtFileFilter;
-
 import org.ascape.model.Scape;
 import org.ascape.util.swing.AscapeGUIUtil;
 import org.ascape.view.vis.PanelView;
@@ -27,8 +25,9 @@ import org.gjt.sp.jedit.syntax.ModeProvider;
 import org.jamsim.ascape.ui.JEditPanelView;
 import org.jamsim.ascape.ui.PanelViewListener;
 import org.jamsim.io.FileLoader;
-import org.omancode.io.FileUtil;
-import org.omancode.swing.MRUFiles;
+import org.omancode.util.io.ExtFileFilter;
+import org.omancode.util.io.FileUtil;
+import org.omancode.util.swing.MRUFiles;
 
 /**
  * Handles the opening, display, execution and saving of R files in the GUI.

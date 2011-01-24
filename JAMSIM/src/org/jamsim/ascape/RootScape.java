@@ -14,8 +14,8 @@ import org.jamsim.ascape.output.ROutput1DMultiRun;
 import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.ascape.r.ScapeRListener;
 import org.jamsim.io.FileLoader;
-import org.omancode.io.Output;
-import org.omancode.r.RInterfaceException;
+import org.omancode.r.RFaceException;
+import org.omancode.util.io.Output;
 
 /**
  * Root scape that initialises and loads agents into a base microsimulation
@@ -203,7 +203,7 @@ public class RootScape<D extends ScapeData> extends Scape {
 			msscape.addView(new ScapeRListener(scapeR, rIterationEndCommand,
 					rRunBeginCommand, rRunEndCommand, rSimBeginCommand,
 					rSimEndCommand));
-		} catch (RInterfaceException e) {
+		} catch (RFaceException e) {
 			throw new RuntimeException(e);
 		}
 	}

@@ -8,7 +8,7 @@ import org.ascape.runtime.swing.navigator.PanelViewProvider;
 import org.ascape.util.swing.AscapeGUIUtil;
 import org.ascape.util.swing.PanelViewUtil;
 import org.ascape.view.vis.PanelView;
-import org.omancode.r.RInterfaceException;
+import org.omancode.r.RFaceException;
 
 /**
  * Executes an command in R each time {@link #getPanelView()} is called.
@@ -94,7 +94,7 @@ public class PanelViewRTextCommand implements PanelViewProvider {
 		try {
 			return scapeR.evalCaptureOutput(rcmd);
 
-		} catch (RInterfaceException e) {
+		} catch (RFaceException e) {
 			throw new RuntimeException(e);
 		}
 

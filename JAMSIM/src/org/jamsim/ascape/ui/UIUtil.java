@@ -4,9 +4,9 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
-import org.omancode.swing.DoubleCellRenderer;
-import org.omancode.swing.JTableExcelStyleEdit;
-import org.omancode.swing.SwingUtil;
+import org.omancode.util.swing.DoubleCellRenderer;
+import org.omancode.util.swing.JTableExcelStyleEdit;
+import org.omancode.util.swing.SwingUtil;
 
 /**
  * Utility functions related to Ascape Swing GUI components provided by JAMSIM.

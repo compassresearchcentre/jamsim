@@ -4,7 +4,7 @@ import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
 
 import org.jamsim.ascape.r.ScapeRInterface;
-import org.omancode.r.RInterfaceException;
+import org.omancode.r.RFaceException;
 
 /**
  * Executes
@@ -42,7 +42,7 @@ public class MeansOnMultiRunDataset implements MultiRunOutputDatasetProvider {
 			allRunsWithMean =
 					scapeR.meanOfRuns(allRuns, getShortName(), getName());
 			return allRunsWithMean;
-		} catch (RInterfaceException e) {
+		} catch (RFaceException e) {
 			throw new CDataGridException(e);
 		}
 

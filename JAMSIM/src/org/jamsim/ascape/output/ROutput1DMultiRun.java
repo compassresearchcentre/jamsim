@@ -1,8 +1,8 @@
 package org.jamsim.ascape.output;
 
 import org.jamsim.ascape.r.ScapeRInterface;
-import org.omancode.r.RInterfaceException;
-import org.omancode.r.RUtil;
+import org.omancode.r.RFaceException;
+import org.omancode.r.types.REXPAttr;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPDouble;
 import org.rosuda.REngine.REXPMismatchException;
@@ -133,16 +133,16 @@ public class ROutput1DMultiRun extends Abstract1DMultiRunOutputDataset {
 			// if value names unspecified during construction,
 			// get them from the expression
 			if (valueNames == null) {
-				valueNames = RUtil.getNamesAttribute(rexp);
+				valueNames = REXPAttr.getNamesAttribute(rexp);
 				if (valueNames == null) {
-					throw new RInterfaceException(
+					throw new RFaceException(
 							"Result does not supply names attribute.");
 				}
 			}
 
 			return rexp.asDoubles();
 
-		} catch (RInterfaceException e) {
+		} catch (RFaceException e) {
 			throw new RuntimeException(e.getMessage() + " [" + cmd + "]", e);
 		} catch (REXPMismatchException e) {
 			throw new RuntimeException(e.getMessage() + " [" + cmd + "]", e);

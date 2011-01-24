@@ -6,10 +6,10 @@ import java.util.List;
 import net.casper.data.model.CBuilder;
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
-import net.casper.io.file.util.ArrayUtil;
 
 import org.jamsim.matrix.CBuildFromMatrix;
 import org.jamsim.matrix.IndexedDenseDoubleMatrix2D;
+import org.omancode.util.ArrayUtil;
 
 /**
  * Implementation of {@link MultiRunOutputDatasetProvider} based on an array of

@@ -3,9 +3,7 @@ package org.jamsim.ascape;
 import java.util.Observable;
 import java.util.Observer;
 
-import net.casper.data.model.CDataGridException;
-import net.casper.io.beans.CMarkedUpRow;
-import net.casper.io.beans.CMarkedUpRowBean;
+import net.casper.data.model.CMarkedUpRowBean;
 
 import org.ascape.model.Cell;
 import org.jamsim.ascape.weights.WeightCalculator;
@@ -50,10 +48,6 @@ public abstract class MicroSimCell<D extends ScapeData> extends Cell
 	public static void setData(ScapeData inData) {
 		data = inData;
 	}
-
-	@Override
-	public abstract void setMarkedUpRow(CMarkedUpRow row)
-			throws CDataGridException;
 
 	/**
 	 * Set the weight on this cell. Called when {@link WeightCalculator} is

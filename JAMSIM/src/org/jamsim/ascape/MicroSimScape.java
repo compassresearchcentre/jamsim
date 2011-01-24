@@ -16,7 +16,7 @@ import javax.swing.tree.TreePath;
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
 import net.casper.io.beans.CBuildFromCollection;
-import net.casper.io.file.CBuildFromFile;
+import net.casper.io.file.in.CBuildFromFile;
 
 import org.ascape.model.Agent;
 import org.ascape.model.Scape;
@@ -51,7 +51,7 @@ import org.jamsim.ascape.ui.PanelViewWeightCalculators;
 import org.jamsim.ascape.ui.ScapeRCommandAction;
 import org.jamsim.ascape.weights.WeightCalculator;
 import org.jamsim.io.FileLoader;
-import org.omancode.r.RInterfaceException;
+import org.omancode.r.RFaceException;
 
 /**
  * A Scape with micro-simulation input/output functions including base file
@@ -512,7 +512,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		// Update dataframe with (potentially changed) weights
 		try {
 			scapeR.assignScapeDataFrame(0);
-		} catch (RInterfaceException e) {
+		} catch (RFaceException e) {
 			throw new RuntimeException(e);
 		}
 
@@ -529,7 +529,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	public void update(Observable o, Object arg) {
 		try {
 			scapeR.assignScapeDataFrame(0);
-		} catch (RInterfaceException e) {
+		} catch (RFaceException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -771,7 +771,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 			// re-throw exception that occurred in the initializer
 			// as an exception our caller can deal with
 			Throwable eInInit = e.getCause();
-			throw new RInterfaceException(eInInit.getMessage(), eInInit); // NOPMD
+			throw new RFaceException(eInInit.getMessage(), eInInit); // NOPMD
 		}
 
 		// create R scape interface

@@ -58,8 +58,6 @@ public class InvalidDataException extends IOException {
 	 *            The cause (which is saved for later retrieval by the
 	 *            {@link #getCause()} method). (A null value is permitted, and
 	 *            indicates that the cause is nonexistent or unknown.)
-	 * 
-	 * @since 1.6
 	 */
 	public InvalidDataException(Throwable cause) {
 		super(cause);

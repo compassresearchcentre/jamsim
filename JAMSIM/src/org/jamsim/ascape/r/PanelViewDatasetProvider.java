@@ -8,7 +8,7 @@ import javax.swing.table.TableModel;
 
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
-import net.casper.ext.swing.CDataRuntimeException;
+import net.casper.data.model.CDataRuntimeException;
 import net.casper.ext.swing.CDatasetTableModel;
 
 import org.ascape.runtime.swing.navigator.PanelViewProvider;

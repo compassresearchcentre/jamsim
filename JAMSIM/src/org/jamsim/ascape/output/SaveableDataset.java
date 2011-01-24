@@ -5,7 +5,7 @@ import java.io.IOException;
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.ext.CasperUtil;
 
-import org.omancode.io.FileUtil;
+import org.omancode.util.io.FileUtil;
 
 /**
  * A {@link Saveable} {@link CDataCacheContainer}.

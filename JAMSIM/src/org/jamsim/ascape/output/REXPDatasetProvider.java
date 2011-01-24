@@ -3,8 +3,8 @@ package org.jamsim.ascape.output;
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
 
-import org.omancode.r.RInterfaceException;
-import org.omancode.r.RUtil;
+import org.omancode.r.RFaceException;
+import org.omancode.r.types.CBuildFromREXP;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPReference;
 
@@ -51,8 +51,8 @@ public class REXPDatasetProvider implements OutputDatasetProvider {
 			throws CDataGridException {
 
 		try {
-			return RUtil.toCDataSet(rexp, name);
-		} catch (RInterfaceException e) {
+			return new CDataCacheContainer(new CBuildFromREXP(rexp, name));
+		} catch (RFaceException e) {
 			throw new CDataGridException(e.getMessage(), e);
 		}
 	}

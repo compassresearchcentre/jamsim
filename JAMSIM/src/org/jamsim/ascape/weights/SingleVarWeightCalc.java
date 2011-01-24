@@ -13,8 +13,8 @@ import org.jamsim.io.MutableNumeratorTableModel;
 import org.jamsim.math.MathUtil;
 import org.jamsim.math.MutableNumerator;
 import org.jamsim.shared.InvalidDataException;
-import org.omancode.r.RInterfaceException;
-import org.omancode.r.RUtil;
+import org.omancode.r.RFaceException;
+import org.omancode.r.types.REXPAttr;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPDouble;
 import org.rosuda.REngine.REXPMismatchException;
@@ -25,8 +25,7 @@ import org.rosuda.REngine.REXPMismatchException;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class SingleVarWeightCalc extends Observable implements
-		WeightCalculator {
+public class SingleVarWeightCalc extends Observable implements WeightCalculator {
 
 	/**
 	 * The name of the R variable, eg: {@code sol1}.
@@ -61,8 +60,8 @@ public class SingleVarWeightCalc extends Observable implements
 	private static final int ADJ_FACTOR = 100;
 
 	/**
-	 * Construct a set of weightings at each factor level of {@code
-	 * variableName}.
+	 * Construct a set of weightings at each factor level of
+	 * {@code variableName}.
 	 * 
 	 * @param scapeR
 	 *            scape R interface
@@ -73,33 +72,31 @@ public class SingleVarWeightCalc extends Observable implements
 	 *            the name of the R variable, eg: {@code sol1}
 	 * @param variableDesc
 	 *            description of the R variable. Used for display purposes.
-	 * @throws RInterfaceException
+	 * @throws RFaceException
 	 *             if problem reading category proportions of {@code variable}
 	 *             from R
 	 * @throws InvalidDataException
 	 *             if weights do not sum to 1. See {@link #validate()}.
 	 */
 	public SingleVarWeightCalc(ScapeRInterface scapeR, String rVariable,
-			String variableName, String variableDesc)
-			throws RInterfaceException, InvalidDataException {
+			String variableName, String variableDesc) throws RFaceException,
+			InvalidDataException {
 
 		this.variableName = variableName;
 		this.variableDesc = variableDesc;
 		this.factorLevelWeights = getFactorLevelsWithProp(rVariable, scapeR);
-		this.weights =
-				factorLevelWeights.values().toArray(
-						new MutableNumerator[factorLevelWeights.size()]);
-		this.tableModel =
-				new MutableNumeratorTableModel(weights, ADJ_FACTOR, 1);
+		this.weights = factorLevelWeights.values().toArray(
+				new MutableNumerator[factorLevelWeights.size()]);
+		this.tableModel = new MutableNumeratorTableModel(weights, ADJ_FACTOR, 1);
 
 		validate();
 
 	}
 
 	/**
-	 * Construct a set of weightings at each factor level of {@code
-	 * variableName} and load the initial values of the weight numerators from
-	 * prefs.
+	 * Construct a set of weightings at each factor level of
+	 * {@code variableName} and load the initial values of the weight numerators
+	 * from prefs.
 	 * 
 	 * @param scapeR
 	 *            scape R interface
@@ -112,7 +109,7 @@ public class SingleVarWeightCalc extends Observable implements
 	 *            description of the R variable. Used for display purposes.
 	 * @param prefs
 	 *            Preferences that store the state of the weightings
-	 * @throws RInterfaceException
+	 * @throws RFaceException
 	 *             if problem reading category proportions of {@code variable}
 	 *             from R
 	 * @throws InvalidDataException
@@ -120,7 +117,7 @@ public class SingleVarWeightCalc extends Observable implements
 	 */
 	public SingleVarWeightCalc(ScapeRInterface scapeR, String rVariable,
 			String variableName, String variableDesc, Preferences prefs)
-			throws RInterfaceException, InvalidDataException {
+			throws RFaceException, InvalidDataException {
 		this(scapeR, rVariable, variableName, variableDesc);
 		loadState(prefs);
 	}
@@ -136,47 +133,53 @@ public class SingleVarWeightCalc extends Observable implements
 	 * @return an map of {@link MutableNumerator} for each factor level with the
 	 *         denominator and numerator set to the proportion of counts at each
 	 *         factor level. The map key represents the factor level value.
-	 * @throws RInterfaceException
+	 * @throws RFaceException
 	 */
 	private Map<Double, MutableNumerator> getFactorLevelsWithProp(
-			String variable, ScapeRInterface scapeR)
-			throws RInterfaceException {
+			String variable, ScapeRInterface scapeR) throws RFaceException {
 		String cmd = "prop.table(table(" + variable + "))";
 
 		REXP rexp = scapeR.parseEvalTry(cmd);
 
 		// r command must return a REXPDouble
 		if (!(rexp instanceof REXPDouble)) {
-			throw new RInterfaceException(cmd + " returned "
+			throw new RFaceException(cmd + " returned "
 					+ rexp.getClass().getCanonicalName());
 		}
 
-		// get names. these are the factors.
-		String[] valueNames = RUtil.getNamesAttribute(rexp);
-		if (valueNames == null) {
-			throw new RInterfaceException("Result of " + cmd
-					+ " does not supply names attribute.");
-		}
-
-		// get values
-		double[] values;
 		try {
-			values = rexp.asDoubles();
+			if (rexp.length() == 0) {
+				throw new RFaceException("No factor levels for " + variable
+						+ ". Check variable exists.");
+			}
+
+			// get names. these are the factors.
+			String[] valueNames = REXPAttr.getNamesAttribute(rexp);
+
+			if (valueNames == null) {
+				throw new RFaceException("Result of " + cmd
+						+ " does not supply names attribute.");
+			}
+
+			// get values
+			double[] values = rexp.asDoubles();
+
+			// create MutableNumerators with the denominator and numerator
+			// equal to the count proportion
+			Map<Double, MutableNumerator> adjFactors = new LinkedHashMap<Double, MutableNumerator>(
+					values.length);
+			for (int i = 0; i < values.length; i++) {
+				MutableNumerator num = new MutableNumerator(valueNames[i],
+						values[i], values[i]);
+				adjFactors.put(Double.valueOf(valueNames[i]), num);
+			}
+
+			return adjFactors;
+
 		} catch (REXPMismatchException e) {
-			throw new RInterfaceException(e);
+			throw new RFaceException(e.getMessage(), e);
 		}
 
-		// create MutableNumerators with the denominator and numerator
-		// equal to the count proportion
-		Map<Double, MutableNumerator> adjFactors =
-				new LinkedHashMap<Double, MutableNumerator>(values.length);
-		for (int i = 0; i < values.length; i++) {
-			MutableNumerator num =
-					new MutableNumerator(valueNames[i], values[i], values[i]);
-			adjFactors.put(Double.valueOf(valueNames[i]), num);
-		}
-
-		return adjFactors;
 	}
 
 	/**

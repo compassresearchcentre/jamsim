@@ -6,7 +6,7 @@ import java.io.IOException;
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
 import net.casper.data.model.CDataRowSet;
-import net.casper.io.file.CDataFile;
+import net.casper.io.file.def.CDataFile;
 
 import org.jamsim.math.IntervalsIntMap;
 
