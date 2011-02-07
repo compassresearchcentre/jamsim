@@ -11,12 +11,11 @@ import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
-import org.ascape.model.event.ScapeEvent;
 import org.ascape.runtime.swing.QuitVetoer;
 import org.ascape.runtime.swing.SwingEnvironment;
 import org.ascape.runtime.swing.ViewFrameBridge;
+import org.ascape.util.swing.AscapeGUIUtil;
 import org.ascape.util.swing.PanelViewUtil.PanelViewNoStall;
-import org.ascape.view.vis.PanelView;
 import org.ascape.view.vis.PersistentComponentView;
 import org.gjt.sp.jedit.IPropertyManager;
 import org.gjt.sp.jedit.Mode;
@@ -30,13 +29,16 @@ import org.jamsim.io.FileBuffer;
 import org.omancode.util.io.FileUtil;
 
 /**
- * A {@link PanelView} that contains a JEdit {@link TextArea}.
+ * A {@link org.ascape.view.vis.PanelView} that contains a JEdit
+ * {@link TextArea}.
  * 
  * @author Oliver Mannion
  * @version $Revision$
  */
 public class JEditPanelView extends PanelViewNoStall implements
 		PersistentComponentView, QuitVetoer {
+
+	private static final long serialVersionUID = 1237607461349940401L;
 
 	private PanelViewListener pvl;
 	private final FileBuffer buffer;
@@ -65,7 +67,7 @@ public class JEditPanelView extends PanelViewNoStall implements
 			PROPS.putAll(FileUtil.loadProperties(JEditPanelView.class,
 					"JEditPanelView.props"));
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			AscapeGUIUtil.showErrorDialog(null, e);
 		}
 
 	}
@@ -82,7 +84,7 @@ public class JEditPanelView extends PanelViewNoStall implements
 	 * Create a blank {@link JEditPanelView} with specified title and mode.
 	 * 
 	 * @param title
-	 *            {@link PanelView} frame title
+	 *            frame title
 	 * @param modeExt
 	 *            filename eg: {@code "d:\readme.txt"}, or file extension eg:
 	 *            {@code ".txt"}, used to look up the mode. If a mode cannot be
@@ -96,7 +98,7 @@ public class JEditPanelView extends PanelViewNoStall implements
 	 * Create {@link JEditPanelView} with specified title and underlying file.
 	 * 
 	 * @param title
-	 *            {@link PanelView} frame title
+	 *            frame title
 	 * @param file
 	 *            file contents of the JEdit {@link TextArea}, or {@code null}
 	 *            to create an empty {@link TextArea}. Mode is determined from
@@ -159,7 +161,7 @@ public class JEditPanelView extends PanelViewNoStall implements
 	 * Make this an environmentView. This means it persists (ie: not disposed)
 	 * after the scape closes. NB: You also need to make sure we are not removed
 	 * as a listener from the scape when it closes (see
-	 * {@link #scapeNotification(ScapeEvent)}).
+	 * {@link #scapeNotification(org.ascape.model.event.ScapeEvent)}).
 	 * 
 	 * @return {@code false}
 	 */
@@ -215,8 +217,8 @@ public class JEditPanelView extends PanelViewNoStall implements
 			public void internalFrameClosing(InternalFrameEvent e) {
 				if (pvl != null) {
 					// fire closing event on PanelViewListener
-					int actionOnClose =
-							pvl.panelViewClosing(JEditPanelView.this);
+					int actionOnClose = pvl
+							.panelViewClosing(JEditPanelView.this);
 					JInternalFrame iFrame = e.getInternalFrame();
 					iFrame.setDefaultCloseOperation(actionOnClose);
 				}

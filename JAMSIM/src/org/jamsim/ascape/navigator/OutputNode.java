@@ -4,13 +4,12 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.ascape.model.event.DefaultScapeListener;
 import org.ascape.model.event.ScapeEvent;
-import org.ascape.model.event.ScapeListener;
 import org.jamsim.ascape.output.OutputException;
 
 /**
- * A {@link ScapeListener} that displays Navigator output nodes after each
- * iteration and/or at the end of the simulation. Nodes displayed are provided
- * by a {@link OutputNodeProvider}.
+ * A {@link org.ascape.model.event.ScapeListener} that displays Navigator output
+ * nodes after each iteration and/or at the end of the simulation. Nodes
+ * displayed are provided by a {@link OutputNodeProvider}.
  * 
  * @author Oliver Mannion
  * @version $Revision$
@@ -53,8 +52,8 @@ public class OutputNode extends DefaultScapeListener {
 	 * @param nodeProvider
 	 *            node provider
 	 */
-	public OutputNode(SubFolderNode outputTablesNode,
-			String nodeGroupName, OutputNodeProvider nodeProvider) {
+	public OutputNode(SubFolderNode outputTablesNode, String nodeGroupName,
+			OutputNodeProvider nodeProvider) {
 		super(nodeProvider.toString());
 		this.outputTablesNode = outputTablesNode;
 		this.nodeGroupName = nodeGroupName;
@@ -110,8 +109,8 @@ public class OutputNode extends DefaultScapeListener {
 	 *            node to add
 	 * @param runNumber
 	 *            the run number subfolder under which to create the child node.
-	 *            If the run number is {@link #ALLRUNS}, then it is created
-	 *            under the "All Runs" node.
+	 *            If the run number is {@link SubFolderNode#ALLRUNS}, then it is
+	 *            created under the "All Runs" node.
 	 */
 	public void addOutputNode(DefaultMutableTreeNode node, int runNumber) {
 
@@ -120,7 +119,8 @@ public class OutputNode extends DefaultScapeListener {
 		if (nodeGroupName != null) {
 			// get group node at time of creation of child node
 			// creates group node if it does not already exist
-			parentNode = outputTablesNode.getGroupSubFolderNode(nodeGroupName);
+			parentNode =
+					outputTablesNode.getGroupSubFolderNode(nodeGroupName);
 		}
 
 		parentNode.addChildNode(node, runNumber);

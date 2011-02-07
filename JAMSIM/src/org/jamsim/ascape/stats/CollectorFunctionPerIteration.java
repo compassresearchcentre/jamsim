@@ -63,6 +63,7 @@ public class CollectorFunctionPerIteration<T> extends CollectorFunction<T> {
 
 	@Override
 	public double getValue(Object object) {
+		@SuppressWarnings("unchecked")
 		T scapeMember = (T) object;
 		int currentIteration = scape.getIteration();
 		double value = valueFunction.getValue(scapeMember);

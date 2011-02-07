@@ -215,9 +215,17 @@ public final class RFileInterface implements PanelViewListener,
 	 */
 	private void setupJEditModes() {
 		Mode rmode = new Mode("r");
-		rmode.setProperty("file", "r.xml");
+		
+		// specify "/r.xml" with a preceding slash so 
+		// class.getResourceAsStream doesn't prefix
+		// org/gjt/sp/jedit/syntax when searching the
+		// class path for r.xml 
+		rmode.setProperty("file", "/r.xml");
+
+		// setup and init filename matcher for r mode
 		rmode.setProperty("filenameGlob", "*.r");
 		rmode.init();
+		
 		ModeProvider.instance.addMode(rmode);
 	}
 
@@ -228,6 +236,11 @@ public final class RFileInterface implements PanelViewListener,
 	 */
 	private Action getSaveFileAction() {
 		Action action = new AbstractAction() {
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 7627607461349940401L;
 
 			public void actionPerformed(ActionEvent e) {
 
@@ -260,6 +273,11 @@ public final class RFileInterface implements PanelViewListener,
 	private Action getNewRFileAction() {
 		Action action = new AbstractAction() {
 
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -5298420470875227096L;
+
 			public void actionPerformed(ActionEvent e) {
 
 				try {
@@ -288,6 +306,11 @@ public final class RFileInterface implements PanelViewListener,
 	 */
 	private Action getOpenRFileAction() {
 		Action action = new AbstractAction() {
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 3925526470139425869L;
 
 			public void actionPerformed(ActionEvent e) {
 
@@ -357,6 +380,11 @@ public final class RFileInterface implements PanelViewListener,
 	private Action getRunAction() {
 		Action action = new AbstractAction() {
 
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -5100907725631384521L;
+
 			public void actionPerformed(ActionEvent e) {
 				executeSelectedRFile();
 			}
@@ -385,6 +413,11 @@ public final class RFileInterface implements PanelViewListener,
 	 */
 	private Action getRHelpAction() {
 		Action action = new AbstractAction() {
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 3736424660750772820L;
 
 			public void actionPerformed(ActionEvent e) {
 				executeRHelp();

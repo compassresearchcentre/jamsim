@@ -117,19 +117,19 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	private transient PanelViewProvider wcalcPanel;
 
 	/**
-	 * Get whether {@link OutputDataset}s for this scape should write their
-	 * results to a file.
+	 * Get whether output datasets for this scape should write their results to
+	 * a file.
 	 * 
-	 * @return {@code true} if this scape's {@link OutputDataset}s should write
-	 *         to a file.
+	 * @return {@code true} if this scape's output datasets should write to a
+	 *         file.
 	 */
 	public boolean isResultsToFile() {
 		return outputToFile;
 	}
 
 	/**
-	 * Set whether {@link OutputDataset}s for this scape should write their
-	 * results to a file.
+	 * Set whether output datasets for this scape should write their results to
+	 * a file.
 	 * 
 	 * @param outputToFile
 	 *            write to file, or not
@@ -235,7 +235,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 			// create simple single weight panel
 			wcalcPanel = new PanelViewParameterSet(wcalc, prefs);
 		}
-		
+
 		if (wcalcPanel != null) {
 			// Add navigator node
 			addParameterSetNode(wcalcPanel);
@@ -473,7 +473,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 * Set the {@link PanelViewProvider} used to provide the UI to interact with
 	 * the weights.
 	 * 
-	 * @param wcalcPanel weight calculator panel provider
+	 * @param wcalcPanel
+	 *            weight calculator panel provider
 	 */
 	public void setWeightCalculatorPanelView(PanelViewProvider wcalcPanel) {
 		this.wcalcPanel = wcalcPanel;
@@ -545,8 +546,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		// create action
 		PanelViewAction weightingsAction =
 				new PanelViewAction(provider, "Weightings", "Weightings");
-		weightingsAction.putValue(Action.SMALL_ICON, DesktopEnvironment
-				.getIcon("Scales"));
+		weightingsAction.putValue(Action.SMALL_ICON,
+				DesktopEnvironment.getIcon("Scales"));
 
 		// add button to toolbar
 		AscapeGUIUtil.addAdditionalBarButton(weightingsAction);

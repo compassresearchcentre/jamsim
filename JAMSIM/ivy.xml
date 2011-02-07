@@ -20,7 +20,7 @@
 	</publications>
 
 	<dependencies>
-
+		<dependency org="org.ascape" name="ascape" rev="latest.integration"/>
 		<dependency org="net.casper" name="casperdatasets" rev="latest.integration" conf="*->@"/>
 		<dependency org="net.casper" name="casperdatasets-io" rev="latest.integration" conf="*->@"/>
 		<dependency org="net.casper" name="casperdatasets-ext" rev="latest.integration" conf="*->@"/>
@@ -30,10 +30,10 @@
         <dependency org="commons-lang" name="commons-lang" rev="latest.integration" conf="*->@"/>
         <dependency org="org.javabuilders" name="javabuilder-swing" rev="1.1-RC4"/>
         <dependency org="org.slf4j" name="slf4j-log4j12" rev="latest.integration"/>
-        <dependency org="cern" name="colt" rev="latest.integration">
+        <dependency org="ch.cern" name="colt" rev="latest.integration">
 	        <exclude name="concurrent" />
         </dependency>
-        <dependency org="dsi.unimi.it" name="fastutil" rev="latest.integration"/>
+        <dependency org="it.unimi.dsi" name="fastutil" rev="latest.integration"/>
         <dependency org="org.jedit" name="jedit-textArea" rev="latest.integration"/>
 
         <dependency org="org.rosuda" name="JRI" rev="latest.integration"/>
@@ -42,6 +42,11 @@
         	<exclude name="RserveEngine.*" matcher="regexp"/>
         </dependency> 
         <dependency org="org.rosuda" name="javaGD" rev="latest.integration"/>
+        
+        <!-- exclude dependencies artifacts based on configuration -->
+		<exclude type="source" ext="*" conf="master,javadoc"/>
+		<exclude type="javadoc" ext="*" conf="master,sources"/>
+		<exclude type="jar" ext="*" conf="sources,javadoc"/>
         
     </dependencies>
 </ivy-module>

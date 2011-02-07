@@ -180,6 +180,9 @@ public enum RLoader {
 		rInterface.printlnToConsole("Loading " + SUPPORT_FILE);
 
 		InputStream ins = getClass().getResourceAsStream(SUPPORT_FILE);
+		if (ins == null) {
+			throw new IOException(SUPPORT_FILE + " not found on classpath.");
+		}
 		rInterface.parseEvalPrint(RUtil.readRStream(ins));
 	}
 

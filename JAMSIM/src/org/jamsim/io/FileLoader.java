@@ -253,7 +253,7 @@ public class FileLoader implements Output {
 	 * Load {@link CDataFileDef} from prefs key, then load {@code file} using
 	 * the {@link CDataFileDef}. Returns a collection of
 	 * {@link CMarkedUpRowBean}s.
-	 * {@link CMarkedUpRowBean#setMarkedUpRow(net.casper.io.beans.CMarkedUpRow)}
+	 * {@link CMarkedUpRowBean#setMarkedUpRow(net.casper.data.model.CMarkedUpRow)}
 	 * is called on every bean.
 	 * 
 	 * @param prefsKey
@@ -351,7 +351,8 @@ public class FileLoader implements Output {
 				+ file.getPath() + "]. ");
 
 		// load narrowed file. column headings and primary key unspecified
-		CBuilder builder = new CBuildNarrowedFile(file).setConvertMissing(true);
+		CBuilder builder =
+				new CBuildNarrowedFile(file).setConvertMissing(true);
 		CDataCacheContainer cdcc;
 		try {
 			cdcc = new CDataCacheContainer(builder);
@@ -485,8 +486,8 @@ public class FileLoader implements Output {
 		Map<K, V> map = cdefmap.getMap();
 
 		if (tmodel) {
-			tmodels.put(cdefmap.getName(), new CDatasetTableModel(cdefmap
-					.getContainer()));
+			tmodels.put(cdefmap.getName(),
+					new CDatasetTableModel(cdefmap.getContainer()));
 		}
 
 		return map;

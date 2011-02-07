@@ -1,5 +1,8 @@
 <?xml version="1.0" ?>
 <project default="package" xmlns:ivy="antlib:org.apache.ivy.ant">
+	<!-- import project specific javadoc build requirments -->
+	<import file="build-javadoc.xml" />
+
 	<!-- load properties from build.properties file -->
 	<property file="build.properties" />
 
@@ -11,13 +14,14 @@
 
 	<!-- locations -->
 	<property name="src.dir" location="src" />
+	<property name="res.dir" location="resource" />
 	<property name="build.dir" location="build" />
 	<property name="dist.dir" location="${build.dir}" />
 	<property name="ivy.lib.dir" location="${build.dir}/lib" />
 	<property name="class.dir" location="${build.dir}/bin" />
 	<property name="doc.dir" location="doc" />
 	<property name="ivyreport.dir" location="${doc.dir}/dependencies" />
-	
+
 	<!-- artifact names -->
 	<property name="binary.jar" value="${name}-${version}.jar" />
 	<property name="javadoc.jar" value="${name}-javadoc-${version}.jar" />
@@ -32,7 +36,7 @@
 		</fileset>
 	</path>
 
-	<target name="resolve" description="resolve dependencies">
+	<target name="resolve" description="Resolve dependencies using Ivy">
 		<!-- do a retrieve to ivy.lib.dir -->
 		<ivy:retrieve conf="master" />
 
@@ -40,37 +44,37 @@
 		<ivy:report conf="master" graph="false" todir="${ivyreport.dir}" />
 	</target>
 
-	<target name="clean-ivycache" description="clean the ivy cache">
+	<target name="clean-ivycache" description="Clean the Ivy cache">
 		<ivy:cleancache />
 	</target>
 
-	<target name="init" depends="clean">
+	<target name="init" depends="clean" description="Create compilation dirs">
 		<mkdir dir="${class.dir}" />
 		<copy includeemptydirs="false" todir="${class.dir}">
+			<fileset dir="${res.dir}"/>
 			<fileset dir="${src.dir}">
 				<exclude name="**/*.launch" />
 				<exclude name="**/*.java" />
 			</fileset>
 		</copy>
+
 	</target>
 
-	<target name="clean">
+	<target name="clean" description="Remove build dir">
 		<delete dir="${build.dir}" />
 	</target>
 
-	<target name="compile" depends="init,resolve">
+	<target name="compile" depends="init,resolve" description="Compile source">
 		<javac srcdir="${src.dir}" debug="${javac.debug}" destdir="${class.dir}" includeantruntime="false" source="${source}" target="${target}" classpathref="build.classpath">
 			<compilerarg line="${javac.args}" />
 		</javac>
 	</target>
 
-	<target name="javadoc" description="Generate JavaDocs">
-		<javadoc sourcepath="${src.dir}" destdir="${doc.dir}" author="true" version="true" use="true" classpathref="build.classpath">
-			<link href="http://java.sun.com/javase/6/docs/api/" />
-		</javadoc>
+	<target name="javadoc" description="Generate javadocs">
+		<javadoc-with-presets sourcepath="${src.dir}" destdir="${doc.dir}" author="true" version="true" use="true" classpathref="build.classpath" />
 	</target>
 
-	<target name="package" depends="compile, javadoc" description="Generate JAR files">
+	<target name="package" depends="compile, javadoc" description="Package JAR files">
 		<mkdir dir="${dist.dir}" />
 		<jar destfile="${dist.dir}/${binary.jar}" basedir="${class.dir}" />
 		<jar destfile="${dist.dir}/${javadoc.jar}" basedir="${doc.dir}" />
@@ -91,45 +95,17 @@
 		<ivy:publish artifactspattern="${dist.dir}/[artifact](-[classifier])-${version}.[ext]" status="release" overwrite="true" resolver="local" />
 	</target>
 
-	<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="ant/ant-googlecode-0.0.2.jar" name="gcupload" />
-	<target name="gcupload" description="Upload JARS to googlecode">
-	    <property file="build.credentials.properties" />
-		<gcupload 
-	        username="${gc.username}" 
-	        password="${gc.password}" 
-			projectname="${name}" 
-			filename="${dist.dir}/${binary.jar}" 
-			targetfilename="${binary.jar}" 
-			summary="${name} ${version} binary" 
-			labels="Featured" />
+	<taskdef name="gcupload" classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="ant/ant-googlecode-0.0.2.jar" />
+	<target name="gcupload" description="Upload JARs to googlecode">
+		<property file="build.credentials.properties" />
 
-		<gcupload 
-	        username="${gc.username}" 
-	        password="${gc.password}" 
-			projectname="${name}" 
-			filename="${dist.dir}/${javadoc.jar}" 
-			targetfilename="${javadoc.jar}" 
-			summary="${name} ${version} javadoc" 
-			labels="Type-Docs"/> 
+		<gcupload username="${gc.username}" password="${gc.password}" projectname="${name}" filename="${dist.dir}/${binary.jar}" targetfilename="${binary.jar}" summary="${name} ${version} binary" labels="Featured" />
 
-		<gcupload 
-	        username="${gc.username}" 
-	        password="${gc.password}" 
-			projectname="${name}" 
-			filename="${dist.dir}/${sources.jar}" 
-			targetfilename="${sources.jar}" 
-			summary="${name} ${version} sources" 
-			labels="Type-Source"/> 
+		<gcupload username="${gc.username}" password="${gc.password}" projectname="${name}" filename="${dist.dir}/${javadoc.jar}" targetfilename="${javadoc.jar}" summary="${name} ${version} javadoc" labels="Type-Docs" />
 
-		<gcupload 
-	        username="${gc.username}" 
-	        password="${gc.password}" 
-			projectname="${name}" 
-			filename="${dist.dir}/${binary.plus.deps.zip}" 
-			targetfilename="${binary.plus.deps.zip}" 
-			summary="${name} ${version} binary + dependencies" 
-			labels="Featured" /> 
+		<gcupload username="${gc.username}" password="${gc.password}" projectname="${name}" filename="${dist.dir}/${sources.jar}" targetfilename="${sources.jar}" summary="${name} ${version} sources" labels="Type-Source" />
 
+		<gcupload username="${gc.username}" password="${gc.password}" projectname="${name}" filename="${dist.dir}/${binary.plus.deps.zip}" targetfilename="${binary.plus.deps.zip}" summary="${name} ${version} binary + dependencies" labels="Featured" />
 	</target>
 
 </project>

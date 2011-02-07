@@ -7,10 +7,9 @@ import javax.swing.Action;
 
 import org.ascape.runtime.swing.navigator.PanelViewNode;
 import org.ascape.runtime.swing.navigator.PanelViewProvider;
-import org.jamsim.io.ParameterSet;
 
 /**
- * Action that displays a {@link PanelView} when performed.
+ * Action that displays a {@link org.ascape.view.vis.PanelView} when performed.
  * 
  * @author Oliver Mannion
  * @version $Revision$
@@ -25,7 +24,7 @@ public class PanelViewAction extends AbstractAction {
 	private final PanelViewNode pvNode;
 
 	/**
-	 * Construct {@link PanelViewAction} from {@link ParameterSet}.
+	 * Construct {@link PanelViewAction} from a {@link PanelViewProvider}.
 	 * 
 	 * @param provider
 	 *            provider of panel view when action performed.
@@ -36,7 +35,7 @@ public class PanelViewAction extends AbstractAction {
 	 */
 	public PanelViewAction(PanelViewProvider provider, String name,
 			String description) {
-	
+
 		pvNode = new PanelViewNode(provider);
 
 		putValue(Action.NAME, name);

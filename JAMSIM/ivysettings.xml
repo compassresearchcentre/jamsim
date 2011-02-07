@@ -28,5 +28,6 @@
 		<module organisation="org.javabuilders" resolver="javabuilders" />
 		<module organisation="ch.cern" resolver="ivyroundup" />
 		<module organisation="net.sourceforge.supercsv" resolver="ivyroundup" />
+		<module organisation="it.unimi.dsi" resolver="ivyroundup" />
 	</modules>
 </ivysettings>

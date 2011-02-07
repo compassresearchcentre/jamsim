@@ -117,8 +117,8 @@ public class Glimmix {
 	}
 
 	/**
-	 * Return Math.exp({@link #sumOfProducts(values)}. If value is outside min
-	 * or max, it will be set to the min/max if {@code limit = true}.
+	 * Return Math.exp({@link Glimmix#sumOfProducts(Map)}. If value is outside
+	 * min or max, it will be set to the min/max if {@code limit = true}.
 	 * 
 	 * @param values
 	 *            set of values with same names as this model. These values are

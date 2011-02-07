@@ -190,8 +190,8 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 *            R command to run at the end of each run, or {@code null}.
 	 * @param rSimBeginCommand
 	 *            R command to run at the beginning of the simulation (ie:
-	 *            during construction of the {@link ScapeRListener}), or {@code
-	 *            null}.
+	 *            during construction of the {@link ScapeRListener}), or
+	 *            {@code null}.
 	 * @param rSimEndCommand
 	 *            R command to run at the end of the simulation (ie: end of all
 	 *            runs), or {@code null}.
@@ -226,7 +226,7 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 * @param outputs
 	 *            output dataset definitions
 	 */
-	public void addOutputDatasets(OutputDatasetDefs outputs) {
+	public void addOutputDatasets(OutputDatasetDefs<D> outputs) {
 		consoleOutput.println(outputs.attachOutputDatasets(msscape, scapeR));
 	}
 

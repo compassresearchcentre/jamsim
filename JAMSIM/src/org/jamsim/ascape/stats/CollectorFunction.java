@@ -74,13 +74,14 @@ public class CollectorFunction<T> extends StatCollectorCondCSA {
 
 	@Override
 	public double getValue(Object object) {
+		@SuppressWarnings("unchecked")
 		T scapeMember = (T) object;
-		double value = valueFunction.getValue(scapeMember);
-		return value;
+		return valueFunction.getValue(scapeMember);
 	}
 
 	@Override
 	public boolean meetsCondition(Object object) {
+		@SuppressWarnings("unchecked")
 		T scapeMember = (T) object;
 		if (predicate == null) {
 			return true;
