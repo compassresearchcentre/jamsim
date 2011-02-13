@@ -84,27 +84,30 @@
 
 	<target name="package" depends="compile, javadoc" description="Package JAR files">
 		<mkdir dir="${dist.dir}" />
+		<property name="manifest" location="${dist.dir}/MANIFEST.MF" />
 		
 		<manifestclasspath property="jar.classpath"
 				jarfile="${dist.dir}/${binary.jar}">
 			<classpath refid="build.classpath" />
 		</manifestclasspath>
 
-		<manifest file="MANIFEST.MF" mode="update">
+		<manifest-with-presets file="${manifest}" mode="replace">
 			<attribute name="Built-By" value="${user.name}"/>
 			<attribute name="Implementation-Version" value="${version}"/>
 			<attribute name="Built-Date" value="${TODAY}"/>
 			<attribute name="Class-Path" value="${jar.classpath}" />
-		</manifest>
+		</manifest-with-presets>
 	
 		<jar destfile="${dist.dir}/${binary.jar}" basedir="${class.dir}"
-			manifest="MANIFEST.MF" />
+			manifest="${manifest}" />
 		<jar destfile="${dist.dir}/${javadoc.jar}" basedir="${doc.dir}" />
 		<jar destfile="${dist.dir}/${sources.jar}" basedir="${src.dir}" />
 		<zip destfile="${dist.dir}/${binary.plus.deps.zip}" basedir="${dist.dir}">
 			<include name="*.jar" />
 			<zipfileset dir="${ivy.lib.dir}" prefix="lib" />
 		</zip>
+		
+		<delete file="${manifest}" />
 	</target>
 
 	<target name="publish" description="Publish JARs to local ivy repository">
