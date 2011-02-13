@@ -1,8 +1,5 @@
 <?xml version="1.0" ?>
 <project name="common" xmlns:ivy="antlib:org.apache.ivy.ant">
-	<!-- name set to project name (of importer if one) for convenience -->
-	<property name="name" value="${ant.project.name}" />
-	
 	<!-- load properties from build.properties file -->
 	<property file="build.properties" />
 		
@@ -38,13 +35,17 @@
 		</fileset>
 	</path>
 
+	<tstamp>
+		<format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss" />
+	</tstamp>
+
 	<target name="resolve" description="Resolve dependencies using Ivy">
 		<!-- do a retrieve to ivy.lib.dir -->
 		<ivy:retrieve conf="master" />
 
 		<!-- save report to doc.dir -->
 		<ivy:report conf="master" graph="false" todir="${ivyreport.dir}" />
-		
+
 	</target>
 	
 	<target name="post-resolve" depends="resolve" description="Post Ivy resolve" />
@@ -56,13 +57,15 @@
 	<target name="init" depends="clean" description="Create compilation dirs">
 		<mkdir dir="${class.dir}" />
 		<copy includeemptydirs="false" failonerror="false" todir="${class.dir}">
-			<fileset dir="." includes="${res.dir}/" />
 			<fileset dir="${src.dir}">
 				<exclude name="**/*.launch" />
 				<exclude name="**/*.java" />
 			</fileset>
 		</copy>
-
+		<!-- place resources in root dir of jar so they'll be on the classpath -->
+		<copy includeemptydirs="false" flatten="true" todir="${class.dir}">
+			<fileset dir="." includes="${res.dir}/" />
+		</copy>
 	</target>
 
 	<target name="clean" description="Remove build dir">
@@ -81,7 +84,21 @@
 
 	<target name="package" depends="compile, javadoc" description="Package JAR files">
 		<mkdir dir="${dist.dir}" />
-		<jar destfile="${dist.dir}/${binary.jar}" basedir="${class.dir}" />
+		
+		<manifestclasspath property="jar.classpath"
+				jarfile="${dist.dir}/${binary.jar}">
+			<classpath refid="build.classpath" />
+		</manifestclasspath>
+
+		<manifest file="MANIFEST.MF" mode="update">
+			<attribute name="Built-By" value="${user.name}"/>
+			<attribute name="Implementation-Version" value="${version}"/>
+			<attribute name="Built-Date" value="${TODAY}"/>
+			<attribute name="Class-Path" value="${jar.classpath}" />
+		</manifest>
+	
+		<jar destfile="${dist.dir}/${binary.jar}" basedir="${class.dir}"
+			manifest="MANIFEST.MF" />
 		<jar destfile="${dist.dir}/${javadoc.jar}" basedir="${doc.dir}" />
 		<jar destfile="${dist.dir}/${sources.jar}" basedir="${src.dir}" />
 		<zip destfile="${dist.dir}/${binary.plus.deps.zip}" basedir="${dist.dir}">

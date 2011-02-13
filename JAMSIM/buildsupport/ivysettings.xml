@@ -3,8 +3,8 @@
 	<!-- default, i.e use local, shared and public resolvers -->
 	<settings defaultResolver="default" />
 	
-	<!-- make build.properites available for ivy.xml -->
-	<properties file="build.properties" />
+	<!-- make build.properties available for ivy.xml -->
+	<properties file="${ivy.basedir}/build.properties" />
 	
 	<resolvers>
 

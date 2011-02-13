@@ -19,8 +19,13 @@ import org.rosuda.javaGD.JGDPanel;
 
 /**
  * An R graphics device in the Ascape Swing MDI. Make sure the environment
- * variable JAVAGD_CLASS_NAME = "org/jamsim/ascape/r/AscapeGD". To create in R,
- * make sure the package JavaGD is loaded, then execute "JavaGD()".
+ * variable JAVAGD_CLASS_NAME = "org/jamsim/ascape/r/AscapeGD". This can be set
+ * in the environment before running R, or from with R like so:
+ * <p>
+ * Sys.setenv('JAVAGD_CLASS_NAME'='org/jamsim/ascape/r/AscapeGD')
+ * </p>
+ * To create a window in R, make sure the package JavaGD is loaded, then execute
+ * "JavaGD()".
  * 
  * @author Oliver Mannion
  * @version $Revision$

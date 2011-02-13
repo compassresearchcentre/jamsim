@@ -4,13 +4,13 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.lang.mutable.MutableInt;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.ascape.model.Agent;
 import org.ascape.model.Scape;
 import org.ascape.model.space.ListSpace;
 import org.ascape.model.space.SpatialTemporalException;
 import org.jamsim.ascape.output.OutputDatasetDefs;
-import org.jamsim.ascape.output.ROutput;
-import org.jamsim.ascape.output.ROutput1DMultiRun;
 import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.ascape.r.ScapeRListener;
 import org.jamsim.io.FileLoader;
@@ -46,6 +46,13 @@ public class RootScape<D extends ScapeData> extends Scape {
 	private final MutableInt numberRuns = new MutableInt(2);
 
 	private final int numIterations;
+
+	/**
+	 * Initialise the log here even though we don't use it (commons-beanutils
+	 * does) so that the classloader picks up the log4j.properties in the JAMSIM
+	 * package.
+	 */
+	private static Log log = LogFactory.getLog(RootScape.class);
 
 	/**
 	 * Create a {@link RootScape}.
@@ -144,9 +151,9 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 * <p>
 	 * Uses the lowercase version of the base scape name as the dataframe
 	 * symbol. When evaluating {@code rRunEndCommand} and commands during the
-	 * creation of output datasets in {@link ROutput} and
-	 * {@link ROutput1DMultiRun}, this symbol is searched for and replaced with
-	 * the current run's dataframe name.
+	 * creation of output datasets in {@link org.jamsim.ascape.output.ROutput}
+	 * and {@link org.jamsim.ascape.output.ROutput1DMultiRun}, this symbol is
+	 * searched for and replaced with the current run's dataframe name.
 	 * 
 	 * @param keepAllRunDFs
 	 *            flag to keep the dataframes from each run in R. This means

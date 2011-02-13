@@ -32,7 +32,7 @@
 		
 		<property name="optimised.jar" value="${fastutil-rev}-${name}-optimised.jar" />
 		
-		<echo level="info" message="Creating ${optimsed.jar}" />
+		<echo level="info" message="Creating ${optimised.jar}" />
 	
 		<!-- create jar with only needed classes & their dependents -->
 		<taskdef name="jaropt" 

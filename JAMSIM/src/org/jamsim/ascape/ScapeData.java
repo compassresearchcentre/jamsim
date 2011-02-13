@@ -43,7 +43,6 @@ public interface ScapeData {
 	 */
 	Map<String, ParameterSet> getParameterSets();
 
-
 	/**
 	 * Get random number generator.
 	 * 
@@ -60,8 +59,9 @@ public interface ScapeData {
 	 * @throws IOException
 	 *             if problem loading from base file
 	 */
-	Collection<? extends Agent> loadAgents(File basefile) throws IOException;
-	
+	Collection<? extends MicroSimCell<? extends ScapeData>> loadAgents(
+			File basefile) throws IOException;
+
 	/**
 	 * Get the data dictionary.
 	 * 
@@ -72,7 +72,8 @@ public interface ScapeData {
 	/**
 	 * Get list of commands for the Analysis Menu.
 	 * 
-	 * @param scapeR scape R interface
+	 * @param scapeR
+	 *            scape R interface
 	 * @return list of commands
 	 */
 
