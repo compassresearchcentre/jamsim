@@ -61,6 +61,10 @@
 				<exclude name="**/*.launch" />
 				<exclude name="**/*.java" />
 			</fileset>
+			<!-- replace @VERSION@ token with version number -->
+			<filterset>
+				<filter token="VERSION" value="${version}"/>
+			</filterset>
 		</copy>
 		<!-- place resources in root dir of jar so they'll be on the classpath -->
 		<copy includeemptydirs="false" flatten="true" todir="${class.dir}">

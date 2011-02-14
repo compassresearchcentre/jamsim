@@ -1,5 +1,5 @@
 #  tell JavaGD() what class to use for drawing
-cat("Setting JavaGD class")
+cat("Setting JavaGD class\n")
 Sys.setenv('JAVAGD_CLASS_NAME'='org/jamsim/ascape/r/AscapeGD')
 
 cat("Creating function a\n")
