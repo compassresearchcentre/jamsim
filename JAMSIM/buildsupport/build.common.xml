@@ -7,7 +7,7 @@
 	<property name="target" value="1.6" />
 	<property name="source" value="1.6" />
 	<property name="javac.debug" value="on" />
-	<property name="javac.args" value="-Xlint" />
+	<property name="javac.args" value="-Xlint -Xlint:-path" />
 
 	<!-- locations NB: relative paths are relative to importer -->
 	<dirname property="buildsupport.dir" file="${ant.file.common}" />
@@ -41,10 +41,10 @@
 
 	<target name="resolve" description="Resolve dependencies using Ivy">
 		<!-- do a retrieve to ivy.lib.dir -->
-		<ivy:retrieve conf="master" />
+		<ivy:retrieve conf="default" />
 
 		<!-- save report to doc.dir -->
-		<ivy:report conf="master" graph="false" todir="${ivyreport.dir}" />
+		<ivy:report conf="default" graph="false" todir="${ivyreport.dir}" />
 
 	</target>
 	
