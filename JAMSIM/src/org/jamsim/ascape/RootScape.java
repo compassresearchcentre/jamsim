@@ -2,6 +2,7 @@ package org.jamsim.ascape;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import org.apache.commons.lang.mutable.MutableInt;
 import org.apache.commons.logging.Log;
@@ -13,6 +14,8 @@ import org.ascape.model.space.SpatialTemporalException;
 import org.jamsim.ascape.output.OutputDatasetDefs;
 import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.ascape.r.ScapeRListener;
+import org.jamsim.ascape.ui.PanelViewWeightCalculators;
+import org.jamsim.ascape.weights.WeightCalculator;
 import org.jamsim.io.FileLoader;
 import org.omancode.r.RFaceException;
 import org.omancode.util.io.Output;
@@ -144,6 +147,28 @@ public class RootScape<D extends ScapeData> extends Scape {
 		msscape.addRule(ITERATE_RULE);
 
 		return msscape;
+	}
+
+	/**
+	 * Setup a panel view containing a set of weight calculators, and set the
+	 * current weight calculator
+	 * 
+	 * @param calcSet
+	 *            set of weight calculators
+	 * @param currentCalc
+	 *            current weight calculator
+	 */
+	public void setupWeightSet(Map<String, WeightCalculator> calcSet,
+			WeightCalculator currentCalc) {
+		if (calcSet != null) {
+			PanelViewWeightCalculators wcalcPanel =
+					new PanelViewWeightCalculators(calcSet, msscape);
+
+			msscape.setWeightCalculatorPanelView(wcalcPanel);
+		}
+		if (currentCalc != null) {
+			msscape.setWeightCalculator(currentCalc);
+		}
 	}
 
 	/**

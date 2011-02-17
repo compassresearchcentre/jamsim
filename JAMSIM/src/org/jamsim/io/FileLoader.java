@@ -25,7 +25,7 @@ import net.casper.io.file.def.CDataFileDef;
 import net.casper.io.file.def.CDataFileDefLoader;
 import net.casper.io.file.in.CBuildFromFile;
 
-import org.jamsim.casper.CDataFileIntervalsMap;
+import org.jamsim.casper.CDataFileCumulativeDistribution;
 import org.jamsim.math.Glimmix;
 import org.jamsim.math.GlimmixTableModel;
 import org.jamsim.math.IntervalsIntMap;
@@ -268,11 +268,11 @@ public class FileLoader implements Output {
 	 * @throws IOException
 	 *             if problem reading file or creating beans
 	 */
-	public <E extends CMarkedUpRowBean> Collection<E> loadBeans(
+	public <E extends CMarkedUpRowBean> Collection<E> loadJSONMarkedUpBeans(
 			String prefsKey, File file, Class<E> beanClass)
 			throws IOException {
 
-		CDataFileDef cdefPatients = loadCDataFile(prefsKey);
+		CDataFileDef cdefPatients = loadJSONCDataFile(prefsKey);
 
 		CDataCacheContainer con = cdefPatients.loadDataset(file);
 
@@ -404,7 +404,7 @@ public class FileLoader implements Output {
 	 * @throws IOException
 	 *             if problem loading selected file.
 	 */
-	public CDataFileDef loadCDataFile(String cdefName) throws IOException {
+	public CDataFileDef loadJSONCDataFile(String cdefName) throws IOException {
 		File file =
 				getFile(cdefName, "Select JSON dataset definition for \""
 						+ cdefName + "\"", new ExtFileFilter("txt",
@@ -429,8 +429,8 @@ public class FileLoader implements Output {
 	 *             problem reading dataset, or dataset columns of the wrong
 	 *             type.
 	 */
-	public IntervalsIntMap loadIntervalsMap(CDataFileIntervalsMap cdefmap)
-			throws IOException {
+	public IntervalsIntMap loadCumulativeDistribution(
+			CDataFileCumulativeDistribution cdefmap) throws IOException {
 		loadDataset(cdefmap);
 
 		IntervalsIntMap iimap = cdefmap.getIntervalsMap();

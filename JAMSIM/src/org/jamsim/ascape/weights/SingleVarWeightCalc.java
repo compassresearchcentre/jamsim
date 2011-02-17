@@ -25,7 +25,8 @@ import org.rosuda.REngine.REXPMismatchException;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class SingleVarWeightCalc extends Observable implements WeightCalculator {
+public class SingleVarWeightCalc extends Observable implements
+		WeightCalculator {
 
 	/**
 	 * The name of the R variable, eg: {@code sol1}.
@@ -85,9 +86,11 @@ public class SingleVarWeightCalc extends Observable implements WeightCalculator 
 		this.variableName = variableName;
 		this.variableDesc = variableDesc;
 		this.factorLevelWeights = getFactorLevelsWithProp(rVariable, scapeR);
-		this.weights = factorLevelWeights.values().toArray(
-				new MutableNumerator[factorLevelWeights.size()]);
-		this.tableModel = new MutableNumeratorTableModel(weights, ADJ_FACTOR, 1);
+		this.weights =
+				factorLevelWeights.values().toArray(
+						new MutableNumerator[factorLevelWeights.size()]);
+		this.tableModel =
+				new MutableNumeratorTableModel(weights, ADJ_FACTOR, 1);
 
 		validate();
 
@@ -166,11 +169,12 @@ public class SingleVarWeightCalc extends Observable implements WeightCalculator 
 
 			// create MutableNumerators with the denominator and numerator
 			// equal to the count proportion
-			Map<Double, MutableNumerator> adjFactors = new LinkedHashMap<Double, MutableNumerator>(
-					values.length);
+			Map<Double, MutableNumerator> adjFactors =
+					new LinkedHashMap<Double, MutableNumerator>(values.length);
 			for (int i = 0; i < values.length; i++) {
-				MutableNumerator num = new MutableNumerator(valueNames[i],
-						values[i], values[i]);
+				MutableNumerator num =
+						new MutableNumerator(valueNames[i], values[i],
+								values[i]);
 				adjFactors.put(Double.valueOf(valueNames[i]), num);
 			}
 

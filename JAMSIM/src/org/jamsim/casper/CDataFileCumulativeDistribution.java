@@ -7,16 +7,20 @@ import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
 import net.casper.data.model.CDataRowSet;
 import net.casper.io.file.def.CDataFile;
+import net.casper.io.file.def.CDataFileDef;
 
 import org.jamsim.math.IntervalsIntMap;
+import org.omancode.rmt.cellreader.CellReader;
+import org.omancode.rmt.cellreader.CellReaders;
 
 /**
- * Provides an {@link IntervalsIntMap} from the columns of a {@link CDataFile}.
+ * Provides an {@link IntervalsIntMap} by accumulation from the columns of a
+ * {@link CDataFile}.
  * 
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class CDataFileIntervalsMap implements CDataFile {
+public class CDataFileCumulativeDistribution implements CDataFile {
 
 	private final CDataFile cDataFile;
 
@@ -27,23 +31,46 @@ public class CDataFileIntervalsMap implements CDataFile {
 	private IntervalsIntMap intervalsMap = null;
 
 	/**
-	 * Construct a casper dataset file definition that returns a map.
+	 * From base components, construct a casper dataset file definition that
+	 * returns a {@link IntervalsIntMap}.
 	 * 
-	 * @param cDataFile
-	 *            dataset file definition
-	 * @param probabilitiesColumn
-	 *            The dataset column of {@code cDataFile} that specifies the
-	 *            probabilities. Must be of type Double.
+	 * @param name
+	 *            casper container name.
 	 * @param mappedValuesColumn
 	 *            The dataset column of {@code cDataFile} that specifies the
 	 *            mapped values for probabilities. Must be of type Integer.
+	 * @param probabilitiesColumn
+	 *            The dataset column of {@code cDataFile} that specifies the
+	 *            probabilities. Must be of type Double.
 	 */
-	public CDataFileIntervalsMap(CDataFile cDataFile,
-			String probabilitiesColumn, String mappedValuesColumn) {
+	public CDataFileCumulativeDistribution(String name,
+			String mappedValuesColumn, String probabilitiesColumn) {
+		this(
+				new CDataFileDef(name, mappedValuesColumn + ","
+						+ probabilitiesColumn, new CellReader<?>[] {
+						CellReaders.INTEGER, CellReaders.DOUBLE },
+						mappedValuesColumn), mappedValuesColumn,
+				probabilitiesColumn);
+	}
+
+	/**
+	 * From a {@link CDataFile}, construct a casper dataset file definition that
+	 * returns a {@link IntervalsIntMap}.
+	 * 
+	 * @param cDataFile
+	 *            dataset file definition
+	 * @param mappedValuesColumn
+	 *            The dataset column of {@code cDataFile} that specifies the
+	 *            mapped values for probabilities. Must be of type Integer.
+	 * @param probabilitiesColumn
+	 *            The dataset column of {@code cDataFile} that specifies the
+	 *            probabilities. Must be of type Double.
+	 */
+	public CDataFileCumulativeDistribution(CDataFile cDataFile,
+			String mappedValuesColumn, String probabilitiesColumn) {
 		this.cDataFile = cDataFile;
 		this.probColumn = probabilitiesColumn;
 		this.valueColumn = mappedValuesColumn;
-
 	}
 
 	/**
@@ -62,15 +89,17 @@ public class CDataFileIntervalsMap implements CDataFile {
 		return intervalsMap;
 	}
 
-	/** 
+	/**
 	 * Generate the intervals map from a casper container.
 	 * 
-	 * @param source container
+	 * @param source
+	 *            container
 	 * @return intervals map
-	 * @throws CDataGridException if problem reading container columns
+	 * @throws CDataGridException
+	 *             if problem reading container columns
 	 */
-	private IntervalsIntMap createIntervalsMap(CDataCacheContainer source)
-			throws CDataGridException {
+	private IntervalsIntMap createCumulativeDistribution(
+			CDataCacheContainer source) throws CDataGridException {
 		CDataRowSet rowset = source.getAll();
 		double[] probabilities = new double[rowset.size()];
 		int[] values = new int[rowset.size()];
@@ -82,7 +111,7 @@ public class CDataFileIntervalsMap implements CDataFile {
 			i++;
 		}
 
-		return IntervalsIntMap.newInstanceFromProbabilities(probabilities,
+		return IntervalsIntMap.newCumulativeDistribution(probabilities,
 				values);
 	}
 
@@ -101,7 +130,7 @@ public class CDataFileIntervalsMap implements CDataFile {
 		CDataCacheContainer source = cDataFile.loadDataset(file);
 
 		try {
-			intervalsMap = createIntervalsMap(source);
+			intervalsMap = createCumulativeDistribution(source);
 		} catch (CDataGridException e) {
 			throw new IOException("Problem loading intervals from "
 					+ file.getCanonicalPath(), e);

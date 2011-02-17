@@ -8,22 +8,41 @@ import java.util.Map;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public interface DataDictionary {
+public class DataDictionary {
+
+	private final Map<String, String> dict;
+
+	/**
+	 * Construct {@link DataDictionary}.
+	 * 
+	 * @param dict
+	 *            dictionary
+	 */
+	public DataDictionary(Map<String, String> dict) {
+		this.dict = dict;
+	}
 
 	/**
 	 * Get variable description from name.
 	 * 
-	 * @param varName
+	 * @param variable
 	 *            variable name
 	 * @return variable description
 	 */
-	String getDescription(String varName);
+	public String getDescription(String variable) {
+		if (!dict.containsKey(variable)) {
+			throw new RuntimeException(variable + " not in data dictionary");
+		}
+
+		return dict.get(variable);
+	}
 
 	/**
 	 * Get map of all variable names and descriptions.
 	 * 
 	 * @return map of variable descriptions keyed by variable name
 	 */
-	Map<String, String> getMap();
-
+	public Map<String, String> getMap() {
+		return dict;
+	}
 }

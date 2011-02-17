@@ -81,18 +81,20 @@ public class IntervalsIntMap {
 	}
 
 	/**
-	 * Creates a new instance, generating the right bounds from {@code
-	 * probabilities}.
+	 * Creates a new instance (a cumulative distribution) by generating the
+	 * right bounds through accumulation of {@code probabilities}.
 	 * 
 	 * @param probabilities
-	 *            probabilities
+	 *            individual probabilities of each value. These are sequentially
+	 *            added (accumulated) to the sum of the previous probabilities
+	 *            of previous values to generate the right bound.
 	 * @param values
 	 *            values that map to {@code probabilities}
-	 * @return intervals, from 0 (exclusive) - 1 (inclusive), mapped to {@code
-	 *         value}. Or in other words, a cumulative distribution of
+	 * @return intervals, from 0 (exclusive) - 1 (inclusive), mapped to
+	 *         {@code value}. Or in other words, a cumulative distribution of
 	 *         probabilities mapped to an integer value.
 	 */
-	public static IntervalsIntMap newInstanceFromProbabilities(
+	public static IntervalsIntMap newCumulativeDistribution(
 			double[] probabilities, int[] values) {
 		double[] rightBounds = new double[probabilities.length];
 		double sumProbs = sumArray(probabilities);
@@ -209,8 +211,8 @@ public class IntervalsIntMap {
 
 		sbuf.append("Intervals: ").append(Arrays.toString(getIntervals()))
 				.append('\n');
-		sbuf.append("Values: ").append(Arrays.toString(getValues())).append(
-				'\n');
+		sbuf.append("Values: ").append(Arrays.toString(getValues()))
+				.append('\n');
 
 		return sbuf.toString();
 
@@ -223,9 +225,9 @@ public class IntervalsIntMap {
 	 * a probability from the CD and return its index.
 	 * 
 	 * @param includeProb
-	 *            the set of all probabilities to include. Only where {@code
-	 *            includeProb[i] = true} will that probability be used to create
-	 *            the CD.
+	 *            the set of all probabilities to include. Only where
+	 *            {@code includeProb[i] = true} will that probability be used to
+	 *            create the CD.
 	 * @param probabilities
 	 *            the probability of all conditions. Only the probabilities of
 	 *            conditions that are {@code true} in {@code includeProb} will
@@ -260,7 +262,7 @@ public class IntervalsIntMap {
 
 		// create cumulative distribution
 		IntervalsIntMap cdmap =
-				IntervalsIntMap.newInstanceFromProbabilities(
+				IntervalsIntMap.newCumulativeDistribution(
 						includedProbsList.toDoubleArray(),
 						indexOfProbsIncluded.toIntArray());
 
