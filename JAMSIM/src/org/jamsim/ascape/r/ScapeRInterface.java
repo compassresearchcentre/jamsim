@@ -12,8 +12,8 @@ import net.casper.data.model.CMarkedUpRowBean;
 
 import org.jamsim.ascape.DataDictionary;
 import org.jamsim.ascape.MicroSimScape;
-import org.omancode.r.RFaceException;
 import org.omancode.r.RFace;
+import org.omancode.r.RFaceException;
 import org.omancode.r.types.RDataFrame;
 import org.omancode.r.types.RMatrix;
 import org.omancode.r.types.RVectorList;
@@ -130,23 +130,37 @@ public class ScapeRInterface {
 	 */
 	public void loadRFile(File file) throws IOException {
 		if (file != null) {
-
-			// change working directory to same directory as file
-			// so any source() commands with relative paths will
-			// be relative to the directory of startUpFile
-			String curWd = rInterface.getWd();
-			rInterface.setWd(file.getParent());
-
 			rInterface.printlnToConsole("Loading " + file.getCanonicalPath());
 
 			// rInterface.parseEvalPrint(RUtil.readRFile(file));
 			rInterface.loadFile(file);
-
-			// reset working directory
-			rInterface.setWd(curWd);
 		}
 	}
 
+	/**
+	 * Set the working directory. NB: this sets the working directory in not
+	 * just R, but the java application environment.
+	 * 
+	 * @param dir
+	 *            working directory
+	 * @throws RFaceException
+	 *             if problem setting directory
+	 */
+	public void setWd(String dir) throws RFaceException {
+		rInterface.setWd(dir);
+	}
+	
+	/**
+	 * Get the working directory.
+	 * 
+	 * @return working directory
+	 * @throws RFaceException
+	 *             if problem getting directory
+	 */
+	public String getWd() throws RFaceException {
+		return rInterface.getWd();
+	}
+	
 	/**
 	 * Define the R command that is called by {@link #baseFileUpdated()}.
 	 * 
@@ -262,8 +276,8 @@ public class ScapeRInterface {
 	 * @return dataframe name
 	 */
 	public String getScapeDFRunName(int run) {
-		String dfName = msscape.getName().toLowerCase()
-				+ (keepAllRunDFs ? run : "");
+		String dfName =
+				msscape.getName().toLowerCase() + (keepAllRunDFs ? run : "");
 		return dfName;
 	}
 
@@ -292,8 +306,9 @@ public class ScapeRInterface {
 			Collection<? extends CMarkedUpRowBean> col, Class<?> stopClass)
 			throws RFaceException {
 		try {
-			RList rlist = new RVectorList(col, stopClass).addCMarkedUpRow(col)
-					.asRList();
+			RList rlist =
+					new RVectorList(col, stopClass).addCMarkedUpRow(col)
+							.asRList();
 
 			rInterface.assignDataFrame(name, rlist);
 		} catch (IntrospectionException e) {
@@ -315,7 +330,8 @@ public class ScapeRInterface {
 	 */
 	public void assignDataFrame(String name, CDataCacheContainer container)
 			throws RFaceException {
-		rInterface.assignDataFrame(name, new RVectorList(container).asRList());
+		rInterface
+				.assignDataFrame(name, new RVectorList(container).asRList());
 		// msScape.addDataFrameNode(name);
 	}
 
@@ -414,8 +430,9 @@ public class ScapeRInterface {
 	 */
 	public void help(String expr) {
 		try {
-			REXP rexp = rInterface.parseEvalPrint("help(\"" + expr.trim()
-					+ "\")");
+			REXP rexp =
+					rInterface
+							.parseEvalPrint("help(\"" + expr.trim() + "\")");
 
 			if (rexp == null || rexp.length() == 0) {
 				// error in expression or no documentation found.
@@ -481,8 +498,7 @@ public class ScapeRInterface {
 
 	/**
 	 * Evaluate expression that returns a character vector. Returns the
-	 * character vector as a String. See
-	 * {@link RFace#evalReturnString(String)}.
+	 * character vector as a String. See {@link RFace#evalReturnString(String)}.
 	 * 
 	 * @param expr
 	 *            expression to evaluate.
@@ -554,8 +570,8 @@ public class ScapeRInterface {
 
 		// save multi run dataset to R frame
 		assignDataFrame(dfName, allRuns);
-		printlnToConsole("Created multi-run dataframe " + dfName + "(" + dfDesc
-				+ ")");
+		printlnToConsole("Created multi-run dataframe " + dfName + "("
+				+ dfDesc + ")");
 
 		String rcmd = dfName + " <- meanOfRuns(" + dfName + ")";
 		try {

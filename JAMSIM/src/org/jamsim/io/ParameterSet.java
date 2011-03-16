@@ -1,6 +1,5 @@
 package org.jamsim.io;
 
-import java.util.Observer;
 import java.util.prefs.Preferences;
 
 import javax.swing.table.TableModel;
@@ -23,7 +22,7 @@ public interface ParameterSet {
 	/**
 	 * Process a change to the parameter set (ie: the underlying
 	 * {@link TableModel}). Validates the values then notifies all
-	 * {@link Observer}s that there has been a change.
+	 * {@link java.util.Observer}s that there has been a change.
 	 * 
 	 * External methods should call this after making any changes to the
 	 * underlying {@link TableModel}.

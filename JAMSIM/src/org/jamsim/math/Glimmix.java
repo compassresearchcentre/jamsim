@@ -59,7 +59,7 @@ public class Glimmix {
 	 *            multiplied with the model's effect estimates (coefficients).
 	 * @return sum
 	 */
-	public double sumOfProducts(Map<String, Double> values) {
+	public double sumOfProducts(Map<String, ? extends Number> values) {
 		double result = 0;
 		for (Map.Entry<String, Double> entry : effectEstimates.entrySet()) {
 			String effect = entry.getKey();
@@ -70,7 +70,7 @@ public class Glimmix {
 						+ effect);
 			}
 
-			double value = values.get(effect);
+			double value = values.get(effect).doubleValue();
 
 			result = result + coefficient * value;
 		}
@@ -89,7 +89,8 @@ public class Glimmix {
 	 *            gamma to add to the sum of products
 	 * @return logit probability
 	 */
-	public double evaluateLogitProb(Map<String, Double> values, double gamma) {
+	public double evaluateLogitProb(Map<String, ? extends Number> values,
+			double gamma) {
 		double logit = sumOfProducts(values) + gamma;
 		double prob = MathUtil.probFromLogit(logit);
 		return prob;
@@ -109,8 +110,8 @@ public class Glimmix {
 	 *            random number generator
 	 * @return random.nextUniform01() <= prob ? 1 : 2.
 	 */
-	public int binaryLogitDraw(Map<String, Double> values, double gamma,
-			RNG random) {
+	public int binaryLogitDraw(Map<String, ? extends Number> values,
+			double gamma, RNG random) {
 		double logitProb = evaluateLogitProb(values, gamma);
 
 		return random.nextUniform01() <= logitProb ? 1 : 2;
@@ -135,8 +136,8 @@ public class Glimmix {
 	 *            will be returned as max.
 	 * @return integer value
 	 */
-	public int evaluateInteger(Map<String, Double> values, double gamma,
-			boolean limit, int min, int max) {
+	public int evaluateInteger(Map<String, ? extends Number> values,
+			double gamma, boolean limit, int min, int max) {
 		double model = sumOfProducts(values) + gamma;
 		double value = Math.exp(model);
 

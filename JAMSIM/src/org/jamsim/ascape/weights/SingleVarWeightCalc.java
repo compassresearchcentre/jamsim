@@ -39,9 +39,14 @@ public class SingleVarWeightCalc extends Observable implements
 	private final String variableDesc;
 
 	/**
+	 * An amount to multiple every weight by.
+	 */
+	private final double scaling;
+	
+	/**
 	 * Variable factor levels and their weighting. A map version for lookup.
 	 */
-	private final Map<Double, MutableNumerator> factorLevelWeights;
+	private final Map<String, MutableNumerator> factorLevelWeights;
 
 	/**
 	 * Weights at each factor level. An array version of
@@ -58,43 +63,7 @@ public class SingleVarWeightCalc extends Observable implements
 	 * Weights are between 0 and 1. Adjustment factor used for display purposes
 	 * only.
 	 */
-	private static final int ADJ_FACTOR = 100;
-
-	/**
-	 * Construct a set of weightings at each factor level of
-	 * {@code variableName}.
-	 * 
-	 * @param scapeR
-	 *            scape R interface
-	 * @param rVariable
-	 *            the R variable that will be used as the basis for weighting,
-	 *            eg: {@code children$sol1}
-	 * @param variableName
-	 *            the name of the R variable, eg: {@code sol1}
-	 * @param variableDesc
-	 *            description of the R variable. Used for display purposes.
-	 * @throws RFaceException
-	 *             if problem reading category proportions of {@code variable}
-	 *             from R
-	 * @throws InvalidDataException
-	 *             if weights do not sum to 1. See {@link #validate()}.
-	 */
-	public SingleVarWeightCalc(ScapeRInterface scapeR, String rVariable,
-			String variableName, String variableDesc) throws RFaceException,
-			InvalidDataException {
-
-		this.variableName = variableName;
-		this.variableDesc = variableDesc;
-		this.factorLevelWeights = getFactorLevelsWithProp(rVariable, scapeR);
-		this.weights =
-				factorLevelWeights.values().toArray(
-						new MutableNumerator[factorLevelWeights.size()]);
-		this.tableModel =
-				new MutableNumeratorTableModel(weights, ADJ_FACTOR, 1);
-
-		validate();
-
-	}
+	private static final int DISPLAY_ADJ_FACTOR = 100;
 
 	/**
 	 * Construct a set of weightings at each factor level of
@@ -110,6 +79,8 @@ public class SingleVarWeightCalc extends Observable implements
 	 *            the name of the R variable, eg: {@code sol1}
 	 * @param variableDesc
 	 *            description of the R variable. Used for display purposes.
+	 * @param scaling
+	 *            an amount to multiple every weight by
 	 * @param prefs
 	 *            Preferences that store the state of the weightings
 	 * @throws RFaceException
@@ -119,10 +90,49 @@ public class SingleVarWeightCalc extends Observable implements
 	 *             if weights do not sum to 1. See {@link #validate()}.
 	 */
 	public SingleVarWeightCalc(ScapeRInterface scapeR, String rVariable,
-			String variableName, String variableDesc, Preferences prefs)
-			throws RFaceException, InvalidDataException {
-		this(scapeR, rVariable, variableName, variableDesc);
+			String variableName, String variableDesc, double scaling,
+			Preferences prefs) throws RFaceException, InvalidDataException {
+		this(scapeR, rVariable, variableName, variableDesc, scaling);
 		loadState(prefs);
+	}
+
+	/**
+	 * Construct a set of weightings at each factor level of
+	 * {@code variableName}.
+	 * 
+	 * @param scapeR
+	 *            scape R interface
+	 * @param rVariable
+	 *            the R variable that will be used as the basis for weighting,
+	 *            eg: {@code children$sol1}
+	 * @param variableName
+	 *            the name of the R variable, eg: {@code sol1}
+	 * @param variableDesc
+	 *            description of the R variable. Used for display purposes.
+	 * @param scaling
+	 *            an amount to multiple every weight by
+	 * @throws RFaceException
+	 *             if problem reading category proportions of {@code variable}
+	 *             from R
+	 * @throws InvalidDataException
+	 *             if weights do not sum to 1. See {@link #validate()}.
+	 */
+	public SingleVarWeightCalc(ScapeRInterface scapeR, String rVariable,
+			String variableName, String variableDesc, double scaling)
+			throws RFaceException, InvalidDataException {
+
+		this.variableName = variableName;
+		this.variableDesc = variableDesc;
+		this.scaling = scaling;
+		this.factorLevelWeights = getFactorLevelsWithProp(rVariable, scapeR);
+		this.weights =
+				factorLevelWeights.values().toArray(
+						new MutableNumerator[factorLevelWeights.size()]);
+		this.tableModel =
+				new MutableNumeratorTableModel(weights, DISPLAY_ADJ_FACTOR, 1);
+
+		validate();
+
 	}
 
 	/**
@@ -138,7 +148,7 @@ public class SingleVarWeightCalc extends Observable implements
 	 *         factor level. The map key represents the factor level value.
 	 * @throws RFaceException
 	 */
-	private Map<Double, MutableNumerator> getFactorLevelsWithProp(
+	private Map<String, MutableNumerator> getFactorLevelsWithProp(
 			String variable, ScapeRInterface scapeR) throws RFaceException {
 		String cmd = "prop.table(table(" + variable + "))";
 
@@ -169,13 +179,13 @@ public class SingleVarWeightCalc extends Observable implements
 
 			// create MutableNumerators with the denominator and numerator
 			// equal to the count proportion
-			Map<Double, MutableNumerator> adjFactors =
-					new LinkedHashMap<Double, MutableNumerator>(values.length);
+			Map<String, MutableNumerator> adjFactors =
+					new LinkedHashMap<String, MutableNumerator>(values.length);
 			for (int i = 0; i < values.length; i++) {
 				MutableNumerator num =
 						new MutableNumerator(valueNames[i], values[i],
 								values[i]);
-				adjFactors.put(Double.valueOf(valueNames[i]), num);
+				adjFactors.put(valueNames[i], num);
 			}
 
 			return adjFactors;
@@ -194,8 +204,8 @@ public class SingleVarWeightCalc extends Observable implements
 	 *            map of variable names and values
 	 * @return weight for value of variable in {@code vars}.
 	 */
-	public double getWeight(Map<String, Double> vars) {
-		Double var = vars.get(variableName);
+	public double getWeight(Map<String, ?> vars) {
+		String var = vars.get(variableName).toString();
 
 		MutableNumerator factorReweight = factorLevelWeights.get(var);
 
@@ -207,7 +217,7 @@ public class SingleVarWeightCalc extends Observable implements
 
 		double weight = factorReweight.getFraction();
 
-		return weight;
+		return weight * scaling;
 	}
 
 	@Override
@@ -258,8 +268,8 @@ public class SingleVarWeightCalc extends Observable implements
 		}
 
 		if (!MathUtil.equals(total, 1)) {
-			throw new InvalidDataException("Weights (" + total * ADJ_FACTOR
-					+ ") must add to " + ADJ_FACTOR);
+			throw new InvalidDataException("Weights (" + total * DISPLAY_ADJ_FACTOR
+					+ ") must add to " + DISPLAY_ADJ_FACTOR);
 		}
 
 	}
@@ -295,5 +305,10 @@ public class SingleVarWeightCalc extends Observable implements
 
 		String key = WeightCalculator.WCALC_KEY + " " + getName();
 		prefs.put(key, sb.toString());
+	}
+
+	@Override
+	public double getWeightEqual() {
+		return scaling;
 	}
 }

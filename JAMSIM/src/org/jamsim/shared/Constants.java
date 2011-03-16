@@ -12,7 +12,7 @@ import org.rosuda.REngine.REXPInteger;
 public final class Constants {
 
 	private Constants() {
-	
+		// no instantiation
 	}
 	
 	/**

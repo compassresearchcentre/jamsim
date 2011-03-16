@@ -17,6 +17,7 @@ import net.casper.data.model.CDataGridException;
 import net.casper.data.model.CMarkedUpRowBean;
 import net.casper.ext.CasperUtil;
 import net.casper.ext.file.def.CDataFileDoubleArray;
+import net.casper.ext.file.def.CDataFileIntArray;
 import net.casper.ext.file.def.CDataFileMap;
 import net.casper.ext.narrow.CBuildNarrowedFile;
 import net.casper.ext.swing.CDatasetTableModel;
@@ -505,17 +506,40 @@ public class FileLoader implements Output {
 	 *             problem reading dataset, or dataset column is not of type
 	 *             double.
 	 */
-	public double[] loadDoublesArray(CDataFileDoubleArray cdefdouble)
+	public double[] loadDoubleArray(CDataFileDoubleArray cdefdouble)
 			throws IOException {
 		loadDataset(cdefdouble);
 
-		double[] array = cdefdouble.getDoublesArray();
+		double[] array = cdefdouble.getDoubleArray();
 
 		tmodels.put(cdefdouble.getName(), new ArrayTableModel(array));
 
-		return cdefdouble.getDoublesArray();
+		return array;
 	}
 
+	/**
+	 * Convenience method for loading a casper dataset into a primitive int
+	 * array.
+	 * 
+	 * @param cdefdouble
+	 *            dataset definition
+	 * @return matrix
+	 * @throws IOException
+	 *             problem reading dataset, or dataset column is not of type
+	 *             double.
+	 */
+	public int[] loadIntArray(CDataFileIntArray cdefdouble)
+			throws IOException {
+		loadDataset(cdefdouble);
+
+		int[] array = cdefdouble.getIntArray();
+
+		tmodels.put(cdefdouble.getName(), new ArrayTableModel(array));
+
+		return array;
+	}
+
+	
 	/**
 	 * Load a glimmix model from a SAS glimmix output file.
 	 * 

@@ -17,27 +17,46 @@ import org.rosuda.REngine.REXPReference;
 public class REXPDatasetProvider implements OutputDatasetProvider {
 
 	private final String name;
-	private final REXP rexp;
+	private final CDataCacheContainer container;
 
 	/**
 	 * Master {@link REXPDatasetProvider} constructor.
 	 * 
-	 * @param name dataset name
-	 * @param rexp rexp
+	 * @param name
+	 *            dataset name
+	 * @param rexp
+	 *            rexp
+	 * @throws RFaceException
+	 *             if cannot created {@link CDataCacheContainer} from
+	 *             {@link REXP}
 	 */
-	public REXPDatasetProvider(String name, REXP rexp) {
+	public REXPDatasetProvider(String name, REXP rexp) throws RFaceException {
 		this.name = name;
-		this.rexp = rexp;
+		
+		// since rexp is invariable, we create container
+		// now and don't store rexp
+		try {
+			this.container =
+					new CDataCacheContainer(new CBuildFromREXP(rexp, name));
+		} catch (CDataGridException e) {
+			throw new RFaceException(e.getMessage(), e);
+		}
 	}
 
 	/**
 	 * Construct {@link REXPDatasetProvider} from a {@link REXPReference},
 	 * resolving the reference in the process.
 	 * 
-	 * @param name dataset name
-	 * @param rexpRef rexpRef
+	 * @param name
+	 *            dataset name
+	 * @param rexpRef
+	 *            rexpRef
+	 * @throws RFaceException
+	 *             if cannot created {@link CDataCacheContainer} from
+	 *             {@link REXPReference}
 	 */
-	public REXPDatasetProvider(String name, REXPReference rexpRef) {
+	public REXPDatasetProvider(String name, REXPReference rexpRef)
+			throws RFaceException {
 		this(name, rexpRef.resolve());
 	}
 
@@ -49,12 +68,7 @@ public class REXPDatasetProvider implements OutputDatasetProvider {
 	@Override
 	public CDataCacheContainer getOutputDataset(int run)
 			throws CDataGridException {
-
-		try {
-			return new CDataCacheContainer(new CBuildFromREXP(rexp, name));
-		} catch (RFaceException e) {
-			throw new CDataGridException(e.getMessage(), e);
-		}
+		return container;
 	}
 
 }

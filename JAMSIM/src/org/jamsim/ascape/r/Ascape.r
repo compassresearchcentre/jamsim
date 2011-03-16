@@ -67,7 +67,7 @@ addRowPercents <- function (counts) {
 
 cat("Creating function addOutputNode\n")
 
-addOutputNode <- function(x, subFolderName, name = dictLookup(x)) {
+addOutputNode <- function(x, subFolderName = .jnull("java/lang/String"), name = dictLookup(x)) {
 	#add an Output Tables node to the navigator under the subfolder
 	#specified
 	#eg: addOutputNode(arrZMean(freqSingle), "Frequencies", "single")

@@ -21,12 +21,16 @@ public class MutableNumeratorTableModel extends AbstractTableModel {
 	 */
 	private static final long serialVersionUID = 3155978328221657804L;
 
-	private static final String[] COLUMN_NAMES =
-			{ "Level", "Base (%)", "Weighting (%)" };
+	private static final String[] COLUMN_NAMES = { "Level", "Base (%)",
+			"Weighting (%)" };
 
 	private final MutableNumerator[] values;
 
-	private final int adjFactor;
+	/**
+	 * Display adjustment factor. Values are multiplied by this amount for
+	 * display only.
+	 */
+	private final int displayFactor;
 
 	/**
 	 * Auto adjust the last unedited value or not.
@@ -57,20 +61,20 @@ public class MutableNumeratorTableModel extends AbstractTableModel {
 	 * 
 	 * @param values
 	 *            row values from parameter set
-	 * @param adjFactor
-	 *            adjustment factor. Values are multiplied by this amount for
+	 * @param displayScaleFactor
+	 *            display scale factor. Values are multiplied by this amount for
 	 *            display only.
 	 * @param autoAdjustTotal
 	 *            total to automatically adjust the last unedited
 	 *            {@link MutableNumerator}, or Double.NaN if no adjustment of
 	 *            the last unedited {@link MutableNumerator} is to occur. This
-	 *            total is before {@code adjFactor} is applied ({@code
-	 *            adjFactor} is only for display purposes).
+	 *            total is before {@code displayScaleFactor} is applied for
+	 *            display.
 	 */
 	public MutableNumeratorTableModel(MutableNumerator[] values,
-			int adjFactor, double autoAdjustTotal) {
+			int displayScaleFactor, double autoAdjustTotal) {
 		this.values = values;
-		this.adjFactor = adjFactor;
+		this.displayFactor = displayScaleFactor;
 		this.autoAdjustTotal = autoAdjustTotal;
 		this.autoAdjust = !Double.isNaN(autoAdjustTotal);
 		filluneditedValuesIndex(values.length);
@@ -126,11 +130,11 @@ public class MutableNumeratorTableModel extends AbstractTableModel {
 
 		} else if (columnIndex == 1) {
 			// original values
-			return values[rowIndex].getOriginalValue() * adjFactor;
+			return values[rowIndex].getOriginalValue() * displayFactor;
 
 		} else if (columnIndex == 2) {
 			// values
-			return values[rowIndex].doubleValue() * adjFactor;
+			return values[rowIndex].doubleValue() * displayFactor;
 
 		} else {
 			throw new IllegalStateException("column " + columnIndex
@@ -146,7 +150,7 @@ public class MutableNumeratorTableModel extends AbstractTableModel {
 					+ " is not editable");
 		}
 
-		double dvalue = ((Double) value).doubleValue() / adjFactor;
+		double dvalue = ((Double) value).doubleValue() / displayFactor;
 
 		values[row].setNumerator(dvalue);
 		fireTableCellUpdated(row, col);

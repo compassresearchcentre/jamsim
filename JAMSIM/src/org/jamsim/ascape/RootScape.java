@@ -3,6 +3,7 @@ package org.jamsim.ascape;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.prefs.Preferences;
 
 import org.apache.commons.lang.mutable.MutableInt;
 import org.apache.commons.logging.Log;
@@ -11,6 +12,7 @@ import org.ascape.model.Agent;
 import org.ascape.model.Scape;
 import org.ascape.model.space.ListSpace;
 import org.ascape.model.space.SpatialTemporalException;
+import org.ascape.util.swing.AscapeGUIUtil;
 import org.jamsim.ascape.output.OutputDatasetDefs;
 import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.ascape.r.ScapeRListener;
@@ -151,24 +153,47 @@ public class RootScape<D extends ScapeData> extends Scape {
 
 	/**
 	 * Setup a panel view containing a set of weight calculators, and set the
-	 * current weight calculator
+	 * weight calculator to that specified in the preferences.
 	 * 
-	 * @param calcSet
-	 *            set of weight calculators
-	 * @param currentCalc
-	 *            current weight calculator
+	 * @param calcMap
+	 *            map of weight calculators
 	 */
-	public void setupWeightSet(Map<String, WeightCalculator> calcSet,
-			WeightCalculator currentCalc) {
-		if (calcSet != null) {
+	public void setupWeightCalculators(Map<String, WeightCalculator> calcMap) {
+		if (calcMap != null) {
 			PanelViewWeightCalculators wcalcPanel =
-					new PanelViewWeightCalculators(calcSet, msscape);
+					new PanelViewWeightCalculators(calcMap, msscape);
 
 			msscape.setWeightCalculatorPanelView(wcalcPanel);
 		}
-		if (currentCalc != null) {
-			msscape.setWeightCalculator(currentCalc);
+
+		WeightCalculator currentCalc =
+				selectWeightCalculatorFromPrefs(calcMap, loader.getPrefs());
+		msscape.setWeightCalculator(currentCalc);
+	}
+
+	/**
+	 * Select weight calculator specified in the preferences from the supplied
+	 * map of weight calculators.
+	 * 
+	 * @param calcMap
+	 *            map of weight calculators
+	 * @param prefs
+	 *            preferences
+	 * @return current weight calculator
+	 */
+	public static WeightCalculator selectWeightCalculatorFromPrefs(
+			Map<String, WeightCalculator> calcMap, Preferences prefs) {
+
+		if (calcMap == null || calcMap.isEmpty()) {
+			throw new IllegalStateException("No weight calculators defined.");
 		}
+
+		String wcalcName = prefs.get(WeightCalculator.WCALC_KEY, "");
+
+		WeightCalculator wcalc = calcMap.get(wcalcName);
+
+		return (wcalc == null) ? calcMap.values().toArray(
+				new WeightCalculator[calcMap.size()])[0] : wcalc;
 	}
 
 	/**
@@ -205,6 +230,11 @@ public class RootScape<D extends ScapeData> extends Scape {
 
 		// get startup file
 		File startUpFile = loader.getFile("R startup file");
+
+		// change working directory of R and Java to same directory as file
+		// so any source() commands when executed from command line
+		// or elsewhere will be operating from the startup file's directory
+		scapeR.setWd(startUpFile.getParent());
 
 		scapeR.loadRFile(startUpFile);
 	}
@@ -266,7 +296,9 @@ public class RootScape<D extends ScapeData> extends Scape {
 	public void createGraphicViews() {
 		super.createGraphicViews();
 
-		// *** FIX AscapeGUIUtil.getAdditionalBar().removeAll();
+		// *** FIX otherwise weightings button will
+		// appear twice after Reload Model.
+		AscapeGUIUtil.getAdditionalBar().removeAll();
 
 		// add multi run controller. this must be added AFTER any output
 		// datasets/nodes

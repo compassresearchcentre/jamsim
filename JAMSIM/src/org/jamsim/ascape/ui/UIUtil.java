@@ -51,7 +51,7 @@ public final class UIUtil {
 		TableCellRenderer dblRenderer = getDoubleCellRenderer();
 		table.setDefaultRenderer(Double.class, dblRenderer);
 
-		SwingUtil.packAllColumns(table, 5);
+		SwingUtil.packAllColumns(table);
 
 		// allow sorting using the column headers
 		table.setAutoCreateRowSorter(true);

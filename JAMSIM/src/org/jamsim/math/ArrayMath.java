@@ -3,7 +3,7 @@ package org.jamsim.math;
 import org.apache.commons.lang.ArrayUtils;
 
 /**
- * Logic tests on array.
+ * Logic tests and arithmetic operations on arrays.
  * 
  * @author Oliver Mannion
  * @version $Revision$
