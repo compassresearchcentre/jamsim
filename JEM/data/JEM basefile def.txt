@@ -1,0 +1,8 @@
+{
+"name":"JSE basefile",
+"column_names":[
+	"sex"
+],
+"column_types":[
+	"character"]
+}
