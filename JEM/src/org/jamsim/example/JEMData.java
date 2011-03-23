@@ -25,7 +25,7 @@ import org.jamsim.math.RNG;
 import org.jamsim.matrix.IndexedDenseDoubleMatrix2D;
 
 /**
- * Global data.
+ * Global data for JEM.
  * 
  * @author Oliver Mannion
  * @version $Revision$
@@ -154,11 +154,11 @@ public class JEMData implements ScapeData {
 	 * @param random
 	 *            random number used for drawing from the cumulative
 	 *            distribution
-	 * @param gender
+	 * @param sex
 	 *            sex
-	 * @param age
+	 * @param ageGrp
 	 *            age
-	 * @param currentDisabilityState
+	 * @param dfle
 	 *            current disability state
 	 * @return new disability state
 	 */

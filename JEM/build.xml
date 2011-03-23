@@ -1,12 +1,12 @@
 <?xml version="1.0" ?>
-<project name="melc" default="package" xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="jem" default="package" xmlns:ivy="antlib:org.apache.ivy.ant">
 
 	<!-- import common build tasks -->
 	<import file="buildsupport/build.common.xml" />
 	
 	<!-- project specific javadoc properties -->
 	<presetdef name="javadoc-with-presets">
-		<javadoc overview="src/nz/ac/auckland/compass/jsim/melc/AboutMELCScape.html">
+		<javadoc overview="src/org/jamsim/example/AboutJEMScape.html">
 			<link href="http://java.sun.com/javase/6/docs/api/" />
 			<link href="http://www.rforge.net/org/docs/" />
 			<link href="http://casperdatasets.googlecode.com/svn/trunk/casperdatasets/documents/javadoc/" />
@@ -17,7 +17,7 @@
 	<!-- project specific manifest properties -->
 	<presetdef name="manifest-with-presets">
 		<manifest>
-			<attribute name="Main-Class" value="nz.ac.auckland.compass.jsim.melc.RunMELC"/>
+			<attribute name="Main-Class" value="org.jamsim.example.RunJEM"/>
 		</manifest>
 	</presetdef>
 	
@@ -55,6 +55,11 @@
 		<!-- remove unoptimised jar -->
 		<delete file="${fastutil-lib}" />
 		
+		<!-- delete jaropt log -->
+		<delete file="jaropt.log" />
+	</target>
+	
+	<target name="post-package" description="Post package">
 	</target>
 	
 </project>	
