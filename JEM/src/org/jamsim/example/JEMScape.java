@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.jamsim.ascape.MicroSimScape;
 import org.jamsim.ascape.RootScape;
 import org.jamsim.ascape.r.ScapeRInterface;
+import org.jamsim.ascape.ui.cmd.SingleVariableCommand;
 
 /**
  * Initialisation class for the jamsim example simulation.
@@ -71,7 +72,16 @@ public class JEMScape extends RootScape<JEMData> {
 
 		addBaseFileUpdateRCmd("baseUpdated()");
 		baseScape.addBasefileNode("Basefile (people)", "expandPeople()");
+
+		// remove from previous sim (if any)
+		removeAllAnalysisMenuCommands();
+		addAnalysisMenuCommand(viewObjects);
+
 		super.createGraphicViews();
 	}
+
+	private static final SingleVariableCommand viewObjects =
+			new SingleVariableCommand("View Objects", null,
+					"with(people, " + SingleVariableCommand.REPLACEMENT + ")");
 
 }

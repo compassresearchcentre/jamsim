@@ -1,6 +1,5 @@
 package org.jamsim.example;
 
-
 import org.jamsim.ascape.RunAscape;
 
 /**

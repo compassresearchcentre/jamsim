@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.table.TableModel;
@@ -12,7 +11,6 @@ import javax.swing.table.TableModel;
 import org.jamsim.ascape.DataDictionary;
 import org.jamsim.ascape.MicroSimCell;
 import org.jamsim.ascape.ScapeData;
-import org.jamsim.ascape.r.ScapeRCommand;
 import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.ascape.weights.SingleVarWeightCalc;
 import org.jamsim.ascape.weights.WeightCalculator;
@@ -57,8 +55,6 @@ public class JEMData implements ScapeData {
 
 	private final int[] annual_earnings_scale;
 
-	private final double female_prop;
-
 	private final double[] prob_mort_male;
 
 	private final double[] prob_mort_female;
@@ -86,13 +82,13 @@ public class JEMData implements ScapeData {
 
 		this.random = new ColtRNG();
 		// this.random = new NonRNG();
+		
+		loader.setDefaultFileLocations(JEMDataDefn.DEFAULT_FILE_LOCATIONS);
 
 		dict = new DataDictionary(loader.loadMap(JEMDataDefn.DICTIONARY_MAP));
 
 		annual_earnings_scale =
 				loader.loadIntArray(JEMDataDefn.ANNUAL_EARNINGS_SCALE);
-
-		female_prop = loader.loadDoubleArray(JEMDataDefn.FEMALE_PROP)[0];
 
 		prob_mort_female =
 				loader.loadDoubleArray(JEMDataDefn.PROB_MORT_FEMALE);
@@ -224,21 +220,6 @@ public class JEMData implements ScapeData {
 	}
 
 	@Override
-	public List<ScapeRCommand> getAnalysisMenuCommands(ScapeRInterface scapeR) {
-
-		// TO DO
-		return null;
-		/*
-		 * List<ScapeRCommand> commands = new ArrayList<ScapeRCommand>();
-		 * 
-		 * commands.add(new YearlyMeans(scapeR)); commands.add(new
-		 * YearlyFreq(scapeR, YearlyFreq.Mode.CHART_AUTOSHOW, false));
-		 * 
-		 * return commands;
-		 */
-	}
-
-	@Override
 	public RNG getRNG() {
 		return random;
 	}
@@ -257,4 +238,5 @@ public class JEMData implements ScapeData {
 	public DataDictionary getDataDictionary() {
 		return dict;
 	}
+
 }

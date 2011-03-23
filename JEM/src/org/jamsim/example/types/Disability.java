@@ -5,6 +5,17 @@ import java.util.Map;
 import org.jamsim.data.ValueProvider;
 import org.jamsim.data.ValueProviderUtil;
 
+/**
+ * Disability.
+ * 
+ * NO_DIS(1) // No Disability
+ * MILD_DIS(2) // Mild Disability
+ * MODERATE_DIS(3) // Moderate Disability
+ * SEVERE_DIS(4) // Severe Disability
+ * 
+ * @author Oliver Mannion
+ * @version $Revision$
+ */
 public enum Disability implements ValueProvider<Integer> {
 	NO_DIS(1), // No Disability
 	MILD_DIS(2), // Mild Disability

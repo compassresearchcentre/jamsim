@@ -4,7 +4,17 @@ import java.util.Map;
 
 import org.jamsim.data.ValueProvider;
 import org.jamsim.data.ValueProviderUtil;
+import org.jamsim.example.JEMScape;
 
+/**
+ * Age group enumeration.
+ * GRP1(1), // 0 - 59
+ * GRP2(2), // 60 - 79
+ * GRP3(3); // 80 - 99
+ * 
+ * @author Oliver Mannion
+ * @version $Revision$
+ */
 public enum AGE_GRP implements ValueProvider<Integer> {
 	GRP1(1), // 0 - 59
 	GRP2(2), // 60 - 79
