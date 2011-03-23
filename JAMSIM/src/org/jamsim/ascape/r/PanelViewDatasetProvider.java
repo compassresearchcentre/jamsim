@@ -15,6 +15,8 @@ import org.ascape.runtime.swing.navigator.PanelViewProvider;
 import org.ascape.runtime.swing.navigator.PanelViewTable;
 import org.ascape.view.vis.PanelView;
 import org.jamsim.ascape.output.OutputDatasetProvider;
+import org.jamsim.ascape.output.Saveable;
+import org.jamsim.ascape.output.SaveableDataset;
 import org.jamsim.ascape.ui.UIUtil;
 
 /**
@@ -25,7 +27,7 @@ import org.jamsim.ascape.ui.UIUtil;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class PanelViewDatasetProvider implements PanelViewProvider {
+public class PanelViewDatasetProvider implements PanelViewProvider, Saveable {
 
 	private final OutputDatasetProvider dsprovider;
 	private final String nodeName;
@@ -41,19 +43,10 @@ public class PanelViewDatasetProvider implements PanelViewProvider {
 		this.dsprovider = outDataset;
 	}
 
-	/**
-	 * Fetches the dataset from run 0 of a {@link OutputDatasetProvider} and
-	 * display a {@link PanelView} with the table output.
-	 * 
-	 * @param rcmd
-	 *            R command to execute
-	 * @return panel view
-	 */
 	private PanelView createPanelView(String name,
-			OutputDatasetProvider outDataset) {
+			CDataCacheContainer container) {
 
 		try {
-			CDataCacheContainer container = outDataset.getOutputDataset(0);
 			TableModel tmodel = new CDatasetTableModel(container);
 
 			JTable table = UIUtil.createTable(tmodel, name);
@@ -61,11 +54,27 @@ public class PanelViewDatasetProvider implements PanelViewProvider {
 			return PanelViewTable.createPanelView(table);
 
 		} catch (IOException e) {
-			throw new CDataRuntimeException(e);
-		} catch (CDataGridException e) {
-			throw new CDataRuntimeException(e);
+			throw new CDataRuntimeException(e.getMessage(), e);
 		}
+	}
 
+	@Override
+	public void saveToCSV(String directory) throws IOException {
+		try {
+			SaveableDataset
+					.saveToCSV(directory, nodeName, getDataset(), true);
+		} catch (CDataGridException e) {
+			throw new IOException(e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * Fetches the dataset from run 0 of the dataset provider.
+	 * 
+	 * @return casper container
+	 */
+	private CDataCacheContainer getDataset() throws CDataGridException {
+		return dsprovider.getOutputDataset(0);
 	}
 
 	@Override
@@ -75,7 +84,11 @@ public class PanelViewDatasetProvider implements PanelViewProvider {
 
 	@Override
 	public PanelView getPanelView() {
-		return createPanelView(nodeName, dsprovider);
+		try {
+			return createPanelView(nodeName, getDataset());
+		} catch (CDataGridException e) {
+			throw new CDataRuntimeException(e.getMessage(), e);
+		}
 	}
 
 	@Override

@@ -83,6 +83,13 @@ public enum RLoader {
 			initR();
 
 		} catch (IOException e) {
+			System.err.println(e.getMessage());
+			System.err.println("Check: ");
+			System.err
+					.println("1) the location of jri.dll is specified, eg: -Djava.library.path=\"C:\\Program Files\\R\\R-2.11.1\\library\\rJava\\jri\"");
+			System.err
+					.println("2) R bin dir is on the path, eg: PATH=%PATH%;C:\\Program Files\\R\\R-2.11.1\\bin");
+
 			throw new ExceptionInInitializerError(e);
 		}
 

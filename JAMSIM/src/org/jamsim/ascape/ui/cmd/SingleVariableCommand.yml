@@ -1,0 +1,10 @@
+JPanel:
+    - JScrollPane(name=scrollTree): JTree(name=rObjects)
+    - JLabel(name=lNameLbl, text="Select variable:")
+    - JButton(name=ok, text=OK, onAction=ok)
+    - JButton(name=cancel, text=Cancel, onAction=cancel)
+    - MigLayout: |
+        [grow, 300]      
+        lNameLbl       
+        scrollTree
+        ok=1,cancel=1 

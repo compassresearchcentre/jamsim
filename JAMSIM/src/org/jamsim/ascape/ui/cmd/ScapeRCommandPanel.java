@@ -1,4 +1,4 @@
-package org.jamsim.ascape.ui;
+package org.jamsim.ascape.ui.cmd;
 
 import java.awt.Window;
 import java.io.IOException;
@@ -8,7 +8,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTree;
 
-import org.jamsim.ascape.r.ScapeRCommand;
 import org.jamsim.ascape.r.ScapeRInterface;
 import org.javabuilders.BuildResult;
 import org.javabuilders.swing.SwingJavaBuilder;
@@ -70,7 +69,8 @@ public class ScapeRCommandPanel extends JPanel {
 				scapeR.parseEvalTry(rCmd.generateCmdText(uiElements));
 			} else {
 				scapeR.getMsScape().addUserNode(
-						rCmd.generateROutput(uiElements), rCmd.getName());
+						rCmd.generateROutput(scapeR, uiElements),
+						rCmd.getName());
 			}
 
 			closeFrame();
@@ -98,6 +98,13 @@ public class ScapeRCommandPanel extends JPanel {
 		window.setVisible(false);
 	}
 
+	/**
+	 * From the {@code rObjects} tree get the currently selected node.
+	 * 
+	 * @param uiElements
+	 *            ui elements
+	 * @return selected node of the {@code rObjects} tree
+	 */
 	public static String getSelectedNodeName(Map<String, Object> uiElements) {
 		JTree rObjects = (JTree) uiElements.get("rObjects");
 		RObjectNode node =

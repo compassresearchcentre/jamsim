@@ -16,7 +16,10 @@ import org.ascape.util.swing.AscapeGUIUtil;
 import org.jamsim.ascape.output.OutputDatasetDefs;
 import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.ascape.r.ScapeRListener;
+import org.jamsim.ascape.ui.AnalysisMenu;
 import org.jamsim.ascape.ui.PanelViewWeightCalculators;
+import org.jamsim.ascape.ui.cmd.ScapeRCommand;
+import org.jamsim.ascape.ui.cmd.ScapeRCommandAction;
 import org.jamsim.ascape.weights.WeightCalculator;
 import org.jamsim.io.FileLoader;
 import org.omancode.r.RFaceException;
@@ -296,7 +299,8 @@ public class RootScape<D extends ScapeData> extends Scape {
 	public void createGraphicViews() {
 		super.createGraphicViews();
 
-		// *** FIX otherwise weightings button will
+		// *** QUICK FIX
+		// remove otherwise weightings button will
 		// appear twice after Reload Model.
 		AscapeGUIUtil.getAdditionalBar().removeAll();
 
@@ -313,6 +317,24 @@ public class RootScape<D extends ScapeData> extends Scape {
 
 		}
 
+	}
+
+	/**
+	 * Add a {@link ScapeRCommand} to the Analysis menu.
+	 * 
+	 * @param command
+	 *            command
+	 */
+	public void addAnalysisMenuCommand(ScapeRCommand command) {
+		AnalysisMenu.INSTANCE.addMenuItem(new ScapeRCommandAction(scapeR,
+				command));
+	}
+
+	/**
+	 * Remove all commands from the Analysis menu.
+	 */
+	public void removeAllAnalysisMenuCommands() {
+		AnalysisMenu.INSTANCE.removeAll();
 	}
 
 	/**

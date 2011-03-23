@@ -16,6 +16,7 @@ import org.ascape.runtime.swing.navigator.TreeBuilder;
 import org.jamsim.ascape.MicroSimScape;
 import org.jamsim.ascape.output.OutputDatasetProvider;
 import org.jamsim.ascape.output.ROutput;
+import org.jamsim.ascape.output.Saveable;
 import org.jamsim.ascape.r.PanelViewDatasetProvider;
 import org.jamsim.ascape.r.PanelViewRTextCommand;
 import org.jamsim.ascape.ui.PanelViewParameterSet;
@@ -144,7 +145,8 @@ public class MicroSimScapeNode extends ScapeNode {
 		if (psets != null) {
 			for (Map.Entry<String, ParameterSet> entry : psets.entrySet()) {
 				ParameterSet pset = entry.getValue();
-				addParameterSetNode(new PanelViewParameterSet(pset, scape.getPrefs()));
+				addParameterSetNode(new PanelViewParameterSet(pset,
+						scape.getPrefs()));
 			}
 		}
 	}
@@ -167,7 +169,7 @@ public class MicroSimScapeNode extends ScapeNode {
 		PanelViewNode newNode = new PanelViewNode(provider);
 		treeModel.insertNodeInto(newNode, psNode, psNode.getChildCount());
 	}
-	
+
 	/**
 	 * Add node which displays the contents of the basefile when clicked on.
 	 * 
@@ -183,8 +185,8 @@ public class MicroSimScapeNode extends ScapeNode {
 		PanelViewDatasetProvider provider =
 				new PanelViewDatasetProvider(basefileDS);
 
-		treeModel.insertNodeInto(new PanelViewNode(provider), this, this
-				.getChildCount());
+		treeModel.insertNodeInto(new PanelViewNode(provider), this,
+				this.getChildCount());
 	}
 
 	/**
@@ -205,8 +207,8 @@ public class MicroSimScapeNode extends ScapeNode {
 		PanelViewProvider provider =
 				new PanelViewRTextCommand(scape.getScapeRInterface(),
 						dataFrameName, rcmd);
-		treeModel.insertNodeInto(new PanelViewNode(provider), dfNode, dfNode
-				.getChildCount());
+		treeModel.insertNodeInto(new PanelViewNode(provider), dfNode,
+				dfNode.getChildCount());
 	}
 
 	/**
@@ -271,6 +273,27 @@ public class MicroSimScapeNode extends ScapeNode {
 	public PanelViewNode addOutputNode(PanelViewProvider provider,
 			String subFolderName) {
 		PanelViewNode newNode = new PanelViewNode(provider);
+		outputTablesNode.addChildNode(newNode, subFolderName);
+		return newNode;
+	}
+
+	/**
+	 * Add a saveable panel view node under "Output Tables".
+	 * 
+	 * @param provider
+	 *            provider
+	 * @param subFolderName
+	 *            name of sub folder to add node under, or {@code null} to add
+	 *            directly under "Output Tables".
+	 * @param saver
+	 *            {@link Saveable} that saves the contents of
+	 *            {@link PanelViewProvider} when required
+	 * @return newly added node
+	 */
+	public PanelViewNode addOutputNode(PanelViewProvider provider,
+			Saveable saver, String subFolderName) {
+		SaveablePanelViewNode newNode =
+				new SaveablePanelViewNode(provider, saver);
 		outputTablesNode.addChildNode(newNode, subFolderName);
 		return newNode;
 	}

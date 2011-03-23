@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -22,7 +21,6 @@ import org.ascape.model.Agent;
 import org.ascape.model.Scape;
 import org.ascape.model.space.CollectionSpace;
 import org.ascape.runtime.swing.DesktopEnvironment;
-import org.ascape.runtime.swing.SwingRunner;
 import org.ascape.runtime.swing.navigator.PanelViewExisting;
 import org.ascape.runtime.swing.navigator.PanelViewNode;
 import org.ascape.runtime.swing.navigator.PanelViewProvider;
@@ -37,18 +35,12 @@ import org.jamsim.ascape.navigator.SubFolderNode;
 import org.jamsim.ascape.output.ChartProvider;
 import org.jamsim.ascape.output.OutputDatasetProvider;
 import org.jamsim.ascape.output.REXPDatasetProvider;
-import org.jamsim.ascape.output.ROutput;
-import org.jamsim.ascape.output.ROutput1DMultiRun;
 import org.jamsim.ascape.r.PanelViewDatasetProvider;
 import org.jamsim.ascape.r.RFileInterface;
 import org.jamsim.ascape.r.RLoader;
-import org.jamsim.ascape.r.ScapeRCommand;
 import org.jamsim.ascape.r.ScapeRInterface;
-import org.jamsim.ascape.ui.AnalysisMenu;
 import org.jamsim.ascape.ui.PanelViewAction;
 import org.jamsim.ascape.ui.PanelViewParameterSet;
-import org.jamsim.ascape.ui.PanelViewWeightCalculators;
-import org.jamsim.ascape.ui.ScapeRCommandAction;
 import org.jamsim.ascape.weights.WeightCalculator;
 import org.jamsim.io.FileLoader;
 import org.omancode.r.RFaceException;
@@ -200,7 +192,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		// replace them with clones with parameter values of 0
 		// this.setAutoCreate(false);
 
-		loadOutputDirectory();
+		setOutputDirectory(prefs.get(OUTPUTDIR_KEY, ""));
 
 		println("Output directory: " + getOutputDirectory());
 	}
@@ -219,7 +211,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 * exists. We can't do this in {@link #createGraphicViews()} because at that
 	 * point the navigator has already been built (see the order of scape
 	 * creation etc. in
-	 * {@link SwingRunner#openImplementation(String[], boolean)}.
+	 * {@link org.ascape.runtime.swing.SwingRunner#openImplementation(String[], boolean)}
+	 * .
 	 * 
 	 * This method also overrides the scape implementation which removes all
 	 * agents and replaces them with clones with parameter values of 0.
@@ -243,19 +236,6 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 			// Add weightings button to additional toolbar
 			addWeightingsButton(wcalcPanel);
 
-		}
-		// setup analysis menu
-		List<ScapeRCommand> commands =
-				scapeData.getAnalysisMenuCommands(scapeR);
-		if (commands != null) {
-			AnalysisMenu amenu = AnalysisMenu.INSTANCE;
-
-			// clear from previous sim (if any)
-			amenu.removeAll();
-
-			for (ScapeRCommand cmd : commands) {
-				amenu.addMenuItem(new ScapeRCommandAction(scapeR, cmd));
-			}
 		}
 
 	}
@@ -357,6 +337,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 				scapeNode.addUserNode(new PanelViewDatasetProvider(provider),
 						subFolderName);
 
+		// expand tree and newly added node
 		try {
 			AscapeGUIUtil.getNavigator().setSelectionPath(
 					new TreePath(newNode.getPath()));
@@ -379,8 +360,9 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	public void addOutputNode(OutputDatasetProvider provider,
 			String subFolderName) {
 		initScapeNode();
-		scapeNode.addOutputNode(new PanelViewDatasetProvider(provider),
-				subFolderName);
+		PanelViewDatasetProvider pvprovider =
+				new PanelViewDatasetProvider(provider);
+		scapeNode.addOutputNode(pvprovider, pvprovider, subFolderName);
 	}
 
 	/**
@@ -537,7 +519,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 
 	/**
 	 * Add a "Weightings" button to the additional tool bar that displays a
-	 * {@link PanelViewWeightCalculators}.
+	 * {@link org.jamsim.ascape.ui.PanelViewWeightCalculators}.
 	 * 
 	 * @param weightings
 	 *            weightings parameter set
@@ -663,10 +645,6 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 
 	}
 
-	private void loadOutputDirectory() {
-		setOutputDirectory(prefs.get(OUTPUTDIR_KEY, ""));
-	}
-
 	/**
 	 * Get the scape's output directory. Used for result output to files.
 	 * 
@@ -748,9 +726,10 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 * @param dataFrameSymbol
 	 *            replacement symbol. When evaluating {@code rRunEndCommand} and
 	 *            commands during the creation of output datasets in
-	 *            {@link ROutput} and {@link ROutput1DMultiRun}, this symbol is
-	 *            searched for and replaced with the current run's dataframe
-	 *            name.
+	 *            {@link org.jamsim.ascape.output.ROutput} and
+	 *            {@link org.jamsim.ascape.output.ROutput1DMultiRun}, this
+	 *            symbol is searched for and replaced with the current run's
+	 *            dataframe name.
 	 * @param keepAllRunDFs
 	 *            flag to keep the dataframes from each run in R. This means
 	 *            creating each new dataframe with a unique name.

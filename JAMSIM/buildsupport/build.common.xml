@@ -112,6 +112,9 @@
 		</zip>
 		
 		<delete file="${manifest}" />
+		
+		<antcall target="post-package" />
+ 
 	</target>
 
 	<target name="publish" description="Publish JARs to local ivy repository">
@@ -126,15 +129,12 @@
 
 	<taskdef name="gcupload" classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="${buildsupport.dir}/ant-googlecode-0.0.2.jar" />
 	<target name="gcupload" description="Upload JARs to googlecode">
-		<property file="build.credentials.properties" />
-
-		<gcupload username="${gc.username}" password="${gc.password}" projectname="${name}" filename="${dist.dir}/${binary.jar}" targetfilename="${binary.jar}" summary="${name} ${version} binary" labels="Featured" />
-
-		<gcupload username="${gc.username}" password="${gc.password}" projectname="${name}" filename="${dist.dir}/${javadoc.jar}" targetfilename="${javadoc.jar}" summary="${name} ${version} javadoc" labels="Type-Docs" />
-
-		<gcupload username="${gc.username}" password="${gc.password}" projectname="${name}" filename="${dist.dir}/${sources.jar}" targetfilename="${sources.jar}" summary="${name} ${version} sources" labels="Type-Source" />
-
-		<gcupload username="${gc.username}" password="${gc.password}" projectname="${name}" filename="${dist.dir}/${binary.plus.deps.zip}" targetfilename="${binary.plus.deps.zip}" summary="${name} ${version} binary + dependencies" labels="Featured" />
+		<property file="${buildsupport.dir}/build.credentials.properties" />
+		 
+		<gcupload username="${gc.username}" password="${gc.password}" projectname="${gc.project}" filename="${dist.dir}/${binary.jar}" targetfilename="${binary.jar}" summary="${name} ${version} binary" labels="Featured" />
+		<gcupload username="${gc.username}" password="${gc.password}" projectname="${gc.project}" filename="${dist.dir}/${javadoc.jar}" targetfilename="${javadoc.jar}" summary="${name} ${version} javadoc" labels="Type-Docs" />
+		<gcupload username="${gc.username}" password="${gc.password}" projectname="${gc.project}" filename="${dist.dir}/${sources.jar}" targetfilename="${sources.jar}" summary="${name} ${version} sources" labels="Type-Source" />
+		<gcupload username="${gc.username}" password="${gc.password}" projectname="${gc.project}" filename="${dist.dir}/${binary.plus.deps.zip}" targetfilename="${binary.plus.deps.zip}" summary="${name} ${version} binary + dependencies" labels="Featured" />
 	</target>
 
 </project>

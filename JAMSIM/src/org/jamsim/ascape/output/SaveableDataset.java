@@ -52,16 +52,36 @@ public class SaveableDataset implements Saveable {
 
 	@Override
 	public void saveToCSV(String directory) throws IOException {
-		// TODO Auto-generated method stub
+		saveToCSV(directory, fileName, container, cleanDatedFilename);
+	}
+
+	/**
+	 * Save a dataset to a file.
+	 * 
+	 * @param directory
+	 *            location of file to save
+	 * @param fileName
+	 *            file name, without path
+	 * @param container
+	 *            dataset
+	 * @param cleanDatedFilename
+	 *            clean and date the filename at the time of saving. See
+	 *            {@link #cleanDatedCSVName(String)}.
+	 * @throws IOException
+	 *             if problem saving file
+	 */
+	public static void saveToCSV(String directory, String fileName,
+			CDataCacheContainer container, boolean cleanDatedFilename)
+			throws IOException {
 		String cleanedName =
 				cleanDatedFilename ? cleanDatedCSVName(fileName) : fileName;
 
 		String fullFileName =
-				FileUtil.addTrailingSlash(directory) +  cleanedName;
+				FileUtil.addTrailingSlash(directory) + cleanedName;
 
 		// make any non-existent directories in the file path
 		FileUtil.mkdirs(fullFileName);
-		
+
 		CasperUtil.writeToCSV(fullFileName, container);
 	}
 
@@ -74,8 +94,9 @@ public class SaveableDataset implements Saveable {
 	 * @return date + filename (cleaned) + ".csv"
 	 */
 	public static String cleanDatedCSVName(String fileName) {
-		
-		return FileUtil.addExtension(FileUtil.cleanDatedName(fileName), ".csv");
+
+		return FileUtil.addExtension(FileUtil.cleanDatedName(fileName),
+				".csv");
 	}
 
 }

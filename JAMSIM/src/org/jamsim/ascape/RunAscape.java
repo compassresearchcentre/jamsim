@@ -41,6 +41,8 @@ public final class RunAscape {
 			System.out.format("%s=%s%n", "java.class.path",
 					System.getProperty("java.class.path"));
 			
+			System.out.format("%s=%s%n", "user.dir",
+					System.getProperty("user.dir"));
 		}
 
 		String[] ascapeArgs = { scapeClass.getName() };

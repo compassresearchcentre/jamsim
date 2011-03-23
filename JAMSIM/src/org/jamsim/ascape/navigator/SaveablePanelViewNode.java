@@ -7,11 +7,10 @@ import javax.swing.JPopupMenu;
 import org.ascape.runtime.swing.navigator.PanelViewNode;
 import org.ascape.runtime.swing.navigator.PanelViewProvider;
 import org.ascape.runtime.swing.navigator.PopupMenuProvider;
-import org.ascape.view.vis.PanelView;
 import org.jamsim.ascape.output.Saveable;
 
 /**
- * A {@link Saveable} {@link PanelViewNode}.
+ * A {@link Saveable} {@link org.ascape.view.vis.PanelViewNode}.
  * 
  * @author Oliver Mannion
  * @version $Revision$
@@ -24,11 +23,12 @@ public class SaveablePanelViewNode extends PanelViewNode implements Saveable,
 	private final Saveable saver;
 
 	/**
-	 * Construct {@link PanelViewNode} that has a saver.
+	 * Construct {@link org.ascape.view.vis.PanelViewNode} that has a saver.
 	 * 
 	 * @param provider
-	 *            {@link PanelViewProvider} that provides the {@link PanelView}
-	 *            to be displayed when this node is clicked.
+	 *            {@link PanelViewProvider} that provides the
+	 *            {@link org.ascape.view.vis.PanelView} to be displayed when
+	 *            this node is clicked.
 	 * @param saver
 	 *            {@link Saveable} that saves the contents of
 	 *            {@link PanelViewProvider} when required

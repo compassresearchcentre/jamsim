@@ -1,4 +1,4 @@
-package org.jamsim.ascape.ui;
+package org.jamsim.ascape.ui.cmd;
 
 import java.awt.event.ActionEvent;
 import java.io.IOException;
@@ -9,8 +9,8 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 
 import org.ascape.util.swing.AscapeGUIUtil;
-import org.jamsim.ascape.r.ScapeRCommand;
 import org.jamsim.ascape.r.ScapeRInterface;
+import org.jamsim.ascape.ui.AnalysisMenu;
 
 /**
  * Action that opens a {@link ScapeRCommandPanel} displaying the specified

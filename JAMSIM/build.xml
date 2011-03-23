@@ -6,7 +6,7 @@
 	
 	<!-- project specific javadoc properties -->
 	<presetdef name="javadoc-with-presets">
-		<javadoc overview="overview.html">
+		<javadoc overview="${src.dir}/overview.html">
 			<link href="http://java.sun.com/javase/6/docs/api/" />
 			<link href="http://ascape.sourceforge.net/api/" />
 			<link href="http://www.rforge.net/org/docs/" />
@@ -58,6 +58,11 @@
 		<!-- remove unoptimised jar -->
 		<delete file="${fastutil-lib}" />
 		
+		<!-- delete jaropt log -->
+		<delete file="jaropt.log" />
+	</target>
+	
+	<target name="post-package" description="Post package">
 	</target>
 	
 </project>	

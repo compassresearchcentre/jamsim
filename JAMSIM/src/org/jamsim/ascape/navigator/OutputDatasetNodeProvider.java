@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Collection;
 
 import javax.swing.JTable;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 

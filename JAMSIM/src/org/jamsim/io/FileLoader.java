@@ -116,6 +116,25 @@ public class FileLoader implements Output {
 	}
 
 	/**
+	 * Set the default file locations. For each key (file description), writes
+	 * its values (file path) to the preferences if a preference has not already
+	 * been set.
+	 * 
+	 * @param defaultFileLocations
+	 *            map with key of file description (ie: dataset name/preference
+	 *            key), and value of file path.
+	 */
+	public void setDefaultFileLocations(
+			Map<String, String> defaultFileLocations) {
+		for (Map.Entry<String, String> e : defaultFileLocations.entrySet()) {
+
+			if ("".equals(prefs.get(e.getKey(), ""))) {
+				prefs.put(e.getKey(), e.getValue());
+			}
+		}
+	}
+
+	/**
 	 * Convenience method which displays the chooser with the default dialog
 	 * title {@link PrefsOrOpenFileChooser#DEFAULT_PROMPT}. The chooser has no
 	 * file filters. The file selected is saved to {@code prefsKey}.
@@ -539,7 +558,6 @@ public class FileLoader implements Output {
 		return array;
 	}
 
-	
 	/**
 	 * Load a glimmix model from a SAS glimmix output file.
 	 * 
