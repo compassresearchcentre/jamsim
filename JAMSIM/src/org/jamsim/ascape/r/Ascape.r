@@ -1,15 +1,18 @@
-#  tell JavaGD() what class to use for drawing
-cat("Setting JavaGD class\n")
+# Setup of the Ascape R environment, and functions called from Ascape 
+# java code, or that call Ascape java code
+# 
+# Author: Oliver Mannion
+#######################################################################
+
+cat("Ascape.r: Setting up R environment\n")
+
+# set max number of lines printed to the R console during common evaluation 
+options(max.print=256)
+
+# tell JavaGD() what class to use for drawing
 Sys.setenv('JAVAGD_CLASS_NAME'='org/jamsim/ascape/r/AscapeGD')
 
-cat("Creating function a\n")
-
-a <- function (mylist) {
-	## alias for toArray
-	toArray(mylist)
-}
-
-cat("Creating function activateJavaGD\n")
+cat("Ascape.r: Creating Ascape functions\n")
 
 library(hash)
 activateJavaGD <- function(name, subFolderName = "", selectNode = FALSE, ...) {
@@ -50,23 +53,6 @@ activateJavaGD <- function(name, subFolderName = "", selectNode = FALSE, ...) {
 
 } 
 
-cat("Creating function addRowPercents\n")
-
-addRowPercents <- function (counts) {
-	#adds row percentages to a set of counts
-	#eg: addRowPercents(yearlyFreq(children$sol, "sol"))
-	pcents <- prop.table(counts,1) * 100
-	
-	# add (%) to the end of column headings
-	dimnames(pcents)[[2]] <- sapply(dimnames(pcents)[[2]], paste, "(%)")
-	
-	combined <- cbind(counts, pcents)
-	names(dimnames(combined)) <- names(dimnames(counts))
-	combined
-}
-
-cat("Creating function addOutputNode\n")
-
 addOutputNode <- function(x, subFolderName = .jnull("java/lang/String"), name = dictLookup(x)) {
 	#add an Output Tables node to the navigator under the subfolder
 	#specified
@@ -77,75 +63,14 @@ addOutputNode <- function(x, subFolderName = .jnull("java/lang/String"), name = 
 	.jcall(.scape, "V", "addOutputNode", rdp, subFolderName)
 }
 
-cat("Creating function aMean\n")
-
-aMean <- function (arr) {
-	#eg: aMean(ymmsmoke)
-	#calculate mean of numeric array
-	meanOfRuns(arr, rowNameInFirstCol = FALSE) 
-}
-
-cat("Creating function arrZadd\n")
-
-library(abind)
-arrZAdd <- function(m, arrName) {
-	#eg: arrZAdd(matrix(1:12,3,4), "arr3d")
-	# m <- matrix(1:12,3,4)
-	# dimnames(m) <- list(letters=c("A","B","C"), numbers=c("1st","2nd","3rd","4th"))
-	# arrZAdd(m, "arr3d")
-	#add the 2d matrix m to the 3d array specified by the string arrName
-	#in the next z dimension slot
-	
-	if (length(dim(m)) != 2) {
-		firstParamName <- as.character(sys.call())[2]
-		stop(gettextf("'%s' must have 2 dimensions\n",firstParamName))
-	}
-	
-	#create new NULL variable if arrName doesn't exist
-	if (!exists(arrName)) {
-		assign(arrName, NULL, envir = .GlobalEnv)
-	}
-	
-	#get current value of arrName
-	arr <- eval(parse(text=arrName))
-	
-	#bind m to the 3rd dimension of arr
-	arr <- abind(arr,m,along=3)
-	
-	#add back names of dimension because they get lost in abind
-	names(dimnames(arr)) <- names(dimnames(m))
-	
-	#keep meta attribute
-	attr(arr, "meta") <- attr(m, "meta")	
-
-	#save to arrName
-	assign(arrName, arr, envir = .GlobalEnv)
-}
-
-cat("Creating function arrZMean\n")
-
-arrZMean <- function (arrZ) {
-	#eg: arrZMean(freqSingle)
-	#mean across Z dimension of 3d array 
-	result <- apply(arrZ,c(1,2),mean)
-	
-	#keep meta attribute
-	attr(result, "meta") <- attr(arrZ, "meta")
-	
-	result
-	
-}
-
-cat("Creating function ascapeStart\n")
-
 ascapeStart <- function() {
 	# eg: ascapeStart()
+	
 	# remove all graphics devices and the device-name hash
 	graphics.off()
-	#assign(".deviceHash", hash(), envir = .GlobalEnv)
 	
-	# remove all objects, except functions
-	cat("Removing all existing objects\n")
+	# remove all objects (including .deviceHash), except functions
+	cat("ascapeStart: Removing all existing objects\n")
 	rm(pos = ".GlobalEnv", list = lsNoFunc(all.names=TRUE))
 	
 	#not sure why, but for rJava 0.8+ we need this otherwise get
@@ -159,38 +84,9 @@ ascapeStart <- function() {
 	assign(".scape", scape, envir = .GlobalEnv)
 }
 
-cat("Creating function cAdd\n")
-
-cAdd <- function(vec, arrName, colName) {
-	#eg: cAdd(c(1,2,3,4,5), "arr2d", "col1")
-	# vec <- c(1,2,3)
-	# names(vec) <- c("a","b","c")
-	# cAdd(vec, "arr2d", "col1")
-	#add the vector to the 2d array specified by the string arrName
-	#in the next column slot
-	
-	#create new NULL variable if arrName doesn't exist
-	if (!exists(arrName)) {
-		assign(arrName, NULL, envir = .GlobalEnv)
-	}
-	
-	#get current value of arrName
-	arr <- eval(parse(text=arrName))
-	
- 	#bind vec to the arr with column name = colName
-	arr <- cbind(arr, `colnames<-`(cbind(vec), colName))
-	
-	#keep meta attribute
-	attr(arr, "meta") <- attr(vec, "meta")	
-	
-	#save to arrName
-	assign(arrName, arr, envir = .GlobalEnv)
-}
-
-cat("Creating function dictLookup\n")
-
 dictLookup <- function(x) {
-	#lookup description of variable
+	#lookup description of variable x in the dictionary
+	#first determines the name of variable x, then does the lookup
 	#eg: dictLookup(c(1,2))
 	#eg: dictLookup(freqSingle)
 	#eg: dictLookup("single")
@@ -202,6 +98,7 @@ dictLookup <- function(x) {
 	weighting <- c()
 	meta <- attr(x, "meta")
 	
+	#get the variable name
 	if (!is.null(meta)) {
 		#use the meta attribute
 		name <- meta["varname"]
@@ -219,10 +116,12 @@ dictLookup <- function(x) {
 		name <- x[1]
 	
 	} else {
+		#fail
 		firstParamName <- as.character(sys.call())[2]
 		stop(gettextf("cannot determine varname from %s", firstParamName))
 	}
 	
+	#lookup name in dictionary
 	desc <- dict[[name]]
 	
 	if (is.null(desc)) {
@@ -230,40 +129,17 @@ dictLookup <- function(x) {
 		name <- dname
 	}
 	
+	#add grouping, weighting, and set descriptions (if any)
 	weightdesc <- ifelse(weighting == "weight", " weighted", "")
 	paste(desc, grouping, weightdesc, set, sep="")
 }
 
-cat("Creating function err\n")
-
 err <- function (values) {
 	## calc the 95% error from the t Distribution
 	## see http://www.cyclismo.org/tutorial/R/confidence.html
+	## used by meanOfRuns
 	qt(0.975,df=length(values)-1)*sd(values)/sqrt(length(values))
 }
-
-cat("Creating function freq\n")
-
-freq <- function(variable, varname) {
-	# frequency table with percent
-	# v = variable
-	#
-	# eg: freq(a(children$msmoke)[,1], "msmoke")
-	# eg: freq(a(children$msmoke)[,2], "msmoke")
-	tbl <- as.data.frame( table(variable, dnn = varname), responseName = "Frequency")
-	tbl$Percent <- prop.table(tbl$Frequency) * 100
-	tbl$"Cumulative Percent" <- cumsum (tbl$Percent) 
-	tbl
-}
-
-cat("Creating function global\n")
-
-global <- function (varname, x) {
-	#save x into global variable, ie: top frame, not just this function
-	assign(varname, x, envir = .GlobalEnv)	
-}
-
-cat("Creating function meanOfRuns\n")
 
 meanOfRuns <- function (multiRunResults, rowNameInFirstCol = TRUE) {
 	##meanOfRuns (called by OutputDataset.scapeClosing)
@@ -315,18 +191,4 @@ meanOfRuns <- function (multiRunResults, rowNameInFirstCol = TRUE) {
 	
 	result
 	
-}
-
-cat("Creating function toArray\n")
-
-toArray <- function (mylist) {
-	## convert list of vectors to an array
-	t(array(unlist(mylist), dim=c(length(mylist[[1]]),length(mylist))))
-}
-
-cat("Creating function trim\n")
-
-trim <- function (string) 
-{
-    gsub("^\\s+|\\s+$", "", string)
 }

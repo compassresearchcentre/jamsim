@@ -37,16 +37,16 @@ public enum RLoader {
 	private static final String RCONSOLE_TAB_TITLE = "R Console";
 
 	/**
-	 * Support file containing R functions to load into R environment on
+	 * Support file containing Ascape R functions to load into R environment on
 	 * startup.
 	 */
-	public static final String SUPPORT_FILE = "Ascape.r";
+	private static final String ASCAPE_R = "Ascape.r";
 
 	/**
-	 * Max number of lines printed to the R console during evaluation of a
-	 * command.
+	 * Support file containing Common R functions to load into R environment on
+	 * startup.
 	 */
-	public static final int MAX_PRINT = 256;
+	private static final String COMMON_R = "Common.r";
 
 	/**
 	 * R interface.
@@ -168,29 +168,53 @@ public enum RLoader {
 	 */
 	private void initR() throws IOException {
 		rInterface.loadRSupportFunctions();
+		
+		// load packages used by the Ascape and Common R functions
 		rInterface.loadPackage("rJava");
 		rInterface.loadPackage("JavaGD");
+		rInterface.loadPackage("hash");
+		rInterface.loadPackage("abind");
+		rInterface.loadPackage("Hmisc");
 
-		rInterface.printlnToConsole("Setting max.print = " + MAX_PRINT);
-		rInterface.eval("options(max.print=" + MAX_PRINT + ")");
-
-		loadAscapeRSupportFunctions();
+		loadAscapeRFunctions();
+		loadCommonRFunctions();
 	}
 
 	/**
-	 * Load the support functions.
+	 * Load the Ascape R functions.
 	 * 
 	 * @throws IOException
-	 *             if problem loading or evaluating support function file.
+	 *             if problem loading or evaluating functions.
 	 */
-	private void loadAscapeRSupportFunctions() throws IOException {
-		rInterface.printlnToConsole("Loading " + SUPPORT_FILE);
+	private void loadAscapeRFunctions() throws IOException {
+		evaluateRResource(ASCAPE_R);
+	}
 
-		InputStream ins = getClass().getResourceAsStream(SUPPORT_FILE);
+	/**
+	 * Load the common R functions.
+	 * 
+	 * @throws IOException
+	 *             if problem loading or evaluating functions.
+	 */
+	private void loadCommonRFunctions() throws IOException {
+		evaluateRResource(COMMON_R);
+	}
+	
+	/**
+	 * Evaluate the contents of a resource in R.
+	 * 
+	 * @throws IOException
+	 *             if problem loading or evaluating the resource.
+	 */
+	private void evaluateRResource(String resourceName) throws IOException {
+		rInterface.printlnToConsole("Loading resource " + resourceName);
+
+		InputStream ins = getClass().getResourceAsStream(resourceName);
 		if (ins == null) {
-			throw new IOException(SUPPORT_FILE + " not found on classpath.");
+			throw new IOException(resourceName + " not found on classpath.");
 		}
 		rInterface.parseEvalPrint(RUtil.readRStream(ins));
+		
 	}
 
 	/**

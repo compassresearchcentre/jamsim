@@ -748,6 +748,12 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 			rLoader = RLoader.INSTANCE;
 		} catch (ExceptionInInitializerError e) {
 
+			System.out.format("%s=%s%n", "java.library.path",
+					System.getProperty("java.library.path"));
+			System.out.format("%s=%s%n", "Path", System.getenv().get("Path"));
+			System.out.format("%s=%s%n", "R_HOME",
+					System.getenv().get("R_HOME"));
+			
 			// re-throw exception that occurred in the initializer
 			// as an exception our caller can deal with
 			Throwable eInInit = e.getCause();

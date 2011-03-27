@@ -21,6 +21,7 @@
 	<!-- project specific manifest properties -->
 	<presetdef name="manifest-with-presets">
 		<manifest>
+			<attribute name="Main-Class" value="org.jamsim.example.RunJEM"/>
 		</manifest>
 	</presetdef>
 	
@@ -63,7 +64,23 @@
 	</target>
 	
 	<target name="post-package" description="Post package">
+		<antcall target="create-exe" />
 	</target>
-	
+
+	<target name="create-exe" description="Create EXE">
+		<property name="launch4j.dir" location="C:\Program Files\Launch4j" />
+		
+		<taskdef name="launch4j"
+		    classname="net.sf.launch4j.ant.Launch4jTask"
+		    classpath="${launch4j.dir}/launch4j.jar
+		        :${launch4j.dir}/lib/xstream.jar" />
+		<launch4j configFile="${buildsupport.dir}/launch4j.xml"
+			jarPath="${binary.jar}"
+			outfile="${build.dir}/JEM.exe" 
+			fileVersion="${version}.0.0" txtFileVersion="${version}.0.0"
+			productVersion="${version}.0.0" txtProductVersion="${version}.0.0"
+		/>
+	</target>
+
 </project>	
 
