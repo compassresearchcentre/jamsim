@@ -71,7 +71,10 @@
 		    <fileset dir="${build.dir}" includes="JEM.exe"/>
 			<!-- add JEM.data dir to zip -->
 		    <zipfileset dir="JEM.data" prefix="JEM.data/"/>
+			<!-- add readme.txt to zip -->
+			<fileset dir="${buildresource.dir}" includes="readme.txt"/>
 		</zip>
+		
 	</target>
 
 	<target name="create-exe" description="Create EXE">
@@ -87,7 +90,7 @@
 			fileVersion="${version}.0.0" txtFileVersion="${version}.0.0"
 			productVersion="${version}.0.0" txtProductVersion="${version}.0.0"
 		/>
+		
 	</target>
 
-</project>	
-
+</project>

@@ -12,7 +12,7 @@
   <customProcName>true</customProcName>
   <stayAlive>false</stayAlive>
   <manifest></manifest>
-  <icon>..\JEM.ico</icon>
+  <icon>..\buildresource\JEM.ico</icon>
   <var>PATH=%PATH%;%HKEY_LOCAL_MACHINE\\SOFTWARE\\R-core\\R\\InstallPath%\\bin;%HKEY_LOCAL_MACHINE\\SOFTWARE\\R-core\\R\\InstallPath%\\bin\\i386</var>
   <jre>
     <path></path>

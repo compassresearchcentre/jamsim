@@ -12,6 +12,7 @@
 	<!-- locations NB: relative paths are relative to importer -->
 	<dirname property="buildsupport.dir" file="${ant.file.common}" />
 	<ivy:settings file="${buildsupport.dir}/ivysettings.xml" />
+	<property name="buildresource.dir" location="buildresource" />
 	<property name="src.dir" location="src" />
 	<property name="res.dir" value="resource" />
 	<property name="build.dir" location="build" />
