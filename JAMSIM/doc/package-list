@@ -4,8 +4,12 @@ org.jamsim.ascape.output
 org.jamsim.ascape.r
 org.jamsim.ascape.stats
 org.jamsim.ascape.ui
+org.jamsim.ascape.ui.cmd
 org.jamsim.ascape.weights
 org.jamsim.casper
+org.jamsim.data
+org.jamsim.example
+org.jamsim.example.types
 org.jamsim.io
 org.jamsim.math
 org.jamsim.matrix

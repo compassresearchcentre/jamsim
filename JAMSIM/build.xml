@@ -65,6 +65,13 @@
 	
 	<target name="post-package" description="Post package">
 		<antcall target="create-exe" />
+
+		<zip destfile="${dist.dir}/${binary.plus.deps.zip}" update="true">
+			<!-- add JEM.exe to zip -->
+		    <fileset dir="${build.dir}" includes="JEM.exe"/>
+			<!-- add JEM.data dir to zip -->
+		    <zipfileset dir="JEM.data" prefix="JEM.data/"/>
+		</zip>
 	</target>
 
 	<target name="create-exe" description="Create EXE">

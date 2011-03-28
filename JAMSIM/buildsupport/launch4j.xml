@@ -1,10 +1,10 @@
 <launch4jConfig>
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>jamsim-0.27.jar</jar>
+  <jar>jamsim.jar</jar>
   <outfile>D:\workspace.sim\JAMSIM\build\JEM.exe</outfile>
   <errTitle></errTitle>
-  <cmdLine>-Dsysinfo=on</cmdLine>
+  <cmdLine></cmdLine>
   <chdir></chdir>
   <priority>normal</priority>
   <downloadUrl>http://java.com/download</downloadUrl>
@@ -12,7 +12,7 @@
   <customProcName>true</customProcName>
   <stayAlive>false</stayAlive>
   <manifest></manifest>
-  <icon></icon>
+  <icon>..\JEM.ico</icon>
   <var>PATH=%PATH%;%HKEY_LOCAL_MACHINE\\SOFTWARE\\R-core\\R\\InstallPath%\\bin;%HKEY_LOCAL_MACHINE\\SOFTWARE\\R-core\\R\\InstallPath%\\bin\\i386</var>
   <jre>
     <path></path>
@@ -22,12 +22,12 @@
     <opt>-Djava.library.path=&quot;%HKEY_LOCAL_MACHINE\\SOFTWARE\\R-core\\R\\InstallPath%\\library\\rJava\\jri&quot;</opt>
   </jre>
   <versionInfo>
-    <fileVersion>0.27.0.0</fileVersion>
-    <txtFileVersion>0.27.0.0</txtFileVersion>
+    <fileVersion>0.0.0.0</fileVersion>
+    <txtFileVersion>0.0.0.0</txtFileVersion>
     <fileDescription>JAMSIM Example Model (JEM)</fileDescription>
     <copyright> </copyright>
-    <productVersion>0.27.0.0</productVersion>
-    <txtProductVersion>0.27.0.0</txtProductVersion>
+    <productVersion>0.0.0.0</productVersion>
+    <txtProductVersion>0.0.0.0</txtProductVersion>
     <productName>JAMSIM Example Model (JEM)</productName>
     <companyName></companyName>
     <internalName>JAMSIM Example Model (JEM)</internalName>

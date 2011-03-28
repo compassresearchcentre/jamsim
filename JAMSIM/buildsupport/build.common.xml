@@ -25,7 +25,7 @@
 	<property name="binary.jar" value="${name}-${version}.jar" />
 	<property name="javadoc.jar" value="${name}-javadoc-${version}.jar" />
 	<property name="sources.jar" value="${name}-sources-${version}.jar" />
-	<property name="binary.plus.deps.zip" value="${name}-all-plus-deps-${version}.zip" />
+	<property name="binary.plus.deps.zip" value="${name}-plus-deps-${version}.zip" />
 
 	<!-- build class path -->
 	<path id="build.classpath">
@@ -107,7 +107,7 @@
 		<jar destfile="${dist.dir}/${javadoc.jar}" basedir="${doc.dir}" />
 		<jar destfile="${dist.dir}/${sources.jar}" basedir="${src.dir}" />
 		<zip destfile="${dist.dir}/${binary.plus.deps.zip}" basedir="${dist.dir}">
-			<include name="*.jar" />
+			<include name="${binary.jar}" />
 			<zipfileset dir="${ivy.lib.dir}" prefix="lib" />
 		</zip>
 		
