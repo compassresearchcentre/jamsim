@@ -149,7 +149,7 @@ public class ScapeRInterface {
 	public void setWd(String dir) throws RFaceException {
 		rInterface.setWd(dir);
 	}
-	
+
 	/**
 	 * Get the working directory.
 	 * 
@@ -160,7 +160,7 @@ public class ScapeRInterface {
 	public String getWd() throws RFaceException {
 		return rInterface.getWd();
 	}
-	
+
 	/**
 	 * Define the R command that is called by {@link #baseFileUpdated()}.
 	 * 
@@ -211,7 +211,8 @@ public class ScapeRInterface {
 	}
 
 	/**
-	 * Create a dataframe from the scape.
+	 * Create a dataframe from the scape. If the scape has no members, silently
+	 * does nothing.
 	 * 
 	 * @param runNumber
 	 *            run number. Used in the naming of the dataframe
@@ -222,21 +223,22 @@ public class ScapeRInterface {
 	public void assignScapeDataFrame(int runNumber) throws RFaceException {
 		String dataframeName = getScapeDFRunName(runNumber);
 
-		timer.start();
+		if (msscape.size() > 0) {
+			timer.start();
 
-		assignDataFrame(dataframeName, msscape, msscape.getPrototypeAgent()
-				.getClass().getSuperclass());
-		rInterface.printlnToConsole("Created dataframe " + dataframeName);
+			assignDataFrame(dataframeName, msscape, msscape
+					.getPrototypeAgent().getClass().getSuperclass());
+			rInterface.printlnToConsole("Created dataframe " + dataframeName);
 
-		timer.stop();
+			timer.stop();
 
-		System.out.println("Created dataframe " + dataframeName + " ("
-				+ timer.duration() + " ms)");
+			System.out.println("Created dataframe " + dataframeName + " ("
+					+ timer.duration() + " ms)");
 
-		if (runNumber == 0) {
-			baseFileUpdated();
+			if (runNumber == 0) {
+				baseFileUpdated();
+			}
 		}
-
 	}
 
 	/**

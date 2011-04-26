@@ -203,7 +203,7 @@ public class MicroSimScapeNode extends ScapeNode {
 			treeModel.insertNodeInto(dfNode, this, this.getChildCount());
 		}
 
-		String rcmd = "str(" + dataFrameName + ", max.level=1)";
+		String rcmd = "str(" + dataFrameName + ", max.level=1, give.attr=FALSE)";
 		PanelViewProvider provider =
 				new PanelViewRTextCommand(scape.getScapeRInterface(),
 						dataFrameName, rcmd);

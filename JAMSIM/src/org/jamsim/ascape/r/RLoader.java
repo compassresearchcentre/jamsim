@@ -177,7 +177,6 @@ public enum RLoader {
 		rInterface.loadPackage("Hmisc");
 
 		loadAscapeRFunctions();
-		loadCommonRFunctions();
 	}
 
 	/**
@@ -220,12 +219,13 @@ public enum RLoader {
 	/**
 	 * Executes the function "ascapeStart" in R.
 	 * 
-	 * @throws RFaceException
+	 * @throws IOException
 	 *             if problem executing ascapeStart
 	 */
-	public void ascapeStart() throws RFaceException {
+	public void ascapeStart() throws IOException {
 		rInterface
 				.printlnToConsole("Executing support function ascapeStart()");
 		rInterface.parseEvalPrint("ascapeStart()");
+		loadCommonRFunctions();
 	}
 }

@@ -248,25 +248,24 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 * @param rIterationEndCommand
 	 *            R command to run at the end of each iteration, or {@code null}
 	 *            .
+	 * @param rSimBeginCommand
+	 *            R command to run at the beginning of the simulation (ie: at
+	 *            the beginning of the first run only), or {@code null}.
 	 * @param rRunBeginCommand
 	 *            R command to run at the beginning of each run, or {@code null}
 	 *            .
 	 * @param rRunEndCommand
 	 *            R command to run at the end of each run, or {@code null}.
-	 * @param rSimBeginCommand
-	 *            R command to run at the beginning of the simulation (ie:
-	 *            during construction of the {@link ScapeRListener}), or
-	 *            {@code null}.
 	 * @param rSimEndCommand
 	 *            R command to run at the end of the simulation (ie: end of all
 	 *            runs), or {@code null}.
 	 */
 	public void addScapeRListener(String rIterationEndCommand,
-			String rRunBeginCommand, String rRunEndCommand,
-			String rSimBeginCommand, String rSimEndCommand) {
+			String rSimBeginCommand, String rRunBeginCommand,
+			String rRunEndCommand, String rSimEndCommand) {
 		try {
 			msscape.addView(new ScapeRListener(scapeR, rIterationEndCommand,
-					rRunBeginCommand, rRunEndCommand, rSimBeginCommand,
+					rSimBeginCommand, rRunBeginCommand, rRunEndCommand,
 					rSimEndCommand));
 		} catch (RFaceException e) {
 			throw new RuntimeException(e);

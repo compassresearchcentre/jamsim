@@ -146,6 +146,15 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		return scapeData;
 	}
 
+	/**
+	 * Set the {@link ScapeData} object.
+	 * 
+	 * @param scapeData scape data
+	 */
+	public void setScapeData(D scapeData) {
+		this.scapeData = scapeData;
+	}
+
 	private ScapeRInterface scapeR;
 
 	/**
@@ -753,7 +762,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 			System.out.format("%s=%s%n", "Path", System.getenv().get("Path"));
 			System.out.format("%s=%s%n", "R_HOME",
 					System.getenv().get("R_HOME"));
-			
+
 			// re-throw exception that occurred in the initializer
 			// as an exception our caller can deal with
 			Throwable eInInit = e.getCause();
@@ -771,7 +780,9 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		// NB: at this point, agent.initialize() will NOT have been called
 		// on the agents. This will effect any getters that have values
 		// that are dependent on initialisation code.
-		scapeR.assignScapeDataFrame(0);
+		if (emptyScape()) {
+			scapeR.assignScapeDataFrame(0);
+		}
 
 		DataDictionary dict = scapeData.getDataDictionary();
 		if (dict != null) {
@@ -784,6 +795,15 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		return scapeR;
 	}
 
+	/**
+	 * Does this scape have any children?
+	 * 
+	 * @return {@code true/false}
+	 */
+	private boolean emptyScape() {
+		return (size() != 0);
+	}
+	
 	/**
 	 * Add a chart to the scape. Adds the chart as a listener and also creates a
 	 * node in the navigator for the chart.

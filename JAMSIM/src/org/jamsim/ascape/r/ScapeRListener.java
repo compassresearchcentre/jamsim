@@ -27,6 +27,8 @@ public class ScapeRListener extends DefaultScapeListener {
 
 	private final String rIterationEndCmd;
 
+	private final String rSimBeginCmd;
+
 	private final String rRunBeginCmd;
 
 	private final String rRunEndCmd;
@@ -48,15 +50,14 @@ public class ScapeRListener extends DefaultScapeListener {
 	 * @param rIterationEndCommand
 	 *            R command to run at the end of each iteration, or {@code null}
 	 *            .
+	 * @param rSimBeginCommand
+	 *            R command to run at the beginning of the simulation (ie: at
+	 *            the beginning of the first run only), or {@code null}.
 	 * @param rRunBeginCommand
 	 *            R command to run at the beginning of each run, or {@code null}
 	 *            .
 	 * @param rRunEndCommand
 	 *            R command to run at the end of each run, or {@code null}.
-	 * @param rSimBeginCommand
-	 *            R command to run at the beginning of the simulation (ie:
-	 *            during construction of this {@link ScapeRListener}), or
-	 *            {@code null}.
 	 * @param rSimEndCommand
 	 *            R command to run at the end of the simulation (ie: end of all
 	 *            runs), or {@code null}.
@@ -64,19 +65,16 @@ public class ScapeRListener extends DefaultScapeListener {
 	 *             if problem evaluating initialisation commands
 	 */
 	public ScapeRListener(ScapeRInterface scapeR,
-			String rIterationEndCommand, String rRunBeginCommand,
-			String rRunEndCommand, String rSimBeginCommand,
+			String rIterationEndCommand, String rSimBeginCommand,
+			String rRunBeginCommand, String rRunEndCommand,
 			String rSimEndCommand) throws RFaceException {
 		super("R Scape Interface");
 		this.scapeR = scapeR;
+		this.rSimBeginCmd = rSimBeginCommand;
 		this.rRunBeginCmd = rRunBeginCommand;
 		this.rRunEndCmd = rRunEndCommand;
 		this.rIterationEndCmd = rIterationEndCommand;
 		this.rSimEndCmd = rSimEndCommand;
-		
-		if (rSimBeginCommand != null) {
-			executeRCommand(rSimBeginCommand);
-		}
 	}
 
 	/**
@@ -96,8 +94,8 @@ public class ScapeRListener extends DefaultScapeListener {
 			// replace the iteration replacement string with the
 			// current iteration number
 			String rCmd =
-					rIterationEndCmd.replace(ITER_REPLACEMENT_STR, Integer
-							.toString(scape.getIteration()));
+					rIterationEndCmd.replace(ITER_REPLACEMENT_STR,
+							Integer.toString(scape.getIteration()));
 			executeRCommand(rCmd);
 		}
 
@@ -115,6 +113,9 @@ public class ScapeRListener extends DefaultScapeListener {
 
 		if (runNumber == 1) {
 			scapeR.printlnToConsole("");
+			if (rSimBeginCmd != null) {
+				executeRCommand(rSimBeginCmd);
+			}
 		}
 
 		if (rRunBeginCmd != null) {

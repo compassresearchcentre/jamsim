@@ -127,7 +127,7 @@ public class Glimmix {
 	 * @param gamma
 	 *            gamma to add to the sum of products
 	 * @param limit
-	 *            toggle to determine withever min/max limits are applied.
+	 *            toggle to determine whether min/max limits are applied.
 	 * @param min
 	 *            min limit. If {@code limit = true} results less than min will
 	 *            be returned as min.

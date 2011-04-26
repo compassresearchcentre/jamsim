@@ -19,6 +19,9 @@ import org.omancode.rmt.cellreader.CellReaders;
  */
 public final class JEMDataDefn {
 
+	private static final String FILE_SEP = System
+			.getProperty("file.separator");
+
 	private static final String DICTIONARY_NAME = "JEM data dictionary";
 
 	private static final String ANNUAL_EARNINGS_SCALE_NAME =
@@ -43,7 +46,9 @@ public final class JEMDataDefn {
 
 	private static Map<String, String> defaultFileLocations(
 			Map<String, String> map) {
-		String dataDir = System.getProperty("user.dir") + "\\JEM.data\\";
+		String dataDir =
+				System.getProperty("user.dir") + FILE_SEP + "JEM.data"
+						+ FILE_SEP;
 		map.put(DICTIONARY_NAME, dataDir + "Data dictionary.xlsx");
 		map.put(ANNUAL_EARNINGS_SCALE_NAME, dataDir
 				+ "Annual earnings scale by disability status.xlsx");
@@ -55,12 +60,11 @@ public final class JEMDataDefn {
 						+ "Probabilities of male and female death by age and sex.xlsx");
 		map.put(DFLE_TRANSITIONS_NAME, dataDir
 				+ "Disability state transition probabilities.xlsx");
-		
-		map.put(BASEFILE_DEFINITION, dataDir
-				+ "JEM base file definition.txt");
+
+		map.put(BASEFILE_DEFINITION, dataDir + "JEM base file definition.txt");
 		map.put("base file", dataDir + "Base file (people).xlsx");
-		map.put("R startup file", dataDir + "JEM.r");
-		
+		map.put("R startup file", dataDir + "JEM.R");
+
 		return map;
 	}
 
