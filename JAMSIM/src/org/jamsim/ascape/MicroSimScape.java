@@ -43,6 +43,7 @@ import org.jamsim.ascape.ui.PanelViewAction;
 import org.jamsim.ascape.ui.PanelViewParameterSet;
 import org.jamsim.ascape.weights.WeightCalculator;
 import org.jamsim.io.FileLoader;
+import org.jamsim.shared.InvalidDataException;
 import org.omancode.r.RFaceException;
 
 /**
@@ -149,7 +150,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	/**
 	 * Set the {@link ScapeData} object.
 	 * 
-	 * @param scapeData scape data
+	 * @param scapeData
+	 *            scape data
 	 */
 	public void setScapeData(D scapeData) {
 		this.scapeData = scapeData;
@@ -481,13 +483,17 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	}
 
 	/**
-	 * Set weights on all agents and set-up observers to register changes when
-	 * the {@link WeightCalculator} changes.
+	 * Set-up observers (all agents and the root scape) to register changes when
+	 * the {@link WeightCalculator} changes, then calls notify on the weight
+	 * calculator.
 	 * 
 	 * @param wcalc
 	 *            weight calculator
+	 * @throws InvalidDataException
+	 *             if wcalc can't be validated
 	 */
-	public void setWeightCalculator(WeightCalculator wcalc) {
+	public void setWeightCalculator(WeightCalculator wcalc)
+			throws InvalidDataException {
 		this.wcalc = wcalc;
 
 		// Set scape observer that will refresh dataframe in R
@@ -497,9 +503,17 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		// Set weights & observers on all agents
 		for (Object agent : this) {
 			MicroSimCell<?> cell = (MicroSimCell<?>) agent;
-			cell.setWeight(wcalc);
 			wcalc.addObserver(cell);
 		}
+
+		// Add root scape as observer
+		Scape rootScape = getRoot();
+		if ((rootScape != this) && rootScape instanceof Observer) {
+			wcalc.addObserver((Observer) rootScape);
+		}
+
+		// Tell wcalc to do its work
+		wcalc.validateAndNotify();
 
 		// Update dataframe with (potentially changed) weights
 		try {
@@ -803,7 +817,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	private boolean emptyScape() {
 		return (size() != 0);
 	}
-	
+
 	/**
 	 * Add a chart to the scape. Adds the chart as a listener and also creates a
 	 * node in the navigator for the chart.

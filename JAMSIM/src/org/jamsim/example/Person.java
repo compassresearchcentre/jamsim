@@ -39,7 +39,7 @@ public class Person extends MicroSimCell<JEMData> {
 
 	private double weight;
 
-	private double weightEqual;
+	private double weightBase;
 	
 	private boolean alive;
 
@@ -183,12 +183,12 @@ public class Person extends MicroSimCell<JEMData> {
 		return alive;
 	}
 
-	public double getWeight() {
+	public double getWeightScenario() {
 		return weight;
 	}
 
-	public double getWeightEqual() {
-		return weightEqual;
+	public double getWeightBase() {
+		return weightBase;
 	}
 
 	public void setWeight(double weight) {
@@ -197,8 +197,8 @@ public class Person extends MicroSimCell<JEMData> {
 
 	@Override
 	public void setWeight(WeightCalculator weights) {
-		setWeight(weights.getWeight(varsUsedToCalculateWeight));
-		this.weightEqual = weights.getWeightEqual();
+		setWeight(weights.getLevelWeight(varsUsedToCalculateWeight));
+		this.weightBase = weights.getWeightBase();
 	}
 
 }

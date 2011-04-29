@@ -9,7 +9,7 @@ import org.jamsim.math.MutableNumerator;
 
 /**
  * Table Model for an array of {@link MutableNumerator}s. Modifications to the
- * table model update the underlying {@link MutableNumerator}s.
+ * table model update the numerator of the underlying {@link MutableNumerator}s.
  * 
  * @author Oliver Mannion
  * @version $Revision$

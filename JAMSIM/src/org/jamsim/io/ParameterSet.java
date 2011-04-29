@@ -15,7 +15,8 @@ import org.jamsim.shared.InvalidDataException;
 public interface ParameterSet {
 
 	/**
-	 * Reset the parameters to their default values.
+	 * Reset the parameters to their default values. Will usually need to be
+	 * followed by {@link #validateAndNotify()}.
 	 */
 	void resetDefaults();
 
@@ -45,19 +46,21 @@ public interface ParameterSet {
 	 * @return table model
 	 */
 	TableModel getTableModel();
-	
+
 	/**
 	 * Save the state to the preferences.
 	 * 
-	 * @param prefs preferences.
+	 * @param prefs
+	 *            preferences.
 	 */
 	void saveState(Preferences prefs);
 
 	/**
 	 * Load the state from preferences.
 	 * 
-	 * @param prefs preferences.
+	 * @param prefs
+	 *            preferences.
 	 */
 	void loadState(Preferences prefs);
-	
+
 }

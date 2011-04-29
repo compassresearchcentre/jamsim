@@ -21,13 +21,21 @@ public interface WeightCalculator extends ParameterSet {
 	String WCALC_KEY = "weight calculator";
 
 	/**
-	 * Return the appropriate factor weight based on the values in {@code vars}.
+	 * Return (in order) proportions for all levels.
+	 *  
+	 * @return proportions.
+	 */
+	double[] getAllLevelProps();
+	
+	/**
+	 * Return the appropriate factor level weight based on the level value in
+	 * {@code vars}.
 	 * 
 	 * @param vars
 	 *            map of variable names and values
 	 * @return weight
 	 */
-	double getWeight(Map<String, ?> vars);
+	double getLevelWeight(Map<String, ?> vars);
 
 	/**
 	 * Return the base, or un-weighted, value of every agent. This may be 1, if
@@ -37,7 +45,7 @@ public interface WeightCalculator extends ParameterSet {
 	 * 
 	 * @return weight equal
 	 */
-	double getWeightEqual();
+	double getWeightBase();
 
 	/**
 	 * Adds an observer to the set of observers for this object, provided that
@@ -47,5 +55,5 @@ public interface WeightCalculator extends ParameterSet {
 	 *            observer
 	 */
 	void addObserver(Observer o);
-
+	
 }

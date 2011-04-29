@@ -14,7 +14,7 @@ a <- function (mylist) {
 	toArray(mylist)
 }
 
-addFreqs <- function (bf, outvars, wgtsname="weight") {
+addFreqs <- function (bf, outvars, wgtsname="weightScenario") {
 	varnames <- names(outvars)
 	
 	# get frequency tables for all varnames from bf 
@@ -24,11 +24,11 @@ addFreqs <- function (bf, outvars, wgtsname="weight") {
 	mapply(abind, outvars, results, MoreArgs=list(along=ZDIM), SIMPLIFY = FALSE)
 }
 
-addMeans <- function (bf, outvars, logiset = NULL, wgtsname="weight", grpbycoding = NULL) {
+addMeans <- function (bf, outvars, logiset = NULL, wgtsname="weightScenario", grpbycoding = NULL) {
 	#for each X in outvars, calculate lblmeancols of names(X)
 	#and add the result back into the Z dimension of X.
-	#eg: addMeans(children, allrunsmean$males.by.ethnicity.base, childset$males, wgtsname="weightEqual", codings$ethnicity)
-	#    lblmeancols(children, childset$males, "o.gptotvis", wgtsname="weightEqual", codings$ethnicity)
+	#eg: addMeans(children, allrunsmean$males.by.ethnicity.base, childset$males, wgtsname="weightBase", codings$ethnicity)
+	#    lblmeancols(children, childset$males, "o.gptotvis", wgtsname="weightBase", codings$ethnicity)
 	
 	varnames <- names(outvars)
 	
@@ -76,7 +76,7 @@ applyAddMeans <- function(xlist, xlistspec, bf) {
 	#
 	# An example of S:
 	#   $ males.by.ethnicity.scenario:List of 3
-	#     ..$ wgtsname   : chr "weight"
+	#     ..$ wgtsname   : chr "weightScenario"
 	#     ..$ logiset    : atomic [1:1153] TRUE FALSE TRUE TRUE TRUE TRUE ...
 	#     .. ..- attr(*, "desc")= chr "males only"
 	#     ..$ grpbycoding: atomic [1:3] 1 2 3
@@ -235,7 +235,7 @@ dictLookup <- function(x) {
 	}
 	
 	#add grouping, weighting, and set descriptions (if any)
-	weightdesc <- ifelse(weighting == "weight", " weighted", "")
+	weightdesc <- ifelse(weighting == "weightBase", "", " weighted")
 	paste(desc, grouping, weightdesc, set, sep="")
 }
 
@@ -244,6 +244,29 @@ err <- function (values) {
 	## see http://www.cyclismo.org/tutorial/R/confidence.html
 	## used by meanOfRuns
 	qt(0.975,df=length(values)-1)*sd(values)/sqrt(length(values))
+}
+
+factorWeights <- function (xvecfactors, desiredProp) {
+	#generates a weighting for each factor in xvecfactors such that 
+	#propWtdtable(xvecfactors, factorWeights(xvecfactors, desiredProp)) == desiredProp
+	#
+	#eg: xvecfactors = children$SESBTH
+	#eg: desiredProp <- c(0.2,0.3,0.5)
+	#eg: factorWeights(children$SESBTH,c(0.2,0.3,0.5)) 
+	
+	# get existing proportions of factor levels
+	baseProp <- prop.table(table(xvecfactors))
+	
+	# weight for each factor level is desiredProp/baseProp
+	weight <- desiredProp/baseProp
+	
+	# get position of each factor level (each xvecfactors) in weight names
+	weightPos <- match(xvecfactors, names(weight))
+	
+	# get weight for xvecfactors
+	result <- sapply(weightPos, function (x) weight[x], USE.NAMES = FALSE )
+	names(result) <- NULL
+	result
 }
 
 freq <- function(variable, varname) {
@@ -270,7 +293,15 @@ global <- function (x) {
 	globalNamed(param1Name, x)
 }
 
-labelColFromList <- function(xnamedlist) {
+labelColFromVec <- function (xlist, colnameslist) {
+	# set the columns names of each x in xlist to
+	# each char vector c in colnameslist
+	labelCol <- function(x, colnames) {dimnames(x)[[COL]] <- colnames;x}
+	mapply(labelCol,
+			xlist, colnameslist, SIMPLIFY = FALSE)
+}	
+
+labelColTitleFromList <- function(xnamedlist) {
 	# names each object's column names with the 
 	# object's name in the named list
 	labelCol <- function(x,xname) {names(dimnames(x))[COL] <- c(xname);x }
@@ -345,7 +376,7 @@ prependRowMeanInfo <- function (xm) {
 
 propWtdtable <- function (variable, wgts) {
 	#return proportions of variable weighted
-	#eg: propWtdtable(people$sex, people$weightEqual)
+	#eg: propWtdtable(people$sex, people$weightBase)
 	prop.table(wtdtable(variable, wgts))
 }
 
@@ -379,10 +410,20 @@ trim <- function (string) {
 	gsub("^\\s+|\\s+$", "", string)
 }
 
+updateScenarioWeights <- function(bf, varnamefactor, desiredProp) {
+	#return the bf with an updated weightScenario variable
+	#based on the factor "varnamefactor" and the desired proportions
+	#"desiredProp"
+	#eg: children <- updateScenarioWeights(children, "SESBTH", c(0.2,0.3,0.5))
+	#prop.table(wtdtable(children$SESBTH, children$weightScenario))
+	bf$weightScenario <- factorWeights(bf[[varnamefactor]], desiredProp)
+	bf
+}
+
 library("Hmisc")
 wtdtable <- function (variable, wgts) {
 	#eg: wtdtable(people$sex, people$weight)
-	#eg: wtdtable(a(children$single)[,1], people$weightEqual)
+	#eg: wtdtable(a(children$single)[,1], people$weightBase)
 	
 	if(length(variable) != length(wgts)) {
 		param1Name <- as.character(sys.call())[2]
@@ -503,10 +544,10 @@ lblmeancols <- function (xframe, logiset = NULL, varname, wgtsname, grpbycoding 
 	#eg: xframe <- children
 	#    logiset <- childset$females
 	#    varname <- "o.gptotvis"
-	#	 wgtsname <- "weight"
+	#	 wgtsname <- "weightScenario"
 	#    grpbycoding <- codings$ethnicity
 	#
-	# lblmeancols(children, childset$males, "o.gptotvis", "weightEqual", codings$ethnicity)
+	# lblmeancols(children, childset$males, "o.gptotvis", "weightBase", codings$ethnicity)
 
 	# subset
 	xframeset <- if (is.null(logiset)) xframe else subset(xframe, logiset)

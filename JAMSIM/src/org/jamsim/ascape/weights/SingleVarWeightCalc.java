@@ -42,7 +42,7 @@ public class SingleVarWeightCalc extends Observable implements
 	 * An amount to multiple every weight by.
 	 */
 	private final double scaling;
-	
+
 	/**
 	 * Variable factor levels and their weighting. A map version for lookup.
 	 */
@@ -204,7 +204,7 @@ public class SingleVarWeightCalc extends Observable implements
 	 *            map of variable names and values
 	 * @return weight for value of variable in {@code vars}.
 	 */
-	public double getWeight(Map<String, ?> vars) {
+	public double getLevelWeight(Map<String, ?> vars) {
 		String var = vars.get(variableName).toString();
 
 		MutableNumerator factorReweight = factorLevelWeights.get(var);
@@ -221,10 +221,30 @@ public class SingleVarWeightCalc extends Observable implements
 	}
 
 	@Override
+	public double[] getAllLevelProps() {
+		double[] props = new double[weights.length];
+
+		for (int i = 0; i < weights.length; i++) {
+			props[i] = weights[i].doubleValue();
+		}
+
+		return props;
+	}
+
+	@Override
 	public final String getName() {
 		return variableDesc;
 	}
 
+	/**
+	 * Get the name of factor variable.
+	 * 
+	 * @return name
+	 */
+	public final String getFactorName() {
+		return variableName;
+	}
+	
 	@Override
 	public TableModel getTableModel() {
 		return tableModel;
@@ -247,11 +267,6 @@ public class SingleVarWeightCalc extends Observable implements
 			num.setNumerator(num.getDenominator());
 		}
 		tableModel.fireTableDataChanged();
-
-		// notify all observers
-		setChanged();
-		notifyObservers();
-
 	}
 
 	/**
@@ -268,8 +283,9 @@ public class SingleVarWeightCalc extends Observable implements
 		}
 
 		if (!MathUtil.equals(total, 1)) {
-			throw new InvalidDataException("Weights (" + total * DISPLAY_ADJ_FACTOR
-					+ ") must add to " + DISPLAY_ADJ_FACTOR);
+			throw new InvalidDataException("Weights (" + total
+					* DISPLAY_ADJ_FACTOR + ") must add to "
+					+ DISPLAY_ADJ_FACTOR);
 		}
 
 	}
@@ -308,7 +324,8 @@ public class SingleVarWeightCalc extends Observable implements
 	}
 
 	@Override
-	public double getWeightEqual() {
+	public double getWeightBase() {
 		return scaling;
 	}
+
 }

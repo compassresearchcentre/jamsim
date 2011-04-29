@@ -22,6 +22,7 @@ import org.jamsim.ascape.ui.cmd.ScapeRCommand;
 import org.jamsim.ascape.ui.cmd.ScapeRCommandAction;
 import org.jamsim.ascape.weights.WeightCalculator;
 import org.jamsim.io.FileLoader;
+import org.jamsim.shared.InvalidDataException;
 import org.omancode.r.RFaceException;
 import org.omancode.util.io.Output;
 
@@ -171,7 +172,11 @@ public class RootScape<D extends ScapeData> extends Scape {
 
 		WeightCalculator currentCalc =
 				selectWeightCalculatorFromPrefs(calcMap, loader.getPrefs());
-		msscape.setWeightCalculator(currentCalc);
+		try {
+			msscape.setWeightCalculator(currentCalc);
+		} catch (InvalidDataException e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
 	}
 
 	/**
@@ -309,7 +314,7 @@ public class RootScape<D extends ScapeData> extends Scape {
 
 		if (scapeR != null) {
 			// display prompt after all setup done
-			scapeR.printPrompt();
+			// scapeR.printPrompt();
 
 			// add a dataframe information node
 			msscape.addDataFrameNode(scapeR.getScapeDFRunName(0));

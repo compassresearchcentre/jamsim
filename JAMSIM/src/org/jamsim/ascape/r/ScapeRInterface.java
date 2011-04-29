@@ -10,18 +10,22 @@ import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
 import net.casper.data.model.CMarkedUpRowBean;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.jamsim.ascape.DataDictionary;
 import org.jamsim.ascape.MicroSimScape;
 import org.omancode.r.RFace;
 import org.omancode.r.RFaceException;
 import org.omancode.r.types.RDataFrame;
+import org.omancode.r.types.REXPUtil;
 import org.omancode.r.types.RMatrix;
 import org.omancode.r.types.RVectorList;
 import org.omancode.r.types.UnsupportedTypeException;
 import org.omancode.r.ui.RObjectTreeBuilder;
 import org.omancode.r.ui.RSwingConsole;
 import org.omancode.util.ExecutionTimer;
+import org.omancode.util.StringUtil;
 import org.rosuda.REngine.REXP;
+import org.rosuda.REngine.REXPDouble;
 import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.RList;
 
@@ -250,10 +254,7 @@ public class ScapeRInterface {
 			parseEvalPrint(baseFileUpdateCmd);
 			System.out.println("Executed " + baseFileUpdateCmd);
 		}
-
-		// OJM
-		// REXP globalEnv = rInterface.getGlobalEnvironment();
-		// System.out.println(globalEnv);
+		printPrompt();
 	}
 
 	/**
@@ -592,8 +593,54 @@ public class ScapeRInterface {
 	}
 
 	/**
+	 * Calls updateScenarioWeights in R. Updates the "weightScenario" variable
+	 * in the basefile based on the desired proportions ({@code props}) for
+	 * factor {@code factorName}.
+	 * 
+	 * @param basefileName
+	 *            name of base file
+	 * @param factorName
+	 *            name of factor variable
+	 * @param props
+	 *            proportions
+	 * @throws RFaceException
+	 *             if problem calling.
+	 */
+	public void updateScenarioWeights(String basefileName, String factorName,
+			double[] props) throws RFaceException {
+
+		REXPDouble rprops = REXPUtil.toVector(props);
+		rInterface.assign(".usw", rprops);
+
+		// construct funtion call string
+		// eg: children <- updateScenarioWeights(children, "SESBTH",
+		// c(0.2,0.3,0.5))
+		String rcmdinner =
+				StringUtil.functionCall("updateScenarioWeights",
+						basefileName, StringUtil.doublequote(factorName),
+						".usw");
+
+		// assign(".scape", scape, envir = .GlobalEnv)
+		String rcmd =
+				StringUtil.functionCall("assign",
+						StringUtil.doublequote(basefileName), rcmdinner,
+						"envir = .GlobalEnv");
+
+		parseEvalTry(rcmd);
+
+		printlnToConsole("Updated scenario weights: " + factorName + " "
+				+ ArrayUtils.toString(props));
+
+		baseFileUpdated();
+	}
+
+	/**
 	 * Creates a new R object tree builder with the set of R objects present in
 	 * the global environment at time of creation.
+	 * 
+	 * @param includeClasses
+	 *            specify the classes of object to display, or {@code null} to
+	 *            display objects of any class.
 	 * 
 	 * @return R object tree builder.
 	 * @throws RFaceException

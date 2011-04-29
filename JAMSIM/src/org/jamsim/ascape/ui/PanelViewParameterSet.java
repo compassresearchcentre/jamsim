@@ -104,8 +104,14 @@ public class PanelViewParameterSet implements PanelViewProvider,
 	}
 
 	private void reset() {
-		pset.resetDefaults();
-		pset.saveState(prefs);
-		JOptionPane.showMessageDialog(pv, "Reset to defaults.");
+		try {
+			pset.resetDefaults();
+			pset.validateAndNotify();
+			pset.saveState(prefs);
+			JOptionPane.showMessageDialog(pv, "Reset to defaults.");
+		} catch (InvalidDataException e) {
+			// display message box
+			JOptionPane.showMessageDialog(pv, e.getMessage());
+		}
 	}
 }
