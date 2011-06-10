@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/JAMSIM/src/org/jamsim/example/RunJEM.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<mapAttribute key="org.eclipse.debug.core.environmentVariables">
+<mapEntry key="PATH" value="${env_var:PATH};C:\Program Files\R\R-2.13.0\bin\i386"/>
+<mapEntry key="R_HOME" value="C:\Program Files\R\R-2.13.0"/>
+</mapAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.jamsim.example.RunJEM"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="JAMSIM"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djava.library.path=&quot;C:\Program Files\R\R-2.13.0\library\rJava\jri&quot;"/>
+</launchConfiguration>
