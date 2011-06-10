@@ -20,6 +20,7 @@ activateJavaGD <- function(name, subFolderName = "", selectNode = FALSE, ...) {
 	# eg: activateJavaGD("hadmtot")
 	# eg: activateJavaGD("gender", "base file")
 	# requires: library(hash)
+	# TODO: replace hash code with a list
 	
 	# if .deviceHash doesn't exist in global environment, create it
 	if (!exists(".deviceHash")) {

@@ -53,6 +53,8 @@ public class JEMScape extends RootScape<JEMData> {
 			scapeR = loadR(false);
 
 			loadRStartupFile();
+			
+			scapeR.loadCommonRFunctions();
 
 			// setup weights
 			setupWeightCalculators(data.getWeightCalculators(scapeR));
@@ -67,7 +69,7 @@ public class JEMScape extends RootScape<JEMData> {
 	public void createGraphicViews() {
 
 		// add scape R listener that acts on scape events
-		addScapeRListener(null, "beginRun()", "endOfRun()", "beginSim()",
+		addScapeRListener(null, "beginSim()", "beginRun()", "endOfRun()",
 				"endOfSim()");
 
 		addBaseFileUpdateRCmd("baseUpdated()");

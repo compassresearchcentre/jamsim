@@ -58,7 +58,7 @@ public class PanelViewWeightCalculators implements PanelViewProvider {
 		this.scape = scape;
 
 		// create GUI elements
-		pv = PanelViewUtil.createResizablePanelView("Weightings");
+		pv = PanelViewUtil.createResizablePanelView("Scenario Weightings");
 		selector = new JComboBox(wcalcNames);
 		tablePane = new JScrollPane();
 		BuildResult uiElements = SwingJavaBuilder.build(this);

@@ -10,7 +10,6 @@ import javax.swing.SwingUtilities;
 import org.ascape.runtime.swing.DesktopEnvironment;
 import org.ascape.runtime.swing.UserFrame;
 import org.ascape.util.swing.AscapeGUIUtil;
-import org.omancode.r.RFaceException;
 import org.omancode.r.RFace;
 import org.omancode.r.RUtil;
 import org.omancode.r.ui.RSwingConsole;
@@ -41,12 +40,6 @@ public enum RLoader {
 	 * startup.
 	 */
 	private static final String ASCAPE_R = "Ascape.r";
-
-	/**
-	 * Support file containing Common R functions to load into R environment on
-	 * startup.
-	 */
-	private static final String COMMON_R = "Common.r";
 
 	/**
 	 * R interface.
@@ -86,9 +79,9 @@ public enum RLoader {
 			System.err.println(e.getMessage());
 			System.err.println("Check: ");
 			System.err
-					.println("1) the location of jri.dll is specified, eg: -Djava.library.path=\"C:\\Program Files\\R\\R-2.11.1\\library\\rJava\\jri\"");
+					.println("1) the location of jri.dll is specified, eg: -Djava.library.path=\"C:\\Program Files\\R\\R-2.12.2\\library\\rJava\\jri\"");
 			System.err
-					.println("2) R bin dir is on the path, eg: PATH=%PATH%;C:\\Program Files\\R\\R-2.11.1\\bin");
+					.println("2) R bin dir is on the path, eg: PATH=%PATH%;C:\\Program Files\\R\\R-2.12.2\\bin\\i386");
 
 			throw new ExceptionInInitializerError(e);
 		}
@@ -163,7 +156,7 @@ public enum RLoader {
 	 * Initialises the (already loaded) R environment. Loads required packages
 	 * and support functions and sets options.
 	 * 
-	 * @throws RFaceException
+	 * @throws IOException
 	 *             if problem loading/evaluating initialisation commands
 	 */
 	private void initR() throws IOException {
@@ -186,17 +179,7 @@ public enum RLoader {
 	 *             if problem loading or evaluating functions.
 	 */
 	private void loadAscapeRFunctions() throws IOException {
-		evaluateRResource(ASCAPE_R);
-	}
-
-	/**
-	 * Load the common R functions.
-	 * 
-	 * @throws IOException
-	 *             if problem loading or evaluating functions.
-	 */
-	private void loadCommonRFunctions() throws IOException {
-		evaluateRResource(COMMON_R);
+		loadRResource(ASCAPE_R);
 	}
 	
 	/**
@@ -205,7 +188,7 @@ public enum RLoader {
 	 * @throws IOException
 	 *             if problem loading or evaluating the resource.
 	 */
-	private void evaluateRResource(String resourceName) throws IOException {
+	private void loadRResource(String resourceName) throws IOException {
 		rInterface.printlnToConsole("Loading resource " + resourceName);
 
 		InputStream ins = getClass().getResourceAsStream(resourceName);
@@ -226,6 +209,5 @@ public enum RLoader {
 		rInterface
 				.printlnToConsole("Executing support function ascapeStart()");
 		rInterface.parseEvalPrint("ascapeStart()");
-		loadCommonRFunctions();
 	}
 }

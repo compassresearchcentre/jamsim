@@ -3,6 +3,7 @@ package org.jamsim.ascape.r;
 import java.beans.IntrospectionException;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import org.jamsim.ascape.DataDictionary;
 import org.jamsim.ascape.MicroSimScape;
 import org.omancode.r.RFace;
 import org.omancode.r.RFaceException;
+import org.omancode.r.RUtil;
 import org.omancode.r.types.RDataFrame;
 import org.omancode.r.types.REXPUtil;
 import org.omancode.r.types.RMatrix;
@@ -48,6 +50,11 @@ public class ScapeRInterface {
 	 * constructor.
 	 */
 	public static final String DEFAULT_DF_SYMBOL = "DATAFRAME";
+
+	/**
+	 * Support file containing Common R functions.
+	 */
+	private static final String COMMON_R = "Common.r";
 
 	/**
 	 * Dataframe replacement symbol.
@@ -139,6 +146,35 @@ public class ScapeRInterface {
 			// rInterface.parseEvalPrint(RUtil.readRFile(file));
 			rInterface.loadFile(file);
 		}
+	}
+
+	/**
+	 * Load the common R functions.
+	 * 
+	 * @throws IOException
+	 *             if problem loading or evaluating functions.
+	 */
+	public void loadCommonRFunctions() throws IOException {
+		loadRResource(COMMON_R);
+	}
+
+	/**
+	 * Evaluate the contents of a resource in R.
+	 * 
+	 * @param resourceName
+	 *            name of resource
+	 * @throws IOException
+	 *             if problem loading or evaluating the resource.
+	 */
+	private void loadRResource(String resourceName) throws IOException {
+		rInterface.printlnToConsole("Loading resource " + resourceName);
+
+		InputStream ins = getClass().getResourceAsStream(resourceName);
+		if (ins == null) {
+			throw new IOException(resourceName + " not found on classpath.");
+		}
+		rInterface.parseEvalPrint(RUtil.readRStream(ins));
+
 	}
 
 	/**
@@ -253,8 +289,8 @@ public class ScapeRInterface {
 		if (baseFileUpdateCmd != null) {
 			parseEvalPrint(baseFileUpdateCmd);
 			System.out.println("Executed " + baseFileUpdateCmd);
+			printPrompt();
 		}
-		printPrompt();
 	}
 
 	/**

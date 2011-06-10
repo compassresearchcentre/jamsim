@@ -15,14 +15,14 @@ baseUpdated <- function () {
 
 baseCharts <- function () {
 	#baseCharts()
-	baseChart("sex", "weightEqual", col=genderColours)
-	baseChart("sex", "weight", col=genderColours)
+	baseChart("sex", "weightBase", col=genderColours)
+	baseChart("sex", "weightScenario", col=genderColours)
 }
 
-baseChart <- function(varname, wgtsname = "weightEqual", xAxisNames = NULL, col=NULL) {
+baseChart <- function(varname, wgtsname = "weightBase", xAxisNames = NULL, col=NULL) {
 	#produce histogram for year 1 / unchanging variables
-	#baseChart("sex", "weightEqual", c("Female","Male"))
-	name <- paste(dict[[varname]], ifelse(wgtsname == "weightEqual", "", " (scenario)"), sep="")
+	#baseChart("sex", "weightBase", c("Female","Male"))
+	name <- paste(dict[[varname]], ifelse(wgtsname == "weightBase", "", " (scenario)"), sep="")
 	if (name != "") {
 		props <- propWtdtable(a(people[[varname]])[,1], people[[wgtsname]])
 		if (!is.null(xAxisNames)) {
@@ -40,7 +40,7 @@ expandPeople <- function () {
 	#eg: str(expandPeople())
 	with(people,
 	data.frame(
-	age, alive, sex, weight,
+	age, alive, sex, weightScenario,
 	totalEarnings,
 	currentDisabilityState,
 	disabilityState=a(disabilityState),
@@ -92,8 +92,8 @@ tblAgents <- function() {
 	#tblAgents()
 	c(
 		"Agents" = dim(people)[1],
-		"Scaled population size (base)" = sum(people$weightEqual),
-		"Scaled population size (scenario)" = sum(people$weight)
+		"Scaled population size (base)" = sum(people$weightBase),
+		"Scaled population size (scenario)" = sum(people$weightScenario)
 	)
 }
 
@@ -102,8 +102,8 @@ tblFemaleAgents <- function() {
 	females <- subset(people, sex=="F")
 	c(
 		"Female agents" = dim(females)[1],
-		"Female scaled population size (base)" = sum(females$weightEqual),
-		"Female scaled population size (scenario)" = sum(females$weight)
+		"Female scaled population size (base)" = sum(females$weightBase),
+		"Female scaled population size (scenario)" = sum(females$weightScenario)
 	)
 }
 
@@ -111,22 +111,22 @@ tblSeverelyDisabled <- function() {
 	#tblSeverelyDisabled()
 	disabled <- subset(people, currentDisabilityState == 4)
 	round(c(
-		"Severely disabled population size (base)" = sum(disabled$weightEqual),
-		"Severely disabled population size (scenario)" = sum(disabled$weight)
+		"Severely disabled population size (base)" = sum(disabled$weightBase),
+		"Severely disabled population size (scenario)" = sum(disabled$weightScenario)
 	))
 }
 
 tblAverageAgeAtDeath <- function() {
 	c(
-		"Population average age at death (base)" = sum(people$age * people$weightEqual) / sum(people$weightEqual),
-		"Population average age at death (scenario)" = sum(people$age * people$weight) / sum(people$weight)
+		"Population average age at death (base)" = sum(people$age * people$weightBase) / sum(people$weightBase),
+		"Population average age at death (scenario)" = sum(people$age * people$weightScenario) / sum(people$weightScenario)
 	)
 }
 
 tblGender <- function() {
 	#tblGender()
-    base <- aggregate(people$weightEqual, by = list(people[["sex"]]), FUN = sum)
-	scenario <- aggregate(people$weight, by = list(people[["sex"]]), FUN = sum)
+    base <- aggregate(people$weightBase, by = list(people[["sex"]]), FUN = sum)
+	scenario <- aggregate(people$weightScenario, by = list(people[["sex"]]), FUN = sum)
 
 	cbind(
 		"Sex" = base[1], 
@@ -142,7 +142,7 @@ tblAgeAtDeath <- function() {
 	ageBreaks <- c(0,20,30,40,50,60,70,80,max(people$age)+1)
 	agePartitioned <- cut(people$age, breaks=ageBreaks, right=FALSE)
   
-	result <- aggregate(people$weight, by = list(agePartitioned), FUN = sum)
+	result <- aggregate(people$weightScenario, by = list(agePartitioned), FUN = sum)
 	result$x <- round(result$x)
  	dimnames(result)[[2]] = c("Age group", "Sum")
 	result
@@ -156,7 +156,7 @@ tblCrossTabAgeAtDeathByGender <- function() {
 	people$ageBreak1865 <- cut(people$age, breaks=ageBreaks,right=FALSE)
 
  	# cross tabulate the sum of weight by ageBreak1865 and sex
-	xt <- xtabs(weight ~ ageBreak1865+sex, data=people)	
+	xt <- xtabs(weightScenario ~ ageBreak1865+sex, data=people)	
 		
 	# add row and columns totals
 	xt <- addmargins(xt)
@@ -177,12 +177,12 @@ tblCrossTabAgeAtDeathByGender <- function() {
 
 tblEarningsSummary <- function() {
 	# tblEarningsSummary()
-	allEarnings <- sum(people$totalEarnings * people$weight)
+	allEarnings <- sum(people$totalEarnings * people$weightScenario)
 	
 	result <- c(
 		"Total population lifetime earnings(millions)" = allEarnings / 1000000,
-		"Avg lifetime earnings" = allEarnings / sum(people$weight),
-		"Avg annual lifetime earnings" = allEarnings / sum(people$age * people$weight)
+		"Avg lifetime earnings" = allEarnings / sum(people$weightScenario),
+		"Avg annual lifetime earnings" = allEarnings / sum(people$age * people$weightScenario)
 	)
 
 	round(result)
@@ -201,8 +201,8 @@ earningsToDateInRows <- function() {
 	data.frame(
 		age=rep(people$age, each=100),
 		sex=rep(people$sex, each=100),
-		weight=rep(people$weight, each=100),
-		weightEqual=rep(people$weightEqual, each=100),
+		weightScenario=rep(people$weightScenario, each=100),
+		weightBase=rep(people$weightBase, each=100),
 		year=seq(1,100),
 		earningsToDate=unlist(people$earningsToDate)
 	)
@@ -210,12 +210,12 @@ earningsToDateInRows <- function() {
 
 tblAccumulatedEtdWeighted <- function() {
 	#earnings to date per year, by sex, weighted
-	xtabs(earningsToDate*weight ~ sex+year, data=etdrows)
+	xtabs(earningsToDate*weightScenario ~ sex+year, data=etdrows)
 }
 
 tblAccumulatedEtdWeightEqual <- function() {
 	#earnings to date per year, by sex, weight equal
-	xtabs(earningsToDate*weightEqual ~ sex+year, data=etdrows)
+	xtabs(earningsToDate*weightBase ~ sex+year, data=etdrows)
 }
 
 chartCrossTabAgeAtDeathByGender <- function() {

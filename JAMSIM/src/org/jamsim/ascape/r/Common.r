@@ -21,7 +21,11 @@ addFreqs <- function (bf, outvars, wgtsname="weightScenario") {
 	results <- lapply(varnames, function(x) wtdtablecols(bf[[x]], bf[[wgtsname]]))
 	
 	# add frequency tables in the Z dimension to each freq in outvars
-	mapply(abind, outvars, results, MoreArgs=list(along=ZDIM), SIMPLIFY = FALSE)
+	results <- mapply(abind, outvars, results, MoreArgs=list(along=ZDIM), SIMPLIFY = FALSE)
+	
+	lapply(results, function (x) {
+				attr(x, "meta") <- c(weighting=wgtsname);x } )
+	
 }
 
 addMeans <- function (bf, outvars, logiset = NULL, wgtsname="weightScenario", grpbycoding = NULL) {
@@ -61,6 +65,10 @@ addRowPercents <- function (counts) {
 	
 	combined <- cbind(counts, pcents)
 	names(dimnames(combined)) <- names(dimnames(counts))
+	
+	#keep meta attribute
+	attr(combined, "meta") <- attr(counts, "meta")
+	
 	combined
 }
 
@@ -194,6 +202,7 @@ dictLookup <- function(x) {
 	#eg: dictLookup(freqSingle)
 	#eg: dictLookup("single")
 	#eg: dictLookup("don't exist")
+	#eg: dictLookup(runs.mean.freq$base$o.chres)
 	
 	name <- c()
 	grouping <- c()
@@ -209,23 +218,30 @@ dictLookup <- function(x) {
 		if (!is.na(meta["set"])) set <- paste(" (", meta["set"], ")", sep="")
 		if (!is.na(meta["weighting"])) weighting <- meta["weighting"]
 		
-	} else if (class(x) %in% c("matrix", "array", "table") && !is.null(names(dimnames(x)))) {
-		#get name from names of dimensions
-		namesdim <- names(dimnames(x))
-		namesdim <- stripEmpty(namesdim) #remove NAs and empty strings
-		
-		name <- namesdim[1]
-		
-	} else if (class(x) == "character") {
-		#get name from first position of char vector
-		name <- x[1]
-		
-	} else {
-		#fail
-		firstParamName <- as.character(sys.call())[2]
-		stop(gettextf("cannot determine varname from %s: no meta or names", firstParamName))
-	}
+	} 
 	
+	# if no meta, or no name from meta
+	if (is.null(name) || is.na(name)) {
+		
+		if (class(x) %in% c("matrix", "array", "table") && !is.null(names(dimnames(x)))) {
+			#get name from names of dimensions
+			namesdim <- names(dimnames(x))
+			namesdim <- stripEmpty(namesdim) #remove NAs and empty strings
+			
+			# get last dim for name
+			name <- namesdim[length(namesdim)]
+			
+		} else if (class(x) == "character") {
+			#get name from first position of char vector
+			name <- x[1]
+			
+		} else {
+			#fail
+			firstParamName <- as.character(sys.call())[2]
+			stop(gettextf("cannot determine varname from %s: no meta or names", firstParamName))
+		}
+	}
+		
 	#lookup name in dictionary
 	desc <- dict[[name]]
 	
@@ -235,7 +251,7 @@ dictLookup <- function(x) {
 	}
 	
 	#add grouping, weighting, and set descriptions (if any)
-	weightdesc <- ifelse(weighting == "weightBase", "", " weighted")
+	weightdesc <- ifelse(weighting == "weightBase", "", " scenario")
 	paste(desc, grouping, weightdesc, set, sep="")
 }
 
@@ -308,9 +324,19 @@ labelColTitleFromList <- function(xnamedlist) {
 	mapply(labelCol, xnamedlist, names(xnamedlist), SIMPLIFY = FALSE)
 }
 
+labelTitle <- function (xm, along, title) {
+	# names the "along" dimension with "title"
+	# eg: labelTitle(y, ROW, "Year") 
+	names(dimnames(xm))[[along]] <- title
+	xm
+}
+
 labelprefixseq <- function(xm, along, prefix) {
 	# names the "along" dimension of xm with a prefixed sequence
-	# eg: labelColWithSeq(y, COL, "Run") #COL will be labelled "Run 1", "Run 2"..etc. 
+	# eg: labelColWithSeq(y, COL, "Run") #COL will be labelled "Run 1", "Run 2"..etc.
+	if (is.null(dimnames(xm))) {
+		stop('No dimnames')
+	}
 	dimnames(xm)[[along]] <- paste(prefix, seq(dim(xm)[along]))
 	xm
 }
@@ -400,6 +426,11 @@ stripEmpty <- function (xvec) {
 	xvec
 }
 
+stripClass <- function (x) {
+	#remove the class attribute
+	`attr<-`(x, "class", NULL)
+}
+
 toArray <- function (mylist) {
 	## convert list of vectors to an array
 	t(array(unlist(mylist), dim=c(length(mylist[[1]]),length(mylist))))
@@ -408,6 +439,11 @@ toArray <- function (mylist) {
 trim <- function (string) {
 	#remove leading and trailing spaces from a string
 	gsub("^\\s+|\\s+$", "", string)
+}
+
+tryerrorMsgs <- function (xlist) {
+	# return the messages of any element that is a try-error 
+	unlist(sapply(xlist, function (x) if (class(x)=="try-error") { stripClass(x) }))
 }
 
 updateScenarioWeights <- function(bf, varnamefactor, desiredProp) {

@@ -29,5 +29,6 @@
 		<module organisation="ch.cern" resolver="ivyroundup" />
 		<module organisation="net.sourceforge.supercsv" resolver="ivyroundup" />
 		<module organisation="it.unimi.dsi" resolver="ivyroundup" />
+		<module organisation="org.ascape" resolver="ivyroundup" />
 	</modules>
 </ivysettings>
