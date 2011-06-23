@@ -12,7 +12,7 @@ import org.jamsim.ascape.DataDictionary;
 import org.jamsim.ascape.MicroSimCell;
 import org.jamsim.ascape.ScapeData;
 import org.jamsim.ascape.r.ScapeRInterface;
-import org.jamsim.ascape.weights.SingleVarWeightCalc;
+import org.jamsim.ascape.weights.CategoricalVarWeightCalc;
 import org.jamsim.ascape.weights.WeightCalculator;
 import org.jamsim.example.types.AGE_GRP;
 import org.jamsim.example.types.Disability;
@@ -203,7 +203,7 @@ public class JEMData implements ScapeData {
 		
 		double scaling = 69899568 / (double)peopleCount; 
 
-		wcalcs.put("Sex", new SingleVarWeightCalc(scapeR, "people$sex",
+		wcalcs.put("Sex", new CategoricalVarWeightCalc(scapeR, "people$sex",
 				"sex", "Sex", scaling, loader.getPrefs()));
 
 		return wcalcs;

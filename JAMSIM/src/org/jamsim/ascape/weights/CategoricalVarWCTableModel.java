@@ -1,4 +1,4 @@
-package org.jamsim.io;
+package org.jamsim.ascape.weights;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,13 +8,14 @@ import javax.swing.table.AbstractTableModel;
 import org.jamsim.math.MutableNumerator;
 
 /**
- * Table Model for an array of {@link MutableNumerator}s. Modifications to the
- * table model update the numerator of the underlying {@link MutableNumerator}s.
+ * Table Model for the weighting of a categorical variable. Based on an array of
+ * {@link MutableNumerator}s. Modifications to the table model update the
+ * numerator of the underlying {@link MutableNumerator}s.
  * 
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class MutableNumeratorTableModel extends AbstractTableModel {
+public class CategoricalVarWCTableModel extends AbstractTableModel {
 
 	/**
 	 * 
@@ -52,7 +53,7 @@ public class MutableNumeratorTableModel extends AbstractTableModel {
 	 * @param values
 	 *            row values from parameter set
 	 */
-	public MutableNumeratorTableModel(MutableNumerator[] values) {
+	public CategoricalVarWCTableModel(MutableNumerator[] values) {
 		this(values, 1, Double.NaN);
 	}
 
@@ -71,7 +72,7 @@ public class MutableNumeratorTableModel extends AbstractTableModel {
 	 *            total is before {@code displayScaleFactor} is applied for
 	 *            display.
 	 */
-	public MutableNumeratorTableModel(MutableNumerator[] values,
+	public CategoricalVarWCTableModel(MutableNumerator[] values,
 			int displayScaleFactor, double autoAdjustTotal) {
 		this.values = values;
 		this.displayFactor = displayScaleFactor;
@@ -93,7 +94,7 @@ public class MutableNumeratorTableModel extends AbstractTableModel {
 
 	@Override
 	public int getColumnCount() {
-		return 3;
+		return COLUMN_NAMES.length;
 	}
 
 	@Override
@@ -118,7 +119,7 @@ public class MutableNumeratorTableModel extends AbstractTableModel {
 
 	@Override
 	public boolean isCellEditable(int row, int col) {
-		// values column is editable
+		// weighting column is editable
 		return (col == 2);
 	}
 

@@ -14,6 +14,7 @@ import net.casper.data.model.CMarkedUpRowBean;
 import org.apache.commons.lang.ArrayUtils;
 import org.jamsim.ascape.DataDictionary;
 import org.jamsim.ascape.MicroSimScape;
+import org.omancode.math.NamedNumber;
 import org.omancode.r.RFace;
 import org.omancode.r.RFaceException;
 import org.omancode.r.RUtil;
@@ -225,6 +226,36 @@ public class ScapeRInterface {
 	public void assignHash(String name, Map<String, ?> map)
 			throws RFaceException {
 		rInterface.assignHash(name, map);
+	}
+
+	/**
+	 * Create an R expression in R as an object so it can be referenced (in the
+	 * global environment).
+	 * 
+	 * @param name
+	 *            symbol name
+	 * @param rexp
+	 *            r expression
+	 * @throws RFaceException
+	 *             if problem assigning
+	 */
+	public void assign(String name, REXP rexp) throws RFaceException {
+		rInterface.assign(name, rexp);
+	}
+
+	/**
+	 * Assign a source expression to a variable using the assignment operator
+	 * <-.
+	 * 
+	 * @param x
+	 *            destination variable name
+	 * @param value
+	 *            source expression
+	 * @throws RFaceException
+	 *             if problem assigning
+	 */
+	public void assign(String x, String value) throws RFaceException {
+		rInterface.assign(x, value);
 	}
 
 	/**
@@ -462,6 +493,22 @@ public class ScapeRInterface {
 	}
 
 	/**
+	 * Evaluates {@code expr} and returns an array of {@link NamedNumber}.
+	 * 
+	 * @param expr
+	 *            expression
+	 * @return named number array
+	 * @throws RFaceException
+	 *             if problem evaluating {@code expr}, including if {@code expr}
+	 *             does not return a {@link REXPDouble} or
+	 *             {@link org.rosuda.REngine.REXPInteger}.
+	 */
+	public NamedNumber[] parseEvalTryReturnNamedNumber(String expr)
+			throws RFaceException {
+		return rInterface.parseEvalTryReturnNamedNumber(expr);
+	}
+
+	/**
 	 * Display R help for given expression.
 	 * 
 	 * @param expr
@@ -646,7 +693,7 @@ public class ScapeRInterface {
 			double[] props) throws RFaceException {
 
 		REXPDouble rprops = REXPUtil.toVector(props);
-		rInterface.assign(".usw", rprops);
+		rInterface.assign(".desiredProp", rprops);
 
 		// construct funtion call string
 		// eg: children <- updateScenarioWeights(children, "SESBTH",
@@ -654,7 +701,7 @@ public class ScapeRInterface {
 		String rcmdinner =
 				StringUtil.functionCall("updateScenarioWeights",
 						basefileName, StringUtil.doublequote(factorName),
-						".usw");
+						".desiredProp");
 
 		// assign(".scape", scape, envir = .GlobalEnv)
 		String rcmd =

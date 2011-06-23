@@ -9,7 +9,6 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
 import org.jamsim.ascape.r.ScapeRInterface;
-import org.jamsim.io.MutableNumeratorTableModel;
 import org.jamsim.math.MathUtil;
 import org.jamsim.math.MutableNumerator;
 import org.jamsim.shared.InvalidDataException;
@@ -25,7 +24,7 @@ import org.rosuda.REngine.REXPMismatchException;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class SingleVarWeightCalc extends Observable implements
+public class CategoricalVarWeightCalc extends Observable implements
 		WeightCalculator {
 
 	/**
@@ -89,7 +88,7 @@ public class SingleVarWeightCalc extends Observable implements
 	 * @throws InvalidDataException
 	 *             if weights do not sum to 1. See {@link #validate()}.
 	 */
-	public SingleVarWeightCalc(ScapeRInterface scapeR, String rVariable,
+	public CategoricalVarWeightCalc(ScapeRInterface scapeR, String rVariable,
 			String variableName, String variableDesc, double scaling,
 			Preferences prefs) throws RFaceException, InvalidDataException {
 		this(scapeR, rVariable, variableName, variableDesc, scaling);
@@ -117,7 +116,7 @@ public class SingleVarWeightCalc extends Observable implements
 	 * @throws InvalidDataException
 	 *             if weights do not sum to 1. See {@link #validate()}.
 	 */
-	public SingleVarWeightCalc(ScapeRInterface scapeR, String rVariable,
+	public CategoricalVarWeightCalc(ScapeRInterface scapeR, String rVariable,
 			String variableName, String variableDesc, double scaling)
 			throws RFaceException, InvalidDataException {
 
@@ -129,7 +128,7 @@ public class SingleVarWeightCalc extends Observable implements
 				factorLevelWeights.values().toArray(
 						new MutableNumerator[factorLevelWeights.size()]);
 		this.tableModel =
-				new MutableNumeratorTableModel(weights, DISPLAY_ADJ_FACTOR, 1);
+				new CategoricalVarWCTableModel(weights, DISPLAY_ADJ_FACTOR, 1);
 
 		validate();
 
@@ -244,7 +243,7 @@ public class SingleVarWeightCalc extends Observable implements
 	public final String getFactorName() {
 		return variableName;
 	}
-	
+
 	@Override
 	public TableModel getTableModel() {
 		return tableModel;
