@@ -22,7 +22,7 @@ public class CategoricalVarWCTableModel extends AbstractTableModel {
 	 */
 	private static final long serialVersionUID = 3155978328221657804L;
 
-	private static final String[] COLUMN_NAMES = { "Level", "Base (%)",
+	private static final String[] COLUMN_NAMES = { "Category", "Base (%)",
 			"Weighting (%)" };
 
 	private final MutableNumerator[] values;

@@ -39,8 +39,10 @@ public final class ArrayMath {
 	/**
 	 * Adds the double values in two arrays together and returns the sum.
 	 * 
-	 * @param array1 array 1
-	 * @param array2 array 2
+	 * @param array1
+	 *            array 1
+	 * @param array2
+	 *            array 2
 	 * @return the sum of array1 + array2
 	 */
 	public static double[] sum(double[] array1, double[] array2) {
@@ -58,12 +60,14 @@ public final class ArrayMath {
 
 		return sum;
 	}
-	
+
 	/**
 	 * Adds the double values in two arrays together and returns the sum.
 	 * 
-	 * @param array1 array 1
-	 * @param array2 array 2
+	 * @param array1
+	 *            array 1
+	 * @param array2
+	 *            array 2
 	 * @return the sum of array1 + array2
 	 */
 	public static int[] sum(int[] array1, int[] array2) {
@@ -82,5 +86,23 @@ public final class ArrayMath {
 		return sum;
 	}
 
+	/**
+	 * Multiply each element of the array by scale.
+	 * 
+	 * @param array
+	 *            doubles to multiply
+	 * @param factor
+	 *            scalar to multiply by.
+	 * @return product
+	 */
+	public static double[] multiply(double[] array, double factor) {
+		double[] product = new double[array.length];
+
+		for (int i = 0; i < array.length; i++) {
+			product[i] = array[i] * factor;
+		}
+
+		return product;
+	}
 
 }

@@ -406,6 +406,24 @@ public class ScapeRInterface {
 	}
 
 	/**
+	 * Create a matrix in R from the given casper dataset. All elements of the
+	 * casper dataset must be of the same type.
+	 * 
+	 * @param name
+	 *            the name of the dataframe to create in R.
+	 * @param container
+	 *            the casper container to convert.
+	 * @throws RFaceException
+	 *             if Collection cannot be read, or the matrix cannot be
+	 *             created.
+	 */
+	public void assignMatrix(String name, CDataCacheContainer container)
+			throws RFaceException {
+		rInterface.assignMatrix(name, new RVectorList(container).asRList());
+		// msScape.addDataFrameNode(name);
+	}
+
+	/**
 	 * Evaluate a String expression in R in the global environment. See
 	 * {@link RFace#eval(String)}.
 	 * 

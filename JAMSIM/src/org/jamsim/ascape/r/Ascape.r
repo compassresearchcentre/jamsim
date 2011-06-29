@@ -59,7 +59,7 @@ addOutputNodes <- function(xlist, subFolderName = .jnull("java/lang/String"), na
 	# eg: xlist <- runs.mean.mean$all.by.gender.base
 	# eg: addOutputNodes(runs.mean.freq$base, "Frequencies")
 	# eg: addOutputNodes(runs.mean.mean$all.by.gender.base, "Means - grouped by gender")
-	mapply(addOutputNode, x=xlist, name=name, MoreArgs=list(subFolderName = subFolderName))
+	invisible(mapply(addOutputNode, x=xlist, name=name, MoreArgs=list(subFolderName = subFolderName)))
 }
 
 addOutputNode <- function(x, subFolderName = .jnull("java/lang/String"), name = dictLookup(x)) {
@@ -80,7 +80,12 @@ ascapeStart <- function() {
 	
 	# remove all objects (including .deviceHash), except functions
 	cat("ascapeStart: Removing all existing objects\n")
-	rm(pos = ".GlobalEnv", list = lsNoFunc(all.names=TRUE))
+	objsToDel <- lsNoFunc(all.names=TRUE)
+	
+	#TODO: quick fix to prevent env.base from being deleted
+	objsToDel <- objsToDel[which(objsToDel != "env.base")]
+	
+	rm(pos = ".GlobalEnv", list = objsToDel)
 	
 	#not sure why, but for rJava 0.8+ we need this otherwise get
 	#"rJava was called from a running JVM without .jinit()" when

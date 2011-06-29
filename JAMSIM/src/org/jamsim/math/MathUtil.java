@@ -1,5 +1,11 @@
 package org.jamsim.math;
 
+/**
+ * Math utility class.
+ * 
+ * @author Oliver Mannion
+ * @version $Revision$
+ */
 public final class MathUtil {
 
 	/**

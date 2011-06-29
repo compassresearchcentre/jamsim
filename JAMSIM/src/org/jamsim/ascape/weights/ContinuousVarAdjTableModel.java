@@ -12,7 +12,7 @@ import org.omancode.math.NamedNumber;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class ContinuousVarWCTableModel extends AbstractTableModel {
+public class ContinuousVarAdjTableModel extends AbstractTableModel {
 
 	/**
 	 * 
@@ -25,12 +25,12 @@ public class ContinuousVarWCTableModel extends AbstractTableModel {
 	private double[] increments;
 
 	/**
-	 * Create new {@link ContinuousVarWCTableModel} using supplied proportions.
+	 * Create new {@link ContinuousVarAdjTableModel} using supplied proportions.
 	 * 
 	 * @param props
 	 *            proportions.
 	 */
-	public ContinuousVarWCTableModel(NamedNumber[] props) {
+	public ContinuousVarAdjTableModel(NamedNumber[] props) {
 		setProps(props);
 	}
 

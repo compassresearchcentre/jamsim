@@ -8,21 +8,23 @@ import javax.swing.table.TableModel;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.jamsim.ascape.r.ScapeRInterface;
+import org.jamsim.math.ArrayMath;
 import org.jamsim.shared.InvalidDataException;
 import org.omancode.math.NamedNumber;
 import org.omancode.r.RFaceException;
+import org.omancode.r.RUtil;
 import org.omancode.r.types.REXPUtil;
 import org.omancode.util.StringUtil;
 import org.rosuda.REngine.REXPDouble;
 
 /**
- * Displays levels of a continuous variable and allows user to add amount to
+ * Displays levels of a continuous variable and allows user to add an amount to
  * each level.
  * 
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class ContinuousVarWeightCalc extends Observable implements
+public class ContinuousVarAdjustment extends Observable implements
 		WeightCalculator {
 
 	/**
@@ -47,9 +49,11 @@ public class ContinuousVarWeightCalc extends Observable implements
 	private final String variableDesc;
 
 	/**
-	 * Size of the breaks to make in the continuous var.
+	 * An R expression specifying either a numeric vector of two or more cut
+	 * points, or a single number giving the size of the bins in which case x is
+	 * divided in bins of size breaks.
 	 */
-	private final double binSize;
+	private final String breaksExpr;
 
 	/**
 	 * The left hand side of the last break, or {@code null} to use the max
@@ -58,16 +62,22 @@ public class ContinuousVarWeightCalc extends Observable implements
 	private final Double breakLast;
 
 	/**
-	 * A {@link TableModel} wrapped around {@link #weights}.
+	 * Amount to adjust user entered increment value before applying, or
+	 * {@code 1} to apply no adjustment.
 	 */
-	private final ContinuousVarWCTableModel tableModel;
+	private final double adjIncrements;
+
+	/**
+	 * A {@link TableModel} wrapped around binned levels.
+	 */
+	private final ContinuousVarAdjTableModel tableModel;
 
 	private final ScapeRInterface scapeR;
 
 	/**
-	 * Construct a set of weightings at each factor level of
-	 * {@code variableName} and load the initial values of the weight numerators
-	 * from prefs.
+	 * Construct incrementable proportions at each level of
+	 * {@code rVariableName} specified by {@code breaksExpr} and load the inital
+	 * increment amounts from {@code prefs}.
 	 * 
 	 * @param scapeR
 	 *            scape R interface
@@ -78,27 +88,36 @@ public class ContinuousVarWeightCalc extends Observable implements
 	 *            the name of the R variable, eg: {@code sol1}
 	 * @param variableDesc
 	 *            description of the R variable. Used for display purposes.
-	 * @param binSize
-	 *            size of the breaks to make in the continuous var
+	 * @param breaksExpr
+	 *            an R expression specifying either a numeric vector of two or
+	 *            more cut points, or a single number giving the size of the
+	 *            bins in which case x is divided in bins of size breaks. If
+	 *            this expression has names then these are the labels for the
+	 *            levels of the resulting category. If no names, labels are
+	 *            constructed using "(a,b]" interval notation.
 	 * @param breakLast
 	 *            the left hand side of the last break, or {@code null} to use
 	 *            the max value.
+	 * @param adjIncrements
+	 *            amount to adjust user entered increment value before applying,
+	 *            or {@code 1} to apply no adjustment.
 	 * @param prefs
 	 *            Preferences that store the state of the weightings
 	 * @throws RFaceException
 	 *             if problem getting rVariable
 	 */
-	public ContinuousVarWeightCalc(ScapeRInterface scapeR, String rVariable,
-			String variableName, String variableDesc, double binSize,
-			Double breakLast, Preferences prefs) throws RFaceException {
-		this(scapeR, rVariable, variableName, variableDesc, binSize,
-				breakLast);
+	public ContinuousVarAdjustment(ScapeRInterface scapeR, String rVariable,
+			String variableName, String variableDesc, String breaksExpr,
+			Double breakLast, double adjIncrements, Preferences prefs)
+			throws RFaceException {
+		this(scapeR, rVariable, variableName, variableDesc, breaksExpr,
+				breakLast, adjIncrements);
 		loadState(prefs);
 	}
 
 	/**
-	 * Construct a set of weightings from {@code variableName} at each break
-	 * level of size {@code binSize} .
+	 * Construct incrementable proportions at each level of
+	 * {@code rVariableName} specified by {@code breaksExpr}.
 	 * 
 	 * @param scapeR
 	 *            scape R interface
@@ -109,26 +128,36 @@ public class ContinuousVarWeightCalc extends Observable implements
 	 *            the name of the R variable, eg: {@code sol1}
 	 * @param variableDesc
 	 *            description of the R variable. Used for display purposes.
-	 * @param binSize
-	 *            size of the breaks to make in the continuous var
+	 * @param breaksExpr
+	 *            an R expression specifying either a numeric vector of two or
+	 *            more cut points, or a single number giving the size of the
+	 *            bins in which case x is divided in bins of size breaks. If
+	 *            this expression has names then these are the labels for the
+	 *            levels of the resulting category. If no names, labels are
+	 *            constructed using "(a,b]" interval notation.
 	 * @param breakLast
 	 *            the left hand side of the last break, or {@code null} to use
 	 *            the max value.
+	 * @param adjIncrements
+	 *            amount to adjust user entered increment value before applying,
+	 *            or {@code 1} to apply no adjustment.
 	 * @throws RFaceException
 	 *             if problem getting rVariable
 	 */
-	public ContinuousVarWeightCalc(ScapeRInterface scapeR, String rVariable,
-			String variableName, String variableDesc, double binSize,
-			Double breakLast) throws RFaceException {
+	public ContinuousVarAdjustment(ScapeRInterface scapeR, String rVariable,
+			String variableName, String variableDesc, String breaksExpr,
+			Double breakLast, double adjIncrements) throws RFaceException {
 
 		this.rVariable = rVariable;
 		this.variableName = variableName;
 		this.variableDesc = variableDesc;
-		this.binSize = binSize;
+		this.breaksExpr = breaksExpr;
 		this.breakLast = breakLast;
+		this.adjIncrements = adjIncrements;
 		NamedNumber[] counts =
-				getBinLevelsWithCount(scapeR, rVariable, binSize, breakLast);
-		this.tableModel = new ContinuousVarWCTableModel(counts);
+				getBinLevelsWithCount(scapeR, rVariable, breaksExpr,
+						breakLast);
+		this.tableModel = new ContinuousVarAdjTableModel(counts);
 		this.scapeR = scapeR;
 
 		// store copy of original
@@ -138,29 +167,32 @@ public class ContinuousVarWeightCalc extends Observable implements
 	}
 
 	private NamedNumber[] getBinLevelsWithCount(ScapeRInterface scapeR,
-			String rVariable, double binSize, Double breakLast)
+			String rVariable, String breaksExpr, Double breakLast)
 			throws RFaceException {
 
 		// eg: table(bin(children$bwkg,0.5))
-		String rcmd = cmdTableBin(rVariable, binSize, breakLast);
+		String rcmd = cmdTableBin(rVariable, breaksExpr, breakLast);
 
 		NamedNumber[] counts = scapeR.parseEvalTryReturnNamedNumber(rcmd);
 		return counts;
 
 	}
 
-	private String cmdTableBin(String rVariable, double binSize,
+	private String cmdTableBin(String rVariable, String breaksExpr,
 			Double breakLast) {
 		// eg: prop.table(table(bin(children$bwkg,0.5)))
-		if (breakLast == null) {
-			return StringUtil.functionCall("prop.table", StringUtil
-					.functionCall("table", StringUtil.functionCall("bin",
-							rVariable, binSize)));
-		} else {
-			return StringUtil.functionCall("prop.table", StringUtil
-					.functionCall("table", StringUtil.functionCall("bin",
-							rVariable, binSize, breakLast)));
-		}
+
+		return StringUtil.functionCall(
+				"prop.table",
+				StringUtil.functionCall("table",
+						cmdBin(rVariable, breaksExpr, breakLast)));
+	}
+
+	private String cmdBin(String rVariable, String breaksExpr,
+			Double breakLast) {
+		// eg: bin(children$bwkg,0.5)
+		return StringUtil.functionCall("bin", rVariable, breaksExpr,
+				"breaklast=" + RUtil.asNullString(breakLast));
 
 	}
 
@@ -179,15 +211,6 @@ public class ContinuousVarWeightCalc extends Observable implements
 		return variableDesc;
 	}
 
-	/**
-	 * Get the name of factor variable.
-	 * 
-	 * @return name
-	 */
-	public final String getFactorName() {
-		return variableName;
-	}
-
 	@Override
 	public TableModel getTableModel() {
 		return tableModel;
@@ -203,7 +226,7 @@ public class ContinuousVarWeightCalc extends Observable implements
 	@Override
 	public void resetDefaults() {
 		try {
-			setRVariable(rVariableOriginal);
+			assignRVariable(rVariableOriginal);
 		} catch (RFaceException e) {
 			throw new RuntimeException(e.getMessage(), e);
 		}
@@ -220,14 +243,13 @@ public class ContinuousVarWeightCalc extends Observable implements
 		scapeR.assign(".binIncrements", binIncrements);
 
 		// incrementBins(children$bwkg, 0.5, c(1,0,0,0,0,0,0,0,0))
+		// eg: incByFactor(children$bwkg, bin(children$bwkg, 0.5),
+		// c(0,0.5,0,0,0,0,0,0,0,0))
+		String cBin = cmdBin(rVariable, breaksExpr, breakLast);
 		String incrementBins =
-				(breakLast == null) ? StringUtil
-						.functionCall("incrementBins", rVariable,
-								".binIncrements", binSize) : StringUtil
-						.functionCall("incrementBins", rVariable,
-								".binIncrements", binSize, breakLast);
-
-		setRVariable(incrementBins);
+				StringUtil.functionCall("incByFactor", rVariable, cBin,
+						".binIncrements");
+		assignRVariable(incrementBins);
 	}
 
 	/**
@@ -238,7 +260,7 @@ public class ContinuousVarWeightCalc extends Observable implements
 	 * @throws RFaceException
 	 *             if problem setting
 	 */
-	private void setRVariable(String rexpr) throws RFaceException {
+	private void assignRVariable(String rexpr) throws RFaceException {
 		// assign rvariable
 		// eg: children$bwkg <- incrementBins(...)
 		scapeR.assign(rVariable, rexpr);
@@ -257,17 +279,17 @@ public class ContinuousVarWeightCalc extends Observable implements
 	 *             if problem calculating levels.
 	 */
 	private void recalculateLevels() throws RFaceException {
-		tableModel.setProps(getBinLevelsWithCount(scapeR, rVariable, binSize,
-				breakLast));
+		tableModel.setProps(getBinLevelsWithCount(scapeR, rVariable,
+				breaksExpr, breakLast));
 	}
 
 	/**
-	 * Get increments.
+	 * Get increments with adjustment applied.
 	 * 
 	 * @return increments.
 	 */
 	public double[] getIncrements() {
-		return tableModel.getIncrements();
+		return ArrayMath.multiply(tableModel.getIncrements(), adjIncrements);
 	}
 
 	@Override
