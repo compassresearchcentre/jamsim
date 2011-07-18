@@ -60,8 +60,9 @@ public class CategoricalVarAdjustment extends Observable implements
 	 * @param rMatrixVarname
 	 *            the already existing R matrix variable holds the
 	 *            displayed/edited values.
-	 * @param variableDesc
-	 *            description of the R variable. Used for display purposes.
+	 * @param rVariable
+	 *            name of the R variable. Used to lookup variable description 
+	 *            in the data dictionary.
 	 * @param displayAdjFactor
 	 *            an amount to adjust the entered display value before
 	 *            application to underlying data, or {@code 1} for no adjustment
@@ -72,9 +73,9 @@ public class CategoricalVarAdjustment extends Observable implements
 	 *             dataset
 	 */
 	public CategoricalVarAdjustment(ScapeRInterface scapeR,
-			String rMatrixVarname, String variableDesc,
+			String rMatrixVarname, String rVariable,
 			double displayAdjFactor, Preferences prefs) throws IOException {
-		this(scapeR, rMatrixVarname, variableDesc, displayAdjFactor);
+		this(scapeR, rMatrixVarname, rVariable, displayAdjFactor);
 		loadState(prefs);
 	}
 
@@ -86,8 +87,9 @@ public class CategoricalVarAdjustment extends Observable implements
 	 * @param rMatrixVarname
 	 *            the already existing R matrix variable holds the
 	 *            displayed/edited values.
-	 * @param variableDesc
-	 *            description of the R variable. Used for display purposes.
+	 * @param rVariable
+	 *            name of the R variable. Used to lookup variable description 
+	 *            in the data dictionary.
 	 * @param displayAdjFactor
 	 *            an amount to adjust the entered display value before
 	 *            application to underlying data, or {@code 1} for no adjustment
@@ -96,11 +98,11 @@ public class CategoricalVarAdjustment extends Observable implements
 	 *             dataset
 	 */
 	public CategoricalVarAdjustment(ScapeRInterface scapeR,
-			String rMatrixVarname, String variableDesc,
+			String rMatrixVarname, String rVariable,
 			double displayAdjFactor) throws IOException {
 
 		this.rMatrixVarname = rMatrixVarname;
-		this.variableDesc = variableDesc;
+		this.variableDesc = scapeR.getDictionary().getDescription(rVariable);
 		this.displayAdjFactor = displayAdjFactor;
 
 		this.scapeR = scapeR;
@@ -111,9 +113,9 @@ public class CategoricalVarAdjustment extends Observable implements
 
 			CDataCacheContainer casperMatrix =
 					new CDataCacheContainer(new CBuildFromREXP(rexp,
-							variableDesc));
+							rVariable));
 
-			// casperMatrix = CasperUtil.scale(casperMatrix, displayAdjFactor);
+			casperMatrix = CasperUtil.scale(casperMatrix, displayAdjFactor);
 
 			this.tableModel =
 					new CDatasetTableModel(casperMatrix, true, true, true);
@@ -134,8 +136,8 @@ public class CategoricalVarAdjustment extends Observable implements
 		try {
 			CDataCacheContainer casperMatrix = tableModel.getContainer();
 
-			// casperMatrix =
-			// CasperUtil.scale(casperMatrix, 1.0 / displayAdjFactor);
+			casperMatrix =
+					CasperUtil.scale(casperMatrix, 1.0 / displayAdjFactor);
 
 			// assign to intermediate variable and then assign
 			// into rMatrixVarname because it may be a list element

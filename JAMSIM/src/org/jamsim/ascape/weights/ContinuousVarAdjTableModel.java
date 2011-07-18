@@ -19,7 +19,7 @@ public class ContinuousVarAdjTableModel extends AbstractTableModel {
 	 */
 	private static final long serialVersionUID = -480857798617108285L;
 	private static final String[] COLUMN_NAMES = { "Level", "%",
-			"Increment By" };
+			"Adjust By" };
 
 	private NamedNumber[] props;
 	private double[] increments;
