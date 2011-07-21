@@ -9,13 +9,18 @@ import javax.swing.table.TableModel;
 
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
+import net.casper.data.model.CDataRowSet;
+import net.casper.data.model.CDataRuntimeException;
+import net.casper.data.model.CRowMetaData;
 import net.casper.ext.CasperUtil;
 import net.casper.ext.swing.CDatasetTableModel;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.shared.InvalidDataException;
+import org.omancode.r.RFaceException;
 import org.omancode.r.types.CBuildFromREXP;
+import org.omancode.rmt.cellreader.narrow.TypeCheckedValue;
 import org.rosuda.REngine.REXP;
 
 /**
@@ -61,8 +66,8 @@ public class CategoricalVarAdjustment extends Observable implements
 	 *            the already existing R matrix variable holds the
 	 *            displayed/edited values.
 	 * @param rVariable
-	 *            name of the R variable. Used to lookup variable description 
-	 *            in the data dictionary.
+	 *            name of the R variable. Used to lookup variable description in
+	 *            the data dictionary.
 	 * @param displayAdjFactor
 	 *            an amount to adjust the entered display value before
 	 *            application to underlying data, or {@code 1} for no adjustment
@@ -73,8 +78,8 @@ public class CategoricalVarAdjustment extends Observable implements
 	 *             dataset
 	 */
 	public CategoricalVarAdjustment(ScapeRInterface scapeR,
-			String rMatrixVarname, String rVariable,
-			double displayAdjFactor, Preferences prefs) throws IOException {
+			String rMatrixVarname, String rVariable, double displayAdjFactor,
+			Preferences prefs) throws IOException {
 		this(scapeR, rMatrixVarname, rVariable, displayAdjFactor);
 		loadState(prefs);
 	}
@@ -88,8 +93,8 @@ public class CategoricalVarAdjustment extends Observable implements
 	 *            the already existing R matrix variable holds the
 	 *            displayed/edited values.
 	 * @param rVariable
-	 *            name of the R variable. Used to lookup variable description 
-	 *            in the data dictionary.
+	 *            name of the R variable. Used to lookup variable description in
+	 *            the data dictionary.
 	 * @param displayAdjFactor
 	 *            an amount to adjust the entered display value before
 	 *            application to underlying data, or {@code 1} for no adjustment
@@ -98,8 +103,8 @@ public class CategoricalVarAdjustment extends Observable implements
 	 *             dataset
 	 */
 	public CategoricalVarAdjustment(ScapeRInterface scapeR,
-			String rMatrixVarname, String rVariable,
-			double displayAdjFactor) throws IOException {
+			String rMatrixVarname, String rVariable, double displayAdjFactor)
+			throws IOException {
 
 		this.rMatrixVarname = rMatrixVarname;
 		this.variableDesc = scapeR.getDictionary().getDescription(rVariable);
@@ -118,7 +123,7 @@ public class CategoricalVarAdjustment extends Observable implements
 			casperMatrix = CasperUtil.scale(casperMatrix, displayAdjFactor);
 
 			this.tableModel =
-					new CDatasetTableModel(casperMatrix, true, true, true);
+					new CategoricalVarAdjTableModel(casperMatrix);
 
 		} catch (CDataGridException e) {
 			throw new IOException(e.getMessage(), e);
@@ -132,26 +137,30 @@ public class CategoricalVarAdjustment extends Observable implements
 	 * @throws IOException
 	 *             if problem assigning.
 	 */
-	public void asignRMatrix() throws IOException {
+	public void assignRMatrix() throws IOException {
 		try {
 			CDataCacheContainer casperMatrix = tableModel.getContainer();
 
 			casperMatrix =
 					CasperUtil.scale(casperMatrix, 1.0 / displayAdjFactor);
 
-			// assign to intermediate variable and then assign
-			// into rMatrixVarname because it may be a list element
-			// (eg: env.scenario$catadjs$fsmoke)
-			scapeR.assignMatrix(".catadj", casperMatrix);
-			scapeR.assign(rMatrixVarname, ".catadj");
-
-			scapeR.printlnToConsole("Assigned adjustments to "
-					+ rMatrixVarname);
+			assignMatrix(rMatrixVarname, casperMatrix);
 
 		} catch (CDataGridException e) {
 			throw new IOException(e.getMessage(), e);
 		}
 
+	}
+
+	private void assignMatrix(String rMatrixVarname,
+			CDataCacheContainer casperMatrix) throws RFaceException {
+		// assign to intermediate variable and then assign
+		// into rMatrixVarname because it may be a list element
+		// (eg: env.scenario$catadjs$fsmoke)
+		scapeR.assignMatrix(".catadj", casperMatrix);
+		scapeR.assign(rMatrixVarname, ".catadj");
+
+		scapeR.printlnToConsole("Assigned adjustments to " + rMatrixVarname);
 	}
 
 	@Override
@@ -183,8 +192,38 @@ public class CategoricalVarAdjustment extends Observable implements
 
 	@Override
 	public void resetDefaults() {
+		try {
+			
+			// set all to NA
+			CDataCacheContainer casperMatrix = tableModel.getContainer();
+			CRowMetaData meta = casperMatrix.getMetaDefinition();
+			Class<?>[] colTypes = meta.getColumnTypes();
+			
+			CDataRowSet cdrs = casperMatrix.getAll();
+			
+			while (cdrs.next()) {
+				for (int i = 0; i < colTypes.length; i++) {
+					Class<?> type = colTypes[i];
 
-		// set all to NA
+					if (type.equals(Double.class)) {
+						cdrs.setValue(i, TypeCheckedValue.MISSING_VALUE_DOUBLE);
+					} else if (type.equals(Integer.class)) {
+						cdrs.setValue(i, TypeCheckedValue.MISSING_VALUE_INTEGER);
+					} else if (type.equals(Byte.class)) {
+						cdrs.setValue(i, TypeCheckedValue.MISSING_VALUE_BYTE);
+					}
+				}
+			}
+			
+			tableModel.fireTableDataChanged();
+			assignMatrix(rMatrixVarname, casperMatrix);
+			
+		} catch (CDataGridException e) {
+			throw new CDataRuntimeException(e.getMessage(), e);
+		} catch (RFaceException e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
+		
 	}
 
 	@Override

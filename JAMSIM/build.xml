@@ -88,8 +88,8 @@
 		<launch4j configFile="${buildsupport.dir}/launch4j.xml"
 			jarPath="${binary.jar}"
 			outfile="${build.dir}/${exe}" 
-			fileVersion="${version}.0.0" txtFileVersion="${version}.0.0"
-			productVersion="${version}.0.0" txtProductVersion="${version}.0.0"
+			fileVersion="${version}.0" txtFileVersion="${version}.0"
+			productVersion="${version}.0" txtProductVersion="${version}.0"
 		/>
 		
 	</target>
