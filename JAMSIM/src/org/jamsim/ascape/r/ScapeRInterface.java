@@ -14,6 +14,7 @@ import net.casper.data.model.CMarkedUpRowBean;
 import org.apache.commons.lang.ArrayUtils;
 import org.jamsim.ascape.DataDictionary;
 import org.jamsim.ascape.MicroSimScape;
+import org.jamsim.ascape.navigator.MicroSimScapeNode;
 import org.omancode.math.NamedNumber;
 import org.omancode.r.RFace;
 import org.omancode.r.RFaceException;
@@ -87,12 +88,21 @@ public class ScapeRInterface {
 	private DataDictionary dict;
 
 	/**
-	 * Expose statically for {@link AscapeGD}.
+	 * Stored statically for use by R and {@link AscapeGD}.
 	 */
-	public static ScapeRInterface LAST_INSTANCE;
+	private static ScapeRInterface lastInstance;
 
-	public static MicroSimScape<?> getLastMsScape() {
-		return LAST_INSTANCE.getMsScape();
+	/**
+	 * Get the last (i.e: most recently created) {@link ScapeRInterface}'s
+	 * {@link MicroSimScape}'s {@link MicroSimScapeNode}.
+	 * 
+	 * This is exposed statically so it can be accessed from {@link AscapeGD}
+	 * and R code to add navigator nodes from R.
+	 * 
+	 * @return the most recently created {@link MicroSimScape}.
+	 */
+	public static MicroSimScapeNode getLastMsScapeNode() {
+		return lastInstance.getMsScape().getScapeNode();
 	}
 
 	/**
@@ -128,7 +138,7 @@ public class ScapeRInterface {
 		this.rConsole = rLoader.getRConsole();
 		this.rInterface = rLoader.getRInterface();
 
-		LAST_INSTANCE = this;
+		lastInstance = this;
 	}
 
 	/**

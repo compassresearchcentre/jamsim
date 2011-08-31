@@ -74,16 +74,16 @@ endOfSim <- function() {
 }
 
 addOutputs <- function() {
-	addOutputNode(tblAgents(), ,"Number of agents and people")
-	addOutputNode(tblFemaleAgents(), ,"Number of females")
-	addOutputNode(tblSeverelyDisabled(), ,"Population severely disabled")
-	addOutputNode(tblAverageAgeAtDeath(), ,"Population average age at death")
-	addOutputNode(tblGender(), , "Population by gender")
-	addOutputNode(xt.etd, "Base", "Accumulated earnings (base)")
-	addOutputNode(tblAgeAtDeath(), "Scenario", "Population by age at death (scenario)")
-	addOutputNode(tblCrossTabAgeAtDeathByGender(), "Scenario", "Population by age at death and gender (scenario)")
-	addOutputNode(tblEarningsSummary(), "Scenario", "Earnings summary (scenario)")
-	addOutputNode(xt.etdw, "Scenario" ,"Accumulated earnings (scenario)")
+	addOutputNode(tblAgents(), "Number of agents and people")
+	addOutputNode(tblFemaleAgents(), "Number of females")
+	addOutputNode(tblSeverelyDisabled(), "Population severely disabled")
+	addOutputNode(tblAverageAgeAtDeath(), "Population average age at death")
+	addOutputNode(tblGender(), "Population by gender")
+	addOutputNode(xt.etd, "Accumulated earnings (base)", "Base")
+	addOutputNode(tblAgeAtDeath(), "Population by age at death (scenario)", "Scenario")
+	addOutputNode(tblCrossTabAgeAtDeathByGender(), "Population by age at death and gender (scenario)", "Scenario")
+	addOutputNode(tblEarningsSummary(), "Earnings summary (scenario)",  "Scenario")
+	addOutputNode(xt.etdw, "Accumulated earnings (scenario)",  "Scenario")
 	chartCrossTabAgeAtDeathByGender()
 	chartAccumulatedEarningsByGender()
 }

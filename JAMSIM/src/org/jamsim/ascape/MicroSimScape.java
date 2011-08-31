@@ -3,14 +3,11 @@ package org.jamsim.ascape;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.prefs.Preferences;
 
 import javax.swing.Action;
-import javax.swing.tree.TreePath;
 
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
@@ -34,8 +31,6 @@ import org.jamsim.ascape.navigator.RecordedMicroSimTreeBuilder;
 import org.jamsim.ascape.navigator.SubFolderNode;
 import org.jamsim.ascape.output.ChartProvider;
 import org.jamsim.ascape.output.OutputDatasetProvider;
-import org.jamsim.ascape.output.REXPDatasetProvider;
-import org.jamsim.ascape.r.PanelViewDatasetProvider;
 import org.jamsim.ascape.r.RFileInterface;
 import org.jamsim.ascape.r.RLoader;
 import org.jamsim.ascape.r.ScapeRInterface;
@@ -70,6 +65,17 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 
 	private MicroSimScapeNode scapeNode;
 
+	/**
+	 * Get the {@link MicroSimScapeNode}, ie: the navigator node that
+	 * represent's this scape.
+	 * 
+	 * @return {@link MicroSimScapeNode}
+	 */
+	public MicroSimScapeNode getScapeNode() {
+		initScapeNode();
+		return scapeNode;
+	}
+
 	private static final String OUTPUTDIR_KEY = "output directory";
 
 	private File outputDirectory;
@@ -94,11 +100,6 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 */
 	private final Preferences prefs;
 
-	/**
-	 * Map of data frames added. Used to prevent addition of duplicates.
-	 */
-	private final Map<String, String> dataFrameNodeMap =
-			new HashMap<String, String>();
 	/**
 	 * {@link WeightCalculator} for this scape.
 	 */
@@ -242,7 +243,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 
 		if (wcalcPanel != null) {
 			// Add navigator node
-			addParameterSetNode(wcalcPanel);
+			getScapeNode().addParameterSetNode(wcalcPanel);
 
 			// Add weightings button to additional toolbar
 			addWeightingsButton(wcalcPanel);
@@ -259,10 +260,14 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 * @return output tables node
 	 */
 	private SubFolderNode getOutputTablesNode() {
-		initScapeNode();
-		return scapeNode.getOutputTablesNode();
+		return getScapeNode().getOutputTablesNode();
 	}
 
+	/**
+	 * Initialise the scape node. Must be called after the Navigator tree has
+	 * been created. This happens after {@link #createScape()} but before
+	 * {@link #createGraphicViews()} is called.
+	 */
 	private void initScapeNode() {
 		if (scapeNode == null) {
 			scapeNode =
@@ -320,146 +325,6 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	public void addEndOfSimOutputNode(PanelViewProvider provider) {
 		addView(new OutputNode(getOutputTablesNode(),
 				new EndOfSimNodeProvider(new PanelViewNode(provider))));
-	}
-
-	/**
-	 * Add a dataset node under "User Tables". The node is automatically opened
-	 * after it is added.
-	 * 
-	 * Takes a provider instead of a dataset directly, so the provider can serve
-	 * up whatever it wants each time the node is opened.
-	 * 
-	 * Takes a {@link OutputDatasetNodeProvider} instead of a
-	 * {@link PanelViewProvider} because a dataset is the most likely type of
-	 * node to be produced and we can do the wrapping in a PanelView for the
-	 * caller.
-	 * 
-	 * 
-	 * @param provider
-	 *            provider
-	 * @param subFolderName
-	 *            name of sub folder to add node under, or {@code null} to add
-	 *            directly under "User Tables".
-	 */
-	public void addUserNode(OutputDatasetProvider provider,
-			String subFolderName) {
-		initScapeNode();
-		PanelViewNode newNode =
-				scapeNode.addUserNode(new PanelViewDatasetProvider(provider),
-						subFolderName);
-
-		// expand tree and newly added node
-		try {
-			AscapeGUIUtil.getNavigator().setSelectionPath(
-					new TreePath(newNode.getPath()));
-		} catch (RuntimeException e) {
-			scapeNode.removeNodeFromParent(newNode);
-			throw e;
-		}
-	}
-
-	/**
-	 * Add an Output table immediately, ie: not via the Scape Listener
-	 * {@link OutputDatasetNodeProvider}.
-	 * 
-	 * @param provider
-	 *            provider
-	 * @param subFolderName
-	 *            name of sub folder to add node under, or {@code null} to add
-	 *            directly under "Output Tables".
-	 */
-	public void addOutputNode(OutputDatasetProvider provider,
-			String subFolderName) {
-		initScapeNode();
-		PanelViewDatasetProvider pvprovider =
-				new PanelViewDatasetProvider(provider);
-		scapeNode.addOutputNode(pvprovider, pvprovider, subFolderName);
-	}
-
-	/**
-	 * Convenience method that can be called from R without having to cast
-	 * provider.
-	 * 
-	 * @param provider
-	 *            provider
-	 * @param subFolderName
-	 *            name of sub folder to add node under, or {@code null} to add
-	 *            directly under "Output Tables".
-	 */
-	public void addOutputNode(REXPDatasetProvider provider,
-			String subFolderName) {
-		addOutputNode((OutputDatasetProvider) provider, subFolderName);
-	}
-
-	/**
-	 * Add a panel view node under "Graphs".
-	 * 
-	 * @param provider
-	 *            provider of the panel view to create node for
-	 */
-	public void addGraphNode(PanelViewProvider provider) {
-		addGraphNode(provider, null);
-	}
-
-	/**
-	 * Add a panel view node under a subfolder of "Graphs".
-	 * 
-	 * @param provider
-	 *            provider of the panel view to create node for
-	 * @param subFolderName
-	 *            of navigator subfolder under "Graphs" to create node, or
-	 *            {@code null} to create node directly under "Graphs"
-	 * @return the newly created node
-	 */
-	public PanelViewNode addGraphNode(PanelViewProvider provider,
-			String subFolderName) {
-		initScapeNode();
-		return scapeNode.addGraphNode(provider, subFolderName);
-	}
-
-	/**
-	 * Add a data frame node to the navigator. Exits silently without creating a
-	 * duplicate if a node of the same name already exists.
-	 * 
-	 * Must be called after Navigator has been created, eg: in
-	 * createGraphicViews or later.
-	 * 
-	 * @param name
-	 *            dataframe name in R
-	 */
-	public void addDataFrameNode(String name) {
-
-		if (!dataFrameNodeMap.containsKey(name)) {
-			initScapeNode();
-			scapeNode.addDataFrameNode(name);
-			dataFrameNodeMap.put(name, null);
-		}
-
-	}
-
-	/**
-	 * Add node which displays the contents of the basefile when clicked on.
-	 * 
-	 * @param name
-	 *            basefile node name
-	 * @param rcmd
-	 *            R command which returns a dataframe, ie: the basefile
-	 */
-	public void addBasefileNode(String name, String rcmd) {
-		initScapeNode();
-		scapeNode.addBasefileNode(name, rcmd);
-	}
-
-	/**
-	 * Add a parameter set node under the "Parameter sets" folder. Creates
-	 * "Parameter sets" node if it doesn't exist.
-	 * 
-	 * @param provider
-	 *            panel view provider
-	 */
-	public final void addParameterSetNode(PanelViewProvider provider) {
-		initScapeNode();
-		scapeNode.addParameterSetNode(provider);
 	}
 
 	/**
@@ -839,6 +704,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 			chart.addSeries(seriesName);
 		}
 
-		addGraphNode(new PanelViewExisting(chart, source.getName()));
+		getScapeNode().addGraphNode(
+				new PanelViewExisting(chart, source.getName()), null);
 	}
 }

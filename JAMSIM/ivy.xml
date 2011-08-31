@@ -25,6 +25,7 @@
 		<dependency org="net.casper" name="casperdatasets-ext" rev="latest.integration" conf="*->@"/>
 
 		<dependency org="org.omancode" name="romanface" rev="latest.integration" conf="*->@"/>
+		<dependency org="org.omancode" name="omcutil" rev="[1.2.4,)" conf="*->@"/>
         <dependency org="org.rosuda" name="javaGD" rev="latest.integration"/>
        
         <dependency org="org.javabuilders" name="javabuilder-swing" rev="1.1-RC4"/>
@@ -34,7 +35,7 @@
         <dependency org="ch.cern" name="colt" rev="latest.integration">
 	        <exclude name="concurrent" />
         </dependency>
-        <dependency org="it.unimi.dsi" name="fastutil" rev="latest.integration"/>
+        
         <dependency org="org.jedit" name="jedit-textArea" rev="latest.integration"/>
         
         <!-- exclude dependencies artifacts based on configuration -->

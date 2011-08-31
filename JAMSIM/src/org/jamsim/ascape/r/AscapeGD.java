@@ -14,6 +14,7 @@ import org.ascape.util.swing.AscapeGUIUtil;
 import org.ascape.util.swing.PanelViewUtil;
 import org.ascape.view.vis.PanelView;
 import org.jamsim.ascape.MicroSimScape;
+import org.jamsim.ascape.navigator.MicroSimScapeNode;
 import org.rosuda.javaGD.GDInterface;
 import org.rosuda.javaGD.JGDPanel;
 
@@ -104,9 +105,9 @@ public class AscapeGD extends GDInterface implements PanelViewProvider {
 	 */
 	public void addToNavigator(String subFolderName) {
 		// add as node under graphs
-		MicroSimScape<?> msscape = ScapeRInterface.getLastMsScape();
+		MicroSimScapeNode scapeNode = ScapeRInterface.getLastMsScapeNode();
 		node =
-				msscape.addGraphNode(this, "".equals(subFolderName) ? null
+				scapeNode.addGraphNode(this, "".equals(subFolderName) ? null
 						: subFolderName);
 	}
 

@@ -54,22 +54,68 @@ activateJavaGD <- function(name, subFolderName = "", selectNode = FALSE, ...) {
 
 } 
 
-addOutputNodes <- function(xlist, subFolderName = .jnull("java/lang/String"), name = lapply(xlist, dictLookup)) {
-	# add a list of results as nodes
-	# eg: xlist <- runs.mean.mean$all.by.gender.base
-	# eg: addOutputNodes(runs.mean.freq$base, "Frequencies")
-	# eg: addOutputNodes(runs.mean.mean$all.by.gender.base, "Means - grouped by gender")
-	invisible(mapply(addOutputNode, x=xlist, name=name, MoreArgs=list(subFolderName = subFolderName)))
+#' Add a list of objects as nodes under the "Model Inputs" node.
+#' 
+#' @param xlist
+#'  list of objects
+#' @param subFolderName
+#'  name of sub folder to add node under, or leave unspecified (the default) 
+#'  to add directly under "Model Inputs".
+#' @param xnames
+#'  the tree node name used for each object 
+addInputNodes <- function(xlist, xnames = lapply(xlist, dictLookup),  subFolderName = .jnull("java/lang/String")) {
+	invisible(mapply(addInputNode, x=xlist, name=xnames, MoreArgs=list(subFolderName = subFolderName)))
 }
 
-addOutputNode <- function(x, subFolderName = .jnull("java/lang/String"), name = dictLookup(x)) {
-	#add an Output Tables node to the navigator under the subfolder
-	#specified
-	#eg: addOutputNode(arrZMean(freqSingle), "Frequencies", "single")
-	#eg: addOutputNode(arrZMean(freqSingle), "Frequencies")
+#' Add a list of objects as nodes under the "Output Tables" node.
+#' 
+#' @param xlist
+#'  list of objects
+#' @param subFolderName
+#'  name of sub folder to add node under, or leave unspecified (the default) 
+#'  to add directly under "Output Tables".
+#' @param xnames
+#'  the tree node name used for each object
+#' 
+#' @examples
+#'  
+addOutputNodes <- function(xlist, xnames = lapply(xlist, dictLookup), subFolderName = .jnull("java/lang/String")) {
+	invisible(mapply(addOutputNode, x=xlist, name=xnames, MoreArgs=list(subFolderName = subFolderName)))
+}
 
+#' Add an object as a node under the "Model Inputs" node.
+#' 
+#' @param x
+#'  object to add
+#' @param subFolderName
+#'  name of sub folder to add node under, or leave unspecified (the default) 
+#'  to add directly under "Model Inputs".
+#' @param names
+#'  the tree node name used for the object
+#' 
+#' @examples
+#'  
+addInputNode <- function(x, name = dictLookup(x), subFolderName = .jnull("java/lang/String")) {
 	rdp <- .jnew("org/jamsim/ascape/output/REXPDatasetProvider", name, toJava(x))
-	.jcall(.scape, "V", "addOutputNode", rdp, subFolderName)
+	.jcall(getScapeNode(), "V", "addInputNode", rdp, subFolderName)
+}
+
+
+#' Add an object as a node under the "Output Tables" node.
+#' 
+#' @param x
+#'  object to add
+#' @param subFolderName
+#'  name of sub folder to add node under, or leave unspecified (the default) 
+#'  to add directly under "Output Tables".
+#' @param names
+#'  the tree node name used for the object
+#' 
+#' @examples
+#'  
+addOutputNode <- function(x, name = dictLookup(x), subFolderName = .jnull("java/lang/String")) {
+	rdp <- .jnew("org/jamsim/ascape/output/REXPDatasetProvider", name, toJava(x))
+	.jcall(getScapeNode(), "V", "addOutputNode", rdp, subFolderName)
 }
 
 ascapeStart <- function() {
@@ -92,10 +138,17 @@ ascapeStart <- function() {
 	#we try the .jcall
 	.jinit() 
 	
-	# assign scape
-	scape <- .jcall("org/jamsim/ascape/r/ScapeRInterface",
-			"Lorg/jamsim/ascape/MicroSimScape;","getLastMsScape")
-	assign(".scape", scape, envir = .GlobalEnv)
+}
+
+#' Gets the navigator scape node.
+getScapeNode <- function() {
+	if (!exists(".scapeNode")) {
+		#' load cache 
+		scapeNode <- .jcall("org/jamsim/ascape/r/ScapeRInterface",
+				"Lorg/jamsim/ascape/navigator/MicroSimScapeNode;","getLastMsScapeNode")
+		assign(".scapeNode", scapeNode, envir = .GlobalEnv)
+	}
+	.scapeNode
 }
 
 meanOfRuns <- function (multiRunResults) {

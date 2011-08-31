@@ -53,7 +53,7 @@ public class JEMScape extends RootScape<JEMData> {
 			scapeR = loadR(false);
 
 			loadRStartupFile();
-			
+
 			scapeR.loadCommonRFunctions();
 
 			// setup weights
@@ -73,17 +73,18 @@ public class JEMScape extends RootScape<JEMData> {
 				"endOfSim()");
 
 		addBaseFileUpdateRCmd("baseUpdated()");
-		baseScape.addBasefileNode("Basefile (people)", "expandPeople()");
+		baseScape.getScapeNode().addBasefileNode("Basefile (people)",
+				"expandPeople()");
 
 		// remove from previous sim (if any)
 		removeAllAnalysisMenuCommands();
-		addAnalysisMenuCommand(viewObjects);
+		addAnalysisMenuCommand(VIEW_OBJECTS);
 
 		super.createGraphicViews();
 	}
 
-	private static final SingleVariableCommand viewObjects =
-			new SingleVariableCommand("View Objects", null,
-					"with(people, " + SingleVariableCommand.REPLACEMENT + ")");
+	private static final SingleVariableCommand VIEW_OBJECTS =
+			new SingleVariableCommand("View Objects", null, "with(people, "
+					+ SingleVariableCommand.REPLACEMENT + ")");
 
 }

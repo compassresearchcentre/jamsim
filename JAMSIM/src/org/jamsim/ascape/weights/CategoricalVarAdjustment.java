@@ -123,7 +123,8 @@ public class CategoricalVarAdjustment extends Observable implements
 			casperMatrix = CasperUtil.scale(casperMatrix, displayAdjFactor);
 
 			this.tableModel =
-					new CategoricalVarAdjTableModel(casperMatrix);
+					new CategoricalVarAdjTableModel(casperMatrix,
+							displayAdjFactor);
 
 		} catch (CDataGridException e) {
 			throw new IOException(e.getMessage(), e);
@@ -193,37 +194,39 @@ public class CategoricalVarAdjustment extends Observable implements
 	@Override
 	public void resetDefaults() {
 		try {
-			
+
 			// set all to NA
 			CDataCacheContainer casperMatrix = tableModel.getContainer();
 			CRowMetaData meta = casperMatrix.getMetaDefinition();
 			Class<?>[] colTypes = meta.getColumnTypes();
-			
+
 			CDataRowSet cdrs = casperMatrix.getAll();
-			
+
 			while (cdrs.next()) {
 				for (int i = 0; i < colTypes.length; i++) {
 					Class<?> type = colTypes[i];
 
 					if (type.equals(Double.class)) {
-						cdrs.setValue(i, TypeCheckedValue.MISSING_VALUE_DOUBLE);
+						cdrs.setValue(i,
+								TypeCheckedValue.MISSING_VALUE_DOUBLE);
 					} else if (type.equals(Integer.class)) {
-						cdrs.setValue(i, TypeCheckedValue.MISSING_VALUE_INTEGER);
+						cdrs.setValue(i,
+								TypeCheckedValue.MISSING_VALUE_INTEGER);
 					} else if (type.equals(Byte.class)) {
 						cdrs.setValue(i, TypeCheckedValue.MISSING_VALUE_BYTE);
 					}
 				}
 			}
-			
+
 			tableModel.fireTableDataChanged();
 			assignMatrix(rMatrixVarname, casperMatrix);
-			
+
 		} catch (CDataGridException e) {
 			throw new CDataRuntimeException(e.getMessage(), e);
 		} catch (RFaceException e) {
 			throw new RuntimeException(e.getMessage(), e);
 		}
-		
+
 	}
 
 	@Override

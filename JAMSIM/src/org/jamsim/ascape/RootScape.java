@@ -317,7 +317,7 @@ public class RootScape<D extends ScapeData> extends Scape {
 			// scapeR.printPrompt();
 
 			// add a dataframe information node
-			msscape.addDataFrameNode(scapeR.getScapeDFRunName(0));
+			msscape.getScapeNode().addDataFrameNode(scapeR.getScapeDFRunName(0));
 
 		}
 

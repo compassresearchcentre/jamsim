@@ -1,11 +1,9 @@
 package org.jamsim.ascape.weights;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.swing.table.AbstractTableModel;
 
 import org.jamsim.math.MutableNumerator;
+import org.omancode.math.LastPosRemainder;
 
 /**
  * Table Model for the weighting of a categorical variable. Based on an array of
@@ -39,12 +37,9 @@ public class CategoricalVarWCTableModel extends AbstractTableModel {
 	private final boolean autoAdjust;
 
 	/**
-	 * Total to use when adjusting the last unedited value.
+	 * Used to calculate the remainder for the last unedited value.
 	 */
-	private final double autoAdjustTotal;
-
-	private final List<Integer> uneditedValuesIndex =
-			new ArrayList<Integer>();
+	private final LastPosRemainder posRemainder;
 
 	/**
 	 * Construct table model with adjustment factor of 1 and no auto adjust
@@ -66,25 +61,20 @@ public class CategoricalVarWCTableModel extends AbstractTableModel {
 	 *            display scale factor. Values are multiplied by this amount for
 	 *            display only.
 	 * @param autoAdjustTotal
-	 *            total to automatically adjust the last unedited
-	 *            {@link MutableNumerator}, or Double.NaN if no adjustment of
-	 *            the last unedited {@link MutableNumerator} is to occur. This
-	 *            total is before {@code displayScaleFactor} is applied for
-	 *            display.
+	 *            total used to automatically adjust the last unedited
+	 *            {@link MutableNumerator} in a row, or Double.NaN if no
+	 *            adjustment of the last unedited {@link MutableNumerator} is to
+	 *            occur. This total is before {@code displayScaleFactor} is
+	 *            applied for display.
 	 */
 	public CategoricalVarWCTableModel(MutableNumerator[] values,
 			int displayScaleFactor, double autoAdjustTotal) {
 		this.values = values;
 		this.displayFactor = displayScaleFactor;
-		this.autoAdjustTotal = autoAdjustTotal;
-		this.autoAdjust = !Double.isNaN(autoAdjustTotal);
-		filluneditedValuesIndex(values.length);
-	}
 
-	private void filluneditedValuesIndex(int size) {
-		for (int i = 0; i < size; i++) {
-			uneditedValuesIndex.add(i);
-		}
+		this.posRemainder =
+				new LastPosRemainder(values.length, autoAdjustTotal);
+		this.autoAdjust = !Double.isNaN(autoAdjustTotal);
 	}
 
 	@Override
@@ -151,41 +141,22 @@ public class CategoricalVarWCTableModel extends AbstractTableModel {
 					+ " is not editable");
 		}
 
-		double dvalue = ((Double) value).doubleValue() / displayFactor;
+		double dvalue =
+				(value == null) ? 0 : ((Double) value).doubleValue()
+						/ displayFactor;
 
 		values[row].setNumerator(dvalue);
 		fireTableCellUpdated(row, col);
 
 		if (autoAdjust) {
 
-			uneditedValuesIndex.remove(Integer.valueOf(row));
+			int lastPos = posRemainder.fill(row, dvalue);
 
-			if (uneditedValuesIndex.size() == 1) {
-				// get and remove last uneditedvaluesIndex
-				int lastUneditedValueIndex = uneditedValuesIndex.remove(0);
-
-				// update last unedited value
-
-				double sumOfEditedValues = 0;
-
-				for (int i = 0; i < values.length; i++) {
-					if (i != lastUneditedValueIndex) {
-						sumOfEditedValues += values[i].doubleValue();
-					}
-				}
-
-				double remainder = autoAdjustTotal - sumOfEditedValues;
-
-				// System.err.println("updating " + lastUneditedValueIndex +
-				// " to " + remainder);
-
-				values[lastUneditedValueIndex].setNumerator(remainder);
-				fireTableCellUpdated(lastUneditedValueIndex, col);
-
-				// reset
-				filluneditedValuesIndex(values.length);
-
+			if (lastPos != -1) {
+				values[lastPos].setNumerator(posRemainder.getRemainder());
+				fireTableCellUpdated(lastPos, col);
 			}
+
 		}
 
 	}

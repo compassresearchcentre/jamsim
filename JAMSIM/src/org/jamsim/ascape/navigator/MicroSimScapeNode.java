@@ -1,5 +1,6 @@
 package org.jamsim.ascape.navigator;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JTable;
@@ -7,14 +8,17 @@ import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreePath;
 
 import org.ascape.runtime.swing.navigator.PanelViewNode;
 import org.ascape.runtime.swing.navigator.PanelViewProvider;
 import org.ascape.runtime.swing.navigator.PanelViewTable;
 import org.ascape.runtime.swing.navigator.ScapeNode;
 import org.ascape.runtime.swing.navigator.TreeBuilder;
+import org.ascape.util.swing.AscapeGUIUtil;
 import org.jamsim.ascape.MicroSimScape;
 import org.jamsim.ascape.output.OutputDatasetProvider;
+import org.jamsim.ascape.output.REXPDatasetProvider;
 import org.jamsim.ascape.output.ROutput;
 import org.jamsim.ascape.output.Saveable;
 import org.jamsim.ascape.r.PanelViewDatasetProvider;
@@ -66,9 +70,20 @@ public class MicroSimScapeNode extends ScapeNode {
 	private SubFolderNode userNode;
 
 	/**
+	 * Model inputs node.
+	 */
+	private SubFolderNode inputsNode;
+
+	/**
 	 * Parameter sets node.
 	 */
 	private DefaultMutableTreeNode psNode;
+
+	/**
+	 * Map of data frames added. Used to prevent addition of duplicates.
+	 */
+	private final Map<String, String> dataFrameNodeMap =
+			new HashMap<String, String>();
 
 	private final MicroSimScape<?> scape;
 
@@ -191,24 +206,38 @@ public class MicroSimScapeNode extends ScapeNode {
 
 	/**
 	 * Add a data frame node under the "Dataframes" folder. Creates "Dataframes"
-	 * node if it doesn't exist.
+	 * node if it doesn't exist. Exits silently without creating a duplicate if
+	 * a node of the same name already exists.
+	 * 
+	 * Must be called after Navigator has been created, eg: in
+	 * createGraphicViews or later.
 	 * 
 	 * @param dataFrameName
-	 *            data frame name
+	 *            data frame name in R
 	 */
 	public void addDataFrameNode(String dataFrameName) {
+
 		if (dfNode == null) {
 			// create on demand
 			dfNode = new DefaultMutableTreeNode("Dataframes");
 			treeModel.insertNodeInto(dfNode, this, this.getChildCount());
 		}
 
-		String rcmd = "str(" + dataFrameName + ", max.level=1, give.attr=FALSE)";
-		PanelViewProvider provider =
-				new PanelViewRTextCommand(scape.getScapeRInterface(),
-						dataFrameName, rcmd);
-		treeModel.insertNodeInto(new PanelViewNode(provider), dfNode,
-				dfNode.getChildCount());
+		if (!dataFrameNodeMap.containsKey(dataFrameName)) {
+
+			String rcmd =
+					"str(" + dataFrameName
+							+ ", max.level=1, give.attr=FALSE)";
+			PanelViewProvider provider =
+					new PanelViewRTextCommand(scape.getScapeRInterface(),
+							dataFrameName, rcmd);
+			treeModel.insertNodeInto(new PanelViewNode(provider), dfNode,
+					dfNode.getChildCount());
+
+			dataFrameNodeMap.put(dataFrameName, null);
+
+		}
+
 	}
 
 	/**
@@ -218,8 +247,8 @@ public class MicroSimScapeNode extends ScapeNode {
 	 * @param provider
 	 *            provider of the panel view to create node for
 	 * @param subFolderName
-	 *            of navigator subfolder under "Graphs" to create node, or
-	 *            {@code null} to create node directly under "Graphs"
+	 *            a navigator subfolder under "Graphs" in which to create node,
+	 *            or {@code null} to create node directly under "Graphs"
 	 * @return newly added node
 	 */
 	public PanelViewNode addGraphNode(PanelViewProvider provider,
@@ -236,6 +265,102 @@ public class MicroSimScapeNode extends ScapeNode {
 
 	}
 
+	/**
+	 * Add a panel view node under "Model Inputs". Creates "Model Inputs" node
+	 * if it doesn't exist.
+	 * 
+	 * @param provider
+	 *            provider of the panel view to create node for
+	 * @param subFolderName
+	 *            name of sub folder to add node under, or {@code null} if to
+	 *            add directly under "Model Inputs".
+	 * @return newly added node
+	 */
+	public PanelViewNode addInputNode(PanelViewProvider provider,
+			String subFolderName) {
+		if (inputsNode == null) {
+			// create on demand
+			inputsNode = new SubFolderNode("Model Inputs", scape, treeModel);
+			treeModel.insertNodeInto(inputsNode, this, this.getChildCount());
+		}
+
+		PanelViewNode newNode = new PanelViewNode(provider);
+		inputsNode.addChildNode(newNode, subFolderName);
+		return newNode;
+	}
+	
+	/**
+	 * Add a node for an {@link OutputDatasetProvider} under
+	 * "Model Inputs".
+	 * 
+	 * @param provider
+	 *            provider
+	 * @param subFolderName
+	 *            name of sub folder to add node under, or {@code null} to add
+	 *            directly under "Model Inputs".
+	 */
+	public void addInputNode(OutputDatasetProvider provider,
+			String subFolderName) {
+		PanelViewDatasetProvider pvprovider =
+				new PanelViewDatasetProvider(provider);
+		addInputNode(pvprovider, subFolderName);
+	}
+
+	/**
+	 * Add a node for a {@link REXPDatasetProvider} under
+	 * "Model Inputs". 
+	 * 
+	 * Convenience method that can be called from R without having to first cast
+	 * the provider.
+	 * 
+	 * @param provider
+	 *            provider
+	 * @param subFolderName
+	 *            name of sub folder to add node under, or {@code null} to add
+	 *            directly under "Model Inputs".
+	 */
+	public void addInputNode(REXPDatasetProvider provider,
+			String subFolderName) {
+		addInputNode((OutputDatasetProvider) provider, subFolderName);
+	}
+
+
+	/**
+	 * Add a dataset node under "User Tables". The node is automatically opened
+	 * after it is added.
+	 * 
+	 * Takes a provider instead of a dataset directly, so the provider can serve
+	 * up whatever it wants each time the node is opened.
+	 * 
+	 * Takes a {@link OutputDatasetNodeProvider} instead of a
+	 * {@link PanelViewProvider} because a dataset is the most likely type of
+	 * node to be produced and we can do the wrapping in a PanelView for the
+	 * caller.
+	 * 
+	 * 
+	 * @param provider
+	 *            provider
+	 * @param subFolderName
+	 *            name of sub folder to add node under, or {@code null} to add
+	 *            directly under "User Tables".
+	 */
+	public void addUserNode(OutputDatasetProvider provider,
+			String subFolderName) {
+		PanelViewNode newNode =
+				addUserNode(new PanelViewDatasetProvider(provider),
+						subFolderName);
+
+		// expand tree and newly added node
+		try {
+			AscapeGUIUtil.getNavigator().setSelectionPath(
+					new TreePath(newNode.getPath()));
+		} catch (RuntimeException e) {
+			removeNodeFromParent(newNode);
+			throw e;
+		}
+	}
+
+	
 	/**
 	 * Add a panel view node under "User Tables". Creates "User Tables" node if
 	 * it doesn't exist.
@@ -296,6 +421,41 @@ public class MicroSimScapeNode extends ScapeNode {
 				new SaveablePanelViewNode(provider, saver);
 		outputTablesNode.addChildNode(newNode, subFolderName);
 		return newNode;
+	}
+
+	/**
+	 * Add a saveable node for an {@link OutputDatasetProvider} under
+	 * "Output Tables".
+	 * 
+	 * @param provider
+	 *            provider
+	 * @param subFolderName
+	 *            name of sub folder to add node under, or {@code null} to add
+	 *            directly under "Output Tables".
+	 */
+	public void addOutputNode(OutputDatasetProvider provider,
+			String subFolderName) {
+		PanelViewDatasetProvider pvprovider =
+				new PanelViewDatasetProvider(provider);
+		addOutputNode(pvprovider, pvprovider, subFolderName);
+	}
+
+	/**
+	 * Add a saveable node for a {@link REXPDatasetProvider} under
+	 * "Output Tables". 
+	 * 
+	 * Convenience method that can be called from R without having to first cast
+	 * the provider.
+	 * 
+	 * @param provider
+	 *            provider
+	 * @param subFolderName
+	 *            name of sub folder to add node under, or {@code null} to add
+	 *            directly under "Output Tables".
+	 */
+	public void addOutputNode(REXPDatasetProvider provider,
+			String subFolderName) {
+		addOutputNode((OutputDatasetProvider) provider, subFolderName);
 	}
 
 	/**

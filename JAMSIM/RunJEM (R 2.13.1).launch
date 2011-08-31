@@ -7,10 +7,10 @@
 <listEntry value="1"/>
 </listAttribute>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-<mapEntry key="PATH" value="${env_var:PATH};C:\Program Files\R\R-2.13.0\bin\i386"/>
-<mapEntry key="R_HOME" value="C:\Program Files\R\R-2.13.0"/>
+<mapEntry key="PATH" value="${env_var:PATH};C:\Program Files\R\R-2.13.1\bin\i386"/>
+<mapEntry key="R_HOME" value="C:\Program Files\R\R-2.13.1"/>
 </mapAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.jamsim.example.RunJEM"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="JAMSIM"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djava.library.path=&quot;C:\Program Files\R\R-2.13.0\library\rJava\jri&quot;"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djava.library.path=&quot;C:\Program Files\R\R-2.13.1\library\rJava\jri&quot;"/>
 </launchConfiguration>

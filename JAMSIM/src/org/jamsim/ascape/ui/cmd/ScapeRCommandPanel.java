@@ -68,9 +68,11 @@ public class ScapeRCommandPanel extends JPanel {
 			if (rCmd.isChart()) {
 				scapeR.parseEvalTry(rCmd.generateCmdText(uiElements));
 			} else {
-				scapeR.getMsScape().addUserNode(
-						rCmd.generateROutput(scapeR, uiElements),
-						rCmd.getName());
+				scapeR.getMsScape()
+						.getScapeNode()
+						.addUserNode(
+								rCmd.generateROutput(scapeR, uiElements),
+								rCmd.getName());
 			}
 
 			closeFrame();
