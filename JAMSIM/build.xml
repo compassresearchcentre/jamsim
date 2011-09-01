@@ -79,12 +79,15 @@
 	</target>
 
 	<target name="create-exe" description="Create EXE">
+		<!-- Launch4j needs to be installed for this to work
+		We reference the Launch4j installation directory directly 
+		because it contains extra jars and required binaries -->
+		
 		<property name="launch4j.dir" location="C:\Program Files\Launch4j" />
 		
 		<taskdef name="launch4j"
 		    classname="net.sf.launch4j.ant.Launch4jTask"
-		    classpath="${launch4j.dir}/launch4j.jar
-		        :${launch4j.dir}/lib/xstream.jar" />
+		    classpath="${launch4j.dir}/launch4j.jar" />
 		<launch4j configFile="${buildsupport.dir}/launch4j.xml"
 			jarPath="${binary.jar}"
 			outfile="${build.dir}/${exe}" 
