@@ -54,6 +54,23 @@ activateJavaGD <- function(name, subFolderName = "", selectNode = FALSE, ...) {
 
 } 
 
+#' Add a list of objects as nodes under the "Base Tables" node.
+#' 
+#' @param xlist
+#'  list of objects
+#' @param subFolderName
+#'  name of sub folder to add node under, or leave unspecified (the default) 
+#'  to add directly under "Base Tables".
+#' @param xnames
+#'  the tree node name used for each object
+#' 
+#' @examples
+#'  
+addBaseTableNodes <- function(xlist, xnames = lapply(xlist, dictLookup), subFolderName = .jnull("java/lang/String")) {
+	invisible(mapply(addBaseTableNode, x=xlist, name=xnames, MoreArgs=list(subFolderName = subFolderName)))
+}
+
+
 #' Add a list of objects as nodes under the "Model Inputs" node.
 #' 
 #' @param xlist
@@ -82,6 +99,24 @@ addInputNodes <- function(xlist, xnames = lapply(xlist, dictLookup),  subFolderN
 addOutputNodes <- function(xlist, xnames = lapply(xlist, dictLookup), subFolderName = .jnull("java/lang/String")) {
 	invisible(mapply(addOutputNode, x=xlist, name=xnames, MoreArgs=list(subFolderName = subFolderName)))
 }
+
+#' Add an object as a node under the "Base Tables" node.
+#' 
+#' @param x
+#'  object to add
+#' @param subFolderName
+#'  name of sub folder to add node under, or leave unspecified (the default) 
+#'  to add directly under "Base Tables".
+#' @param names
+#'  the tree node name used for the object
+#' 
+#' @examples
+#'  
+addBaseTableNode <- function(x, name = dictLookup(x), subFolderName = .jnull("java/lang/String")) {
+	rdp <- .jnew("org/jamsim/ascape/output/REXPDatasetProvider", name, toJava(x))
+	.jcall(getScapeNode(), "V", "addBaseTableNode", rdp, subFolderName)
+}
+
 
 #' Add an object as a node under the "Model Inputs" node.
 #' 

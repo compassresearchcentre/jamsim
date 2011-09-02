@@ -627,6 +627,20 @@ public class ScapeRInterface {
 	}
 
 	/**
+	 * Print a message out to the R console (no line feed).
+	 * 
+	 * @param msg
+	 *            message to print.
+	 */
+	public void printToConsole(String msg) {
+		try {
+			rInterface.printToConsole(msg);
+		} catch (RFaceException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
 	 * Print a message out to the R console with a line feed.
 	 * 
 	 * @param msg

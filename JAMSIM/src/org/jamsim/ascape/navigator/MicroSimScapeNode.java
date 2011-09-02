@@ -75,6 +75,11 @@ public class MicroSimScapeNode extends ScapeNode {
 	private SubFolderNode inputsNode;
 
 	/**
+	 * Model inputs node.
+	 */
+	private SubFolderNode baseTableNode;
+
+	/**
 	 * Parameter sets node.
 	 */
 	private DefaultMutableTreeNode psNode;
@@ -288,10 +293,9 @@ public class MicroSimScapeNode extends ScapeNode {
 		inputsNode.addChildNode(newNode, subFolderName);
 		return newNode;
 	}
-	
+
 	/**
-	 * Add a node for an {@link OutputDatasetProvider} under
-	 * "Model Inputs".
+	 * Add a node for an {@link OutputDatasetProvider} under "Model Inputs".
 	 * 
 	 * @param provider
 	 *            provider
@@ -307,8 +311,7 @@ public class MicroSimScapeNode extends ScapeNode {
 	}
 
 	/**
-	 * Add a node for a {@link REXPDatasetProvider} under
-	 * "Model Inputs". 
+	 * Add a node for a {@link REXPDatasetProvider} under "Model Inputs".
 	 * 
 	 * Convenience method that can be called from R without having to first cast
 	 * the provider.
@@ -323,7 +326,6 @@ public class MicroSimScapeNode extends ScapeNode {
 			String subFolderName) {
 		addInputNode((OutputDatasetProvider) provider, subFolderName);
 	}
-
 
 	/**
 	 * Add a dataset node under "User Tables". The node is automatically opened
@@ -360,7 +362,6 @@ public class MicroSimScapeNode extends ScapeNode {
 		}
 	}
 
-	
 	/**
 	 * Add a panel view node under "User Tables". Creates "User Tables" node if
 	 * it doesn't exist.
@@ -442,7 +443,7 @@ public class MicroSimScapeNode extends ScapeNode {
 
 	/**
 	 * Add a saveable node for a {@link REXPDatasetProvider} under
-	 * "Output Tables". 
+	 * "Output Tables".
 	 * 
 	 * Convenience method that can be called from R without having to first cast
 	 * the provider.
@@ -456,6 +457,34 @@ public class MicroSimScapeNode extends ScapeNode {
 	public void addOutputNode(REXPDatasetProvider provider,
 			String subFolderName) {
 		addOutputNode((OutputDatasetProvider) provider, subFolderName);
+	}
+
+	public void addBaseTableNode(REXPDatasetProvider provider,
+			String subFolderName) {
+
+		PanelViewDatasetProvider pvprovider =
+				new PanelViewDatasetProvider(provider);
+
+		SaveablePanelViewNode newNode =
+				new SaveablePanelViewNode(pvprovider, pvprovider);
+
+		if (baseTableNode == null) {
+			// create on demand
+			baseTableNode =
+					new SubFolderNode("Base Tables", scape, treeModel);
+			treeModel.insertNodeInto(baseTableNode, this,
+					this.getChildCount());
+		}
+
+		baseTableNode.addChildNode(newNode, subFolderName);
+
+		//return newNode;
+
+	}
+
+	public void addTableNode(REXPDatasetProvider provider,
+			String tableFolderName, String subFolderName) {
+
 	}
 
 	/**

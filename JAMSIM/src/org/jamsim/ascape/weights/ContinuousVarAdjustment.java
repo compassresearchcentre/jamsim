@@ -182,10 +182,10 @@ public class ContinuousVarAdjustment extends Observable implements
 			Double breakLast) {
 		// eg: prop.table(table(bin(children$bwkg,0.5)))
 
-		return StringUtil.functionCall(
-				"prop.table",
-				StringUtil.functionCall("table",
-						cmdBin(rVariable, breaksExpr, breakLast)));
+		// NB: useNA='ifany' to pick up any mis-specified breaks
+		return StringUtil.functionCall("prop.table", StringUtil.functionCall(
+				"table", cmdBin(rVariable, breaksExpr, breakLast),
+				"useNA='ifany'"));
 	}
 
 	private String cmdBin(String rVariable, String breaksExpr,
@@ -265,7 +265,11 @@ public class ContinuousVarAdjustment extends Observable implements
 		// eg: children$bwkg <- incrementBins(...)
 		scapeR.assign(rVariable, rexpr);
 
-		scapeR.printlnToConsole("Updated levels for " + rVariable);
+		scapeR.printToConsole("Adjusted continuous variable " + rVariable
+				+ " by ");
+
+		scapeR.parseEvalPrint("cat(.binIncrements)");
+		scapeR.printlnToConsole("");
 
 		scapeR.baseFileUpdated();
 
