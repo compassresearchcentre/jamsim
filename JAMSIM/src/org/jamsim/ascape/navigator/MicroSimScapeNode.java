@@ -55,40 +55,16 @@ public class MicroSimScapeNode extends ScapeNode {
 	private final SubFolderNode outputTablesNode;
 
 	/**
-	 * Data frame node.
-	 */
-	private DefaultMutableTreeNode dfNode;
-
-	/**
-	 * Graphs node.
-	 */
-	private SubFolderNode graphNode;
-
-	/**
-	 * User tables node.
-	 */
-	private SubFolderNode userNode;
-
-	/**
-	 * Model inputs node.
-	 */
-	private SubFolderNode inputsNode;
-
-	/**
-	 * Model inputs node.
-	 */
-	private SubFolderNode baseTableNode;
-
-	/**
-	 * Parameter sets node.
-	 */
-	private DefaultMutableTreeNode psNode;
-
-	/**
 	 * Map of data frames added. Used to prevent addition of duplicates.
 	 */
 	private final Map<String, String> dataFrameNodeMap =
 			new HashMap<String, String>();
+
+	/**
+	 * Map of table nodes added.
+	 */
+	private final Map<String, SubFolderNode> tableNodeMap =
+			new HashMap<String, SubFolderNode>();
 
 	private final MicroSimScape<?> scape;
 
@@ -179,15 +155,8 @@ public class MicroSimScapeNode extends ScapeNode {
 	 *            panel view provider
 	 */
 	public final void addParameterSetNode(PanelViewProvider provider) {
-		if (psNode == null) {
-			// create parameter sets parent folder node
-			psNode = new DefaultMutableTreeNode("Parameter sets");
-			treeModel.insertNodeInto(psNode, this, this.getChildCount());
-		}
-
-		// add PanelViewNode to the tree
-		PanelViewNode newNode = new PanelViewNode(provider);
-		treeModel.insertNodeInto(newNode, psNode, psNode.getChildCount());
+		addNodeToOnDemandFolder(new PanelViewNode(provider),
+				"Parameter sets", null);
 	}
 
 	/**
@@ -222,12 +191,6 @@ public class MicroSimScapeNode extends ScapeNode {
 	 */
 	public void addDataFrameNode(String dataFrameName) {
 
-		if (dfNode == null) {
-			// create on demand
-			dfNode = new DefaultMutableTreeNode("Dataframes");
-			treeModel.insertNodeInto(dfNode, this, this.getChildCount());
-		}
-
 		if (!dataFrameNodeMap.containsKey(dataFrameName)) {
 
 			String rcmd =
@@ -236,8 +199,9 @@ public class MicroSimScapeNode extends ScapeNode {
 			PanelViewProvider provider =
 					new PanelViewRTextCommand(scape.getScapeRInterface(),
 							dataFrameName, rcmd);
-			treeModel.insertNodeInto(new PanelViewNode(provider), dfNode,
-					dfNode.getChildCount());
+
+			addNodeToOnDemandFolder(new PanelViewNode(provider),
+					"Dataframes", null);
 
 			dataFrameNodeMap.put(dataFrameName, null);
 
@@ -258,56 +222,9 @@ public class MicroSimScapeNode extends ScapeNode {
 	 */
 	public PanelViewNode addGraphNode(PanelViewProvider provider,
 			String subFolderName) {
-		if (graphNode == null) {
-			// create on demand
-			graphNode = new SubFolderNode("Graphs", scape, treeModel);
-			treeModel.insertNodeInto(graphNode, this, this.getChildCount());
-		}
-
 		PanelViewNode newNode = new PanelViewNode(provider);
-		graphNode.addChildNode(newNode, subFolderName);
+		addNodeToOnDemandFolder(newNode, "Graphs", subFolderName);
 		return newNode;
-
-	}
-
-	/**
-	 * Add a panel view node under "Model Inputs". Creates "Model Inputs" node
-	 * if it doesn't exist.
-	 * 
-	 * @param provider
-	 *            provider of the panel view to create node for
-	 * @param subFolderName
-	 *            name of sub folder to add node under, or {@code null} if to
-	 *            add directly under "Model Inputs".
-	 * @return newly added node
-	 */
-	public PanelViewNode addInputNode(PanelViewProvider provider,
-			String subFolderName) {
-		if (inputsNode == null) {
-			// create on demand
-			inputsNode = new SubFolderNode("Model Inputs", scape, treeModel);
-			treeModel.insertNodeInto(inputsNode, this, this.getChildCount());
-		}
-
-		PanelViewNode newNode = new PanelViewNode(provider);
-		inputsNode.addChildNode(newNode, subFolderName);
-		return newNode;
-	}
-
-	/**
-	 * Add a node for an {@link OutputDatasetProvider} under "Model Inputs".
-	 * 
-	 * @param provider
-	 *            provider
-	 * @param subFolderName
-	 *            name of sub folder to add node under, or {@code null} to add
-	 *            directly under "Model Inputs".
-	 */
-	public void addInputNode(OutputDatasetProvider provider,
-			String subFolderName) {
-		PanelViewDatasetProvider pvprovider =
-				new PanelViewDatasetProvider(provider);
-		addInputNode(pvprovider, subFolderName);
 	}
 
 	/**
@@ -324,7 +241,7 @@ public class MicroSimScapeNode extends ScapeNode {
 	 */
 	public void addInputNode(REXPDatasetProvider provider,
 			String subFolderName) {
-		addInputNode((OutputDatasetProvider) provider, subFolderName);
+		addTableNode(provider, "Model Inputes", subFolderName);
 	}
 
 	/**
@@ -375,14 +292,8 @@ public class MicroSimScapeNode extends ScapeNode {
 	 */
 	public PanelViewNode addUserNode(PanelViewProvider provider,
 			String subFolderName) {
-		if (userNode == null) {
-			// create on demand
-			userNode = new SubFolderNode("User Tables", scape, treeModel);
-			treeModel.insertNodeInto(userNode, this, this.getChildCount());
-		}
-
 		PanelViewNode newNode = new PanelViewNode(provider);
-		userNode.addChildNode(newNode, subFolderName);
+		addNodeToOnDemandFolder(newNode, "User Tables", null);
 		return newNode;
 	}
 
@@ -459,32 +370,75 @@ public class MicroSimScapeNode extends ScapeNode {
 		addOutputNode((OutputDatasetProvider) provider, subFolderName);
 	}
 
+	/**
+	 * Add a saveable node for a {@link REXPDatasetProvider} under
+	 * "Base Tables".
+	 * 
+	 * Convenience method that can be called from R.
+	 * 
+	 * @param provider
+	 *            provider
+	 * @param subFolderName
+	 *            name of sub folder to add node under, or {@code null} to add
+	 *            directly under "Output Tables".
+	 */
 	public void addBaseTableNode(REXPDatasetProvider provider,
 			String subFolderName) {
+		addTableNode(provider, "Base Tables", subFolderName);
+	}
 
+	/**
+	 * Add a node to a folder and optionally a subfolder, creating that folder
+	 * if it doesn't already exist.
+	 * 
+	 * @param newNode
+	 *            new node to add
+	 * @param folderName
+	 *            name of folder to create node/subfolder under. created if it
+	 *            doesn't already exist.
+	 * @param subFolderName
+	 *            name of sub folder to add node under, or {@code null} to add
+	 *            directly under folderName.
+	 */
+	public final void addNodeToOnDemandFolder(MutableTreeNode newNode,
+			String folderName, String subFolderName) {
+
+		SubFolderNode folderNode = tableNodeMap.get(folderName);
+
+		if (folderNode == null) {
+			// create on demand
+			folderNode = new SubFolderNode(folderName, scape, treeModel);
+			treeModel.insertNodeInto(folderNode, this, this.getChildCount());
+			tableNodeMap.put(folderName, folderNode);
+		}
+
+		folderNode.addChildNode(newNode, subFolderName);
+	}
+
+	/**
+	 * Add a saveable node for a {@link REXPDatasetProvider} under the folder
+	 * and subfolder specified. Creates the folder and/or subfolder if it
+	 * doesn't already exist.
+	 * 
+	 * Convenience method that can be called from R.
+	 * 
+	 * @param provider
+	 *            provider
+	 * @param folderName
+	 *            name of folder to create node/subfolder under
+	 * @param subFolderName
+	 *            name of sub folder to add node under, or {@code null} to add
+	 *            directly under folderName.
+	 */
+	public void addTableNode(REXPDatasetProvider provider, String folderName,
+			String subFolderName) {
 		PanelViewDatasetProvider pvprovider =
 				new PanelViewDatasetProvider(provider);
 
 		SaveablePanelViewNode newNode =
 				new SaveablePanelViewNode(pvprovider, pvprovider);
 
-		if (baseTableNode == null) {
-			// create on demand
-			baseTableNode =
-					new SubFolderNode("Base Tables", scape, treeModel);
-			treeModel.insertNodeInto(baseTableNode, this,
-					this.getChildCount());
-		}
-
-		baseTableNode.addChildNode(newNode, subFolderName);
-
-		//return newNode;
-
-	}
-
-	public void addTableNode(REXPDatasetProvider provider,
-			String tableFolderName, String subFolderName) {
-
+		addNodeToOnDemandFolder(newNode, folderName, subFolderName);
 	}
 
 	/**
