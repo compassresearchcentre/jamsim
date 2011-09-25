@@ -5,20 +5,10 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/JAMSIM"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/casperdatasets"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/casperdatasets-io"/>
-	<classpathentry kind="lib" path="D:/Source/commons-lang-2.4/commons-lang-2.4.jar" sourcepath="D:/Source/commons-lang-2.4/commons-lang-2.4-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/D:/Source/commons-lang-2.4/commons-lang-2.4-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="D:/Source/functionalj/dist/functionalj.jar" sourcepath="D:/Source/functionalj/src/main/java">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/D:/Source/functionalj/javadoc/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/ROmanFace"/>
-	<classpathentry kind="lib" path="C:/Program Files/R/R-2.11.1/library/rJava/jri/JRI.jar"/>
 	<classpathentry kind="lib" path="D:/eclipse-modeling-helios-incubation-win32/plugins/org.junit_4.8.1.v4_8_1_v20100427-1100/junit.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/readmytables"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/casperdatasets-ext"/>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?ivyXmlPath=ivy.xml&amp;confs=*&amp;ivySettingsPath=%24%7Bworkspace_loc%3Aorg.jamsim.tests%2Fbuildsupport%2Fivysettings.xml%7D&amp;loadSettingsOnDemand=false&amp;propertyFiles="/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
