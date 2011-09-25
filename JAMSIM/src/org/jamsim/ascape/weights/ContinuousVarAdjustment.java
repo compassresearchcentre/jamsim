@@ -39,11 +39,6 @@ public class ContinuousVarAdjustment extends Observable implements
 	private final String rVariableOriginal;
 
 	/**
-	 * The name of the R variable, eg: {@code sol1}.
-	 */
-	private final String variableName;
-
-	/**
 	 * Variable description. Used for display purposes.
 	 */
 	private final String variableDesc;
@@ -70,7 +65,7 @@ public class ContinuousVarAdjustment extends Observable implements
 	/**
 	 * A {@link TableModel} wrapped around binned levels.
 	 */
-	private final ContinuousVarAdjTableModel tableModel;
+	private ContinuousVarAdjTableModel tableModel;
 
 	private final ScapeRInterface scapeR;
 
@@ -85,9 +80,8 @@ public class ContinuousVarAdjustment extends Observable implements
 	 *            the R variable that will be used as the basis for bin
 	 *            incrementing, eg: {@code children$bwkg}
 	 * @param variableName
-	 *            the name of the R variable, eg: {@code sol1}
-	 * @param variableDesc
-	 *            description of the R variable. Used for display purposes.
+	 *            the name of the R variable, eg: {@code sol1}. Used to lookup
+	 *            variable description in the data dictionary.
 	 * @param breaksExpr
 	 *            an R expression specifying either a numeric vector of two or
 	 *            more cut points, or a single number giving the size of the
@@ -107,11 +101,10 @@ public class ContinuousVarAdjustment extends Observable implements
 	 *             if problem getting rVariable
 	 */
 	public ContinuousVarAdjustment(ScapeRInterface scapeR, String rVariable,
-			String variableName, String variableDesc, String breaksExpr,
-			Double breakLast, double adjIncrements, Preferences prefs)
-			throws RFaceException {
-		this(scapeR, rVariable, variableName, variableDesc, breaksExpr,
-				breakLast, adjIncrements);
+			String variableName, String breaksExpr, Double breakLast,
+			double adjIncrements, Preferences prefs) throws RFaceException {
+		this(scapeR, rVariable, variableName, breaksExpr, breakLast,
+				adjIncrements);
 		loadState(prefs);
 	}
 
@@ -125,9 +118,8 @@ public class ContinuousVarAdjustment extends Observable implements
 	 *            the R variable that will be used as the basis for weighting,
 	 *            eg: {@code children$sol1}
 	 * @param variableName
-	 *            the name of the R variable, eg: {@code sol1}
-	 * @param variableDesc
-	 *            description of the R variable. Used for display purposes.
+	 *            the name of the R variable, eg: {@code sol1}. Used to lookup
+	 *            variable description in the data dictionary.
 	 * @param breaksExpr
 	 *            an R expression specifying either a numeric vector of two or
 	 *            more cut points, or a single number giving the size of the
@@ -145,20 +137,18 @@ public class ContinuousVarAdjustment extends Observable implements
 	 *             if problem getting rVariable
 	 */
 	public ContinuousVarAdjustment(ScapeRInterface scapeR, String rVariable,
-			String variableName, String variableDesc, String breaksExpr,
-			Double breakLast, double adjIncrements) throws RFaceException {
+			String variableName, String breaksExpr, Double breakLast,
+			double adjIncrements) throws RFaceException {
 
 		this.rVariable = rVariable;
-		this.variableName = variableName;
-		this.variableDesc = variableDesc;
+		this.variableDesc = scapeR.getDictionary().getDescription(variableName);
 		this.breaksExpr = breaksExpr;
 		this.breakLast = breakLast;
 		this.adjIncrements = adjIncrements;
-		NamedNumber[] counts =
-				getBinLevelsWithCount(scapeR, rVariable, breaksExpr,
-						breakLast);
-		this.tableModel = new ContinuousVarAdjTableModel(counts);
 		this.scapeR = scapeR;
+
+		getTableModel();
+
 
 		// store copy of original
 		this.rVariableOriginal = ".original." + variableName;
@@ -212,8 +202,20 @@ public class ContinuousVarAdjustment extends Observable implements
 	}
 
 	@Override
-	public TableModel getTableModel() {
-		return tableModel;
+	public final TableModel getTableModel() {
+
+		try {
+			NamedNumber[] counts =
+					getBinLevelsWithCount(scapeR, rVariable, breaksExpr,
+							breakLast);
+
+			this.tableModel = new ContinuousVarAdjTableModel(counts);
+
+			return tableModel;
+
+		} catch (RFaceException e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
 	}
 
 	@Override

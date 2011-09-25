@@ -13,7 +13,6 @@ import net.casper.data.model.CDataRowSet;
 import net.casper.data.model.CDataRuntimeException;
 import net.casper.data.model.CRowMetaData;
 import net.casper.ext.CasperUtil;
-import net.casper.ext.swing.CDatasetTableModel;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.jamsim.ascape.r.ScapeRInterface;
@@ -50,9 +49,9 @@ public class CategoricalVarAdjustment extends Observable implements
 	private final String variableDesc;
 
 	/**
-	 * A {@link TableModel} wrapped around {@link #rMatrixVarname}.
+	 * Table model.
 	 */
-	private final CDatasetTableModel tableModel;
+	private CategoricalVarAdjTableModel tableModel;
 
 	private final ScapeRInterface scapeR;
 
@@ -111,21 +110,29 @@ public class CategoricalVarAdjustment extends Observable implements
 		this.displayAdjFactor = displayAdjFactor;
 
 		this.scapeR = scapeR;
+		getTableModel(); 
+	}
 
+	/**
+	 * Load matrix from R.
+	 * 
+	 * @param rMatrixVarname
+	 *            r variable containing matrix
+	 * @return casper container
+	 * @throws CDataGridException
+	 * @throws RFaceException
+	 */
+	private CDataCacheContainer loadAdjMatrix(String rMatrixVarname)
+			throws IOException {
 		REXP rexp = scapeR.parseEvalTry(rMatrixVarname);
 
 		try {
 
 			CDataCacheContainer casperMatrix =
 					new CDataCacheContainer(new CBuildFromREXP(rexp,
-							rVariable));
+							rMatrixVarname));
 
-			casperMatrix = CasperUtil.scale(casperMatrix, displayAdjFactor);
-
-			this.tableModel =
-					new CategoricalVarAdjTableModel(casperMatrix,
-							displayAdjFactor);
-
+			return CasperUtil.scale(casperMatrix, displayAdjFactor);
 		} catch (CDataGridException e) {
 			throw new IOException(e.getMessage(), e);
 		}
@@ -180,8 +187,18 @@ public class CategoricalVarAdjustment extends Observable implements
 	}
 
 	@Override
-	public TableModel getTableModel() {
-		return tableModel;
+	public final TableModel getTableModel() {
+		try {
+			// load matrix from R when table model requested
+
+			tableModel =
+					new CategoricalVarAdjTableModel(
+							loadAdjMatrix(rMatrixVarname), displayAdjFactor);
+			return tableModel;
+
+		} catch (IOException e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
 	}
 
 	@Override

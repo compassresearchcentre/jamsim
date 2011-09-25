@@ -241,7 +241,7 @@ public class MicroSimScapeNode extends ScapeNode {
 	 */
 	public void addInputNode(REXPDatasetProvider provider,
 			String subFolderName) {
-		addTableNode(provider, "Model Inputes", subFolderName);
+		addTableNode(provider, "Model Inputs", subFolderName);
 	}
 
 	/**

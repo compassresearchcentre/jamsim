@@ -95,7 +95,9 @@ addInputNodes <- function(xlist, xnames = lapply(xlist, dictLookup),  subFolderN
 #'  the tree node name used for each object
 #' 
 #' @examples
-#'  
+#' xlist <- freqs
+#' 
+#' addOutputNodes(xlist, subFolderName = titleFrequencies)
 addOutputNodes <- function(xlist, xnames = lapply(xlist, dictLookup), subFolderName = .jnull("java/lang/String")) {
 	invisible(mapply(addOutputNode, x=xlist, name=xnames, MoreArgs=list(subFolderName = subFolderName)))
 }
@@ -147,7 +149,8 @@ addInputNode <- function(x, name = dictLookup(x), subFolderName = .jnull("java/l
 #'  the tree node name used for the object
 #' 
 #' @examples
-#'  
+#' x <- xlist[[1]]  
+#' name = dictLookup(x)
 addOutputNode <- function(x, name = dictLookup(x), subFolderName = .jnull("java/lang/String")) {
 	rdp <- .jnew("org/jamsim/ascape/output/REXPDatasetProvider", name, toJava(x))
 	.jcall(getScapeNode(), "V", "addOutputNode", rdp, subFolderName)

@@ -86,6 +86,7 @@ addOutputs <- function() {
 	addOutputNode(xt.etdw, "Accumulated earnings (scenario)",  "Scenario")
 	chartCrossTabAgeAtDeathByGender()
 	chartAccumulatedEarningsByGender()
+	chartAgeSexPyramid()
 }
 
 tblAgents <- function() {
@@ -216,6 +217,20 @@ tblAccumulatedEtdWeighted <- function() {
 tblAccumulatedEtdWeightEqual <- function() {
 	#earnings to date per year, by sex, weight equal
 	xtabs(earningsToDate*weightBase ~ sex+year, data=etdrows)
+}
+
+#load epicalc library but remove aggregate.numeric
+#function because it produces warnings when used
+library(epicalc)
+rm(aggregate.numeric, pos=which(search() == "package:epicalc"))
+
+chartAgeSexPyramid <- function() {
+	#chartAgeSexPyramid()
+	charttitle <- "Age-sex pyramid (frequency)"
+	activateJavaGD(charttitle,"Outputs")
+	
+	pyramid(people$age, people$sex, binwidth=10, col.gender=genderColours, main=charttitle)
+	title(charttitle)
 }
 
 chartCrossTabAgeAtDeathByGender <- function() {
