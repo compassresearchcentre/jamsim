@@ -134,7 +134,7 @@ public class JEMData implements ScapeData {
 
 					IntervalsIntMap cd =
 							IntervalsIntMap.newCumulativeDistribution(probs,
-									Disability.allValues);
+									Disability.ALL_VALUES);
 
 					cumdists[sex.ordinal()][ageGrp.ordinal()][dfle.ordinal()] =
 							cd;
