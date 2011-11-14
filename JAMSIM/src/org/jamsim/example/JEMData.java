@@ -62,13 +62,13 @@ public class JEMData implements ScapeData {
 	private final IndexedDenseDoubleMatrix2D dfle_transitions_matrix;
 
 	/**
-	 * Disability state transitions, ie: cumulative distributions for each
+	 * Disability state transitions, ie: probability distributions for each
 	 * sex/agegrp/current disability combination.
 	 */
-	private final IntervalsIntMap[][][] dfle_transition_cumdists;
+	private final IntervalsIntMap[][][] dfle_transition_probdists;
 
 	private int peopleCount;
-	
+
 	/**
 	 * Constructor.
 	 * 
@@ -82,7 +82,7 @@ public class JEMData implements ScapeData {
 
 		this.random = new ColtRNG();
 		// this.random = new NonRNG();
-		
+
 		loader.setDefaultFileLocations(JEMDataDefn.DEFAULT_FILE_LOCATIONS);
 
 		dict = new DataDictionary(loader.loadMap(JEMDataDefn.DICTIONARY_MAP));
@@ -98,30 +98,30 @@ public class JEMData implements ScapeData {
 		dfle_transitions_matrix =
 				loader.loadMatrix(JEMDataDefn.DFLE_TRANSITIONS);
 
-		dfle_transition_cumdists =
-				createDisabilityStateCDs(dfle_transitions_matrix);
+		dfle_transition_probdists =
+				createDisabilityStatePDs(dfle_transitions_matrix);
 
 	}
 
 	/**
-	 * Create a cumulative distribution for each sex/agegrp/current disability
+	 * Create a probability distribution for each sex/agegrp/current disability
 	 * combination in the dfle_matrix.
 	 * 
 	 * @param dfle_matrix
 	 *            Indexed matrix of number of visit (1 - 10) probabilities for
 	 *            each agegrp/hhtype/gender and category combination.
-	 * @return cumulative distributions for number of visits, by
+	 * @return probability distributions for number of visits, by
 	 *         agegrp/hhtype/gender index and condition category.
 	 * 
 	 */
-	private final IntervalsIntMap[][][] createDisabilityStateCDs(
+	private final IntervalsIntMap[][][] createDisabilityStatePDs(
 			IndexedDenseDoubleMatrix2D dfle_matrix) {
 
-		IntervalsIntMap[][][] cumdists =
+		IntervalsIntMap[][][] probdists =
 				new IntervalsIntMap[SEX.values().length][AGE_GRP.values().length][Disability
 						.values().length];
 
-		// create individual CDs for each sex/agegrp/current disability
+		// create individual PDs for each sex/agegrp/current disability
 		// combination from rows of the matrix
 		for (SEX sex : SEX.values()) {
 			for (AGE_GRP ageGrp : AGE_GRP.values()) {
@@ -133,26 +133,26 @@ public class JEMData implements ScapeData {
 					double[] probs = dfle_matrix.viewRow(index).toArray();
 
 					IntervalsIntMap cd =
-							IntervalsIntMap.newCumulativeDistribution(probs,
+							IntervalsIntMap.newProbabilityDistribution(probs,
 									Disability.ALL_VALUES);
 
-					cumdists[sex.ordinal()][ageGrp.ordinal()][dfle.ordinal()] =
+					probdists[sex.ordinal()][ageGrp.ordinal()][dfle.ordinal()] =
 							cd;
 				}
 			}
 		}
 
-		return cumdists;
+		return probdists;
 
 	}
 
 	/**
-	 * Lookup the appropriate cumulative distribution based on gender, age, and
+	 * Lookup the appropriate probability distribution based on gender, age, and
 	 * current disability state. Draw the new disability state from the
-	 * cumulative distribution using the supplied random number.
+	 * probability distribution using the supplied random number.
 	 * 
 	 * @param random
-	 *            random number used for drawing from the cumulative
+	 *            random number used for drawing from the probability
 	 *            distribution
 	 * @param sex
 	 *            sex
@@ -162,14 +162,14 @@ public class JEMData implements ScapeData {
 	 *            current disability state
 	 * @return new disability state
 	 */
-	public Disability lookupCumdfle(double random, SEX sex, AGE_GRP ageGrp,
+	public Disability lookupProbdfle(double random, SEX sex, AGE_GRP ageGrp,
 			Disability dfle) {
 
-		IntervalsIntMap cd =
-				dfle_transition_cumdists[sex.ordinal()][ageGrp.ordinal()][dfle
+		IntervalsIntMap pd =
+				dfle_transition_probdists[sex.ordinal()][ageGrp.ordinal()][dfle
 						.ordinal()];
 
-		int newDisability = cd.getMappedValue(random);
+		int newDisability = pd.getMappedValue(random);
 
 		return Disability.get(newDisability);
 
@@ -200,8 +200,8 @@ public class JEMData implements ScapeData {
 			ScapeRInterface scapeR) throws IOException {
 
 		wcalcs = new LinkedHashMap<String, WeightCalculator>(1);
-		
-		double scaling = 69899568 / (double)peopleCount; 
+
+		double scaling = 69899568 / (double) peopleCount;
 
 		wcalcs.put("Sex", new CategoricalVarWeightCalc(scapeR, "people$sex",
 				"sex", "Sex", scaling, loader.getPrefs()));

@@ -195,14 +195,20 @@ collapseZdim <- function (xarray) {
 	result
 }
 
+#' Lookup description of variable x in the dictionary
+#' first determines the name of variable x, then does the lookup
+#' 
+#' @examples
+#' x <- env.base$years1_5$results$freqs$all$z1msmokeLvl1
+#' x <- env.base$years1_5$results$freqs$grouped$by.ethnicity$z1msmokeLvl1
+#' dictLookup(x)
+#' dictLookup("burt")
+#' dictLookup(c(1,2))
+#' dictLookup(freqSingle)
+#' dictLookup("single")
+#' dictLookup("don't exist")
+#' dictLookup(runs.mean.freq$base$o.chres)
 dictLookup <- function(x) {
-	#lookup description of variable x in the dictionary
-	#first determines the name of variable x, then does the lookup
-	#eg: dictLookup(c(1,2))
-	#eg: dictLookup(freqSingle)
-	#eg: dictLookup("single")
-	#eg: dictLookup("don't exist")
-	#eg: dictLookup(runs.mean.freq$base$o.chres)
 	
 	name <- c()
 	grouping <- c()
@@ -215,6 +221,7 @@ dictLookup <- function(x) {
 		#use the meta attribute
 		name <- meta["varname"]
 		if (!is.na(meta["grouping"])) grouping <- paste(" by ", meta["grouping"], sep="")
+		if (!is.na(meta["grpby.tag"])) grouping <- paste(" by ", dictLookup(meta["grpby.tag"]), sep="")
 		if (!is.na(meta["set"])) set <- paste(" (", meta["set"], ")", sep="")
 		if (!is.na(meta["weighting"])) weighting <- meta["weighting"]
 		
@@ -241,8 +248,12 @@ dictLookup <- function(x) {
 			stop(gettextf("cannot determine varname from %s: no meta or names", firstParamName))
 		}
 	}
-		
+	
 	#lookup name in dictionary
+	if (!name %in% names(dict)) {
+		stop(gettextf("'%s' does not exist in the data dictionary", name))
+	}
+	
 	desc <- dict[[name]]
 	
 	if (is.null(desc)) {

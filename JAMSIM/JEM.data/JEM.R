@@ -81,7 +81,7 @@ addOutputs <- function() {
 	addOutputNode(tblGender(), "Population by gender")
 	addOutputNode(xt.etd, "Accumulated earnings (base)", "Base")
 	addOutputNode(tblAgeAtDeath(), "Population by age at death (scenario)", "Scenario")
-	addOutputNode(tblCrossTabAgeAtDeathByGender(), "Population by age at death and gender (scenario)", "Scenario")
+	addOutputNode(tblCrossTabAgeAtDeathByGenderScenario(), "Population age groups at death by gender (scenario)", "Scenario")
 	addOutputNode(tblEarningsSummary(), "Earnings summary (scenario)",  "Scenario")
 	addOutputNode(xt.etdw, "Accumulated earnings (scenario)",  "Scenario")
 	chartCrossTabAgeAtDeathByGender()
@@ -149,8 +149,8 @@ tblAgeAtDeath <- function() {
 	result
 }
 
-tblCrossTabAgeAtDeathByGender <- function() {
-	# tblCrossTabAgeAtDeathByGender()
+tblCrossTabAgeAtDeathByGenderScenario <- function() {
+	# tblCrossTabAgeAtDeathByGenderScenario()
 
 	# create factor variable from age at the breaks specified
 	ageBreaks <- c(0,18,65,max(people$age)+1)
@@ -219,10 +219,15 @@ tblAccumulatedEtdWeightEqual <- function() {
 	xtabs(earningsToDate*weightBase ~ sex+year, data=etdrows)
 }
 
-#load epicalc library but remove aggregate.numeric
+#load epicalc library but override aggregate.numeric
 #function because it produces warnings when used
 library(epicalc)
-rm(aggregate.numeric, pos=which(search() == "package:epicalc"))
+#rm(aggregate.numeric, pos=which(search() == "package:epicalc"))
+
+# aggregate.numeric is locked in R2.14.0 so "override" it
+aggregate.numeric <- function(x, ...) {
+	aggregate.default(x, ...)
+}
 
 chartAgeSexPyramid <- function() {
 	#chartAgeSexPyramid()
@@ -235,8 +240,8 @@ chartAgeSexPyramid <- function() {
 
 chartCrossTabAgeAtDeathByGender <- function() {
 	#chartCrossTabAgeAtDeathByGender()
-	xt <- tblCrossTabAgeAtDeathByGender()
-	title <- "Average earnings over life course by gender (scenario)"
+	xt <- tblCrossTabAgeAtDeathByGenderScenario()
+	title <- "Population age groups at death by gender (scenario)"
 	activateJavaGD(title,"Outputs")
 	
 	barplot(

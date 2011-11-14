@@ -20,7 +20,7 @@ import org.omancode.rmt.cellreader.CellReaders;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class CDataFileCumulativeDistribution implements CDataFile {
+public class CDataFileProbDistribution implements CDataFile {
 
 	private final CDataFile cDataFile;
 
@@ -43,8 +43,8 @@ public class CDataFileCumulativeDistribution implements CDataFile {
 	 *            The dataset column of {@code cDataFile} that specifies the
 	 *            probabilities. Must be of type Double.
 	 */
-	public CDataFileCumulativeDistribution(String name,
-			String mappedValuesColumn, String probabilitiesColumn) {
+	public CDataFileProbDistribution(String name, String mappedValuesColumn,
+			String probabilitiesColumn) {
 		this(
 				new CDataFileDef(name, mappedValuesColumn + ","
 						+ probabilitiesColumn, new CellReader<?>[] {
@@ -66,7 +66,7 @@ public class CDataFileCumulativeDistribution implements CDataFile {
 	 *            The dataset column of {@code cDataFile} that specifies the
 	 *            probabilities. Must be of type Double.
 	 */
-	public CDataFileCumulativeDistribution(CDataFile cDataFile,
+	public CDataFileProbDistribution(CDataFile cDataFile,
 			String mappedValuesColumn, String probabilitiesColumn) {
 		this.cDataFile = cDataFile;
 		this.probColumn = probabilitiesColumn;
@@ -111,7 +111,7 @@ public class CDataFileCumulativeDistribution implements CDataFile {
 			i++;
 		}
 
-		return IntervalsIntMap.newCumulativeDistribution(probabilities,
+		return IntervalsIntMap.newProbabilityDistribution(probabilities,
 				values);
 	}
 

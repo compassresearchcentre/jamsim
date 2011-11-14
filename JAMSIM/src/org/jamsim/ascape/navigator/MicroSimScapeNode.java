@@ -215,15 +215,16 @@ public class MicroSimScapeNode extends ScapeNode {
 	 * 
 	 * @param provider
 	 *            provider of the panel view to create node for
-	 * @param subFolderName
-	 *            a navigator subfolder under "Graphs" in which to create node,
-	 *            or {@code null} to create node directly under "Graphs"
+	 * @param path
+	 *            a path to a sub folder node, eg: "Base/Means" which represents
+	 *            the folder Means under the folder Base, or just "Base" which
+	 *            will add to the folder Base, or {@code null} to add directly
+	 *            under "Graphs".
 	 * @return newly added node
 	 */
-	public PanelViewNode addGraphNode(PanelViewProvider provider,
-			String subFolderName) {
+	public PanelViewNode addGraphNode(PanelViewProvider provider, String path) {
 		PanelViewNode newNode = new PanelViewNode(provider);
-		addNodeToOnDemandFolder(newNode, "Graphs", subFolderName);
+		addNodeToOnDemandFolder(newNode, "Graphs", path);
 		return newNode;
 	}
 
@@ -235,13 +236,14 @@ public class MicroSimScapeNode extends ScapeNode {
 	 * 
 	 * @param provider
 	 *            provider
-	 * @param subFolderName
-	 *            name of sub folder to add node under, or {@code null} to add
-	 *            directly under "Model Inputs".
+	 * @param path
+	 *            a path to a sub folder node, eg: "Base/Means" which represents
+	 *            the folder Means under the folder Base, or just "Base" which
+	 *            will add to the folder Base, or {@code null} to add directly
+	 *            under "Model Inputs".
 	 */
-	public void addInputNode(REXPDatasetProvider provider,
-			String subFolderName) {
-		addTableNode(provider, "Model Inputs", subFolderName);
+	public void addInputNode(REXPDatasetProvider provider, String path) {
+		addTableNode(provider, "Model Inputs", path);
 	}
 
 	/**
@@ -256,18 +258,17 @@ public class MicroSimScapeNode extends ScapeNode {
 	 * node to be produced and we can do the wrapping in a PanelView for the
 	 * caller.
 	 * 
-	 * 
 	 * @param provider
 	 *            provider
-	 * @param subFolderName
-	 *            name of sub folder to add node under, or {@code null} to add
-	 *            directly under "User Tables".
+	 * @param path
+	 *            a path to a sub folder node, eg: "Base/Means" which represents
+	 *            the folder Means under the folder Base, or just "Base" which
+	 *            will add to the folder Base, or {@code null} to add directly
+	 *            under "User Tables".
 	 */
-	public void addUserNode(OutputDatasetProvider provider,
-			String subFolderName) {
+	public void addUserNode(OutputDatasetProvider provider, String path) {
 		PanelViewNode newNode =
-				addUserNode(new PanelViewDatasetProvider(provider),
-						subFolderName);
+				addUserNode(new PanelViewDatasetProvider(provider), path);
 
 		// expand tree and newly added node
 		try {
@@ -285,32 +286,16 @@ public class MicroSimScapeNode extends ScapeNode {
 	 * 
 	 * @param provider
 	 *            provider of the panel view to create node for
-	 * @param subFolderName
-	 *            name of sub folder to add node under, or {@code null} if to
-	 *            add directly under "User Tables".
+	 * @param path
+	 *            a path to a sub folder node, eg: "Base/Means" which represents
+	 *            the folder Means under the folder Base, or just "Base" which
+	 *            will add to the folder Base, or {@code null} to add directly
+	 *            under "User Tables".
 	 * @return newly added node
 	 */
-	public PanelViewNode addUserNode(PanelViewProvider provider,
-			String subFolderName) {
+	public PanelViewNode addUserNode(PanelViewProvider provider, String path) {
 		PanelViewNode newNode = new PanelViewNode(provider);
-		addNodeToOnDemandFolder(newNode, "User Tables", null);
-		return newNode;
-	}
-
-	/**
-	 * Add a panel view node under "Output Tables".
-	 * 
-	 * @param provider
-	 *            provider
-	 * @param subFolderName
-	 *            name of sub folder to add node under, or {@code null} to add
-	 *            directly under "Output Tables".
-	 * @return newly added node
-	 */
-	public PanelViewNode addOutputNode(PanelViewProvider provider,
-			String subFolderName) {
-		PanelViewNode newNode = new PanelViewNode(provider);
-		outputTablesNode.addChildNode(newNode, subFolderName);
+		addNodeToOnDemandFolder(newNode, "User Tables", path);
 		return newNode;
 	}
 
@@ -319,19 +304,21 @@ public class MicroSimScapeNode extends ScapeNode {
 	 * 
 	 * @param provider
 	 *            provider
-	 * @param subFolderName
-	 *            name of sub folder to add node under, or {@code null} to add
-	 *            directly under "Output Tables".
+	 * @param path
+	 *            a path to a sub folder node, eg: "Base/Means" which represents
+	 *            the folder Means under the folder Base, or just "Base" which
+	 *            will add to the folder Base, or {@code null} to add directly
+	 *            under "Output Tables".
 	 * @param saver
 	 *            {@link Saveable} that saves the contents of
 	 *            {@link PanelViewProvider} when required
 	 * @return newly added node
 	 */
 	public PanelViewNode addOutputNode(PanelViewProvider provider,
-			Saveable saver, String subFolderName) {
+			Saveable saver, String path) {
 		SaveablePanelViewNode newNode =
 				new SaveablePanelViewNode(provider, saver);
-		outputTablesNode.addChildNode(newNode, subFolderName);
+		outputTablesNode.addChildNode(newNode, path);
 		return newNode;
 	}
 
@@ -341,15 +328,16 @@ public class MicroSimScapeNode extends ScapeNode {
 	 * 
 	 * @param provider
 	 *            provider
-	 * @param subFolderName
-	 *            name of sub folder to add node under, or {@code null} to add
-	 *            directly under "Output Tables".
+	 * @param path
+	 *            a path to a sub folder node, eg: "Base/Means" which represents
+	 *            the folder Means under the folder Base, or just "Base" which
+	 *            will add to the folder Base, or {@code null} to add directly
+	 *            under "Output Tables".
 	 */
-	public void addOutputNode(OutputDatasetProvider provider,
-			String subFolderName) {
+	public void addOutputNode(OutputDatasetProvider provider, String path) {
 		PanelViewDatasetProvider pvprovider =
 				new PanelViewDatasetProvider(provider);
-		addOutputNode(pvprovider, pvprovider, subFolderName);
+		addOutputNode(pvprovider, pvprovider, path);
 	}
 
 	/**
@@ -361,13 +349,14 @@ public class MicroSimScapeNode extends ScapeNode {
 	 * 
 	 * @param provider
 	 *            provider
-	 * @param subFolderName
-	 *            name of sub folder to add node under, or {@code null} to add
-	 *            directly under "Output Tables".
+	 * @param path
+	 *            a path to a sub folder node, eg: "Base/Means" which represents
+	 *            the folder Means under the folder Base, or just "Base" which
+	 *            will add to the folder Base, or {@code null} to add directly
+	 *            under "Output Tables".
 	 */
-	public void addOutputNode(REXPDatasetProvider provider,
-			String subFolderName) {
-		addOutputNode((OutputDatasetProvider) provider, subFolderName);
+	public void addOutputNode(REXPDatasetProvider provider, String path) {
+		addOutputNode((OutputDatasetProvider) provider, path);
 	}
 
 	/**
@@ -378,13 +367,14 @@ public class MicroSimScapeNode extends ScapeNode {
 	 * 
 	 * @param provider
 	 *            provider
-	 * @param subFolderName
-	 *            name of sub folder to add node under, or {@code null} to add
-	 *            directly under "Output Tables".
+	 * @param path
+	 *            a path to a sub folder node, eg: "Base/Means" which represents
+	 *            the folder Means under the folder Base, or just "Base" which
+	 *            will add to the folder Base, or {@code null} to add directly
+	 *            under "Base Tables".
 	 */
-	public void addBaseTableNode(REXPDatasetProvider provider,
-			String subFolderName) {
-		addTableNode(provider, "Base Tables", subFolderName);
+	public void addBaseTableNode(REXPDatasetProvider provider, String path) {
+		addTableNode(provider, "Base Tables", path);
 	}
 
 	/**
@@ -393,26 +383,28 @@ public class MicroSimScapeNode extends ScapeNode {
 	 * 
 	 * @param newNode
 	 *            new node to add
-	 * @param folderName
-	 *            name of folder to create node/subfolder under. created if it
-	 *            doesn't already exist.
-	 * @param subFolderName
-	 *            name of sub folder to add node under, or {@code null} to add
-	 *            directly under folderName.
+	 * @param parentName
+	 *            name of parent to create node under. Created if it doesn't
+	 *            already exist.
+	 * @param path
+	 *            a path to a sub folder node, eg: "Base/Means" which represents
+	 *            the folder Means under the folder Base, or just "Base" which
+	 *            will add to the folder Base, or {@code null} to add directly
+	 *            under folderName.
 	 */
 	public final void addNodeToOnDemandFolder(MutableTreeNode newNode,
-			String folderName, String subFolderName) {
+			String parentName, String path) {
 
-		SubFolderNode folderNode = tableNodeMap.get(folderName);
+		SubFolderNode folderNode = tableNodeMap.get(parentName);
 
 		if (folderNode == null) {
 			// create on demand
-			folderNode = new SubFolderNode(folderName, scape, treeModel);
+			folderNode = new SubFolderNode(parentName, scape, treeModel);
 			treeModel.insertNodeInto(folderNode, this, this.getChildCount());
-			tableNodeMap.put(folderName, folderNode);
+			tableNodeMap.put(parentName, folderNode);
 		}
 
-		folderNode.addChildNode(newNode, subFolderName);
+		folderNode.addChildNode(newNode, path);
 	}
 
 	/**
@@ -424,21 +416,24 @@ public class MicroSimScapeNode extends ScapeNode {
 	 * 
 	 * @param provider
 	 *            provider
-	 * @param folderName
-	 *            name of folder to create node/subfolder under
-	 * @param subFolderName
-	 *            name of sub folder to add node under, or {@code null} to add
-	 *            directly under folderName.
+	 * @param parentName
+	 *            name of parent to create node under. Created if it doesn't
+	 *            already exist.
+	 * @param path
+	 *            a path to a sub folder node, eg: "Base/Means" which represents
+	 *            the folder Means under the folder Base, or just "Base" which
+	 *            will add to the folder Base, or {@code null} to add directly
+	 *            under parentName.
 	 */
-	public void addTableNode(REXPDatasetProvider provider, String folderName,
-			String subFolderName) {
+	public void addTableNode(REXPDatasetProvider provider, String parentName,
+			String path) {
 		PanelViewDatasetProvider pvprovider =
 				new PanelViewDatasetProvider(provider);
 
 		SaveablePanelViewNode newNode =
 				new SaveablePanelViewNode(pvprovider, pvprovider);
 
-		addNodeToOnDemandFolder(newNode, folderName, subFolderName);
+		addNodeToOnDemandFolder(newNode, parentName, path);
 	}
 
 	/**

@@ -26,7 +26,7 @@ import net.casper.io.file.def.CDataFileDef;
 import net.casper.io.file.def.CDataFileDefLoader;
 import net.casper.io.file.in.CBuildFromFile;
 
-import org.jamsim.casper.CDataFileCumulativeDistribution;
+import org.jamsim.casper.CDataFileProbDistribution;
 import org.jamsim.math.Glimmix;
 import org.jamsim.math.GlimmixTableModel;
 import org.jamsim.math.IntervalsIntMap;
@@ -450,7 +450,7 @@ public class FileLoader implements Output {
 	 *             type.
 	 */
 	public IntervalsIntMap loadCumulativeDistribution(
-			CDataFileCumulativeDistribution cdefmap) throws IOException {
+			CDataFileProbDistribution cdefmap) throws IOException {
 		loadDataset(cdefmap);
 
 		IntervalsIntMap iimap = cdefmap.getIntervalsMap();

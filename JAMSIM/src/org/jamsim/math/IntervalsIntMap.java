@@ -9,6 +9,9 @@ import java.util.Arrays;
  * Maps a set of contiguous intervals on the real number line to a set of
  * integer values.
  * 
+ * Allows the creation of a probability distribution from which a sample can be
+ * taken by calling {@link #getMappedValue(double)} with a random number.
+ * 
  * @author Oliver Mannion
  * @version $Revision$
  */
@@ -81,8 +84,8 @@ public class IntervalsIntMap {
 	}
 
 	/**
-	 * Creates a new instance (a cumulative distribution) by generating the
-	 * right bounds through accumulation of {@code probabilities}.
+	 * Creates a new instance by generating the right bounds through
+	 * accumulation of {@code probabilities}.
 	 * 
 	 * @param probabilities
 	 *            individual probabilities of each value. These are sequentially
@@ -94,7 +97,7 @@ public class IntervalsIntMap {
 	 *         {@code value}. Or in other words, a cumulative distribution of
 	 *         probabilities mapped to an integer value.
 	 */
-	public static IntervalsIntMap newCumulativeDistribution(
+	public static IntervalsIntMap newProbabilityDistribution(
 			double[] probabilities, int[] values) {
 		double[] rightBounds = new double[probabilities.length];
 		double sumProbs = sumArray(probabilities);
@@ -113,6 +116,9 @@ public class IntervalsIntMap {
 	 * Return the mapped value that is less than or equal to {@code x} but not
 	 * less than then next lowest right bound. In other words, return the mapped
 	 * value for the interval (a,b] ie: {x E R | a < x <= b}.
+	 * 
+	 * When x is a random number from a uniform distribution, then this acts as
+	 * a sampling operation.
 	 * 
 	 * @param x
 	 *            right bound of this probability band
@@ -219,10 +225,10 @@ public class IntervalsIntMap {
 	}
 
 	/**
-	 * Draw from a cumulative distribution of probabilities. First, create a
-	 * cumulative distribution from the set of probabilities that are included
-	 * (i.e.: {@code includeProb[i] = true}). Second, using {@code random} draw
-	 * a probability from the CD and return its index.
+	 * Draw from a distribution of probabilities. First, create a probability
+	 * distribution (ie: {@link IntervalsIntMap}) from the set of probabilities
+	 * that are included (i.e.: {@code includeProb[i] = true}). Second, using
+	 * {@code random} select a probability interval and return its index.
 	 * 
 	 * @param includeProb
 	 *            the set of all probabilities to include. Only where
@@ -260,14 +266,14 @@ public class IntervalsIntMap {
 			return -1;
 		}
 
-		// create cumulative distribution
-		IntervalsIntMap cdmap =
-				IntervalsIntMap.newCumulativeDistribution(
+		// create probability distribution
+		IntervalsIntMap pdmap =
+				IntervalsIntMap.newProbabilityDistribution(
 						includedProbsList.toDoubleArray(),
 						indexOfProbsIncluded.toIntArray());
 
-		// select an index from the cumulative distribution
-		return cdmap.getMappedValue(random);
+		// select an index from the probability distribution
+		return pdmap.getMappedValue(random);
 	}
 
 }

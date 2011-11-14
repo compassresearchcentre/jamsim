@@ -101,8 +101,8 @@ public class SubFolderNode extends DefaultMutableTreeNode implements
 	 */
 	public void addChildNode(MutableTreeNode newNode, int runNumber) {
 		SubFolderNode runParent = getRunSubFolderNode(runNumber);
-		treeModel.insertNodeInto(newNode, runParent, runParent
-				.getChildCount());
+		treeModel.insertNodeInto(newNode, runParent,
+				runParent.getChildCount());
 	}
 
 	/**
@@ -116,20 +116,22 @@ public class SubFolderNode extends DefaultMutableTreeNode implements
 	}
 
 	/**
-	 * Add a child node directly under the group node.
+	 * Add a child node directly under this node, or to a path under this node.
 	 * 
 	 * @param newNode
 	 *            panel view node
-	 * @param groupName
-	 *            name of group sub folder to add node under, or {@code null} to
-	 *            add directly under this node.
+	 * @param path
+	 *            a path to a sub folder node, eg: "Base/Means" which represents
+	 *            the folder Means under the folder Base, or just "Base" which
+	 *            will add to the folder Base, or {@code null} to add directly
+	 *            under this node.
 	 */
-	public void addChildNode(MutableTreeNode newNode, String groupName) {
+	public void addChildNode(MutableTreeNode newNode, String path) {
 		SubFolderNode groupNode =
-				(groupName == null) ? this : getGroupSubFolderNode(groupName);
+				(path == null) ? this : getGroupSubFolderNode(path);
 
-		treeModel.insertNodeInto(newNode, groupNode, groupNode
-				.getChildCount());
+		treeModel.insertNodeInto(newNode, groupNode,
+				groupNode.getChildCount());
 	}
 
 	/**
@@ -184,19 +186,32 @@ public class SubFolderNode extends DefaultMutableTreeNode implements
 	 * Gets a {@link SubFolderNode} child group subfolder. If it doesn't exist,
 	 * it is created.
 	 * 
-	 * @param groupName
-	 *            name of the group node
+	 * @param path
+	 *            a path to a sub folder node, eg: "Base/Means" which represents
+	 *            the folder Means under the folder Base, or just "Base" which
+	 *            will add to the folder Base, or {@code null} or empty string
+	 *            to get this node.
 	 * @return group node
 	 */
-	public SubFolderNode getGroupSubFolderNode(String groupName) {
-		SubFolderNode groupNode = groupNodes.get(groupName);
+	public SubFolderNode getGroupSubFolderNode(String path) {
+		if ("".equals(path) || path == null) {
+			return this;
+		}
+		String[] pathNodes = path.split("/");
+
+		String pathHead = pathNodes[0];
+		SubFolderNode groupNode = groupNodes.get(pathHead);
 
 		// create node if it doesn't already exist
 		if (groupNode == null) {
-			groupNode = addGroupSubFolderNode(groupName);
+			groupNode = addGroupSubFolderNode(pathHead);
 		}
 
-		return groupNode;
+		String restOfPath =
+				(pathNodes.length == 1) ? "" : path
+						.substring(pathHead.length() + 1);
+
+		return groupNode.getGroupSubFolderNode(restOfPath);
 	}
 
 	/**
@@ -224,8 +239,7 @@ public class SubFolderNode extends DefaultMutableTreeNode implements
 		public void actionPerformed(ActionEvent e) {
 			try {
 				saveToCSV(FileUtil.addTrailingSlash(msscape
-						.getOutputDirectory())
-						+ getNodePath(false));
+						.getOutputDirectory()) + getNodePath(false));
 			} catch (IOException e1) {
 				throw new RuntimeException(e1);
 			}
@@ -248,8 +262,7 @@ public class SubFolderNode extends DefaultMutableTreeNode implements
 		for (Object node : children) {
 			if (node instanceof Saveable) {
 				((Saveable) node).saveToCSV(FileUtil
-						.addTrailingSlash(directory)
-						+ toString());
+						.addTrailingSlash(directory) + toString());
 			}
 		}
 

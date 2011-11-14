@@ -12,22 +12,40 @@ options(max.print=256)
 # tell JavaGD() what class to use for drawing
 Sys.setenv('JAVAGD_CLASS_NAME'='org/jamsim/ascape/r/AscapeGD')
 
+# create settings list to hold:
+# .ascape$objsToKeep - names of objects not to delete during ascapeStart()
+if (!exists(".ascape")) .ascape <- list()
+
 cat("Ascape.r: Creating Ascape functions\n")
 
 library(hash)
-activateJavaGD <- function(name, subFolderName = "", selectNode = FALSE, ...) {
-	# activate, or create if it doesn't exist, a JavaGD device by name
-	# eg: activateJavaGD("hadmtot")
-	# eg: activateJavaGD("gender", "base file")
-	# requires: library(hash)
-	# TODO: replace hash code with a list
+
+#' Activate, or create if it doesn't exist, a JavaGD device by name.
+#' 
+#' @param name
+#'  device name
+#' 
+#' @param path
+#' 	a path to a sub folder node, eg: "Base/Means" which represents
+#' 	the folder Means under the folder Base, or just "Base" which
+#' 	will add to the folder Base, or .jnull("java/lang/String"), empty string,
+#'  or unspecified to add directly under "Graphs".
+#' 
+#' @param selectNode
+#'  if TRUE, will select the node for this chart in the Navigator
+#' 
+#' @examples
+#' 
+#' activateJavaGD("hadmtot")
+#' activateJavaGD("gender", "base file")
+activateJavaGD <- function(name, path = "", selectNode = FALSE, ...) {
 	
 	# if .deviceHash doesn't exist in global environment, create it
 	if (!exists(".deviceHash")) {
 		assign(".deviceHash", hash(), envir = .GlobalEnv)
 	}
 	
-	hashname <- paste(name, subFolderName)
+	hashname <- paste(name, path)
 	
 	# if no device in hash, create it and add to hash
 	if (!has.key(hashname, .deviceHash)) {
@@ -38,7 +56,7 @@ activateJavaGD <- function(name, subFolderName = "", selectNode = FALSE, ...) {
 		# set name on AscapeGD object
 		ascapeGD <- .getJavaGDObject(dev.cur())
 		.jcall(ascapeGD, "V", "setName", name)
-		.jcall(ascapeGD, "V", "addToNavigator", subFolderName)
+		.jcall(ascapeGD, "V", "addToNavigator", path)
 	}
 	
 	# get device number
@@ -54,20 +72,24 @@ activateJavaGD <- function(name, subFolderName = "", selectNode = FALSE, ...) {
 
 } 
 
-#' Add a list of objects as nodes under the "Base Tables" node.
+#' Add a list of objects as nodes under the specified parent node.
 #' 
 #' @param xlist
 #'  list of objects
-#' @param subFolderName
-#'  name of sub folder to add node under, or leave unspecified (the default) 
-#'  to add directly under "Base Tables".
+#' @param parentName
+#'    name of parent to create node under. Created if it doesn't already exist.
+#' @param path
+#'  a path to a sub folder node, eg: "Base/Means" which represents
+#'  the folder Means under the folder Base, or just "Base" which
+#'  will add to the folder Base, or leave unspecified (the default) to add directly
+#'  under parentName.
 #' @param xnames
 #'  the tree node name used for each object
 #' 
 #' @examples
 #'  
-addBaseTableNodes <- function(xlist, xnames = lapply(xlist, dictLookup), subFolderName = .jnull("java/lang/String")) {
-	invisible(mapply(addBaseTableNode, x=xlist, name=xnames, MoreArgs=list(subFolderName = subFolderName)))
+addTableNodes <- function(xlist, xnames = lapply(xlist, dictLookup), parentName, path = .jnull("java/lang/String")) {
+	invisible(mapply(addTableNode, x=xlist, name=xnames, MoreArgs=list(parentName = parentName, path = path)))
 }
 
 
@@ -75,48 +97,56 @@ addBaseTableNodes <- function(xlist, xnames = lapply(xlist, dictLookup), subFold
 #' 
 #' @param xlist
 #'  list of objects
-#' @param subFolderName
-#'  name of sub folder to add node under, or leave unspecified (the default) 
-#'  to add directly under "Model Inputs".
+#' @param path
+#'  a path to a sub folder node, eg: "Base/Means" which represents
+#'  the folder Means under the folder Base, or just "Base" which
+#'  will add to the folder Base, or leave unspecified (the default) to add directly
+#'  under "Model Inputs".
 #' @param xnames
 #'  the tree node name used for each object 
-addInputNodes <- function(xlist, xnames = lapply(xlist, dictLookup),  subFolderName = .jnull("java/lang/String")) {
-	invisible(mapply(addInputNode, x=xlist, name=xnames, MoreArgs=list(subFolderName = subFolderName)))
+addInputNodes <- function(xlist, xnames = lapply(xlist, dictLookup),  path = .jnull("java/lang/String")) {
+	invisible(mapply(addInputNode, x=xlist, name=xnames, MoreArgs=list(path = path)))
 }
 
 #' Add a list of objects as nodes under the "Output Tables" node.
 #' 
 #' @param xlist
 #'  list of objects
-#' @param subFolderName
-#'  name of sub folder to add node under, or leave unspecified (the default) 
-#'  to add directly under "Output Tables".
+#' @param path
+#'  a path to a sub folder node, eg: "Base/Means" which represents
+#'  the folder Means under the folder Base, or just "Base" which
+#'  will add to the folder Base, or leave unspecified (the default) to add directly
+#'  under "Output Tables".
 #' @param xnames
 #'  the tree node name used for each object
 #' 
 #' @examples
 #' xlist <- freqs
 #' 
-#' addOutputNodes(xlist, subFolderName = titleFrequencies)
-addOutputNodes <- function(xlist, xnames = lapply(xlist, dictLookup), subFolderName = .jnull("java/lang/String")) {
-	invisible(mapply(addOutputNode, x=xlist, name=xnames, MoreArgs=list(subFolderName = subFolderName)))
+#' addOutputNodes(xlist, path = titleFrequencies)
+addOutputNodes <- function(xlist, xnames = lapply(xlist, dictLookup), path = .jnull("java/lang/String")) {
+	invisible(mapply(addOutputNode, x=xlist, name=xnames, MoreArgs=list(path = path)))
 }
 
 #' Add an object as a node under the "Base Tables" node.
 #' 
 #' @param x
 #'  object to add
-#' @param subFolderName
-#'  name of sub folder to add node under, or leave unspecified (the default) 
-#'  to add directly under "Base Tables".
+#' @param parentName
+#'    name of parent to create node under. Created if it doesn't already exist.
+#' @param path
+#'  a path to a sub folder node, eg: "Base/Means" which represents
+#'  the folder Means under the folder Base, or just "Base" which
+#'  will add to the folder Base, or leave unspecified (the default) to add directly
+#'  under parentName.
 #' @param names
 #'  the tree node name used for the object
 #' 
 #' @examples
 #'  
-addBaseTableNode <- function(x, name = dictLookup(x), subFolderName = .jnull("java/lang/String")) {
+addTableNode <- function(x, name = dictLookup(x), parentName, path = .jnull("java/lang/String")) {
 	rdp <- .jnew("org/jamsim/ascape/output/REXPDatasetProvider", name, toJava(x))
-	.jcall(getScapeNode(), "V", "addBaseTableNode", rdp, subFolderName)
+	.jcall(getScapeNode(), "V", "addTableNode", rdp, parentName, path)
 }
 
 
@@ -124,17 +154,19 @@ addBaseTableNode <- function(x, name = dictLookup(x), subFolderName = .jnull("ja
 #' 
 #' @param x
 #'  object to add
-#' @param subFolderName
-#'  name of sub folder to add node under, or leave unspecified (the default) 
-#'  to add directly under "Model Inputs".
+#' @param path
+#'  a path to a sub folder node, eg: "Base/Means" which represents
+#'  the folder Means under the folder Base, or just "Base" which
+#'  will add to the folder Base, or leave unspecified (the default) to add directly
+#'  under "Model Inputs".
 #' @param names
 #'  the tree node name used for the object
 #' 
 #' @examples
 #'  
-addInputNode <- function(x, name = dictLookup(x), subFolderName = .jnull("java/lang/String")) {
+addInputNode <- function(x, name = dictLookup(x), path = .jnull("java/lang/String")) {
 	rdp <- .jnew("org/jamsim/ascape/output/REXPDatasetProvider", name, toJava(x))
-	.jcall(getScapeNode(), "V", "addInputNode", rdp, subFolderName)
+	.jcall(getScapeNode(), "V", "addInputNode", rdp, path)
 }
 
 
@@ -142,18 +174,20 @@ addInputNode <- function(x, name = dictLookup(x), subFolderName = .jnull("java/l
 #' 
 #' @param x
 #'  object to add
-#' @param subFolderName
-#'  name of sub folder to add node under, or leave unspecified (the default) 
-#'  to add directly under "Output Tables".
+#' @param path
+#'  a path to a sub folder node, eg: "Base/Means" which represents
+#'  the folder Means under the folder Base, or just "Base" which
+#'  will add to the folder Base, or leave unspecified (the default) to add directly
+#'  under "Output Tables".
 #' @param names
 #'  the tree node name used for the object
 #' 
 #' @examples
 #' x <- xlist[[1]]  
 #' name = dictLookup(x)
-addOutputNode <- function(x, name = dictLookup(x), subFolderName = .jnull("java/lang/String")) {
+addOutputNode <- function(x, name = dictLookup(x), path = .jnull("java/lang/String")) {
 	rdp <- .jnew("org/jamsim/ascape/output/REXPDatasetProvider", name, toJava(x))
-	.jcall(getScapeNode(), "V", "addOutputNode", rdp, subFolderName)
+	.jcall(getScapeNode(), "V", "addOutputNode", rdp, path)
 }
 
 ascapeStart <- function() {
@@ -166,16 +200,30 @@ ascapeStart <- function() {
 	cat("ascapeStart: Removing all existing objects\n")
 	objsToDel <- lsNoFunc(all.names=TRUE)
 	
-	#TODO: quick fix to prevent env.base from being deleted
-	objsToDel <- objsToDel[which(objsToDel != "env.base")]
+	# don't delete objects specified by name in the vector .ascape$objsToKeep
+	objsToDel <- objsToDel[!(objsToDel %in% c(".ascape",.ascape$objsToKeep))]
 	
 	rm(pos = ".GlobalEnv", list = objsToDel)
 	
 	#not sure why, but for rJava 0.8+ we need this otherwise get
 	#"rJava was called from a running JVM without .jinit()" when
 	#we try the .jcall
-	.jinit() 
+	invisible(.jinit()) 
 	
+}
+
+#' Specify the name of an object to keep 
+#' when ascape restarts.
+#' 
+#' @param objname
+#'  name of object
+ascapeKeepObject <- function(objname) {
+	if (!exists(".ascape")) {
+		.ascape <<- list()
+	}
+	
+	# add to objsToKeep vector
+	.ascape$objsToKeep <<- unique(c(.ascape$objsToKeep, objname))
 }
 
 #' Gets the navigator scape node.
@@ -187,6 +235,18 @@ getScapeNode <- function() {
 		assign(".scapeNode", scapeNode, envir = .GlobalEnv)
 	}
 	.scapeNode
+}
+
+
+lsNoFunc <- function (...) {
+	#eg: lsNoFunc(all.names=TRUE)
+	#displays objects as per ls() except for those that are functions
+	#eg: rm(list = lsNoFunc(all.names=TRUE))
+	#removes all objects (except functions)
+	objs <- ls(".GlobalEnv", ...)
+	klass <- sapply(objs, function(X) { class(get(X, pos=1)) })
+	klass <- .filter(klass, include = "all", exclude = "function")
+	names(klass)
 }
 
 meanOfRuns <- function (multiRunResults) {

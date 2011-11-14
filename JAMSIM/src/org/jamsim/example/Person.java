@@ -124,7 +124,7 @@ public class Person extends MicroSimCell<JEMData> {
 
 				// determine the disability status of the person
 				current_disability_state =
-						mdata.lookupCumdfle(rng.nextUniform01(), sex, ageGrp,
+						mdata.lookupProbdfle(rng.nextUniform01(), sex, ageGrp,
 								current_disability_state);
 
 				disability_state[iterationIndex] =

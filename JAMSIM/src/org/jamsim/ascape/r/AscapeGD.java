@@ -99,16 +99,16 @@ public class AscapeGD extends GDInterface implements PanelViewProvider {
 	 * {@link #setName(String)} has been called (from which we get a node
 	 * title).
 	 * 
-	 * @param subFolderName
-	 *            of navigator subfolder under "Graphs" to create node, or empty
-	 *            string to create node directly under "Graphs"
+	 * @param path
+	 *            a path to a sub folder node, eg: "Base/Means" which represents
+	 *            the folder Means under the folder Base, or just "Base" which
+	 *            will add to the folder Base, or {@code null} or empty string
+	 *            to add directly under "Graphs".
 	 */
-	public void addToNavigator(String subFolderName) {
+	public void addToNavigator(String path) {
 		// add as node under graphs
 		MicroSimScapeNode scapeNode = ScapeRInterface.getLastMsScapeNode();
-		node =
-				scapeNode.addGraphNode(this, "".equals(subFolderName) ? null
-						: subFolderName);
+		node = scapeNode.addGraphNode(this, "".equals(path) ? null : path);
 	}
 
 	/**
