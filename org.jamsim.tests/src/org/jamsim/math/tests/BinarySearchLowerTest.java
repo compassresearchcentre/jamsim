@@ -73,7 +73,7 @@ public class BinarySearchLowerTest {
 
 	@DataPoint
 	public static final double[] stepsFromProbs =
-			ArrayUtils.subarray(IntervalsIntMap.newCumulativeDistribution(
+			ArrayUtils.subarray(IntervalsIntMap.newProbabilityDistribution(
 					probs, destCats).getIntervals(), 1, 100);
 
 	public int getStep(double key) {
@@ -91,7 +91,7 @@ public class BinarySearchLowerTest {
 		System.out.println("stepsFromProbs: "
 				+ ArrayUtils.toString(stepsFromProbs));
 		System.out.println(ArrayUtils
-				.toString(IntervalsIntMap.newCumulativeDistribution(probs,
+				.toString(IntervalsIntMap.newProbabilityDistribution(probs,
 						destCats).getIntervals()));
 	}
 

@@ -2,13 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/JAMSIM"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/casperdatasets"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/casperdatasets-io"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/ROmanFace"/>
-	<classpathentry kind="lib" path="D:/eclipse-modeling-helios-incubation-win32/plugins/org.junit_4.8.1.v4_8_1_v20100427-1100/junit.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/readmytables"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/casperdatasets-ext"/>
 	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?ivyXmlPath=ivy.xml&amp;confs=*&amp;ivySettingsPath=%24%7Bworkspace_loc%3Aorg.jamsim.tests%2Fbuildsupport%2Fivysettings.xml%7D&amp;loadSettingsOnDemand=false&amp;propertyFiles="/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

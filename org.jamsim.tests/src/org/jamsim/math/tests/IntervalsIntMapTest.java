@@ -10,7 +10,7 @@ import net.casper.data.model.CDataGridException;
 import net.casper.io.file.def.CDataFileDef;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.jamsim.casper.CDataFileCumulativeDistribution;
+import org.jamsim.casper.CDataFileProbDistribution;
 import org.jamsim.io.FileLoader;
 import org.jamsim.math.IntervalsIntMap;
 import org.junit.BeforeClass;
@@ -43,8 +43,8 @@ public class IntervalsIntMapTest {
 							CellReaders.INTEGER, CellReaders.DOUBLE },
 					"DestCat");
 
-	public static final CDataFileCumulativeDistribution CDCat15ReallocChildBearer =
-			new CDataFileCumulativeDistribution(Cat15ReallocChildBearer,
+	public static final CDataFileProbDistribution CDCat15ReallocChildBearer =
+			new CDataFileProbDistribution(Cat15ReallocChildBearer,
 					"DestCat", "Prob");
 
 	public static FileLoader dsfLoader;
@@ -86,7 +86,7 @@ public class IntervalsIntMapTest {
 			steps, destCats);
 	@DataPoint
 	public static final IntervalsIntMap cdmapFromProbs = IntervalsIntMap
-			.newCumulativeDistribution(probs, destCats);
+			.newProbabilityDistribution(probs, destCats);
 
 	@DataPoint
 	public static IntervalsIntMap cdmapFromFile;
