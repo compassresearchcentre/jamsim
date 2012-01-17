@@ -1,10 +1,17 @@
 package org.jamsim.ascape.weights;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.prefs.Preferences;
 
 import javax.swing.table.TableModel;
+
+import net.casper.data.model.CDataCacheContainer;
+import net.casper.data.model.CDataGridException;
+import net.casper.data.model.CDataRowSet;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.jamsim.ascape.r.ScapeRInterface;
@@ -13,8 +20,12 @@ import org.jamsim.shared.InvalidDataException;
 import org.omancode.math.NamedNumber;
 import org.omancode.r.RFaceException;
 import org.omancode.r.RUtil;
+import org.omancode.r.types.RDataFrame;
+import org.omancode.r.types.REXPAttr;
 import org.omancode.r.types.REXPUtil;
+import org.omancode.r.types.UnsupportedTypeException;
 import org.omancode.util.StringUtil;
+import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPDouble;
 
 /**
@@ -141,14 +152,14 @@ public class ContinuousVarAdjustment extends Observable implements
 			double adjIncrements) throws RFaceException {
 
 		this.rVariable = rVariable;
-		this.variableDesc = scapeR.getDictionary().getDescription(variableName);
+		this.variableDesc = scapeR.getMsScape().getDictionary()
+				.getDescription(variableName);
 		this.breaksExpr = breaksExpr;
 		this.breakLast = breakLast;
 		this.adjIncrements = adjIncrements;
 		this.scapeR = scapeR;
 
 		getTableModel();
-
 
 		// store copy of original
 		this.rVariableOriginal = ".original." + variableName;
@@ -162,6 +173,7 @@ public class ContinuousVarAdjustment extends Observable implements
 
 		// eg: table(bin(children$bwkg,0.5))
 		String rcmd = cmdTableBin(rVariable, breaksExpr, breakLast);
+		// System.out.println(rcmd);
 
 		NamedNumber[] counts = scapeR.parseEvalTryReturnNamedNumber(rcmd);
 		return counts;
@@ -178,8 +190,7 @@ public class ContinuousVarAdjustment extends Observable implements
 				"useNA='ifany'"));
 	}
 
-	private String cmdBin(String rVariable, String breaksExpr,
-			Double breakLast) {
+	private String cmdBin(String rVariable, String breaksExpr, Double breakLast) {
 		// eg: bin(children$bwkg,0.5)
 		return StringUtil.functionCall("bin", rVariable, breaksExpr,
 				"breaklast=" + RUtil.asNullString(breakLast));
@@ -205,9 +216,8 @@ public class ContinuousVarAdjustment extends Observable implements
 	public final TableModel getTableModel() {
 
 		try {
-			NamedNumber[] counts =
-					getBinLevelsWithCount(scapeR, rVariable, breaksExpr,
-							breakLast);
+			NamedNumber[] counts = getBinLevelsWithCount(scapeR, rVariable,
+					breaksExpr, breakLast);
 
 			this.tableModel = new ContinuousVarAdjTableModel(counts);
 
@@ -248,9 +258,9 @@ public class ContinuousVarAdjustment extends Observable implements
 		// eg: incByFactor(children$bwkg, bin(children$bwkg, 0.5),
 		// c(0,0.5,0,0,0,0,0,0,0,0))
 		String cBin = cmdBin(rVariable, breaksExpr, breakLast);
-		String incrementBins =
-				StringUtil.functionCall("incByFactor", rVariable, cBin,
-						".binIncrements");
+		String incrementBins = StringUtil.functionCall("incByFactor",
+				rVariable, cBin, ".binIncrements");
+		// System.out.println(incrementBins);
 		assignRVariable(incrementBins);
 	}
 
@@ -311,4 +321,62 @@ public class ContinuousVarAdjustment extends Observable implements
 		return 1;
 	}
 
+	/**
+	 * Create a list of {@link ContinuousVarAdjustment}s from a dataframe
+	 * containing the rows rVariable, variableName, breaksExpr, breakLast,
+	 * adjIncrements.
+	 * 
+	 * @param scapeR
+	 *            scapeR
+	 * @param dataframe
+	 *            dataframe
+	 * @return list
+	 * @throws IOException
+	 *             if problem creating list
+	 */
+	public static List<ContinuousVarAdjustment> createList(
+			ScapeRInterface scapeR, REXP dataframe) throws IOException {
+
+		if (!RDataFrame.isDataFrame(dataframe)) {
+			throw new IllegalArgumentException(
+					"Cannot build list from REXP of class "
+							+ REXPAttr.getClassAttribute(dataframe));
+		}
+
+		try {
+
+			RDataFrame builder = new RDataFrame("ContinuousVarAdjustmentsSpec",
+					dataframe);
+
+			CDataCacheContainer container = new CDataCacheContainer(builder);
+
+			CDataRowSet rowset = container.getAll();
+
+			List<ContinuousVarAdjustment> cvas = new ArrayList<ContinuousVarAdjustment>(
+					container.size());
+
+			while (rowset.next()) {
+
+				String rVariable = rowset.getString("rVariable");
+				String variableName = rowset.getString("variableName");
+				String breaksExpr = rowset.getString("breaksExpr");
+				double breakLast = rowset.getDouble("breakLast");
+				double adjIncrements = rowset.getDouble("adjIncrements");
+
+				ContinuousVarAdjustment cva = new ContinuousVarAdjustment(
+						scapeR, rVariable, variableName, breaksExpr, breakLast,
+						adjIncrements);
+
+				cvas.add(cva);
+			}
+
+			return cvas;
+
+		} catch (UnsupportedTypeException e) {
+			throw new RFaceException(e.getMessage(), e);
+		} catch (CDataGridException e) {
+			throw new RFaceException(e.getMessage(), e);
+		}
+
+	}
 }

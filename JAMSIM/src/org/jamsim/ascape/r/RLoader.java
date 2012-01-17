@@ -101,9 +101,8 @@ public enum RLoader {
 		// if running a desktop environment (ie: GUI)
 		DesktopEnvironment desktop = AscapeGUIUtil.getDesktopEnvironment();
 		if (desktop == null) {
-			throw new IllegalStateException(
-					"Not running in desktop environment, "
-							+ "or desktop environment not yet loaded.");
+			System.err.println("Warning: Not running in desktop environment, or desktop environment not yet loaded.");
+			return;
 		}
 
 		UserFrame gui = desktop.getUserFrame();
@@ -161,7 +160,7 @@ public enum RLoader {
 	 */
 	private void initR() throws IOException {
 		rInterface.loadRSupportFunctions();
-		
+
 		// load packages used by the Ascape and Common R functions
 		rInterface.loadPackage("rJava");
 		rInterface.loadPackage("JavaGD");
@@ -181,7 +180,7 @@ public enum RLoader {
 	private void loadAscapeRFunctions() throws IOException {
 		loadRResource(ASCAPE_R);
 	}
-	
+
 	/**
 	 * Evaluate the contents of a resource in R.
 	 * 
@@ -196,7 +195,7 @@ public enum RLoader {
 			throw new IOException(resourceName + " not found on classpath.");
 		}
 		rInterface.parseEvalPrint(RUtil.readRStream(ins));
-		
+
 	}
 
 	/**
@@ -206,8 +205,7 @@ public enum RLoader {
 	 *             if problem executing ascapeStart
 	 */
 	public void ascapeStart() throws IOException {
-		rInterface
-				.printlnToConsole("Executing support function ascapeStart()");
+		rInterface.printlnToConsole("Executing support function ascapeStart()");
 		rInterface.parseEvalPrint("ascapeStart()");
 	}
 }

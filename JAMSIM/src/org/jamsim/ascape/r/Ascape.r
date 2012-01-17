@@ -88,7 +88,7 @@ activateJavaGD <- function(name, path = "", selectNode = FALSE, ...) {
 #' 
 #' @examples
 #'  
-addTableNodes <- function(xlist, xnames = lapply(xlist, dictLookup), parentName, path = .jnull("java/lang/String")) {
+addTableNodes <- function(xlist, xnames, parentName, path = .jnull("java/lang/String")) {
 	invisible(mapply(addTableNode, x=xlist, name=xnames, MoreArgs=list(parentName = parentName, path = path)))
 }
 
@@ -104,7 +104,7 @@ addTableNodes <- function(xlist, xnames = lapply(xlist, dictLookup), parentName,
 #'  under "Model Inputs".
 #' @param xnames
 #'  the tree node name used for each object 
-addInputNodes <- function(xlist, xnames = lapply(xlist, dictLookup),  path = .jnull("java/lang/String")) {
+addInputNodes <- function(xlist, xnames,  path = .jnull("java/lang/String")) {
 	invisible(mapply(addInputNode, x=xlist, name=xnames, MoreArgs=list(path = path)))
 }
 
@@ -124,7 +124,7 @@ addInputNodes <- function(xlist, xnames = lapply(xlist, dictLookup),  path = .jn
 #' xlist <- freqs
 #' 
 #' addOutputNodes(xlist, path = titleFrequencies)
-addOutputNodes <- function(xlist, xnames = lapply(xlist, dictLookup), path = .jnull("java/lang/String")) {
+addOutputNodes <- function(xlist, xnames, path = .jnull("java/lang/String")) {
 	invisible(mapply(addOutputNode, x=xlist, name=xnames, MoreArgs=list(path = path)))
 }
 
@@ -144,7 +144,7 @@ addOutputNodes <- function(xlist, xnames = lapply(xlist, dictLookup), path = .jn
 #' 
 #' @examples
 #'  
-addTableNode <- function(x, name = dictLookup(x), parentName, path = .jnull("java/lang/String")) {
+addTableNode <- function(x, name, parentName, path = .jnull("java/lang/String")) {
 	rdp <- .jnew("org/jamsim/ascape/output/REXPDatasetProvider", name, toJava(x))
 	.jcall(getScapeNode(), "V", "addTableNode", rdp, parentName, path)
 }
@@ -164,7 +164,7 @@ addTableNode <- function(x, name = dictLookup(x), parentName, path = .jnull("jav
 #' 
 #' @examples
 #'  
-addInputNode <- function(x, name = dictLookup(x), path = .jnull("java/lang/String")) {
+addInputNode <- function(x, name, path = .jnull("java/lang/String")) {
 	rdp <- .jnew("org/jamsim/ascape/output/REXPDatasetProvider", name, toJava(x))
 	.jcall(getScapeNode(), "V", "addInputNode", rdp, path)
 }
@@ -184,8 +184,7 @@ addInputNode <- function(x, name = dictLookup(x), path = .jnull("java/lang/Strin
 #' 
 #' @examples
 #' x <- xlist[[1]]  
-#' name = dictLookup(x)
-addOutputNode <- function(x, name = dictLookup(x), path = .jnull("java/lang/String")) {
+addOutputNode <- function(x, name, path = .jnull("java/lang/String")) {
 	rdp <- .jnew("org/jamsim/ascape/output/REXPDatasetProvider", name, toJava(x))
 	.jcall(getScapeNode(), "V", "addOutputNode", rdp, path)
 }

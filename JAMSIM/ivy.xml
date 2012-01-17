@@ -20,7 +20,7 @@
 	</publications>
 
 	<dependencies>
-		<dependency org="org.ascape" name="ascape" rev="5.6.1"/>
+		<dependency org="org.ascape" name="ascape" rev="5.6.1" conf="default"/>
 
 		<dependency org="net.casper" name="casperdatasets-ext" rev="latest.integration" conf="*->@"/>
 
@@ -32,7 +32,7 @@
         <!-- slf4j needed for javabuilders -->
         <dependency org="org.slf4j" name="slf4j-log4j12" rev="latest.integration"/>
         
-        <dependency org="ch.cern" name="colt" rev="latest.integration">
+        <dependency org="colt" name="colt" rev="latest.integration">
 	        <exclude name="concurrent" />
         </dependency>
         

@@ -2,7 +2,7 @@
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
   <jar>jamsim.jar</jar>
-  <outfile>D:\workspace.sim\JAMSIM\build\JEM.exe</outfile>
+  <outfile>JEM64.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir></chdir>
@@ -13,13 +13,13 @@
   <stayAlive>false</stayAlive>
   <manifest></manifest>
   <icon>..\buildresource\JEM.ico</icon>
-  <var>PATH=%PATH%;%HKEY_LOCAL_MACHINE\\SOFTWARE\\R-core\\R\\InstallPath%\\bin;%HKEY_LOCAL_MACHINE\\SOFTWARE\\R-core\\R\\InstallPath%\\bin\\i386</var>
+  <var>PATH=%PATH%;%HKEY_LOCAL_MACHINE\\SOFTWARE\\R-core\\R\\InstallPath%\\bin;%HKEY_LOCAL_MACHINE\\SOFTWARE\\R-core\\R\\InstallPath%\\bin\\x64</var>
   <jre>
     <path></path>
     <minVersion>1.6.0</minVersion>
     <maxVersion></maxVersion>
     <jdkPreference>preferJre</jdkPreference>
-    <opt>-Djava.library.path=&quot;%HKEY_LOCAL_MACHINE\\SOFTWARE\\R-core\\R\\InstallPath%\\library\\rJava\\jri&quot;</opt>
+    <opt>-Djava.library.path=&quot;%HKEY_LOCAL_MACHINE\\SOFTWARE\\R-core\\R\\InstallPath%\\library\\rJava\\jri\\x64&quot;</opt>
   </jre>
   <versionInfo>
     <fileVersion>0.0.0.0</fileVersion>

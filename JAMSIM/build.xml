@@ -63,13 +63,16 @@
 		<delete file="jaropt.log" />
 	</target>
 	
-	<property name="exe" value="JEM.exe" />
+	<target name="pre-package" description="Pre package" />
+	
+	<property name="exe32" value="JEM32.exe" />
+	<property name="exe64" value="JEM64.exe" />
 	<target name="post-package" description="Post package">
 		<antcall target="create-exe" />
 
 		<zip destfile="${dist.dir}/${binary.plus.deps.zip}" update="true">
 			<!-- add exe to zip -->
-		    <fileset dir="${build.dir}" includes="${exe}"/>
+		    <fileset dir="${build.dir}" includes="${exe32},${exe64}"/>
 			<!-- add JEM.data dir to zip -->
 		    <zipfileset dir="JEM.data" prefix="JEM.data/"/>
 			<!-- add readme.txt to zip -->
@@ -88,10 +91,16 @@
 		<taskdef name="launch4j"
 		    classname="net.sf.launch4j.ant.Launch4jTask"
 		    classpath="${launch4j.dir}/launch4j.jar" />
-		<launch4j configFile="${buildsupport.dir}/launch4j.xml"
+		<launch4j configFile="${buildsupport.dir}/launch4j_32.xml"
 			jarPath="${binary.jar}"
-			outfile="${build.dir}/${exe}" 
-			fileVersion="${version}.0" txtFileVersion="${version}.0"
+			outfile="${build.dir}/${exe32}" 
+			fileVersion="${version}.32" txtFileVersion="${version}.0"
+			productVersion="${version}.0" txtProductVersion="${version}.0"
+		/>
+		<launch4j configFile="${buildsupport.dir}/launch4j_64.xml"
+			jarPath="${binary.jar}"
+			outfile="${build.dir}/${exe64}" 
+			fileVersion="${version}.64" txtFileVersion="${version}.0"
 			productVersion="${version}.0" txtProductVersion="${version}.0"
 		/>
 		

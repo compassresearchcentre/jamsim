@@ -54,8 +54,8 @@ public class SingleVariableCommand implements ScapeRCommand {
 	public SingleVariableCommand(String name, String variableTypes,
 			String cmdText) {
 		this.name = name;
-		this.variableTypes =
-				(variableTypes == null) ? null : variableTypes.split(","); // NOPMD
+		this.variableTypes = (variableTypes == null) ? null : variableTypes
+				.split(","); // NOPMD
 		this.cmdText = cmdText;
 	}
 
@@ -87,8 +87,8 @@ public class SingleVariableCommand implements ScapeRCommand {
 	 * @return routput
 	 */
 	public ROutput generateROutput(ScapeRInterface scapeR, String varName) {
-		return new ROutput(scapeR.getDictionary().getDescription(varName),
-				scapeR, generateCmdText(varName));
+		return new ROutput(scapeR.getMsScape().getDictionary()
+				.getDescription(varName), scapeR, generateCmdText(varName));
 	}
 
 	/**

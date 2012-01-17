@@ -55,6 +55,8 @@ public class JEMScape extends RootScape<JEMData> {
 			loadRStartupFile();
 
 			scapeR.loadCommonRFunctions();
+			
+			scapeR.assignHash("dict", baseScape.getDictionary().getMap());
 
 			// setup weights
 			setupWeightCalculators(data.getWeightCalculators(scapeR));

@@ -11,8 +11,8 @@
 
 	<!-- locations NB: relative paths are relative to importer -->
 	<dirname property="buildsupport.dir" file="${ant.file.common}" />
-	<ivy:settings file="${buildsupport.dir}/ivysettings.xml" />
 	<property name="buildresource.dir" location="buildresource" />
+	<ivy:settings file="${buildresource.dir}/ivysettings.xml" />
 	<property name="src.dir" location="src" />
 	<property name="res.dir" value="resource" />
 	<property name="build.dir" location="build" />
@@ -21,6 +21,7 @@
 	<property name="class.dir" location="${build.dir}/bin" />
 	<property name="doc.dir" location="doc" />
 	<property name="ivyreport.dir" location="${doc.dir}/dependencies" />
+	<property name="ivypublish.dir" location="ivypublish" />
 
 	<!-- artifact names -->
 	<property name="binary.jar" value="${name}-${version}.jar" />
@@ -57,6 +58,7 @@
 
 	<target name="init" depends="clean" description="Create compilation dirs">
 		<mkdir dir="${class.dir}" />
+		<mkdir dir="${ivypublish.dir}" />
 		<copy includeemptydirs="false" failonerror="false" todir="${class.dir}">
 			<fileset dir="${src.dir}">
 				<exclude name="**/*.launch" />
@@ -91,12 +93,14 @@
 		<mkdir dir="${dist.dir}" />
 		<property name="manifest" location="${dist.dir}/MANIFEST.MF" />
 		
+		<antcall target="pre-package" />
+
 		<manifestclasspath property="jar.classpath"
 				jarfile="${dist.dir}/${binary.jar}">
 			<classpath refid="build.classpath" />
 		</manifestclasspath>
 
-		<manifest-with-presets file="${manifest}" mode="replace">
+		<manifest-with-presets file="${manifest}" mode="update">
 			<attribute name="Built-By" value="${user.name}"/>
 			<attribute name="Implementation-Version" value="${version}"/>
 			<attribute name="Built-Date" value="${TODAY}"/>
@@ -126,6 +130,13 @@
         	 this will be regenerated in the deliver performed by the publish -->
 		<delete file="${dist.dir}/ivy-${version}.xml" />
 		<ivy:publish artifactspattern="${dist.dir}/[artifact](-[classifier])-${version}.[ext]" status="release" overwrite="true" resolver="local" />
+
+		<!-- place published ivy.xml in ivypublish.dir. this file can be made
+		     available via SVN/http for ivy URL resolvers to fetch -->
+		<delete includeemptydirs="true">
+		    <fileset dir="${ivypublish.dir}" includes="**/*"/>
+		</delete>
+		<copy file="${dist.dir}/ivy-${version}.xml" todir="${ivypublish.dir}" overwrite="true"/>
 	</target>
 
 	<taskdef name="gcupload" classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="${buildsupport.dir}/ant-googlecode-0.0.2.jar" />

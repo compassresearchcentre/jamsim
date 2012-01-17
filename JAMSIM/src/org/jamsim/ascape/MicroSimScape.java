@@ -60,8 +60,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 */
 	private static final long serialVersionUID = 5534365905529673862L;
 
-	private static final RecordedMicroSimTreeBuilder TREE_BUILDER =
-			new RecordedMicroSimTreeBuilder();
+	private static final RecordedMicroSimTreeBuilder TREE_BUILDER = new RecordedMicroSimTreeBuilder();
 
 	private MicroSimScapeNode scapeNode;
 
@@ -99,6 +98,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 * Prefs for loading/saving location of base file.
 	 */
 	private final Preferences prefs;
+
+	private DataDictionary dict;
 
 	/**
 	 * {@link WeightCalculator} for this scape.
@@ -156,6 +157,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 */
 	public void setScapeData(D scapeData) {
 		this.scapeData = scapeData;
+		setDictionary(scapeData.getDataDictionary());
 	}
 
 	private ScapeRInterface scapeR;
@@ -270,8 +272,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 */
 	private void initScapeNode() {
 		if (scapeNode == null) {
-			scapeNode =
-					(MicroSimScapeNode) TREE_BUILDER.getCreatedTreeNode(this);
+			scapeNode = (MicroSimScapeNode) TREE_BUILDER
+					.getCreatedTreeNode(this);
 
 			if (scapeNode == null) {
 				throw new IllegalStateException("Navigator tree node for "
@@ -307,8 +309,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	public void addOutputDataset(OutputDatasetProvider provider,
 			String nodeGroupName) {
 
-		OutputDatasetNodeProvider datasetNode =
-				new OutputDatasetNodeProvider(this, provider);
+		OutputDatasetNodeProvider datasetNode = new OutputDatasetNodeProvider(
+				this, provider);
 
 		addView(new OutputNode(getOutputTablesNode(), nodeGroupName,
 				datasetNode));
@@ -323,8 +325,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 *            panelview provider
 	 */
 	public void addEndOfSimOutputNode(PanelViewProvider provider) {
-		addView(new OutputNode(getOutputTablesNode(),
-				new EndOfSimNodeProvider(new PanelViewNode(provider))));
+		addView(new OutputNode(getOutputTablesNode(), new EndOfSimNodeProvider(
+				new PanelViewNode(provider))));
 	}
 
 	/**
@@ -414,8 +416,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 */
 	private void addWeightingsButton(PanelViewProvider provider) {
 		// create action
-		PanelViewAction weightingsAction =
-				new PanelViewAction(provider, "Weightings", "Weightings");
+		PanelViewAction weightingsAction = new PanelViewAction(provider,
+				"Weightings", "Weightings");
 		weightingsAction.putValue(Action.SMALL_ICON,
 				DesktopEnvironment.getIcon("Scales"));
 
@@ -454,7 +456,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 			throw new IllegalStateException(name
 					+ " has not been added to a scape yet");
 		}
-		this.scapeData = scapeData;
+		setScapeData(scapeData);
 		MicroSimCell.setData(scapeData);
 
 		loadBasefile(prefs.get(BASEFILE_KEY, ""));
@@ -501,9 +503,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		// if the new base file doesn't exist then show a file chooser
 		// dialog for the user to select one
 		if (!newBaseFile.exists()) {
-			newBaseFile =
-					loader.showOpenDialog("Select base file to load", null,
-							CBuildFromFile.FileTypeFactories.getFilter());
+			newBaseFile = loader.showOpenDialog("Select base file to load",
+					null, CBuildFromFile.FileTypeFactories.getFilter());
 		}
 
 		// if we have a passed in, or selected base file, then load it
@@ -549,6 +550,28 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	}
 
 	/**
+	 * Set the data dictionary.
+	 * 
+	 * @param dict
+	 *            dictionary
+	 */
+	public void setDictionary(DataDictionary dict) {
+		this.dict = dict;
+	}
+
+	/**
+	 * Get the data dictionary.
+	 * 
+	 * @return data dictionary.
+	 */
+	public DataDictionary getDictionary() {
+		if (dict == null) {
+			throw new IllegalStateException("Dictionary has not be set.");
+		}
+		return dict;
+	}
+
+	/**
 	 * Set the output directory for the scape.
 	 * 
 	 * @param strOutputDir
@@ -565,9 +588,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 			// if the directory doesn't exist then show a file chooser
 			// dialog for the user to select one
 			if (!fOutputDir.exists()) {
-				fOutputDir =
-						loader.showOpenDialogForDirectories(
-								"Select output directory", null);
+				fOutputDir = loader.showOpenDialogForDirectories(
+						"Select output directory", null);
 			}
 
 			if (fOutputDir != null) {
@@ -588,9 +610,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 *             if problem creating dataset
 	 */
 	public CDataCacheContainer getDataSetOfAgents() throws CDataGridException {
-		CBuildFromCollection builder =
-				new CBuildFromCollection(name, this, getPrototypeAgent()
-						.getClass().getSuperclass(), null);
+		CBuildFromCollection builder = new CBuildFromCollection(name, this,
+				getPrototypeAgent().getClass().getSuperclass(), null);
 
 		return new CDataCacheContainer(builder);
 	}
@@ -639,8 +660,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 			System.out.format("%s=%s%n", "java.library.path",
 					System.getProperty("java.library.path"));
 			System.out.format("%s=%s%n", "Path", System.getenv().get("Path"));
-			System.out.format("%s=%s%n", "R_HOME",
-					System.getenv().get("R_HOME"));
+			System.out.format("%s=%s%n", "R_HOME", System.getenv()
+					.get("R_HOME"));
 
 			// re-throw exception that occurred in the initializer
 			// as an exception our caller can deal with
@@ -649,9 +670,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		}
 
 		// create R scape interface
-		scapeR =
-				new ScapeRInterface(rLoader, this, dataFrameSymbol,
-						keepAllRunDFs);
+		scapeR = new ScapeRInterface(rLoader, this, dataFrameSymbol,
+				keepAllRunDFs);
 
 		rLoader.ascapeStart();
 
@@ -661,11 +681,6 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		// that are dependent on initialisation code.
 		if (emptyScape()) {
 			scapeR.assignScapeDataFrame(0);
-		}
-
-		DataDictionary dict = scapeData.getDataDictionary();
-		if (dict != null) {
-			scapeR.setDictionary(dict);
 		}
 
 		// create R menu with R file editing functions

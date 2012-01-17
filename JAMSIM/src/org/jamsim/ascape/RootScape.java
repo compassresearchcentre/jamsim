@@ -77,7 +77,7 @@ public class RootScape<D extends ScapeData> extends Scape {
 		super();
 		this.numIterations = numIterations;
 		setName(name);
-		setNumberRuns(numRuns);
+		this.numberRuns.setValue(numRuns);
 	}
 
 	@Override
@@ -356,7 +356,7 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 * @param numberRuns
 	 *            simulation runs.
 	 */
-	public final void setNumberRuns(int numberRuns) {
+	public void setNumberRuns(int numberRuns) {
 		this.numberRuns.setValue(numberRuns);
 	}
 

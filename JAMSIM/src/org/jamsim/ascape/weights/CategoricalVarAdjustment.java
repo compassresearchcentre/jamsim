@@ -1,6 +1,8 @@
 package org.jamsim.ascape.weights;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.prefs.Preferences;
@@ -19,6 +21,9 @@ import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.shared.InvalidDataException;
 import org.omancode.r.RFaceException;
 import org.omancode.r.types.CBuildFromREXP;
+import org.omancode.r.types.RDataFrame;
+import org.omancode.r.types.REXPAttr;
+import org.omancode.r.types.UnsupportedTypeException;
 import org.omancode.rmt.cellreader.narrow.TypeCheckedValue;
 import org.rosuda.REngine.REXP;
 
@@ -106,11 +111,12 @@ public class CategoricalVarAdjustment extends Observable implements
 			throws IOException {
 
 		this.rMatrixVarname = rMatrixVarname;
-		this.variableDesc = scapeR.getDictionary().getDescription(rVariable);
+		this.variableDesc = scapeR.getMsScape().getDictionary()
+				.getDescription(rVariable);
 		this.displayAdjFactor = displayAdjFactor;
 
 		this.scapeR = scapeR;
-		getTableModel(); 
+		getTableModel();
 	}
 
 	/**
@@ -128,9 +134,8 @@ public class CategoricalVarAdjustment extends Observable implements
 
 		try {
 
-			CDataCacheContainer casperMatrix =
-					new CDataCacheContainer(new CBuildFromREXP(rexp,
-							rMatrixVarname));
+			CDataCacheContainer casperMatrix = new CDataCacheContainer(
+					new CBuildFromREXP(rexp, rMatrixVarname));
 
 			return CasperUtil.scale(casperMatrix, displayAdjFactor);
 		} catch (CDataGridException e) {
@@ -149,8 +154,8 @@ public class CategoricalVarAdjustment extends Observable implements
 		try {
 			CDataCacheContainer casperMatrix = tableModel.getContainer();
 
-			casperMatrix =
-					CasperUtil.scale(casperMatrix, 1.0 / displayAdjFactor);
+			casperMatrix = CasperUtil.scale(casperMatrix,
+					1.0 / displayAdjFactor);
 
 			assignMatrix(rMatrixVarname, casperMatrix);
 
@@ -191,9 +196,8 @@ public class CategoricalVarAdjustment extends Observable implements
 		try {
 			// load matrix from R when table model requested
 
-			tableModel =
-					new CategoricalVarAdjTableModel(
-							loadAdjMatrix(rMatrixVarname), displayAdjFactor);
+			tableModel = new CategoricalVarAdjTableModel(
+					loadAdjMatrix(rMatrixVarname), displayAdjFactor);
 			return tableModel;
 
 		} catch (IOException e) {
@@ -224,11 +228,9 @@ public class CategoricalVarAdjustment extends Observable implements
 					Class<?> type = colTypes[i];
 
 					if (type.equals(Double.class)) {
-						cdrs.setValue(i,
-								TypeCheckedValue.MISSING_VALUE_DOUBLE);
+						cdrs.setValue(i, TypeCheckedValue.MISSING_VALUE_DOUBLE);
 					} else if (type.equals(Integer.class)) {
-						cdrs.setValue(i,
-								TypeCheckedValue.MISSING_VALUE_INTEGER);
+						cdrs.setValue(i, TypeCheckedValue.MISSING_VALUE_INTEGER);
 					} else if (type.equals(Byte.class)) {
 						cdrs.setValue(i, TypeCheckedValue.MISSING_VALUE_BYTE);
 					}
@@ -257,6 +259,61 @@ public class CategoricalVarAdjustment extends Observable implements
 	@Override
 	public double getWeightBase() {
 		return 1;
+	}
+
+	/**
+	 * Create a list of {@link CategoricalVarAdjustment}s from a dataframe
+	 * containing the rows rVariable, variableName, breaksExpr, breakLast,
+	 * adjIncrements.
+	 * 
+	 * @param scapeR
+	 *            scapeR
+	 * @param dataframe
+	 *            dataframe
+	 * @return list
+	 * @throws IOException
+	 *             if problem creating list
+	 */
+	public static List<CategoricalVarAdjustment> createList(
+			ScapeRInterface scapeR, REXP dataframe) throws IOException {
+
+		if (!RDataFrame.isDataFrame(dataframe)) {
+			throw new IllegalArgumentException(
+					"Cannot build list from REXP of class "
+							+ REXPAttr.getClassAttribute(dataframe));
+		}
+
+		try {
+
+			RDataFrame builder = new RDataFrame(
+					"CategoricalVarAdjustmentsSpec", dataframe);
+
+			CDataCacheContainer container = new CDataCacheContainer(builder);
+
+			CDataRowSet rowset = container.getAll();
+
+			List<CategoricalVarAdjustment> cvas = new ArrayList<CategoricalVarAdjustment>(
+					container.size());
+
+			while (rowset.next()) {
+
+				String rMatrixVarname = rowset.getString("rMatrixVarname");
+				String rVariable = rowset.getString("rVariable");
+				double displayAdjFactor = rowset.getDouble("displayAdjFactor");
+
+				CategoricalVarAdjustment cva = new CategoricalVarAdjustment(
+						scapeR, rMatrixVarname, rVariable, displayAdjFactor);
+
+				cvas.add(cva);
+			}
+
+			return cvas;
+
+		} catch (UnsupportedTypeException e) {
+			throw new RFaceException(e.getMessage(), e);
+		} catch (CDataGridException e) {
+			throw new RFaceException(e.getMessage(), e);
+		}
 	}
 
 }

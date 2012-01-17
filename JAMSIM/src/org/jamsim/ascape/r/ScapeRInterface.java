@@ -85,8 +85,6 @@ public class ScapeRInterface {
 
 	private String baseFileUpdateCmd;
 
-	private DataDictionary dict;
-
 	/**
 	 * Stored statically for use by R and {@link AscapeGD}.
 	 */
@@ -266,29 +264,6 @@ public class ScapeRInterface {
 	 */
 	public void assign(String x, String value) throws RFaceException {
 		rInterface.assign(x, value);
-	}
-
-	/**
-	 * Assign data dictionary to the R variable "dict".
-	 * 
-	 * @param dict
-	 *            dictionary
-	 * 
-	 * @throws RFaceException
-	 *             if problem creating dictionary
-	 */
-	public void setDictionary(DataDictionary dict) throws RFaceException {
-		assignHash("dict", dict.getMap());
-		this.dict = dict;
-	}
-
-	/**
-	 * Get the data dictionary.
-	 * 
-	 * @return data dictionary.
-	 */
-	public DataDictionary getDictionary() {
-		return dict;
 	}
 
 	/**
