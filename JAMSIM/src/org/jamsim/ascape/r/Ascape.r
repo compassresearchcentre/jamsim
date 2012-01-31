@@ -225,6 +225,31 @@ ascapeKeepObject <- function(objname) {
 	.ascape$objsToKeep <<- unique(c(.ascape$objsToKeep, objname))
 }
 
+#' Assigns value to a variable, but keep the variables' attributes.
+#' Can assign to elements of a list.
+#' 
+#' @param dest_varname
+#'  character vector of destination variable name that has
+#'  attributes to keep
+#' @param value
+#'  value to be assigned to dest_varname
+#' 
+#' @examples
+#' dest <- structure(1:5, myattr="test", class="myclass")
+#' value <- 6:10 
+#' dest_varname <- "dest"
+#' assignKeepingAttributes(dest_varname, value); dest
+#' 
+#' dest_list <- list(); dest_list$one <- structure(1:10, myattr="test", class="myclass")
+#' dest_varname <- "dest_list$one"; value <- 11:20
+#' assignKeepingAttributes(dest_varname, value); dest_list
+assignKeepingAttributes <- function(dest_varname, value) {
+	dest_attributes <- attributes(eval(parse(text=dest_varname)))
+	attributes(value) <- dest_attributes
+	assign_expr <- paste(dest_varname, "<<- value")
+	eval(parse(text=assign_expr))
+}
+
 #' Gets the navigator scape node.
 getScapeNode <- function() {
 	if (!exists(".scapeNode")) {

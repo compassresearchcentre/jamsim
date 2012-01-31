@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ivy-module version="2.0">
 
-	<info organisation="org.jamsim" module="jamsim" revision="1.3.7" status="release" publication="20120117163348">
+	<info organisation="org.jamsim" module="jamsim" revision="1.3.8" status="release" publication="20120201112501">
 		<license name="LGPL" url="http://www.gnu.org/licenses/lgpl.html"/>
 		<description homepage="http://code.google.com/p/jamsim/">
 		</description>

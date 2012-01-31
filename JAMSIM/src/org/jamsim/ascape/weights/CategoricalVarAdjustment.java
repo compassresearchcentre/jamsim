@@ -171,6 +171,7 @@ public class CategoricalVarAdjustment extends Observable implements
 		// into rMatrixVarname because it may be a list element
 		// (eg: env.scenario$catadjs$fsmoke)
 		scapeR.assignMatrix(".catadj", casperMatrix);
+		scapeR.eval("attributes(.catadj) <- attributes(" + rMatrixVarname + ")");
 		scapeR.assign(rMatrixVarname, ".catadj");
 
 		scapeR.printlnToConsole("Assigned adjustments to " + rMatrixVarname);
