@@ -19,7 +19,7 @@
     <minVersion>1.6.0</minVersion>
     <maxVersion></maxVersion>
     <jdkPreference>preferJre</jdkPreference>
-    <opt>-Djava.library.path=&quot;%HKEY_LOCAL_MACHINE\\SOFTWARE\\R-core\\R\\InstallPath%\\library\\rJava\\jri&quot;</opt>
+    <opt>-Djava.library.path=&quot;%HKEY_LOCAL_MACHINE\\SOFTWARE\\R-core\\R\\InstallPath%\\library\\rJava\\jri\\i386&quot;</opt>
   </jre>
   <versionInfo>
     <fileVersion>0.0.0.0</fileVersion>

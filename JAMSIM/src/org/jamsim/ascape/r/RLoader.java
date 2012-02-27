@@ -21,7 +21,7 @@ import org.omancode.r.ui.RSwingConsole;
  * Implemented as a singleton using the singleton enum pattern.
  * 
  * @author Oliver Mannion
- * @version $Revision$
+ * @version $Revision: 236 $
  */
 public enum RLoader {
 
@@ -76,11 +76,11 @@ public enum RLoader {
 			initR();
 
 		} catch (IOException e) {
-			System.err.println(e.getMessage());
-			System.err.println("Check: ");
-			System.err
+			System.out.println(e.getMessage());
+			System.out.println("Check: ");
+			System.out
 					.println("1) the location of jri.dll is specified, eg: -Djava.library.path=\"C:\\Program Files\\R\\R-2.12.2\\library\\rJava\\jri\"");
-			System.err
+			System.out
 					.println("2) R bin dir is on the path, eg: PATH=%PATH%;C:\\Program Files\\R\\R-2.12.2\\bin\\i386");
 
 			throw new ExceptionInInitializerError(e);
