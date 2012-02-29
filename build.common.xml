@@ -22,12 +22,14 @@
 	<property name="doc.dir" location="doc" />
 	<property name="ivyreport.dir" location="${doc.dir}/dependencies" />
 	<property name="ivypublish.dir" location="ivypublish" />
+	<property name="published-ixy.xml" location="${dist.dir}/ivy-${version}.xml" />
 
 	<!-- artifact names -->
 	<property name="binary.jar" value="${name}-${version}.jar" />
 	<property name="javadoc.jar" value="${name}-javadoc-${version}.jar" />
 	<property name="sources.jar" value="${name}-sources-${version}.jar" />
 	<property name="binary.plus.deps.zip" value="${name}-plus-deps-${version}.zip" />
+	<property name="pom-file" value="${name}-${version}.pom" />
 
 	<!-- build class path -->
 	<path id="build.classpath">
@@ -122,13 +124,26 @@
  
 	</target>
 
-	<target name="publish" description="Publish JARs to local ivy repository">
+	<target name="create-pom" description="Create Maven POM file based on ivy.xml">
+		<ivy:makepom ivyfile="ivy.xml" pomfile="${dist.dir}/${pom-file}">
+		    <!--
+		      Mapping confs to scopes is important, otherwise
+		      unmapped confs are included as optional. If you
+		      have private confs, the best option seems to
+		      be marking them as provided or system. See
+		      IVY-1201 for an ehancement request.
+		    -->
+		    <mapping conf="default" scope="compile"/>
+		</ivy:makepom>
+	</target>
+
+	<target name="publish" depends="create-pom" description="Publish JARs to local ivy repository">
 		<!-- do a resolve first. this places our ivy.xml in the cache -->
 		<ivy:resolve />
 		<!-- delete the resolved/delivered ivy.xml file from previous publications
 			 in case we have made new changes to ivy.xml since then  
         	 this will be regenerated in the deliver performed by the publish -->
-		<delete file="${dist.dir}/ivy-${version}.xml" />
+		<delete file="${published-ixy.xml}" />
 		<ivy:publish artifactspattern="${dist.dir}/[artifact](-[classifier])-${version}.[ext]" status="release" overwrite="true" resolver="local" />
 
 		<!-- place published ivy.xml in ivypublish.dir. this file can be made
@@ -136,9 +151,17 @@
 		<delete includeemptydirs="true">
 		    <fileset dir="${ivypublish.dir}" includes="**/*"/>
 		</delete>
-		<copy file="${dist.dir}/ivy-${version}.xml" todir="${ivypublish.dir}" overwrite="true"/>
+		<copy file="${published-ixy.xml}" todir="${ivypublish.dir}" overwrite="true"/>
 	</target>
 
+	<target name="publish-local-maven-repo" depends="create-pom" description="Publish artifacts to the local maven repo directory">
+		<!-- do a resolve first to get organisation property and other details from ivy.xml -->
+		<ivy:resolve />
+		<ivy:publish resolver="local-maven-repo" forcedeliver="true" overwrite="true" publishivy="false">
+			<artifacts pattern="${dist.dir}/[artifact](-[classifier])-${version}.[ext]"/>
+		</ivy:publish>
+	</target>	
+	
 	<taskdef name="gcupload" classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="${buildsupport.dir}/ant-googlecode-0.0.2.jar" />
 	<target name="gcupload" description="Upload JARs to googlecode">
 		<property file="${buildsupport.dir}/build.credentials.properties" />
