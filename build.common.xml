@@ -125,15 +125,14 @@
 	</target>
 
 	<target name="create-pom" description="Create Maven POM file based on ivy.xml">
-		<ivy:makepom ivyfile="ivy.xml" pomfile="${dist.dir}/${pom-file}">
+		<ivy:makepom ivyfile="ivy.xml" pomfile="${dist.dir}/${pom-file}" conf="*">
 		    <!--
 		      Mapping confs to scopes is important, otherwise
-		      unmapped confs are included as optional. If you
-		      have private confs, the best option seems to
-		      be marking them as provided or system. See
-		      IVY-1201 for an ehancement request.
+		      unmapped confs are included as optional. This makes
+		      dependencies with conf="*->@" non-optional and 
+		      part of the compile scope.
 		    -->
-		    <mapping conf="default" scope="compile"/>
+		    <mapping conf="*" scope="compile"/>
 		</ivy:makepom>
 	</target>
 
