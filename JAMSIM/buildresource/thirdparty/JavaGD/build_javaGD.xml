@@ -2,9 +2,11 @@
 <project name="javaGD" default="package" xmlns:ivy="antlib:org.apache.ivy.ant">
 
 	<property name="name" value="${ant.project.name}" />
-
+	<ivy:settings file="../ivysettings.xml" />
+	<property name="version" value="0.5.5" />
+		
 	<property name="src.url" value="http://www.rforge.net/JavaGD/snapshot/JavaGD_0.5-3.tar.gz" />
-	<property name="src.SHA" value="3474bd5aa8bd74eda911768549313cc882be3465" />
+	<property name="src.SHA" value="314b45ec9974fbb1bb2a821849e3d503f4928abe" />
 
 	<property name="pkg.dir" value="org/rosuda/javaGD" />
 
@@ -21,6 +23,15 @@
 	<property name="doc.dir" location="${build.dir}/javadoc" />
 	<property name="dist.dir" location="dist" />
 
+	<property name="published-ixy.xml" location="${dist.dir}/ivy-${version}.xml" />
+	
+	<!-- artifact names -->
+	<property name="binary.jar" value="${name}-${version}.jar" />
+	<property name="javadoc.jar" value="${name}-javadoc-${version}.jar" />
+	<property name="sources.jar" value="${name}-sources-${version}.jar" />
+	<property name="binary.plus.deps.zip" value="${name}-plus-deps-${version}.zip" />
+	<property name="pom-file" value="${name}-${version}.pom" />
+	
 	<property name="javac.debug" value="on" />
 
 	<target name="-testdownloaded" description="Set alreadydownloaded condition">
@@ -80,20 +91,41 @@
 	<target name="package" depends="compile,javadoc" description="Generate JAR files">
 		<mkdir dir="${dist.dir}" />
 		<copy file="${root.dir}/JavaGD/NEWS" todir="${class.dir}" />
-		<jar destfile="${dist.dir}/${name}.jar" basedir="${class.dir}" />
-		<jar destfile="${dist.dir}/${name}-javadoc.jar" basedir="${doc.dir}" />
-		<jar destfile="${dist.dir}/${name}-sources.jar">
+		<jar destfile="${dist.dir}/${binary.jar}" basedir="${class.dir}" />
+		<jar destfile="${dist.dir}/${javadoc.jar}" basedir="${doc.dir}" />
+		<jar destfile="${dist.dir}/${sources.jar}">
 			<zipfileset dir="${src.dir}" includes="*.java" prefix="${pkg.dir}" />
 		</jar>
 	</target>
 
-	<target name="publish" description="Publish JARs to local ivy repository">
-		<!-- do a resolve first. this places ivy.xml in the cache -->
+	<target name="publish" depends="create-pom" description="Publish JARs to local ivy repository">
+		<!-- do a resolve first. this places our ivy.xml in the cache -->
 		<ivy:resolve />
-		<!-- delete the resolved/delivered ivy.xml file from previous publications 
+		<!-- delete the resolved/delivered ivy.xml file from previous publications
+			 in case we have made new changes to ivy.xml since then  
         	 this will be regenerated in the deliver performed by the publish -->
-		<delete file="${dist.dir}/ivy.xml" />
-		<ivy:publish artifactspattern="${dist.dir}/[artifact](-[classifier]).[ext]" status="release" overwrite="true" resolver="local" />
+       	<delete file="${published-ixy.xml}" />
+		<ivy:publish artifactspattern="${dist.dir}/[artifact](-[classifier])-${version}.[ext]" status="release" overwrite="true" resolver="local" />
+    </target>
+        	
+	<target name="create-pom" description="Create Maven POM file based on ivy.xml">
+		<ivy:makepom ivyfile="ivy.xml" pomfile="${dist.dir}/${pom-file}" conf="*">
+		    <!--
+		      Mapping confs to scopes is important, otherwise
+		      unmapped confs are included as optional. This makes
+		      dependencies with conf="*->@" non-optional and 
+		      part of the compile scope.
+		    -->
+		    <mapping conf="*" scope="compile"/>
+		</ivy:makepom>
+	</target>
+    	
+	<target name="publish-local-maven-repo" depends="create-pom" description="Publish artifacts to the local maven repo directory">
+		<!-- do a resolve first to get organisation property and other details from ivy.xml -->
+		<ivy:resolve file="ivy.xml"/>
+		<ivy:publish resolver="local-maven-repo" forcedeliver="true" overwrite="true" publishivy="false">
+			<artifacts pattern="${dist.dir}/[artifact](-[classifier])-${version}.[ext]"/>
+		</ivy:publish>
 	</target>
 
 </project>

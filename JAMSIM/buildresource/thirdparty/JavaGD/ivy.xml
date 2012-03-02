@@ -30,6 +30,7 @@
 		<artifact />
 		<artifact name="javaGD-sources" type="source" ext="jar" />
 		<artifact name="javaGD-javadoc" type="javadoc" ext="jar" />
+		<artifact type="pom" ext="pom" conf="default"/>
 	</publications>
 
 </ivy-module>
