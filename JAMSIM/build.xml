@@ -91,13 +91,13 @@
 		<taskdef name="launch4j"
 		    classname="net.sf.launch4j.ant.Launch4jTask"
 		    classpath="${launch4j.dir}/launch4j.jar" />
-		<launch4j configFile="${buildsupport.dir}/launch4j_32.xml"
+		<launch4j configFile="${buildresource.dir}/launch4j_32.xml"
 			jarPath="${binary.jar}"
 			outfile="${build.dir}/${exe32}" 
 			fileVersion="${version}.32" txtFileVersion="${version}.0"
 			productVersion="${version}.0" txtProductVersion="${version}.0"
 		/>
-		<launch4j configFile="${buildsupport.dir}/launch4j_64.xml"
+		<launch4j configFile="${buildresource.dir}/launch4j_64.xml"
 			jarPath="${binary.jar}"
 			outfile="${build.dir}/${exe64}" 
 			fileVersion="${version}.64" txtFileVersion="${version}.0"
