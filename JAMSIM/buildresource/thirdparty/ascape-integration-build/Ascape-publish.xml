@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<project name="ascape" default="publish" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+	<property name="name" value="${ant.project.name}" />
+
+	<!-- get filename only -->
+	<basename property="src.filename" file="${src.url}" />
+	<property name="src.url.cache" location="build" />
+	<property name="dest" value="${src.url.cache}${file.separator}${src.filename}" />
+
+	<property name="root.dir" location="build" />
+	<property name="src.dir" location="${root.dir}/Rserve/src/client/java-new" />
+
+	<property name="build.dir" location="${src.dir}/build" />
+	<property name="class.dir" location="${build.dir}/classes" />
+	<property name="doc.dir" location="${build.dir}/javadoc" />
+	<property name="dist.dir" location="dist" />
+
+	<property name="javac.debug" value="on" />
+
+	<target name="publish" description="Publish JARs to local ivy repository">
+		<!-- do a resolve first. this places the JRI ivy.xml in the cache -->
+		<ivy:resolve />
+		<!-- delete the resolved/delivered ivy.xml file from previous publications 
+        	 this will be regenerated in the deliver performed by the publish -->
+		<delete file="${dist.dir}/ivy.xml" />
+		<ivy:publish artifactspattern="${dist.dir}/[artifact](-[classifier]).[ext]" status="release" overwrite="true" resolver="local" />
+	</target>
+
+</project>

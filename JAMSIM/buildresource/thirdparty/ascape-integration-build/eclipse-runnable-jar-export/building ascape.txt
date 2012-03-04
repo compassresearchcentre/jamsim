@@ -1,0 +1,6 @@
+Building integration versions of Ascape from a Eclipse project
+==============================================================
+
+* In Eclipse, create a Run configuration with defaults and main class "org.ascape.runtime.swing.SwingRunner"
+* Export - Runnable JAR file
+* Specify the output location and select "Extract required libraries into generated JAR" 
