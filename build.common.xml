@@ -91,7 +91,7 @@
 		<javadoc-with-presets sourcepath="${src.dir}" destdir="${doc.dir}" author="true" version="true" use="true" classpathref="build.classpath" />
 	</target>
 
-	<target name="package" depends="compile, javadoc" description="Package JAR files">
+	<target name="package" depends="compile, javadoc" description="package: Compile and build JARs for binaries, source and javadocs">
 		<mkdir dir="${dist.dir}" />
 		<property name="manifest" location="${dist.dir}/MANIFEST.MF" />
 		
@@ -136,7 +136,7 @@
 		</ivy:makepom>
 	</target>
 
-	<target name="publish" depends="create-pom" description="Publish JARs to local ivy repository">
+	<target name="publish" depends="create-pom" description="Publish artifacts to local ivy repository">
 		<!-- do a resolve first. this places our ivy.xml in the cache -->
 		<ivy:resolve />
 		<!-- delete the resolved/delivered ivy.xml file from previous publications
@@ -153,7 +153,7 @@
 		<copy file="${published-ixy.xml}" todir="${ivypublish.dir}" overwrite="true"/>
 	</target>
 
-	<target name="publish-local-maven-repo" depends="create-pom" description="Publish artifacts to the local maven repo directory">
+	<target name="publish-local-maven-repo" depends="create-pom" description="Publish artifacts to local maven repo directory">
 		<!-- do a resolve first to get organisation property and other details from ivy.xml -->
 		<ivy:resolve />
 		<ivy:publish resolver="local-maven-repo" forcedeliver="true" overwrite="true" publishivy="false">
