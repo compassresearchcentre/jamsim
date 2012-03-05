@@ -8,6 +8,16 @@
 	
 	<resolvers>
 
+		<ibiblio name="romanface-repo" root="http://romanface.googlecode.com/git/repo/" m2compatible="true" />
+		
+		<ibiblio name="omcutil-repo" root="http://omcutil.googlecode.com/git/repo/" m2compatible="true" />
+		
+		<ibiblio name="readmytables-repo" root="http://readmytables.googlecode.com/git/repo/" m2compatible="true" />
+
+		<ibiblio name="jamsim-repo" root="http://jamsim.googlecode.com/git/repo/" m2compatible="true" />
+		
+		<ibiblio name="casper-repo" root="http://casperdatasets.googlecode.com/svn/trunk/repo/" m2compatible="true" />
+
 		<!-- the javabuilders maven repo -->
 		<ibiblio name="javabuilders" root="http://javabuilders.googlecode.com/svn/repo/"
 			m2compatible="true" />
@@ -25,10 +35,17 @@
 	</resolvers>
 	<modules>
 		<!--  define resolvers for specific modules -->
+		<module organisation="net.casper" resolver="casper-repo" />
+		<module organisation="org.beanshell" resolver="romanface-repo" />
+		<module organisation="org.rosuda" resolver="romanface-repo" />
+		<module organisation="org.omancode" name="omcutil" resolver="omcutil-repo" />
+		<module organisation="org.omancode" name="readmytables" resolver="readmytables-repo" />
+		<module organisation="org.omancode" name="readmytablesfromfiles" resolver="readmytables-repo" />
 		<module organisation="org.javabuilders" resolver="javabuilders" />
-		<module organisation="ch.cern" resolver="ivyroundup" />
 		<module organisation="net.sourceforge.supercsv" resolver="ivyroundup" />
-		<module organisation="it.unimi.dsi" resolver="ivyroundup" />
 		<module organisation="org.ascape" resolver="ivyroundup" />
+		<module organisation="org.omancode" name="romanface" resolver="romanface-repo" />
+		<module organisation="org.jedit" resolver="jamsim-repo" />
+		
 	</modules>
 </ivysettings>
