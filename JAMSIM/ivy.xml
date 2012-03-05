@@ -17,6 +17,7 @@
 		<artifact conf="default"/>
 		<artifact name="${name}-sources" type="source" conf="sources" ext="jar" />
 		<artifact name="${name}-javadoc" type="javadoc" conf="javadoc" ext="jar" />
+		<artifact type="pom" ext="pom" conf="default"/>
 	</publications>
 
 	<dependencies>
