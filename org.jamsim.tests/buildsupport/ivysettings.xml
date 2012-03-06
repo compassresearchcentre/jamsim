@@ -46,6 +46,6 @@
 		<module organisation="org.ascape" resolver="ivyroundup" />
 		<module organisation="org.omancode" name="romanface" resolver="romanface-repo" />
 		<module organisation="org.jedit" resolver="jamsim-repo" />
-		
+		<module organisation="org.jamsim" resolver="jamsim-repo" />
 	</modules>
 </ivysettings>
