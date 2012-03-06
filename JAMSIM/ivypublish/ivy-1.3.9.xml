@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ivy-module version="2.0">
 
-	<info organisation="org.jamsim" module="jamsim" revision="1.3.8" status="release" publication="20120201112501">
+	<info organisation="org.jamsim" module="jamsim" revision="1.3.9" status="release" publication="20120306113408">
 		<license name="LGPL" url="http://www.gnu.org/licenses/lgpl.html"/>
 		<description homepage="http://code.google.com/p/jamsim/">
 		</description>
@@ -17,6 +17,7 @@
 		<artifact conf="default"/>
 		<artifact name="jamsim-sources" type="source" conf="sources" ext="jar"/>
 		<artifact name="jamsim-javadoc" type="javadoc" conf="javadoc" ext="jar"/>
+		<artifact type="pom" ext="pom" conf="default"/>
 	</publications>
 
 	<dependencies>
@@ -24,7 +25,7 @@
 
 		<dependency org="net.casper" name="casperdatasets-ext" rev="2.1.5" revConstraint="latest.integration" conf="*->@"/>
 
-		<dependency org="org.omancode" name="romanface" rev="1.1.5" revConstraint="latest.integration" conf="*->@"/>
+		<dependency org="org.omancode" name="romanface" rev="1.1.6" revConstraint="latest.integration" conf="*->@"/>
 		<dependency org="org.omancode" name="omcutil" rev="1.2.5" revConstraint="[1.2.4,)" conf="*->@"/>
         <dependency org="org.rosuda" name="javaGD" rev="0.5.3" revConstraint="latest.integration"/>
        
