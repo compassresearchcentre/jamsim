@@ -21,7 +21,7 @@
 	</publications>
 
 	<dependencies>
-		<dependency org="org.ascape" name="ascape" rev="5.6.1" conf="default"/>
+		<dependency org="org.ascape" name="ascape" rev="5.6.1"/>
 
 		<dependency org="net.casper" name="casperdatasets-ext" rev="latest.integration" conf="*->@"/>
 
