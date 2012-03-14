@@ -44,6 +44,12 @@
 	</tstamp>
 
 	<target name="resolve" description="Resolve dependencies using Ivy">
+		
+		<!-- empty ivy.lib.dir -->
+		<delete includeemptydirs="true">
+		    <fileset dir="${ivy.lib.dir}" includes="**/*"/>
+		</delete>
+
 		<!-- do a retrieve to ivy.lib.dir -->
 		<ivy:retrieve conf="default" />
 
@@ -124,19 +130,22 @@
  
 	</target>
 
-	<target name="create-pom" description="Create Maven POM file based on ivy.xml">
+	<target name="make-pom" description="Create Maven POM file based on ivy.xml">
 		<ivy:makepom ivyfile="ivy.xml" pomfile="${dist.dir}/${pom-file}" conf="*">
 		    <!--
 		      Mapping confs to scopes is important, otherwise
 		      unmapped confs are included as optional. This makes
-		      dependencies with conf="*->@" non-optional and 
-		      part of the compile scope.
+		      the confs specified below non-optional.
 		    -->
-		    <mapping conf="*" scope="compile"/>
+		    <mapping conf="compile" scope="compile"/>
+			<mapping conf="provided" scope="provided"/>
+			<mapping conf="runtime" scope="runtime"/>
+			<mapping conf="test" scope="test"/>
+			<mapping conf="system" scope="system"/>
 		</ivy:makepom>
 	</target>
 
-	<target name="publish" depends="create-pom" description="Publish artifacts to local ivy repository">
+	<target name="publish" depends="make-pom" description="Publish artifacts to local ivy repository">
 		<!-- do a resolve first. this places our ivy.xml in the cache -->
 		<ivy:resolve />
 		<!-- delete the resolved/delivered ivy.xml file from previous publications
@@ -153,7 +162,7 @@
 		<copy file="${published-ixy.xml}" todir="${ivypublish.dir}" overwrite="true"/>
 	</target>
 
-	<target name="publish-local-maven-repo" depends="create-pom" description="Publish artifacts to local maven repo directory">
+	<target name="publish-local-maven-repo" depends="make-pom" description="Publish artifacts to local maven repo directory">
 		<!-- do a resolve first to get organisation property and other details from ivy.xml -->
 		<ivy:resolve />
 		<ivy:publish resolver="local-maven-repo" forcedeliver="true" overwrite="true" publishivy="false">
