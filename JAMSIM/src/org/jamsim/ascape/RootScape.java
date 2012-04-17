@@ -17,6 +17,7 @@ import org.jamsim.ascape.output.OutputDatasetDefs;
 import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.ascape.r.ScapeRListener;
 import org.jamsim.ascape.ui.AnalysisMenu;
+import org.jamsim.ascape.ui.NewPanelView;
 import org.jamsim.ascape.ui.PanelViewWeightCalculators;
 import org.jamsim.ascape.ui.cmd.ScapeRCommand;
 import org.jamsim.ascape.ui.cmd.ScapeRCommandAction;
@@ -164,8 +165,8 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 */
 	public void setupWeightCalculators(Map<String, WeightCalculator> calcMap) {
 		if (calcMap != null) {
-			PanelViewWeightCalculators wcalcPanel =
-					new PanelViewWeightCalculators(calcMap, msscape);
+			NewPanelView wcalcPanel =
+					new NewPanelView(calcMap, msscape);
 
 			msscape.setWeightCalculatorPanelView(wcalcPanel);
 		}
