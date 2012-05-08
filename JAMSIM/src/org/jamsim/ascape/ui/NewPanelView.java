@@ -2,6 +2,7 @@ package org.jamsim.ascape.ui;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -49,14 +50,19 @@ public class NewPanelView implements PanelViewProvider,
 	private final Map<String, WeightCalculator> wcalcs;
 	private final String[] wcalcNames;
 	private final MicroSimScape<?> scape;
-	
+	private final String[] groupNames;
 	private PanelView pv;
+	private final JLabel grouplabel;
+	private final JComboBox grouper;
+	private final Dimension groupdim;
+	private final Dimension selectdim;
+	private final JLabel selectlabel;
 	private final JComboBox selector;
 	//private final JScrollPane tablePane;
-	private final JRadioButton nonebutton;
-	private final JRadioButton sesbutton;
-	private final JRadioButton ethbutton;
-	private final JPanel radioPanel;
+	//private final JRadioButton nonebutton;
+	//private final JRadioButton sesbutton;
+	//private final JRadioButton ethbutton;
+	//private final JPanel radioPanel;
 	private final JTabbedPane yeartabs;
 	private final JScrollPane year1;
 	private final JScrollPane year2;
@@ -74,9 +80,9 @@ public class NewPanelView implements PanelViewProvider,
 	
 	private WeightCalculator currentwc;
 	
-	static String noneradio = "None";
-	static String sesradio = "SES at birth";
-	static String ethradio = "Ethnicity";
+	//static String noneradio = "None";
+	//static String sesradio = "SES at birth";
+	//static String ethradio = "Ethnicity";
 	
 	public NewPanelView(Map<String, WeightCalculator> wcalcs,
 			MicroSimScape<?> scape) {
@@ -84,20 +90,28 @@ public class NewPanelView implements PanelViewProvider,
 		this.wcalcNames = wcalcs.keySet().toArray(new String[wcalcs.size()]);
 		this.scape = scape;
 
+		groupNames = new String[] {"None", "SES at birth", "Ethnicity"};
 		// create GUI elements
 		pv = PanelViewUtil.createResizablePanelView("Scenario Weightings");
+		grouplabel = new JLabel();
+		grouper = new JComboBox(groupNames);
+		groupdim = new Dimension (100, 40);
+		grouper.setMaximumSize(groupdim);
+		selectlabel = new JLabel();
 		selector = new JComboBox(wcalcNames);
-		nonebutton = new JRadioButton(noneradio);
-		sesbutton = new JRadioButton(sesradio);
-		ethbutton = new JRadioButton(ethradio);
-		ButtonGroup breakdown = new ButtonGroup();
-		breakdown.add(nonebutton);
-		breakdown.add(sesbutton);
-		breakdown.add(ethbutton);
-		radioPanel = new JPanel(new GridLayout(0, 1));
-		radioPanel.add(nonebutton);
-		radioPanel.add(sesbutton);
-		radioPanel.add(ethbutton);
+		selectdim = new Dimension (420, 40);
+		selector.setMaximumSize(selectdim);
+		//nonebutton = new JRadioButton(noneradio);
+		//sesbutton = new JRadioButton(sesradio);
+		//ethbutton = new JRadioButton(ethradio);
+		//ButtonGroup breakdown = new ButtonGroup();
+		//breakdown.add(nonebutton);
+		//breakdown.add(sesbutton);
+		//breakdown.add(ethbutton);
+		//radioPanel = new JPanel(new GridLayout(0, 1));
+		//radioPanel.add(nonebutton);
+		//radioPanel.add(sesbutton);
+		//radioPanel.add(ethbutton);
 		yeartabs = new JTabbedPane();
 		year1 = new JScrollPane();
 		year2 = new JScrollPane();
@@ -114,7 +128,7 @@ public class NewPanelView implements PanelViewProvider,
 		year13 = new JScrollPane();
 
 		BuildResult uiElements = SwingJavaBuilder.build(this);
-		nonebutton.setSelected(true);
+		//nonebutton.setSelected(true);
 		
 		//ButtonModel subgroup = breakdown.getSelection();
 		// add YAML panel
@@ -167,7 +181,8 @@ public class NewPanelView implements PanelViewProvider,
 			throw new RuntimeException("Can't find wcalc named "
 					+ currentwc.getName());
 		}
-
+        
+		grouper.setSelectedIndex(0);
 		selector.setSelectedIndex(sIndex);
 		
 		return pv;
@@ -215,6 +230,8 @@ public class NewPanelView implements PanelViewProvider,
 	private void setTablePane(WeightCalculator wc, JScrollPane scrollPane) {
 		JTable table = createTable(wc);
 		scrollPane.setViewportView(table);
+		table.setRowHeight(20);
+		table.setIntercellSpacing(new Dimension(10, 4));
 	}
 
 	private JTable createTable(ParameterSet pset) {

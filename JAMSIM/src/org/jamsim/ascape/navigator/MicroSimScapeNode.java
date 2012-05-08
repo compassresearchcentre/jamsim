@@ -155,8 +155,8 @@ public class MicroSimScapeNode extends ScapeNode {
 	 *            panel view provider
 	 */
 	public final void addParameterSetNode(PanelViewProvider provider) {
-		addNodeToOnDemandFolder(new PanelViewNode(provider),
-				"Parameter sets", null);
+	//	addNodeToOnDemandFolder(new PanelViewNode(provider),
+		//		"Parameter sets", null);
 	}
 
 	/**

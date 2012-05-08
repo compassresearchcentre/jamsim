@@ -1,6 +1,8 @@
 JPanel(name=panel):
+    - JLabel(name=grouplabel, text=Grouping)
+    - JComboBox(name=grouper, onAction=selectorChanged)
+    - JLabel(name=selectlabel, text=Variable)
     - JComboBox(name=selector, onAction=selectorChanged)
-    - JPanel(name=radioPanel, groupTitle="Grouping")
     - JTabbedPane(name=yeartabs):
         - JScrollPane(name=year1, tabTitle="Year 1")
         - JScrollPane(name=year2, tabTitle="Year 2")
@@ -18,8 +20,10 @@ JPanel(name=panel):
     - JButton(name=update, text=Update, onAction=update)
     - JButton(name=reset, text=Defaults, onAction=reset)
     - MigLayout: |
-        [grow][grow][grow]
+        [777, grow]
+        grouplabel
+        grouper
+        selectlabel
         selector
-        radioPanel
         yeartabs
         update=1,reset=1
