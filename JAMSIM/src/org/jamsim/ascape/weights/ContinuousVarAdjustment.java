@@ -377,6 +377,5 @@ public class ContinuousVarAdjustment extends Observable implements
 		} catch (CDataGridException e) {
 			throw new RFaceException(e.getMessage(), e);
 		}
-
 	}
 }

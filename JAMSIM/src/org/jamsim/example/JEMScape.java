@@ -59,7 +59,7 @@ public class JEMScape extends RootScape<JEMData> {
 			scapeR.assignHash("dict", baseScape.getDictionary().getMap());
 
 			// setup weights
-			setupWeightCalculators(data.getWeightCalculators(scapeR));
+			//setupWeightCalculators(data.getWeightCalculators(scapeR));
 
 		} catch (IOException e) {
 			throw new RuntimeException(e.getMessage(), e);

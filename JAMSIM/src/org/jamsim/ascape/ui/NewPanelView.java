@@ -47,8 +47,8 @@ import org.javabuilders.swing.SwingJavaBuilder;
 public class NewPanelView implements PanelViewProvider,
 		ActionListener {
 
-	private final Map<String, WeightCalculator> wcalcs;
-	private final String[] wcalcNames;
+	private final Map<String, Map<String, WeightCalculator>> wcalcsvarmaps;
+	private final String[] wcalcvarnames;
 	private final MicroSimScape<?> scape;
 	private final String[] groupNames;
 	private PanelView pv;
@@ -78,16 +78,16 @@ public class NewPanelView implements PanelViewProvider,
 	private final JScrollPane year12;
 	private final JScrollPane year13;
 	
-	private WeightCalculator currentwc;
+	private Map<String, WeightCalculator> currentwcmap;
 	
 	//static String noneradio = "None";
 	//static String sesradio = "SES at birth";
 	//static String ethradio = "Ethnicity";
 	
-	public NewPanelView(Map<String, WeightCalculator> wcalcs,
+	public NewPanelView(Map<String, Map<String, WeightCalculator>> wcalcsvarmaps,
 			MicroSimScape<?> scape) {
-		this.wcalcs = wcalcs;
-		this.wcalcNames = wcalcs.keySet().toArray(new String[wcalcs.size()]);
+		this.wcalcsvarmaps = wcalcsvarmaps;
+		this.wcalcvarnames = wcalcsvarmaps.keySet().toArray(new String[wcalcsvarmaps.size()]);
 		this.scape = scape;
 
 		groupNames = new String[] {"None", "SES at birth", "Ethnicity"};
@@ -98,7 +98,7 @@ public class NewPanelView implements PanelViewProvider,
 		groupdim = new Dimension (100, 40);
 		grouper.setMaximumSize(groupdim);
 		selectlabel = new JLabel();
-		selector = new JComboBox(wcalcNames);
+		selector = new JComboBox(wcalcvarnames);
 		selectdim = new Dimension (420, 40);
 		selector.setMaximumSize(selectdim);
 		//nonebutton = new JRadioButton(noneradio);
@@ -160,26 +160,26 @@ public class NewPanelView implements PanelViewProvider,
 	@Override
 	public PanelView getPanelView() {
 		// set current weight calculator
-		currentwc = scape.getWeightCalculator();
-		setTablePane(currentwc, year1);
-		setTablePane(currentwc, year2);
-		setTablePane(currentwc, year3);
-		setTablePane(currentwc, year4);
-		setTablePane(currentwc, year5);
-		setTablePane(currentwc, year6);
-		setTablePane(currentwc, year7);
-		setTablePane(currentwc, year8);
-		setTablePane(currentwc, year9);
-		setTablePane(currentwc, year10);
-		setTablePane(currentwc, year11);
-		setTablePane(currentwc, year12);
-		setTablePane(currentwc, year13);
+		currentwcmap = wcalcsvarmaps.values().iterator().next();
+		setTablePane(currentwcmap.get("Year 1"), year1);
+		setTablePane(currentwcmap.get("Year 2"), year2);
+		setTablePane(currentwcmap.get("Year 3"), year3);
+		setTablePane(currentwcmap.get("Year 4"), year4);
+		setTablePane(currentwcmap.get("Year 5"), year5);
+		setTablePane(currentwcmap.get("Year 6"), year6);
+		setTablePane(currentwcmap.get("Year 7"), year7);
+		setTablePane(currentwcmap.get("Year 8"), year8);
+		setTablePane(currentwcmap.get("Year 9"), year9);
+		setTablePane(currentwcmap.get("Year 10"), year10);
+		setTablePane(currentwcmap.get("Year 11"), year11);
+		setTablePane(currentwcmap.get("Year 12"), year12);
+		setTablePane(currentwcmap.get("Year 13"), year13);
 		
-		int sIndex = ArrayUtils.indexOf(wcalcNames, currentwc.getName());
+		int sIndex = ArrayUtils.indexOf(wcalcvarnames, currentwcmap.values().iterator().next().getName());
 
 		if (sIndex == -1) {
 			throw new RuntimeException("Can't find wcalc named "
-					+ currentwc.getName());
+					+ currentwcmap.keySet().toArray(new String[0]).toString());
 		}
         
 		grouper.setSelectedIndex(0);
@@ -201,20 +201,20 @@ public class NewPanelView implements PanelViewProvider,
 	@SuppressWarnings("unused")
 	private void selectorChanged() {
 		Object selected = selector.getSelectedItem();
-		currentwc = wcalcs.get(selected);
-		setTablePane(currentwc, year1);
-		setTablePane(currentwc, year2);
-		setTablePane(currentwc, year3);
-		setTablePane(currentwc, year4);
-		setTablePane(currentwc, year5);
-		setTablePane(currentwc, year6);
-		setTablePane(currentwc, year7);
-		setTablePane(currentwc, year8);
-		setTablePane(currentwc, year9);
-		setTablePane(currentwc, year10);
-		setTablePane(currentwc, year11);
-		setTablePane(currentwc, year12);
-		setTablePane(currentwc, year13);
+		currentwcmap = wcalcsvarmaps.get(selected);
+		setTablePane(currentwcmap.get("Year 1"), year1);
+		setTablePane(currentwcmap.get("Year 2"), year2);
+		setTablePane(currentwcmap.get("Year 3"), year3);
+		setTablePane(currentwcmap.get("Year 4"), year4);
+		setTablePane(currentwcmap.get("Year 5"), year5);
+		setTablePane(currentwcmap.get("Year 6"), year6);
+		setTablePane(currentwcmap.get("Year 7"), year7);
+		setTablePane(currentwcmap.get("Year 8"), year8);
+		setTablePane(currentwcmap.get("Year 9"), year9);
+		setTablePane(currentwcmap.get("Year 10"), year10);
+		setTablePane(currentwcmap.get("Year 11"), year11);
+		setTablePane(currentwcmap.get("Year 12"), year12);
+		setTablePane(currentwcmap.get("Year 13"), year13);
 	}
 	
 	@Override

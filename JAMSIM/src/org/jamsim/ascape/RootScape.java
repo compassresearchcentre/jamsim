@@ -99,9 +99,8 @@ public class RootScape<D extends ScapeData> extends Scape {
 		}
 
 		// set up console output
-		consoleOutput =
-				new ConsoleOutput(this.getRunner().getEnvironment()
-						.getConsole());
+		consoleOutput = new ConsoleOutput(this.getRunner().getEnvironment()
+				.getConsole());
 
 		// set up file loader
 		loader = new FileLoader(this.getClass(), consoleOutput);
@@ -144,9 +143,8 @@ public class RootScape<D extends ScapeData> extends Scape {
 			Agent prototypeAgent) {
 
 		// create scape of agents
-		msscape =
-				new MicroSimScape<D>(new ListSpace(), baseScapeName,
-						prototypeAgent, loader);
+		msscape = new MicroSimScape<D>(new ListSpace(), baseScapeName,
+				prototypeAgent, loader);
 		add(msscape);
 
 		// for some reason this needs to be added, otherwise the iterate
@@ -160,19 +158,19 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 * Setup a panel view containing a set of weight calculators, and set the
 	 * weight calculator to that specified in the preferences.
 	 * 
-	 * @param calcMap
+	 * @param map
 	 *            map of weight calculators
 	 */
-	public void setupWeightCalculators(Map<String, WeightCalculator> calcMap) {
-		if (calcMap != null) {
-			NewPanelView wcalcPanel =
-					new NewPanelView(calcMap, msscape);
+	public void setupWeightCalculators(
+			Map<String, Map<String, WeightCalculator>> map) {
+		if (map != null) {
+			NewPanelView wcalcPanel = new NewPanelView(map, msscape);
 
 			msscape.setWeightCalculatorPanelView(wcalcPanel);
 		}
 
-		WeightCalculator currentCalc =
-				selectWeightCalculatorFromPrefs(calcMap, loader.getPrefs());
+		WeightCalculator currentCalc = selectWeightCalculatorFromPrefs(map,
+				loader.getPrefs());
 		try {
 			msscape.setWeightCalculator(currentCalc);
 		} catch (InvalidDataException e) {
@@ -184,25 +182,27 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 * Select weight calculator specified in the preferences from the supplied
 	 * map of weight calculators.
 	 * 
-	 * @param calcMap
+	 * @param wcalcsvarmaps
 	 *            map of weight calculators
 	 * @param prefs
 	 *            preferences
 	 * @return current weight calculator
 	 */
 	public static WeightCalculator selectWeightCalculatorFromPrefs(
-			Map<String, WeightCalculator> calcMap, Preferences prefs) {
+			Map<String, Map<String, WeightCalculator>> wcalcsvarmaps,
+			Preferences prefs) {
 
-		if (calcMap == null || calcMap.isEmpty()) {
+		if (wcalcsvarmaps == null || wcalcsvarmaps.isEmpty()) {
 			throw new IllegalStateException("No weight calculators defined.");
 		}
 
 		String wcalcName = prefs.get(WeightCalculator.WCALC_KEY, "");
 
-		WeightCalculator wcalc = calcMap.get(wcalcName);
+		WeightCalculator wcalc = wcalcsvarmaps.get(wcalcName).values()
+				.toArray(new WeightCalculator[0])[0];
 
-		return (wcalc == null) ? calcMap.values().toArray(
-				new WeightCalculator[calcMap.size()])[0] : wcalc;
+		return (wcalc == null) ? wcalcsvarmaps.values().toArray(
+				new WeightCalculator[wcalcsvarmaps.size()])[0] : wcalc;
 	}
 
 	/**
@@ -318,7 +318,8 @@ public class RootScape<D extends ScapeData> extends Scape {
 			// scapeR.printPrompt();
 
 			// add a dataframe information node
-			msscape.getScapeNode().addDataFrameNode(scapeR.getScapeDFRunName(0));
+			msscape.getScapeNode()
+					.addDataFrameNode(scapeR.getScapeDFRunName(0));
 
 		}
 
