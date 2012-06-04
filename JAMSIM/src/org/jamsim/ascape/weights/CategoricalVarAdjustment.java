@@ -7,6 +7,9 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.prefs.Preferences;
 
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.event.TreeModelListener;
 import javax.swing.table.TableModel;
 
 import net.casper.data.model.CDataCacheContainer;
@@ -35,7 +38,7 @@ import org.rosuda.REngine.REXP;
  * @version $Revision$
  */
 public class CategoricalVarAdjustment extends Observable implements
-		WeightCalculator {
+		WeightCalculator, TableModelListener {
 
 	/**
 	 * The R matrix that holds the displayed/edited values.
@@ -199,6 +202,7 @@ public class CategoricalVarAdjustment extends Observable implements
 
 			tableModel = new CategoricalVarAdjTableModel(
 					loadAdjMatrix(rMatrixVarname), displayAdjFactor);
+			tableModel.addTableModelListener(this);
 			return tableModel;
 
 		} catch (IOException e) {
@@ -209,7 +213,7 @@ public class CategoricalVarAdjustment extends Observable implements
 	@Override
 	public void validateAndNotify() throws InvalidDataException {
 		// notify all observers
-		setChanged();
+		// setChanged();
 		notifyObservers();
 	}
 
@@ -315,6 +319,11 @@ public class CategoricalVarAdjustment extends Observable implements
 		} catch (CDataGridException e) {
 			throw new RFaceException(e.getMessage(), e);
 		}
+	}
+
+	@Override
+	public void tableChanged(TableModelEvent e) {
+		setChanged();		
 	}
 
 }

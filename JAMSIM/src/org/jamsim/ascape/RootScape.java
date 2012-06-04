@@ -3,6 +3,7 @@ package org.jamsim.ascape;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Observer;
 import java.util.prefs.Preferences;
 
 import org.apache.commons.lang.mutable.MutableInt;
@@ -158,18 +159,25 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 * Setup a panel view containing a set of weight calculators, and set the
 	 * weight calculator to that specified in the preferences.
 	 * 
-	 * @param map
+	 * @param wcalcsvarmaps
 	 *            map of weight calculators
 	 */
 	public void setupWeightCalculators(
-			Map<String, Map<String, WeightCalculator>> map) {
-		if (map != null) {
-			NewPanelView wcalcPanel = new NewPanelView(map, msscape);
+			Map<String, Map<String, WeightCalculator>> wcalcsvarmaps) {
+		if (wcalcsvarmaps != null) {
+			NewPanelView wcalcPanel = new NewPanelView(wcalcsvarmaps, msscape);
 
 			msscape.setWeightCalculatorPanelView(wcalcPanel);
 		}
+		
+		for (Map<String, WeightCalculator> wcalcsyearsmap : wcalcsvarmaps
+				.values()) {
+			for (WeightCalculator wcalc : wcalcsyearsmap.values()) {
+				wcalc.addObserver((Observer)this);
+			}
+		}
 
-		WeightCalculator currentCalc = selectWeightCalculatorFromPrefs(map,
+		WeightCalculator currentCalc = selectWeightCalculatorFromPrefs(wcalcsvarmaps,
 				loader.getPrefs());
 		try {
 			msscape.setWeightCalculator(currentCalc);

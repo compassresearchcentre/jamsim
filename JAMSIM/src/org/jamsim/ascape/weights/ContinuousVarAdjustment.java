@@ -231,7 +231,7 @@ public class ContinuousVarAdjustment extends Observable implements
 	@Override
 	public void validateAndNotify() throws InvalidDataException {
 		// notify all observers
-		setChanged();
+		//setChanged();
 		notifyObservers();
 	}
 
