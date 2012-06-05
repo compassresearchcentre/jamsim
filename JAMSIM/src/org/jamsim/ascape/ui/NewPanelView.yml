@@ -1,25 +1,12 @@
 JPanel(name=panel):
     - JLabel(name=selectlabel, text=Variable)
     - JComboBox(name=selector, onAction=selectorChanged)
-    - JTabbedPane(name=yeartabs):
-        - JScrollPane(name=year1, tabTitle="Year 1")
-        - JScrollPane(name=year2, tabTitle="Year 2")
-        - JScrollPane(name=year3, tabTitle="Year 3")
-        - JScrollPane(name=year4, tabTitle="Year 4")
-        - JScrollPane(name=year5, tabTitle="Year 5")
-        - JScrollPane(name=year6, tabTitle="Year 6")
-        - JScrollPane(name=year7, tabTitle="Year 7")
-        - JScrollPane(name=year8, tabTitle="Year 8")
-        - JScrollPane(name=year9, tabTitle="Year 9")
-        - JScrollPane(name=year10, tabTitle="Year 10")
-        - JScrollPane(name=year11, tabTitle="Year 11")
-        - JScrollPane(name=year12, tabTitle="Year 12")
-        - JScrollPane(name=year13, tabTitle="Year 13")
+    - JTabbedPane(name=yeartabs)
     - JButton(name=update, text=Update, onAction=update)
     - JButton(name=reset, text=Defaults, onAction=reset)
     - MigLayout: |
         [777, grow]
         selectlabel
         selector
-        yeartabs
+        yeartabs [400]
         update=1,reset=1

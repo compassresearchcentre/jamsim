@@ -8,6 +8,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
 import javax.swing.ButtonGroup;
@@ -63,21 +64,8 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 	// private final JRadioButton ethbutton;
 	// private final JPanel radioPanel;
 	private final JTabbedPane yeartabs;
-	private final JScrollPane year1;
-	private final JScrollPane year2;
-	private final JScrollPane year3;
-	private final JScrollPane year4;
-	private final JScrollPane year5;
-	private final JScrollPane year6;
-	private final JScrollPane year7;
-	private final JScrollPane year8;
-	private final JScrollPane year9;
-	private final JScrollPane year10;
-	private final JScrollPane year11;
-	private final JScrollPane year12;
-	private final JScrollPane year13;
-
-	private Map<String, WeightCalculator> currentwcmap;
+	
+	private Map<String, WeightCalculator> currentwcyearsmap;
 
 	// static String noneradio = "None";
 	// static String sesradio = "SES at birth";
@@ -114,20 +102,7 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 		// radioPanel.add(sesbutton);
 		// radioPanel.add(ethbutton);
 		yeartabs = new JTabbedPane();
-		year1 = new JScrollPane();
-		year2 = new JScrollPane();
-		year3 = new JScrollPane();
-		year4 = new JScrollPane();
-		year5 = new JScrollPane();
-		year6 = new JScrollPane();
-		year7 = new JScrollPane();
-		year8 = new JScrollPane();
-		year9 = new JScrollPane();
-		year10 = new JScrollPane();
-		year11 = new JScrollPane();
-		year12 = new JScrollPane();
-		year13 = new JScrollPane();
-
+				
 		BuildResult uiElements = SwingJavaBuilder.build(this);
 		// nonebutton.setSelected(true);
 
@@ -161,27 +136,14 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 	@Override
 	public PanelView getPanelView() {
 		// set current weight calculator
-		currentwcmap = wcalcsvarmaps.values().iterator().next();
-		setTablePane(currentwcmap.get("Year 1"), year1);
-		setTablePane(currentwcmap.get("Year 2"), year2);
-		setTablePane(currentwcmap.get("Year 3"), year3);
-		setTablePane(currentwcmap.get("Year 4"), year4);
-		setTablePane(currentwcmap.get("Year 5"), year5);
-		setTablePane(currentwcmap.get("Year 6"), year6);
-		setTablePane(currentwcmap.get("Year 7"), year7);
-		setTablePane(currentwcmap.get("Year 8"), year8);
-		setTablePane(currentwcmap.get("Year 9"), year9);
-		setTablePane(currentwcmap.get("Year 10"), year10);
-		setTablePane(currentwcmap.get("Year 11"), year11);
-		setTablePane(currentwcmap.get("Year 12"), year12);
-		setTablePane(currentwcmap.get("Year 13"), year13);
-
-		int sIndex = ArrayUtils.indexOf(wcalcvarnames, currentwcmap.values()
+		currentwcyearsmap = wcalcsvarmaps.values().iterator().next();
+		
+		int sIndex = ArrayUtils.indexOf(wcalcvarnames, currentwcyearsmap.values()
 				.iterator().next().getName());
 
 		if (sIndex == -1) {
 			throw new RuntimeException("Can't find wcalc named "
-					+ currentwcmap.keySet().toArray(new String[0]).toString());
+					+ currentwcyearsmap.keySet().toArray(new String[0]).toString());
 		}
 
 		grouper.setSelectedIndex(0);
@@ -203,20 +165,13 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 	@SuppressWarnings("unused")
 	private void selectorChanged() {
 		Object selected = selector.getSelectedItem();
-		currentwcmap = wcalcsvarmaps.get(selected);
-		setTablePane(currentwcmap.get("Year 1"), year1);
-		setTablePane(currentwcmap.get("Year 2"), year2);
-		setTablePane(currentwcmap.get("Year 3"), year3);
-		setTablePane(currentwcmap.get("Year 4"), year4);
-		setTablePane(currentwcmap.get("Year 5"), year5);
-		setTablePane(currentwcmap.get("Year 6"), year6);
-		setTablePane(currentwcmap.get("Year 7"), year7);
-		setTablePane(currentwcmap.get("Year 8"), year8);
-		setTablePane(currentwcmap.get("Year 9"), year9);
-		setTablePane(currentwcmap.get("Year 10"), year10);
-		setTablePane(currentwcmap.get("Year 11"), year11);
-		setTablePane(currentwcmap.get("Year 12"), year12);
-		setTablePane(currentwcmap.get("Year 13"), year13);
+		currentwcyearsmap = wcalcsvarmaps.get(selected);
+		yeartabs.removeAll();
+		for (Entry<String, WeightCalculator> wcalcentry : currentwcyearsmap.entrySet()) {
+			JScrollPane year = new JScrollPane();
+			setTablePane(wcalcentry.getValue(), year);
+			yeartabs.addTab(wcalcentry.getKey(), year);
+		}
 	}
 
 	@Override

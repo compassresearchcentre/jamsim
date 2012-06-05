@@ -159,7 +159,6 @@ public class CategoricalVarAdjustment extends Observable implements
 
 			casperMatrix = CasperUtil.scale(casperMatrix,
 					1.0 / displayAdjFactor);
-
 			assignMatrix(rMatrixVarname, casperMatrix);
 
 		} catch (CDataGridException e) {
@@ -173,11 +172,13 @@ public class CategoricalVarAdjustment extends Observable implements
 		// assign to intermediate variable and then assign
 		// into rMatrixVarname because it may be a list element
 		// (eg: env.scenario$catadjs$fsmoke)
+		
+		String rMatrixVarnameCleaned = rMatrixVarname.replace(", drop = FALSE","");
 		scapeR.assignMatrix(".catadj", casperMatrix);
-		scapeR.eval("attributes(.catadj) <- attributes(" + rMatrixVarname + ")");
-		scapeR.assign(rMatrixVarname, ".catadj");
+		scapeR.eval("attributes(.catadj) <- attributes(" + rMatrixVarnameCleaned + ")");
+		scapeR.assign(rMatrixVarnameCleaned, ".catadj");
 
-		scapeR.printlnToConsole("Assigned adjustments to " + rMatrixVarname);
+		scapeR.printlnToConsole("Assigned adjustments to " + rMatrixVarnameCleaned);
 	}
 
 	@Override
@@ -199,7 +200,6 @@ public class CategoricalVarAdjustment extends Observable implements
 	public final TableModel getTableModel() {
 		try {
 			// load matrix from R when table model requested
-
 			tableModel = new CategoricalVarAdjTableModel(
 					loadAdjMatrix(rMatrixVarname), displayAdjFactor);
 			tableModel.addTableModelListener(this);
@@ -289,7 +289,6 @@ public class CategoricalVarAdjustment extends Observable implements
 		}
 
 		try {
-
 			RDataFrame builder = new RDataFrame(
 					"CategoricalVarAdjustmentsSpec", dataframe);
 
