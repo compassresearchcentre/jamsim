@@ -8,5 +8,5 @@ JPanel(name=panel):
         [777, grow]
         selectlabel
         selector
-        yeartabs [400]
+        yeartabs [400, grow]
         update=1,reset=1
