@@ -49,5 +49,6 @@
 		<nature>InCode.inCodeNature</nature>
 		<nature>de.tud.st.ispace.builder.ISpaceNature</nature>
 		<nature>net.sourceforge.metrics.nature</nature>
+		<nature>org.apache.ivyde.eclipse.ivynature</nature>
 	</natures>
 </projectDescription>
