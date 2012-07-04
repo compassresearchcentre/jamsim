@@ -45,6 +45,10 @@ public class ContinuousVarAdjustment extends Observable implements
 	private final String rVariable;
 
 	/**
+	 * Identifier for the simulation iteration
+	 */
+	private final int iteration;
+	/**
 	 * The name of a variable in r that stores the original values in rVariable.
 	 */
 	private final String rVariableOriginal;
@@ -111,10 +115,10 @@ public class ContinuousVarAdjustment extends Observable implements
 	 * @throws RFaceException
 	 *             if problem getting rVariable
 	 */
-	public ContinuousVarAdjustment(ScapeRInterface scapeR, String rVariable,
+	public ContinuousVarAdjustment(ScapeRInterface scapeR, String rVariable, int iteration,
 			String variableName, String breaksExpr, Double breakLast,
 			double adjIncrements, Preferences prefs) throws RFaceException {
-		this(scapeR, rVariable, variableName, breaksExpr, breakLast,
+		this(scapeR, rVariable, iteration, variableName, breaksExpr, breakLast,
 				adjIncrements);
 		loadState(prefs);
 	}
@@ -147,11 +151,12 @@ public class ContinuousVarAdjustment extends Observable implements
 	 * @throws RFaceException
 	 *             if problem getting rVariable
 	 */
-	public ContinuousVarAdjustment(ScapeRInterface scapeR, String rVariable,
+	public ContinuousVarAdjustment(ScapeRInterface scapeR, String rVariable, int iteration,
 			String variableName, String breaksExpr, Double breakLast,
 			double adjIncrements) throws RFaceException {
 
 		this.rVariable = rVariable;
+		this.iteration = iteration;
 		this.variableDesc = scapeR.getMsScape().getDictionary()
 				.getDescription(variableName);
 		this.breaksExpr = breaksExpr;
@@ -196,6 +201,14 @@ public class ContinuousVarAdjustment extends Observable implements
 				"breaklast=" + RUtil.asNullString(breakLast));
 
 	}
+
+	//private String cmdCreateContTypicalDistAcrossRuns(String unitRunsMatrix,
+	//		String binbreaks, Double breakLast) {
+		// eg: createContTypicalDistAcrossRuns(unitRunsMatrix, binbreaks,
+		// breakLast)
+	//	return StringUtil.functionCall("createContTypicalDistAcrossRuns",
+	//			unitRunsMatrix, binbreaks, RUtil.asNullString(breakLast));
+	//}
 
 	@Override
 	public double getLevelWeight(Map<String, ?> vars) {
@@ -364,7 +377,7 @@ public class ContinuousVarAdjustment extends Observable implements
 				double adjIncrements = rowset.getDouble("adjIncrements");
 
 				ContinuousVarAdjustment cva = new ContinuousVarAdjustment(
-						scapeR, rVariable, variableName, breaksExpr, breakLast,
+						scapeR, rVariable, 0, variableName, breaksExpr, breakLast,
 						adjIncrements);
 
 				cvas.add(cva);

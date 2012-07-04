@@ -46,7 +46,7 @@
 	<target name="resolve" description="Resolve dependencies using Ivy">
 		
 		<!-- empty ivy.lib.dir -->
-		<delete includeemptydirs="true">
+		<delete includeemptydirs="true" quiet="true">
 		    <fileset dir="${ivy.lib.dir}" includes="**/*"/>
 		</delete>
 

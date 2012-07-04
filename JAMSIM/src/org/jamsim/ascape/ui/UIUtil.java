@@ -70,7 +70,7 @@ public final class UIUtil {
 
 		for (int i = 0; i < table.getColumnCount(); i++) {
 			col = table.getColumnModel().getColumn(i);
-			col.setPreferredWidth(220);
+			col.setPreferredWidth(236);
 		}
 		return table;
 	}

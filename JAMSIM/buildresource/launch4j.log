@@ -1,0 +1,25 @@
+
+
+CmdLine:	C:\Users\Martin\Workspace\jamsim\JAMSIM\buildresource\JEM64.exe --l4j-debug
+WOW64:		yes
+Check launcher:	 (n/a)
+64-bit search:	SOFTWARE\JavaSoft\Java Runtime Environment...
+Ignore:		SOFTWARE\JavaSoft\Java Runtime Environment\1.6
+Match:		SOFTWARE\JavaSoft\Java Runtime Environment\1.6.0_31
+Using 64-bit runtime.
+64-bit search:	SOFTWARE\JavaSoft\Java Development Kit...
+Ignore:		SOFTWARE\JavaSoft\Java Development Kit\1.6
+Ignore:		SOFTWARE\JavaSoft\Java Development Kit\1.6.0_31
+Using 64-bit runtime.
+Check launcher:	C:\Program Files\Java\jre6\bin\javaw.exe (OK)
+Substitute:	PATH = C:\Program Files\Common Files\Microsoft Shared\Windows Live;C:\Program Files (x86)\Common Files\Microsoft Shared\Windows Live;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\Windows Live\Shared;C:\Program Files (x86)\Common Files\Roxio Shared\OEM\DLLShared\;C:\Program Files (x86)\Common Files\Roxio Shared\OEM\DLLShared\;C:\Program Files (x86)\Common Files\Roxio Shared\OEM\12.0\DLLShared\;C:\Program Files (x86)\Roxio\OEM\AudioCore\;C:\Program Files (x86)\QuickTime\QTSystem\;C:\Program Files\Intel\WiFi\bin\;C:\Program Files\Common Files\Intel\WirelessCommon\;c:\Program Files (x86)\Microsoft SQL Server\100\Tools\Binn\;c:\Program Files\Microsoft SQL Server\100\Tools\Binn\;c:\Program Files\Microsoft SQL Server\100\DTS\Binn\;;C:\Program Files\Java\jre6\bin;C:\Program Files\Java\jre6\bin
+Substitute:	HKEY_LOCAL_MACHINE\SOFTWARE\R-core\R\InstallPath = C:\Program Files\R 2.14.2
+Substitute:	HKEY_LOCAL_MACHINE\SOFTWARE\R-core\R\InstallPath = C:\Program Files\R 2.14.2
+Set var:	PATH = C:\Program Files\Common Files\Microsoft Shared\Windows Live;C:\Program Files (x86)\Common Files\Microsoft Shared\Windows Live;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\Windows Live\Shared;C:\Program Files (x86)\Common Files\Roxio Shared\OEM\DLLShared\;C:\Program Files (x86)\Common Files\Roxio Shared\OEM\DLLShared\;C:\Program Files (x86)\Common Files\Roxio Shared\OEM\12.0\DLLShared\;C:\Program Files (x86)\Roxio\OEM\AudioCore\;C:\Program Files (x86)\QuickTime\QTSystem\;C:\Program Files\Intel\WiFi\bin\;C:\Program Files\Common Files\Intel\WirelessCommon\;c:\Program Files (x86)\Microsoft SQL Server\100\Tools\Binn\;c:\Program Files\Microsoft SQL Server\100\Tools\Binn\;c:\Program Files\Microsoft SQL Server\100\DTS\Binn\;;C:\Program Files\Java\jre6\bin;C:\Program Files\Java\jre6\bin;C:\Program Files\R 2.14.2\bin;C:\Program Files\R 2.14.2\bin\x64
+Copy:		C:\Program Files\Java\jre6\bin\javaw.exe -> C:\Program Files\Java\jre6\launch4j-tmp\JEM64.exe
+Substitute:	HKEY_LOCAL_MACHINE\SOFTWARE\R-core\R\InstallPath = C:\Program Files\R 2.14.2
+Substitute:	USERPROFILE = C:\Users\Martin
+Launcher:	C:\Program Files\Java\jre6\bin\javaw.exe
+Launcher args:	-Djava.library.path="C:\Program Files\R 2.14.2\library\rJava\jri\x64;C:\Users\Martin\Documents\R\win-library\2.14\rJava\jri\x64" -jar "C:\Users\Martin\Workspace\jamsim\JAMSIM\buildresource\jamsim.jar"
+Args length:	200/32768 chars
+Exit code:	0
