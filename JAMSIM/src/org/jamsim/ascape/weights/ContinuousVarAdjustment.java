@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.prefs.Preferences;
 
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
 import net.casper.data.model.CDataCacheContainer;
@@ -36,7 +38,7 @@ import org.rosuda.REngine.REXPDouble;
  * @version $Revision$
  */
 public class ContinuousVarAdjustment extends Observable implements
-		WeightCalculator {
+		WeightCalculator, TableModelListener {
 
 	/**
 	 * The R variable that will be used as the basis for bin incrementing, eg:
@@ -233,7 +235,8 @@ public class ContinuousVarAdjustment extends Observable implements
 					breaksExpr, breakLast);
 
 			this.tableModel = new ContinuousVarAdjTableModel(counts);
-
+			tableModel.addTableModelListener(this);
+			
 			return tableModel;
 
 		} catch (RFaceException e) {
@@ -246,6 +249,7 @@ public class ContinuousVarAdjustment extends Observable implements
 		// notify all observers
 		//setChanged();
 		notifyObservers();
+		clearChanged();		
 	}
 
 	@Override
@@ -390,5 +394,10 @@ public class ContinuousVarAdjustment extends Observable implements
 		} catch (CDataGridException e) {
 			throw new RFaceException(e.getMessage(), e);
 		}
+	}
+
+	@Override
+	public void tableChanged(TableModelEvent e) {
+		setChanged();		
 	}
 }
