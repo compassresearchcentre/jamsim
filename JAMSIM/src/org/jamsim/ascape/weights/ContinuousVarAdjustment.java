@@ -86,6 +86,8 @@ public class ContinuousVarAdjustment extends Observable implements
 
 	private final ScapeRInterface scapeR;
 
+	private String subset;
+
 	/**
 	 * Construct incrementable proportions at each level of
 	 * {@code rVariableName} specified by {@code breaksExpr} and load the inital
@@ -96,6 +98,10 @@ public class ContinuousVarAdjustment extends Observable implements
 	 * @param rVariable
 	 *            the R variable that will be used as the basis for bin
 	 *            incrementing, eg: {@code children$bwkg}
+	 * @param subset
+	 * 			  the column of the 3D matrix to adjust, e.g. "[,2,]"
+	 * @param iteration
+	 * 			  year/iteration of the variable to adjust
 	 * @param variableName
 	 *            the name of the R variable, eg: {@code sol1}. Used to lookup
 	 *            variable description in the data dictionary.
@@ -117,10 +123,11 @@ public class ContinuousVarAdjustment extends Observable implements
 	 * @throws RFaceException
 	 *             if problem getting rVariable
 	 */
-	public ContinuousVarAdjustment(ScapeRInterface scapeR, String rVariable, int iteration,
-			String variableName, String breaksExpr, Double breakLast,
-			double adjIncrements, Preferences prefs) throws RFaceException {
-		this(scapeR, rVariable, iteration, variableName, breaksExpr, breakLast,
+	public ContinuousVarAdjustment(ScapeRInterface scapeR, String rVariable, String subset,
+			int iteration, String variableName, String breaksExpr,
+			Double breakLast, double adjIncrements, Preferences prefs)
+			throws RFaceException {
+		this(scapeR, rVariable, subset, iteration, variableName, breaksExpr, breakLast,
 				adjIncrements);
 		loadState(prefs);
 	}
@@ -153,11 +160,13 @@ public class ContinuousVarAdjustment extends Observable implements
 	 * @throws RFaceException
 	 *             if problem getting rVariable
 	 */
-	public ContinuousVarAdjustment(ScapeRInterface scapeR, String rVariable, int iteration,
-			String variableName, String breaksExpr, Double breakLast,
-			double adjIncrements) throws RFaceException {
+	public ContinuousVarAdjustment(ScapeRInterface scapeR, String rVariable,
+			String subset, int iteration, String variableName,
+			String breaksExpr, Double breakLast, double adjIncrements)
+			throws RFaceException {
 
 		this.rVariable = rVariable;
+		this.subset = subset;
 		this.iteration = iteration;
 		this.variableDesc = scapeR.getMsScape().getDictionary()
 				.getDescription(variableName);
@@ -204,13 +213,13 @@ public class ContinuousVarAdjustment extends Observable implements
 
 	}
 
-	//private String cmdCreateContTypicalDistAcrossRuns(String unitRunsMatrix,
-	//		String binbreaks, Double breakLast) {
-		// eg: createContTypicalDistAcrossRuns(unitRunsMatrix, binbreaks,
-		// breakLast)
-	//	return StringUtil.functionCall("createContTypicalDistAcrossRuns",
-	//			unitRunsMatrix, binbreaks, RUtil.asNullString(breakLast));
-	//}
+	// private String cmdCreateContTypicalDistAcrossRuns(String unitRunsMatrix,
+	// String binbreaks, Double breakLast) {
+	// eg: createContTypicalDistAcrossRuns(unitRunsMatrix, binbreaks,
+	// breakLast)
+	// return StringUtil.functionCall("createContTypicalDistAcrossRuns",
+	// unitRunsMatrix, binbreaks, RUtil.asNullString(breakLast));
+	// }
 
 	@Override
 	public double getLevelWeight(Map<String, ?> vars) {
@@ -231,12 +240,12 @@ public class ContinuousVarAdjustment extends Observable implements
 	public final TableModel getTableModel() {
 
 		try {
-			NamedNumber[] counts = getBinLevelsWithCount(scapeR, rVariable,
+			NamedNumber[] counts = getBinLevelsWithCount(scapeR, rVariable + subset,
 					breaksExpr, breakLast);
 
 			this.tableModel = new ContinuousVarAdjTableModel(counts);
 			tableModel.addTableModelListener(this);
-			
+
 			return tableModel;
 
 		} catch (RFaceException e) {
@@ -247,9 +256,9 @@ public class ContinuousVarAdjustment extends Observable implements
 	@Override
 	public void validateAndNotify() throws InvalidDataException {
 		// notify all observers
-		//setChanged();
+		// setChanged();
 		notifyObservers();
-		clearChanged();		
+		clearChanged();
 	}
 
 	@Override
@@ -274,10 +283,14 @@ public class ContinuousVarAdjustment extends Observable implements
 		// incrementBins(children$bwkg, 0.5, c(1,0,0,0,0,0,0,0,0))
 		// eg: incByFactor(children$bwkg, bin(children$bwkg, 0.5),
 		// c(0,0.5,0,0,0,0,0,0,0,0))
-		String cBin = cmdBin(rVariable, breaksExpr, breakLast);
+		String cBin = cmdBin(rVariable + subset, breaksExpr, breakLast);
 		String incrementBins = StringUtil.functionCall("incByFactor",
-				rVariable, cBin, ".binIncrements");
+				rVariable + subset, cBin, ".binIncrements");
 		// System.out.println(incrementBins);
+		String updateIsFixedIterationExpr = StringUtil.functionCall("attr",
+				rVariable, "\"is.fixed.iteration\"") + "[" + iteration + "]" + "<- TRUE";
+		System.out.println(updateIsFixedIterationExpr);
+		scapeR.parseEvalPrint(updateIsFixedIterationExpr);
 		assignRVariable(incrementBins);
 	}
 
@@ -292,10 +305,10 @@ public class ContinuousVarAdjustment extends Observable implements
 	private void assignRVariable(String rexpr) throws RFaceException {
 		// assign rvariable
 		// eg: children$bwkg <- incrementBins(...)
-		scapeR.assign(rVariable, rexpr);
+		scapeR.assign(rVariable + subset, rexpr);
 
 		scapeR.printToConsole("Adjusted continuous variable " + rVariable
-				+ " by ");
+				+ subset + " by ");
 
 		scapeR.parseEvalPrint("cat(.binIncrements)");
 		scapeR.printlnToConsole("");
@@ -312,7 +325,7 @@ public class ContinuousVarAdjustment extends Observable implements
 	 *             if problem calculating levels.
 	 */
 	private void recalculateLevels() throws RFaceException {
-		tableModel.setProps(getBinLevelsWithCount(scapeR, rVariable,
+		tableModel.setProps(getBinLevelsWithCount(scapeR, rVariable + subset,
 				breaksExpr, breakLast));
 	}
 
@@ -375,14 +388,16 @@ public class ContinuousVarAdjustment extends Observable implements
 			while (rowset.next()) {
 
 				String rVariable = rowset.getString("rVariable");
+				String subset = rowset.getString("subset");
+				int iteration = rowset.getInt("iteration");
 				String variableName = rowset.getString("variableName");
 				String breaksExpr = rowset.getString("breaksExpr");
 				double breakLast = rowset.getDouble("breakLast");
 				double adjIncrements = rowset.getDouble("adjIncrements");
 
 				ContinuousVarAdjustment cva = new ContinuousVarAdjustment(
-						scapeR, rVariable, 0, variableName, breaksExpr, breakLast,
-						adjIncrements);
+						scapeR, rVariable, subset, iteration, variableName, breaksExpr,
+						breakLast, adjIncrements);
 
 				cvas.add(cva);
 			}
@@ -398,6 +413,6 @@ public class ContinuousVarAdjustment extends Observable implements
 
 	@Override
 	public void tableChanged(TableModelEvent e) {
-		setChanged();		
+		setChanged();
 	}
 }
