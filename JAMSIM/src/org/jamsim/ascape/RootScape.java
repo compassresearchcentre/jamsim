@@ -169,16 +169,16 @@ public class RootScape<D extends ScapeData> extends Scape {
 
 			msscape.setWeightCalculatorPanelView(wcalcPanel);
 		}
-		
+
 		for (Map<String, WeightCalculator> wcalcsyearsmap : wcalcsvarmaps
 				.values()) {
 			for (WeightCalculator wcalc : wcalcsyearsmap.values()) {
-				wcalc.addObserver((Observer)this);
+				wcalc.addObserver((Observer) this);
 			}
 		}
 
-		WeightCalculator currentCalc = selectWeightCalculatorFromPrefs(wcalcsvarmaps,
-				loader.getPrefs());
+		WeightCalculator currentCalc = selectWeightCalculatorFromPrefs(
+				wcalcsvarmaps, loader.getPrefs());
 		try {
 			msscape.setWeightCalculator(currentCalc);
 		} catch (InvalidDataException e) {
@@ -206,8 +206,17 @@ public class RootScape<D extends ScapeData> extends Scape {
 
 		String wcalcName = prefs.get(WeightCalculator.WCALC_KEY, "");
 
-		WeightCalculator wcalc = wcalcsvarmaps.get(wcalcName).values()
-				.toArray(new WeightCalculator[0])[0];
+		WeightCalculator wcalc;
+		
+		if (wcalcName.equals("")) {
+			wcalc = wcalcsvarmaps.values().iterator().next()
+					.values().toArray(new WeightCalculator[0])[0];
+		}
+
+		else {
+			wcalc = wcalcsvarmaps.get(wcalcName).values()
+					.toArray(new WeightCalculator[0])[0];
+		}
 
 		return (wcalc == null) ? wcalcsvarmaps.values().toArray(
 				new WeightCalculator[wcalcsvarmaps.size()])[0] : wcalc;
