@@ -19,7 +19,6 @@ import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.ascape.r.ScapeRListener;
 import org.jamsim.ascape.ui.AnalysisMenu;
 import org.jamsim.ascape.ui.NewPanelView;
-import org.jamsim.ascape.ui.PanelViewWeightCalculators;
 import org.jamsim.ascape.ui.cmd.ScapeRCommand;
 import org.jamsim.ascape.ui.cmd.ScapeRCommandAction;
 import org.jamsim.ascape.weights.WeightCalculator;
