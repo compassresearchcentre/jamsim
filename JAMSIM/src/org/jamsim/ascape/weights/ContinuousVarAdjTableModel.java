@@ -122,8 +122,13 @@ public class ContinuousVarAdjTableModel extends AbstractTableModel {
 			throw new IllegalStateException("column " + col
 					+ " is not editable");
 		}
-
-		increments[row] = ((Double) value).doubleValue();
+		
+		if (value == null) {
+			increments[row] = 0;
+		}
+		else {
+			increments[row] = ((Double) value).doubleValue();
+		}
 		fireTableCellUpdated(row, col);
 	}
 
