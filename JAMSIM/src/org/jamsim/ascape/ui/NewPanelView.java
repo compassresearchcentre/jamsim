@@ -47,7 +47,7 @@ import org.javabuilders.swing.SwingJavaBuilder;
  */
 public class NewPanelView implements PanelViewProvider, ActionListener {
 
-	private final Map<String, Map<String, WeightCalculator>> wcalcsvarmaps;
+	private final Map<String, Map<String, WeightCalculator>> allvariablesweightcalcs;
 	private final String[] wcalcvarnames;
 	private final MicroSimScape<?> scape;
 	private final String[] groupNames;
@@ -64,8 +64,8 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 	// private final JRadioButton ethbutton;
 	// private final JPanel radioPanel;
 	private final JTabbedPane yeartabs;
-	
-	private Map<String, WeightCalculator> currentwcyearsmap;
+
+	private Map<String, WeightCalculator> currentvariableallyears;
 
 	// static String noneradio = "None";
 	// static String sesradio = "SES at birth";
@@ -74,7 +74,7 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 	public NewPanelView(
 			Map<String, Map<String, WeightCalculator>> wcalcsvarmaps,
 			MicroSimScape<?> scape) {
-		this.wcalcsvarmaps = wcalcsvarmaps;
+		this.allvariablesweightcalcs = wcalcsvarmaps;
 		this.wcalcvarnames = wcalcsvarmaps.keySet().toArray(
 				new String[wcalcsvarmaps.size()]);
 		this.scape = scape;
@@ -102,7 +102,7 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 		// radioPanel.add(sesbutton);
 		// radioPanel.add(ethbutton);
 		yeartabs = new JTabbedPane();
-				
+
 		BuildResult uiElements = SwingJavaBuilder.build(this);
 		// nonebutton.setSelected(true);
 
@@ -136,14 +136,15 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 	@Override
 	public PanelView getPanelView() {
 		// set current weight calculator
-		currentwcyearsmap = wcalcsvarmaps.values().iterator().next();
-		
-		int sIndex = ArrayUtils.indexOf(wcalcvarnames, currentwcyearsmap.values()
-				.iterator().next().getName());
+		currentvariableallyears = allvariablesweightcalcs.values().iterator().next();
+
+		int sIndex = ArrayUtils.indexOf(wcalcvarnames, currentvariableallyears
+				.values().iterator().next().getName());
 
 		if (sIndex == -1) {
 			throw new RuntimeException("Can't find wcalc named "
-					+ currentwcyearsmap.keySet().toArray(new String[0]).toString());
+					+ currentvariableallyears.keySet().toArray(new String[0])
+							.toString());
 		}
 
 		grouper.setSelectedIndex(0);
@@ -165,9 +166,10 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 	@SuppressWarnings("unused")
 	private void selectorChanged() {
 		Object selected = selector.getSelectedItem();
-		currentwcyearsmap = wcalcsvarmaps.get(selected);
+		currentvariableallyears = allvariablesweightcalcs.get(selected);
 		yeartabs.removeAll();
-		for (Entry<String, WeightCalculator> wcalcentry : currentwcyearsmap.entrySet()) {
+		for (Entry<String, WeightCalculator> wcalcentry : currentvariableallyears
+				.entrySet()) {
 			JScrollPane year = new JScrollPane();
 			setTablePane(wcalcentry.getValue(), year);
 			yeartabs.addTab(wcalcentry.getKey(), year);
@@ -204,7 +206,7 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 
 	private void doUpdate(String updateMsg) {
 		try {
-			for (Map<String, WeightCalculator> wcalcsyearsmap : wcalcsvarmaps
+			for (Map<String, WeightCalculator> wcalcsyearsmap : allvariablesweightcalcs
 					.values()) {
 				for (WeightCalculator wcalc : wcalcsyearsmap.values()) {
 					wcalc.validateAndNotify();
@@ -218,7 +220,10 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 	}
 
 	private void reset() {
-		JOptionPane.showMessageDialog(pv, "Reset to defaults.");
+		for (WeightCalculator wcalc : currentvariableallyears.values()) {
+			wcalc.resetDefaults();
+		}
+		JOptionPane.showMessageDialog(pv, "Current variable reset to base.", "Defaults", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	// @Override

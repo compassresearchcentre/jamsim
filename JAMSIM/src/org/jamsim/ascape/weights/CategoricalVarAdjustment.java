@@ -160,6 +160,8 @@ public class CategoricalVarAdjustment extends Observable implements
 			casperMatrix = CasperUtil.scale(casperMatrix,
 					1.0 / displayAdjFactor);
 			assignMatrix(rMatrixVarname, casperMatrix);
+			String rMatrixVarnameCleaned = rMatrixVarname.replace(", drop = FALSE","");
+			scapeR.printlnToConsole("Assigned adjustments to " + rMatrixVarnameCleaned);
 
 		} catch (CDataGridException e) {
 			throw new IOException(e.getMessage(), e);
@@ -177,8 +179,6 @@ public class CategoricalVarAdjustment extends Observable implements
 		scapeR.assignMatrix(".catadj", casperMatrix);
 		scapeR.eval("attributes(.catadj) <- attributes(" + rMatrixVarnameCleaned + ")");
 		scapeR.assign(rMatrixVarnameCleaned, ".catadj");
-
-		scapeR.printlnToConsole("Assigned adjustments to " + rMatrixVarnameCleaned);
 	}
 
 	@Override
@@ -241,7 +241,9 @@ public class CategoricalVarAdjustment extends Observable implements
 					}
 				}
 			}
-
+			String rMatrixVarnameCleaned = rMatrixVarname.replace(", drop = FALSE","");
+			scapeR.printlnToConsole("Reverting adjustments to " + rMatrixVarnameCleaned);
+			
 			tableModel.fireTableDataChanged();
 			assignMatrix(rMatrixVarname, casperMatrix);
 

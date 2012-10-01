@@ -264,6 +264,7 @@ public class ContinuousVarAdjustment extends Observable implements
 	@Override
 	public void resetDefaults() {
 		try {
+			scapeR.printlnToConsole("Reverting adjustments to " + rVariable);
 			assignRVariable(rVariableOriginal);
 		} catch (RFaceException e) {
 			throw new RuntimeException(e.getMessage(), e);
@@ -291,6 +292,13 @@ public class ContinuousVarAdjustment extends Observable implements
 				rVariable, "\"is.fixed.iteration\"") + "[" + iteration + "]" + "<- TRUE";
 		System.out.println(updateIsFixedIterationExpr);
 		scapeR.parseEvalPrint(updateIsFixedIterationExpr);
+		
+		scapeR.printToConsole("Adjusted continuous variable " + rVariable
+				+ subset + " by ");
+
+		scapeR.parseEvalPrint("cat(.binIncrements)");
+		scapeR.printlnToConsole("");
+		
 		assignRVariable(incrementBins);
 	}
 
@@ -306,14 +314,6 @@ public class ContinuousVarAdjustment extends Observable implements
 		// assign rvariable
 		// eg: children$bwkg <- incrementBins(...)
 		scapeR.assign(rVariable + subset, rexpr);
-
-		scapeR.printToConsole("Adjusted continuous variable " + rVariable
-				+ subset + " by ");
-
-		scapeR.parseEvalPrint("cat(.binIncrements)");
-		scapeR.printlnToConsole("");
-
-		scapeR.baseFileUpdated();
 
 		recalculateLevels();
 	}
