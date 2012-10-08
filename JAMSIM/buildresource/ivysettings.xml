@@ -40,9 +40,9 @@
 	</resolvers>
 	<modules>
 		<!--  define resolvers for specific modules -->
-  		<module organisation="net.casper" name="casperdatasets-io" resolver="casper-repo" />
-  		<module organisation="net.casper" name="casperdatasets-ext" resolver="casper-repo" />
-  		<module organisation="net.casper" name="casperdatasets" resolver="casper-repo" /> 
+  		<module organisation="net.casper" name="casperdatasets-io" resolver="local" />
+  		<module organisation="net.casper" name="casperdatasets-ext" resolver="local" />
+  		<module organisation="net.casper" name="casperdatasets" resolver="local" /> 
 		<module organisation="org.beanshell" resolver="romanface-repo" />
 		<module organisation="org.rosuda" resolver="romanface-repo" />
 		<module organisation="org.omancode" name="omcutil" resolver="omcutil-repo" />
