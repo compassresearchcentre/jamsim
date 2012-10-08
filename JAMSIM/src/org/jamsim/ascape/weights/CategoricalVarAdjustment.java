@@ -7,6 +7,9 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.prefs.Preferences;
 
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.event.TreeModelListener;
 import javax.swing.table.TableModel;
 
 import net.casper.data.model.CDataCacheContainer;
@@ -35,7 +38,7 @@ import org.rosuda.REngine.REXP;
  * @version $Revision$
  */
 public class CategoricalVarAdjustment extends Observable implements
-		WeightCalculator {
+		WeightCalculator, TableModelListener {
 
 	/**
 	 * The R matrix that holds the displayed/edited values.
@@ -156,8 +159,9 @@ public class CategoricalVarAdjustment extends Observable implements
 
 			casperMatrix = CasperUtil.scale(casperMatrix,
 					1.0 / displayAdjFactor);
-
 			assignMatrix(rMatrixVarname, casperMatrix);
+			String rMatrixVarnameCleaned = rMatrixVarname.replace(", drop = FALSE","");
+			scapeR.printlnToConsole("Assigned adjustments to " + rMatrixVarnameCleaned);
 
 		} catch (CDataGridException e) {
 			throw new IOException(e.getMessage(), e);
@@ -170,11 +174,11 @@ public class CategoricalVarAdjustment extends Observable implements
 		// assign to intermediate variable and then assign
 		// into rMatrixVarname because it may be a list element
 		// (eg: env.scenario$catadjs$fsmoke)
+		
+		String rMatrixVarnameCleaned = rMatrixVarname.replace(", drop = FALSE","");
 		scapeR.assignMatrix(".catadj", casperMatrix);
-		scapeR.eval("attributes(.catadj) <- attributes(" + rMatrixVarname + ")");
-		scapeR.assign(rMatrixVarname, ".catadj");
-
-		scapeR.printlnToConsole("Assigned adjustments to " + rMatrixVarname);
+		scapeR.eval("attributes(.catadj) <- attributes(" + rMatrixVarnameCleaned + ")");
+		scapeR.assign(rMatrixVarnameCleaned, ".catadj");
 	}
 
 	@Override
@@ -196,9 +200,9 @@ public class CategoricalVarAdjustment extends Observable implements
 	public final TableModel getTableModel() {
 		try {
 			// load matrix from R when table model requested
-
 			tableModel = new CategoricalVarAdjTableModel(
 					loadAdjMatrix(rMatrixVarname), displayAdjFactor);
+			tableModel.addTableModelListener(this);
 			return tableModel;
 
 		} catch (IOException e) {
@@ -209,7 +213,7 @@ public class CategoricalVarAdjustment extends Observable implements
 	@Override
 	public void validateAndNotify() throws InvalidDataException {
 		// notify all observers
-		setChanged();
+		// setChanged();
 		notifyObservers();
 	}
 
@@ -237,7 +241,9 @@ public class CategoricalVarAdjustment extends Observable implements
 					}
 				}
 			}
-
+			String rMatrixVarnameCleaned = rMatrixVarname.replace(", drop = FALSE","");
+			scapeR.printlnToConsole("Reverting adjustments to " + rMatrixVarnameCleaned);
+			
 			tableModel.fireTableDataChanged();
 			assignMatrix(rMatrixVarname, casperMatrix);
 
@@ -285,7 +291,6 @@ public class CategoricalVarAdjustment extends Observable implements
 		}
 
 		try {
-
 			RDataFrame builder = new RDataFrame(
 					"CategoricalVarAdjustmentsSpec", dataframe);
 
@@ -315,6 +320,11 @@ public class CategoricalVarAdjustment extends Observable implements
 		} catch (CDataGridException e) {
 			throw new RFaceException(e.getMessage(), e);
 		}
+	}
+
+	@Override
+	public void tableChanged(TableModelEvent e) {
+		setChanged();		
 	}
 
 }

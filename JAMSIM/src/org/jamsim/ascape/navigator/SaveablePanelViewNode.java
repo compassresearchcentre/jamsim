@@ -46,7 +46,7 @@ public class SaveablePanelViewNode extends PanelViewNode implements Saveable,
 	@Override
 	public JPopupMenu getPopupMenu() {
 		// TODO Auto-generated method stub
-		return null;
+		return new JPopupMenu();
 	}
 
 }

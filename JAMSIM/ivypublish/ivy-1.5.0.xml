@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0">
+
+	<info organisation="org.jamsim" module="jamsim" revision="1.5.0" status="release" publication="20120907112446">
+		<license name="LGPL" url="http://www.gnu.org/licenses/lgpl.html"/>
+		<description homepage="http://code.google.com/p/jamsim/">
+			JAMSIM is a framework for creating microsimulation models in Java. It provides code and packages for common features of microsimulation models for end users.
+		</description>
+	</info>
+
+	<configurations>
+		<conf name="default" visibility="public" description="runtime dependencies and master artifact can be used with this conf" extends="runtime,master"/>
+		<conf name="master" visibility="public" description="contains only the artifact published by this module itself, with no transitive dependencies"/>
+		<conf name="compile" visibility="public" description="this is the default scope, used if none is specified. Compile dependencies are available in all classpaths."/>
+		<conf name="provided" visibility="public" description="this is much like compile, but indicates you expect the JDK or a container to provide it. It is only available on the compilation classpath, and is not transitive."/>
+		<conf name="runtime" visibility="public" description="this scope indicates that the dependency is not required for compilation, but is for execution. It is in the runtime and test classpaths, but not the compile classpath." extends="compile"/>
+		<conf name="test" visibility="private" description="this scope indicates that the dependency is not required for normal use of the application, and is only available for the test compilation and execution phases." extends="runtime"/>
+		<conf name="system" visibility="public" description="this scope is similar to provided except that you have to provide the JAR which contains it explicitly. The artifact is always available and is not looked up in a repository."/>
+		<conf name="sources" visibility="public" description="this configuration contains the source artifact of this module, if any."/>
+		<conf name="javadoc" visibility="public" description="this configuration contains the javadoc artifact of this module, if any."/>
+		<conf name="optional" visibility="public" description="contains all optional dependencies"/>
+	</configurations>
+
+	<publications>
+		<artifact conf="master"/>
+		<artifact name="jamsim-sources" type="source" conf="sources" ext="jar"/>
+		<artifact name="jamsim-javadoc" type="javadoc" conf="javadoc" ext="jar"/>
+		<artifact type="pom" ext="pom" conf="default"/>
+	</publications>
+
+	<dependencies>
+		<dependency org="org.ascape" name="ascape" rev="5.6.1" conf="compile->compile(*),master(*);runtime->runtime(*)">
+			<exclude type="javadoc" ext="zip"/>
+		</dependency>
+
+		<dependency org="net.casper" name="casperdatasets-ext" rev="2.1.5" revConstraint="latest.integration" conf="compile->compile(*),master(*);runtime->runtime(*)">
+	        <!-- must respecify excludes from readmytablesfromfiles because they are not specified in readmytablefromfiles.POM -->
+		    <exclude name="stax-api"/>
+        	<exclude name="xml-apis"/>
+			<exclude type="javadoc" ext="zip"/>
+			<exclude type="source" ext="zip"/>
+		</dependency>
+
+		<dependency org="org.omancode" name="romanface" rev="1.1.7" revConstraint="latest.integration" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
+		<dependency org="org.omancode" name="omcutil" rev="1.2.5" revConstraint="[1.2.4,)" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
+        <dependency org="org.rosuda" name="javaGD" rev="0.5.3" revConstraint="latest.integration" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
+       
+        <dependency org="org.javabuilders" name="javabuilder-swing" rev="1.1-RC4" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
+        
+        <!-- slf4j-log4j12 needed for javabuilders at runtime -->
+        <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.6" revConstraint="latest.integration" conf="runtime->runtime(*),master(*)"/>
+        
+        <dependency org="colt" name="colt" rev="1.2.0" revConstraint="latest.integration" conf="compile->compile(*),master(*);runtime->runtime(*)">
+	        <exclude name="concurrent"/>
+        </dependency>
+        
+        <dependency org="org.jedit" name="jedit-textArea" rev="4.3.2" revConstraint="latest.integration" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
+        
+    </dependencies>
+</ivy-module>
