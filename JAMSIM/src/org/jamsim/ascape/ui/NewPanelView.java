@@ -23,6 +23,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.ascape.runtime.swing.navigator.PanelViewProvider;
@@ -57,6 +58,8 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 	private final Dimension groupdim;
 	private final Dimension selectdim;
 	private final JLabel selectlabel;
+	private final JLabel subgrouplabel;
+	private final JTextField subgroupbox;
 	private final JComboBox selector;
 	// private final JScrollPane tablePane;
 	// private final JRadioButton nonebutton;
@@ -88,8 +91,10 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 		grouper.setMaximumSize(groupdim);
 		selectlabel = new JLabel();
 		selector = new JComboBox(wcalcvarnames);
-		selectdim = new Dimension(420, 40);
+		selectdim = new Dimension(424, 40);
 		selector.setMaximumSize(selectdim);
+		subgrouplabel = new JLabel();
+		subgroupbox = new JTextField(20);
 		// nonebutton = new JRadioButton(noneradio);
 		// sesbutton = new JRadioButton(sesradio);
 		// ethbutton = new JRadioButton(ethradio);
@@ -206,6 +211,7 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 
 	private void doUpdate(String updateMsg) {
 		try {
+			scape.setGlobalSubgroupFilterExpression(subgroupbox.getText());
 			for (Map<String, WeightCalculator> wcalcsyearsmap : allvariablesweightcalcs
 					.values()) {
 				for (WeightCalculator wcalc : wcalcsyearsmap.values()) {

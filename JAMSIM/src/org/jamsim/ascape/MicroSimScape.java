@@ -255,6 +255,21 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	}
 
 	/**
+	 * Set up the global subgroup expression given.
+	 * 
+	 */
+	public void setGlobalSubgroupFilterExpression(String subgroupExpression) {
+		try {
+			scapeR.eval("cat(\"Setting global subgroup expression, "+subgroupExpression+"\n\", sep=\"\")");
+			scapeR.eval("for (i in 1:length(env.scenario$cat.adjustments)) " +
+					"{ attr(env.scenario$cat.adjustments[[i]], \"logisetexpr\") <- \"" + subgroupExpression + "\"}");
+		} catch (RFaceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
 	 * Get the output tables node. Must be called after the Navigator tree has
 	 * been created. This happens after {@link #createScape()} but before
 	 * {@link #createGraphicViews()} is called.

@@ -189,7 +189,7 @@ public class ContinuousVarAdjustment extends Observable implements
 
 		// eg: table(bin(children$bwkg,0.5))
 		String rcmd = cmdTableBin(rVariable, breaksExpr, breakLast);
-		// System.out.println(rcmd);
+		System.out.println(rcmd);
 
 		NamedNumber[] counts = scapeR.parseEvalTryReturnNamedNumber(rcmd);
 		return counts;

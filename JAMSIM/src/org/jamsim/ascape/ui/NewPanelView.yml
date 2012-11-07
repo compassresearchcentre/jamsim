@@ -1,12 +1,16 @@
 JPanel(name=panel):
-    - JLabel(name=selectlabel, text=Variable)
-    - JComboBox(name=selector, onAction=selectorChanged)
-    - JTabbedPane(name=yeartabs)
-    - JButton(name=update, text=Update, onAction=update)
-    - JButton(name=reset, text=Defaults, onAction=reset)
-    - MigLayout: |
-        [777, grow]
-        selectlabel
-        selector
-        yeartabs [400, grow]
-        update=1,reset=1
+    - JScrollPane(name=overallscroll):
+        JPanel(name=panel2):
+            - JLabel(name=selectlabel, text=Variable)
+            - JLabel(name=subgrouplabel, text=Subgroup formula)
+            - JComboBox(name=selector, onAction=selectorChanged)
+            - JTextField(name=subgroupbox)
+            - JTabbedPane(name=yeartabs)
+            - JButton(name=update, text=Update, onAction=update)
+            - JButton(name=reset, text=Defaults, onAction=reset)
+            - MigLayout: |
+                [777, grow]
+                selectlabel=1,subgrouplabel=1
+                selector=1,subgroupbox=1
+                yeartabs [400, grow]
+                update=1,reset=1
