@@ -51,11 +51,11 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 	private final Map<String, Map<String, WeightCalculator>> allvariablesweightcalcs;
 	private final String[] wcalcvarnames;
 	private final MicroSimScape<?> scape;
-	private final String[] groupNames;
+	//private final String[] groupNames;
 	private PanelView pv;
-	private final JLabel grouplabel;
-	private final JComboBox grouper;
-	private final Dimension groupdim;
+	//private final JLabel grouplabel;
+	//private final JComboBox grouper;
+	//private final Dimension groupdim;
 	private final Dimension selectdim;
 	private final JLabel selectlabel;
 	private final JLabel subgrouplabel;
@@ -66,7 +66,7 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 	// private final JRadioButton sesbutton;
 	// private final JRadioButton ethbutton;
 	// private final JPanel radioPanel;
-	private final JTabbedPane yeartabs;
+	private final JScrollPane yearpane;
 
 	private Map<String, WeightCalculator> currentvariableallyears;
 
@@ -82,13 +82,13 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 				new String[wcalcsvarmaps.size()]);
 		this.scape = scape;
 
-		groupNames = new String[] { "None", "SES at birth", "Ethnicity" };
+		//groupNames = new String[] { "None", "SES at birth", "Ethnicity" };
 		// create GUI elements
 		pv = PanelViewUtil.createResizablePanelView("Scenario Weightings");
-		grouplabel = new JLabel();
-		grouper = new JComboBox(groupNames);
-		groupdim = new Dimension(100, 40);
-		grouper.setMaximumSize(groupdim);
+		//grouplabel = new JLabel();
+		//grouper = new JComboBox(groupNames);
+		//groupdim = new Dimension(100, 40);
+		//grouper.setMaximumSize(groupdim);
 		selectlabel = new JLabel();
 		selector = new JComboBox(wcalcvarnames);
 		selectdim = new Dimension(424, 40);
@@ -106,7 +106,7 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 		// radioPanel.add(nonebutton);
 		// radioPanel.add(sesbutton);
 		// radioPanel.add(ethbutton);
-		yeartabs = new JTabbedPane();
+		yearpane = new JScrollPane();
 
 		BuildResult uiElements = SwingJavaBuilder.build(this);
 		// nonebutton.setSelected(true);
@@ -152,7 +152,7 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 							.toString());
 		}
 
-		grouper.setSelectedIndex(0);
+		//grouper.setSelectedIndex(0);
 		selector.setSelectedIndex(sIndex);
 
 		return pv;
@@ -172,12 +172,9 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 	private void selectorChanged() {
 		Object selected = selector.getSelectedItem();
 		currentvariableallyears = allvariablesweightcalcs.get(selected);
-		yeartabs.removeAll();
 		for (Entry<String, WeightCalculator> wcalcentry : currentvariableallyears
 				.entrySet()) {
-			JScrollPane year = new JScrollPane();
-			setTablePane(wcalcentry.getValue(), year);
-			yeartabs.addTab(wcalcentry.getKey(), year);
+			setTablePane(wcalcentry.getValue(), yearpane);
 		}
 	}
 
