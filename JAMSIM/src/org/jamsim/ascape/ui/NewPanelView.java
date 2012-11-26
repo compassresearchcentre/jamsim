@@ -13,6 +13,8 @@ import java.util.prefs.Preferences;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -49,18 +51,26 @@ import org.javabuilders.swing.SwingJavaBuilder;
 public class NewPanelView implements PanelViewProvider, ActionListener {
 
 	private final Map<String, Map<String, WeightCalculator>> allvariablesweightcalcs;
+	private final Map<String, String[]> allsubgroups;
+	private final Map<String, String[]> alloptions;
 	private final String[] wcalcvarnames;
+	private final String[] subgroupnames;
+	private ComboBoxModel[] subgroupoptionsboxes;
 	private final MicroSimScape<?> scape;
 	//private final String[] groupNames;
 	private PanelView pv;
 	//private final JLabel grouplabel;
 	//private final JComboBox grouper;
 	//private final Dimension groupdim;
-	private final Dimension selectdim;
+	private Dimension selectdim;
 	private final JLabel selectlabel;
 	private final JLabel subgrouplabel;
+	private final JLabel subgroupselectlabel;
+	private final JLabel optionslabel;
 	private final JTextField subgroupbox;
 	private final JComboBox selector;
+	private final JComboBox subgroupselect;
+	private final JComboBox chooseoptions;
 	// private final JScrollPane tablePane;
 	// private final JRadioButton nonebutton;
 	// private final JRadioButton sesbutton;
@@ -69,6 +79,7 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 	private final JScrollPane yearpane;
 
 	private Map<String, WeightCalculator> currentvariableallyears;
+	private String currentselection;
 
 	// static String noneradio = "None";
 	// static String sesradio = "SES at birth";
@@ -76,12 +87,24 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 
 	public NewPanelView(
 			Map<String, Map<String, WeightCalculator>> wcalcsvarmaps,
+			Map subgroupdescriptions,
+			Map optionlists,
 			MicroSimScape<?> scape) {
 		this.allvariablesweightcalcs = wcalcsvarmaps;
 		this.wcalcvarnames = wcalcsvarmaps.keySet().toArray(
 				new String[wcalcsvarmaps.size()]);
 		this.scape = scape;
+		
+		allsubgroups = subgroupdescriptions;
+		
+		subgroupnames = allsubgroups.keySet().toArray(
+				new String[allsubgroups.size()]);
+		
+		alloptions = optionlists;
+		
+		subgroupoptionsboxes = setupComboBoxModels();		
 
+		
 		//groupNames = new String[] { "None", "SES at birth", "Ethnicity" };
 		// create GUI elements
 		pv = PanelViewUtil.createResizablePanelView("Scenario Weightings");
@@ -95,6 +118,11 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 		selector.setMaximumSize(selectdim);
 		subgrouplabel = new JLabel();
 		subgroupbox = new JTextField(20);
+		subgroupselectlabel = new JLabel();
+		subgroupselect = new JComboBox(subgroupnames);
+		chooseoptions = new JComboBox();
+		optionslabel = new JLabel();
+		
 		// nonebutton = new JRadioButton(noneradio);
 		// sesbutton = new JRadioButton(sesradio);
 		// ethbutton = new JRadioButton(ethradio);
@@ -107,6 +135,7 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 		// radioPanel.add(sesbutton);
 		// radioPanel.add(ethbutton);
 		yearpane = new JScrollPane();
+		
 
 		BuildResult uiElements = SwingJavaBuilder.build(this);
 		// nonebutton.setSelected(true);
@@ -122,6 +151,17 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 
 		// add YAML panel
 		// pv.add((Component) uiElements.get("panel"));
+	}
+	
+	@SuppressWarnings("unchecked")
+	private ComboBoxModel[] setupComboBoxModels(){
+
+		subgroupoptionsboxes = new ComboBoxModel[alloptions.size()];
+		for(int i = 0; i < subgroupoptionsboxes.length; i++){
+			subgroupoptionsboxes[i] = new DefaultComboBoxModel(
+					(String[]) alloptions.get(Integer.toString(i)));
+		}		
+		return subgroupoptionsboxes;
 	}
 
 	protected final JComponent makeTextPanel(String text) {
@@ -176,6 +216,49 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 				.entrySet()) {
 			setTablePane(wcalcentry.getValue(), yearpane);
 		}
+	}
+	
+	private void updateSubgroupFormula(String s){
+		subgroupbox.setText(subgroupbox.getText() + s);
+	}
+	
+	private void andPressed(){
+		updateSubgroupFormula("&");
+		subgroupbox.requestFocus();
+	}
+	
+	private void orPressed(){
+		updateSubgroupFormula("|");
+		subgroupbox.requestFocus();
+	}
+	
+	private void setFormula(){
+		subgroupbox.requestFocus();
+	}
+	
+	private void clearFormula(){
+		subgroupbox.setText("");
+		subgroupbox.requestFocus();
+	}
+	
+	private void optionSelected(){
+		currentselection = chooseoptions.getSelectedItem().toString();
+		subgroupbox.requestFocus();
+		
+		updateSubgroupFormula(currentselection);
+	}
+	
+	private void subgroupSelected(){
+		Object selected = subgroupselect.getSelectedItem();
+		currentselection = allsubgroups.get(selected)[0];
+		updateSubgroupFormula(currentselection);
+		changeOptions(allsubgroups.get(selected)[1]);
+		subgroupbox.requestFocus();
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void changeOptions(String optiontype){
+		chooseoptions.setModel(subgroupoptionsboxes[Integer.parseInt(optiontype)]);
 	}
 
 	@Override

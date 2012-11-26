@@ -1,14 +1,24 @@
 JPanel(name=panel):
     - JLabel(name=selectlabel, text=Variable)
     - JLabel(name=subgrouplabel, text=Subgroup formula)
+    - JLabel(name=optionslabel, text=Options)
+    - JLabel(name=subgroupselectlabel, text=Select subgroup)
     - JComboBox(name=selector, onAction=selectorChanged)
+    - JComboBox(name=subgroupselect, onAction=subgroupSelected)
+    - JComboBox(name=chooseoptions, onAction=optionSelected)
     - JTextField(name=subgroupbox)
     - JScrollPane(name=yearpane)
     - JButton(name=update, text=Update, onAction=update)
     - JButton(name=reset, text=Defaults, onAction=reset)
+    - JButton(name=set, text=Set, onAction=setFormula)
+    - JButton(name=clear, text=Clear, onAction=clearFormula)
+    - JButton(name=and, text=AND, onAction=andPressed)
+    - JButton(name=or, text=OR, onAction=orPressed)
     - MigLayout: |
         [777, grow]
-        selectlabel=1,subgrouplabel=1
-        selector=1,subgroupbox=1
+        selectlabel=1,subgroupselectlabel=1,optionslabel
+        selector=1,subgroupselect=1,chooseoptions=2,and=2,or=2
+        subgrouplabel=1
+        subgroupbox=1,set=2,clear=2
         yearpane [300, grow]
-        update=1,reset=1
+        >update=2,reset=2

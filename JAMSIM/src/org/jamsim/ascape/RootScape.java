@@ -162,9 +162,11 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 *            map of weight calculators
 	 */
 	public void setupWeightCalculators(
-			Map<String, Map<String, WeightCalculator>> wcalcsvarmaps) {
+			Map<String, Map<String, WeightCalculator>> wcalcsvarmaps, 
+			Map subgroupdescriptions,
+			Map optionlists) {
 		if (wcalcsvarmaps != null) {
-			NewPanelView wcalcPanel = new NewPanelView(wcalcsvarmaps, msscape);
+			NewPanelView wcalcPanel = new NewPanelView(wcalcsvarmaps, subgroupdescriptions, optionlists, msscape);
 
 			msscape.setWeightCalculatorPanelView(wcalcPanel);
 		}
