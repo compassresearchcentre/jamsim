@@ -31,6 +31,7 @@ import org.jamsim.ascape.navigator.RecordedMicroSimTreeBuilder;
 import org.jamsim.ascape.navigator.SubFolderNode;
 import org.jamsim.ascape.output.ChartProvider;
 import org.jamsim.ascape.output.OutputDatasetProvider;
+import org.jamsim.ascape.r.AscapeGD;
 import org.jamsim.ascape.r.RFileInterface;
 import org.jamsim.ascape.r.RLoader;
 import org.jamsim.ascape.r.ScapeRInterface;
@@ -73,6 +74,10 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	public MicroSimScapeNode getScapeNode() {
 		initScapeNode();
 		return scapeNode;
+	}
+	
+	public RecordedMicroSimTreeBuilder getTreeBuilder(){
+		return TREE_BUILDER;
 	}
 
 	private static final String OUTPUTDIR_KEY = "output directory";
@@ -169,6 +174,16 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 */
 	public ScapeRInterface getScapeRInterface() {
 		return scapeR;
+	}
+	
+	private Object lastCreatedAscapeGDObject;
+	
+	public void setLastCreatedAscapeGDObject(Object ascapeGD){
+		lastCreatedAscapeGDObject= ascapeGD;
+	}
+	
+	public Object getLastCreatedAscapeGDObject(){
+		return lastCreatedAscapeGDObject;
 	}
 
 	/**

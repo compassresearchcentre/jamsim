@@ -93,6 +93,10 @@ public class AscapeGD extends GDInterface implements PanelViewProvider {
 		// Container pvFrameImp = pv.getViewFrame().getFrameImp();
 		// pvFrame = installFrameListener(pvFrameImp);
 	}
+	
+	public void storeLastCreatedAscapeGD(Object ascapeGD){
+		ScapeRInterface.getLastMsScapeNode().getMsScape().setLastCreatedAscapeGDObject(ascapeGD);
+	}
 
 	/**
 	 * Add this GD to the navigator. Exposed so can be called from R, after

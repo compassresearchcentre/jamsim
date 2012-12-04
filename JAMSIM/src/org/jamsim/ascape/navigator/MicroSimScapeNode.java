@@ -3,7 +3,9 @@ package org.jamsim.ascape.navigator;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.JButton;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -23,6 +25,7 @@ import org.jamsim.ascape.output.ROutput;
 import org.jamsim.ascape.output.Saveable;
 import org.jamsim.ascape.r.PanelViewDatasetProvider;
 import org.jamsim.ascape.r.PanelViewRTextCommand;
+import org.jamsim.ascape.r.TestPanelViewProvider;
 import org.jamsim.ascape.ui.PanelViewParameterSet;
 import org.jamsim.ascape.ui.UIUtil;
 import org.jamsim.io.ParameterSet;
@@ -102,7 +105,27 @@ public class MicroSimScapeNode extends ScapeNode {
 		treeModel
 				.insertNodeInto(outputTablesNode, this, this.getChildCount());
 	}
-
+	
+	public MicroSimScape<?> getMsScape(){
+		return scape;
+	}
+	
+	public void addNewNode(String nodeName){		//adds a dummy node to the Navigator panel
+		DefaultMutableTreeNode node = new DefaultMutableTreeNode(nodeName);
+		
+		TestPanelViewProvider provider = new TestPanelViewProvider();
+		
+		provider.gdOpen(400, 400);
+		
+		provider.setName("dummy r window");
+		
+		TestPanelViewNode newNode = new TestPanelViewNode(provider);
+		
+		node.add(newNode);
+		
+		treeModel.insertNodeInto(node, this, this.getChildCount());
+	}
+	
 	private void addDatasetNodes(MicroSimScape<?> scape,
 			DefaultTreeModel treeModel) {
 		addNodeWithChildrenTables(treeModel, "Datasets", scape.getScapeData()

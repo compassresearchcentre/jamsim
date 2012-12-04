@@ -26,6 +26,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JTree;
+import javax.swing.tree.MutableTreeNode;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.ascape.runtime.swing.navigator.PanelViewProvider;
@@ -33,7 +35,12 @@ import org.ascape.runtime.swing.navigator.PanelViewTable;
 import org.ascape.util.swing.AscapeGUIUtil;
 import org.ascape.util.swing.PanelViewUtil;
 import org.ascape.view.vis.PanelView;
+import org.ascape.model.AscapeObject;
+import org.ascape.model.Agent;
+import org.ascape.runtime.swing.navigator.AgentNode;
 import org.jamsim.ascape.MicroSimScape;
+import org.jamsim.ascape.navigator.MicroSimScapeNode;
+import org.jamsim.ascape.navigator.OutputDatasetNodeProvider;
 import org.jamsim.ascape.weights.WeightCalculator;
 import org.jamsim.io.ParameterSet;
 import org.jamsim.shared.InvalidDataException;
@@ -232,7 +239,8 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 		subgroupbox.requestFocus();
 	}
 	
-	private void setFormula(){
+	private void setFormula(){	//Temporarily using to test adding nodes to navigator
+		scape.getScapeNode().addNewNode("the dummy node");
 		subgroupbox.requestFocus();
 	}
 	
