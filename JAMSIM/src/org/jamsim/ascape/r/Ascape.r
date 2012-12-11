@@ -54,7 +54,7 @@ activateJavaGD <- function(name, path = "", selectNode = FALSE, ...) {
 		.deviceHash[[hashname]] <- dev.cur()
 		
 		# set name on AscapeGD object
-		ascapeGD <- .getJavaGDObject(dev.cur())
+		ascapeGD <- JavaGD:::.getJavaGDObject(dev.cur())
 		.jcall(ascapeGD, "V", "setName", name)
 		.jcall(ascapeGD, "V", "addToNavigator", path)
 	}
@@ -66,7 +66,7 @@ activateJavaGD <- function(name, path = "", selectNode = FALSE, ...) {
 	invisible(dev.set(which = devNbr))
 
 	if (selectNode) {
-		ascapeGD <- .getJavaGDObject(dev.cur())
+		ascapeGD <- JavaGD:::.getJavaGDObject(dev.cur())
 		.jcall(ascapeGD, "V", "selectNode")
 	}
 
