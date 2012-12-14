@@ -16,7 +16,7 @@
 
 		<ibiblio name="jamsim-repo" root="http://jamsim.googlecode.com/git/repo/" m2compatible="true" />
 		
-		<ibiblio name="casper-repo" root="http://casperdatasets.googlecode.com/svn/trunk/repo/" m2compatible="true" />
+		<ibiblio name="casper-repo" root="https://raw.github.com/casperds/casperdatasets/develop/repo/releases/" m2compatible="true" />
 
 		<!-- the javabuilders maven repo -->
 		<ibiblio name="javabuilders" root="http://javabuilders.googlecode.com/svn/repo/"
@@ -40,9 +40,9 @@
 	</resolvers>
 	<modules>
 		<!--  define resolvers for specific modules -->
-  		<module organisation="net.casper" name="casperdatasets-io" resolver="local" />
-  		<module organisation="net.casper" name="casperdatasets-ext" resolver="local" />
-  		<module organisation="net.casper" name="casperdatasets" resolver="local" /> 
+  		<module organisation="net.casper" name="casperdatasets-io" resolver="casper-repo" />
+  		<module organisation="net.casper" name="casperdatasets-ext" resolver="casper-repo" />
+  		<module organisation="net.casper" name="casperdatasets" resolver="casper-repo" /> 
 		<module organisation="org.beanshell" resolver="romanface-repo" />
 		<module organisation="org.rosuda" resolver="romanface-repo" />
 		<module organisation="org.omancode" name="omcutil" resolver="omcutil-repo" />
