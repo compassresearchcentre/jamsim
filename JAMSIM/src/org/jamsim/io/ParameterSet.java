@@ -46,7 +46,7 @@ public interface ParameterSet {
 	 * @return table model
 	 */
 	TableModel getTableModel();
-
+	
 	/**
 	 * Save the state to the preferences.
 	 * 

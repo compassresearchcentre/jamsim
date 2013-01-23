@@ -19,6 +19,7 @@ import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.ascape.r.ScapeRListener;
 import org.jamsim.ascape.ui.AnalysisMenu;
 import org.jamsim.ascape.ui.NewPanelView;
+import org.jamsim.ascape.ui.PanelViewTableBuilder;
 import org.jamsim.ascape.ui.cmd.ScapeRCommand;
 import org.jamsim.ascape.ui.cmd.ScapeRCommandAction;
 import org.jamsim.ascape.weights.WeightCalculator;
@@ -163,10 +164,9 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 */
 	public void setupWeightCalculators(
 			Map<String, Map<String, WeightCalculator>> wcalcsvarmaps, 
-			Map subgroupdescriptions,
-			Map optionlists) {
+			Map subgroupsToOptions) {
 		if (wcalcsvarmaps != null) {
-			NewPanelView wcalcPanel = new NewPanelView(wcalcsvarmaps, subgroupdescriptions, optionlists, msscape);
+			NewPanelView wcalcPanel = new NewPanelView(wcalcsvarmaps, subgroupsToOptions, msscape);
 
 			msscape.setWeightCalculatorPanelView(wcalcPanel);
 		}
@@ -185,6 +185,15 @@ public class RootScape<D extends ScapeData> extends Scape {
 		} catch (InvalidDataException e) {
 			throw new RuntimeException(e.getMessage(), e);
 		}
+	}
+	
+	public void setupTableBuilder(
+			Map<String, Map<String, String>> tableBuilderData){
+		
+		PanelViewTableBuilder tableBuilderPanel = new PanelViewTableBuilder(tableBuilderData, 
+																			msscape);
+		
+		msscape.setCreateTableOptionsPanelView(tableBuilderPanel);
 	}
 
 	/**

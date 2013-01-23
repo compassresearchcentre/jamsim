@@ -1,13 +1,17 @@
 package org.jamsim.ascape.navigator;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import org.ascape.runtime.swing.navigator.PanelViewNode;
 import org.ascape.runtime.swing.navigator.PanelViewProvider;
 import org.ascape.runtime.swing.navigator.PopupMenuProvider;
 import org.jamsim.ascape.output.Saveable;
+import org.omancode.util.io.FileUtil;
 
 /**
  * A {@link Saveable} {@link org.ascape.view.vis.PanelViewNode}.
@@ -42,7 +46,7 @@ public class SaveablePanelViewNode extends PanelViewNode implements Saveable,
 	public void saveToCSV(String directory) throws IOException {
 		saver.saveToCSV(directory);
 	}
-
+	
 	@Override
 	public JPopupMenu getPopupMenu() {
 		// TODO Auto-generated method stub

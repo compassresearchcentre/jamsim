@@ -189,6 +189,52 @@ addOutputNode <- function(x, name, path = .jnull("java/lang/String")) {
 	.jcall(getScapeNode(), "V", "addOutputNode", rdp, path)
 }
 
+#' Add a graphics device as a node under the  "Graphs" node.
+#' 
+#'  @param path
+#'  a path to a sub folder node, eg: "Base/Means" which represents
+#'  the folder Means under the folder Base, or just "Base" which
+#'  will add to the folder Base, or leave unspecified (the default) to add directly
+#'  under "Graphs".
+#' @param names
+#'  the tree node name used for the object
+addLazyJGDNode <- function(plotCmd, name, path = .jnull("java/lang/String")) {
+	.jcall(getScapeNode(), "V", "addLazyJGDNode", plotCmd, name, path)
+}
+
+addLazyTableNode <- function(plotCmd, name, parentName, path = .jnull("java/lang/String")) {
+	.jcall(getScapeNode(), "V", "addLazyTableNode", plotCmd, name, parentName, path)
+}
+
+tableBuilder <- function(envName, statistic, variableName, subgroupName) {
+	#returns a matrix for now see tableBuilder java
+	cat(envName, statistic, variableName, subgroupName, "\n")
+	matrix(c(1,2,3,4,5,6), nrow=3)
+}
+
+#' @examples
+#'	expr <- "addLazyTableNode('tableBuilder('Base', 'means', 'msmoke1', '')', 'msmoke1 means', 'Lazy tables', '')" 
+#' 	storeOnLoadExpression(expr)
+storeOnLoadExpression <- function(expr){
+	cat(expr, "\n")
+}
+
+saveWorkspace <- function(fileName, path) {
+	cat(fileName, path, "\n")
+}
+
+loadWorkspace <- function(fileName, path) {
+	cat(fileName, path, "\n")
+}
+
+
+storeLazyTableNodeExpression <- function(expression, name, parentName, path = .jnull("java/lang/String")){
+	#call from java (tablebuilder), give the string used to get rexp from tablebuilder
+	#will call addLazyTableNode upon restart
+}
+
+storeLazyJGDNode <- function(plotCmd, name, path = .jnull("java/lang/String"))
+
 ascapeStart <- function() {
 	# eg: ascapeStart()
 	

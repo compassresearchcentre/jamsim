@@ -27,7 +27,7 @@ import org.omancode.util.io.FileUtil;
  * @version $Revision$
  */
 public class SubFolderNode extends DefaultMutableTreeNode implements
-		PopupMenuProvider, Saveable {
+		PopupMenuProvider, Saveable{
 
 	/**
 	 * 

@@ -8,6 +8,7 @@ import java.util.Observer;
 import java.util.prefs.Preferences;
 
 import javax.swing.Action;
+import javax.swing.ImageIcon;
 
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
@@ -23,6 +24,7 @@ import org.ascape.runtime.swing.navigator.PanelViewNode;
 import org.ascape.runtime.swing.navigator.PanelViewProvider;
 import org.ascape.util.swing.AscapeGUIUtil;
 import org.ascape.view.vis.ChartView;
+import org.ascape.view.vis.PanelView;
 import org.jamsim.ascape.navigator.EndOfSimNodeProvider;
 import org.jamsim.ascape.navigator.MicroSimScapeNode;
 import org.jamsim.ascape.navigator.OutputDatasetNodeProvider;
@@ -115,6 +117,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 * Panel to manipulate weights.
 	 */
 	private transient PanelViewProvider wcalcPanel;
+	
+	private PanelViewProvider createTablePanel;
 
 	/**
 	 * Get whether output datasets for this scape should write their results to
@@ -264,6 +268,8 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 
 			// Add weightings button to additional toolbar
 			addWeightingsButton(wcalcPanel);
+			
+			addTableBuilderButton(createTablePanel);
 
 		}
 
@@ -369,6 +375,10 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	public void setWeightCalculatorPanelView(PanelViewProvider wcalcPanel) {
 		this.wcalcPanel = wcalcPanel;
 	}
+	
+	public void setCreateTableOptionsPanelView(PanelViewProvider createTablesPanel){
+		this.createTablePanel = createTablesPanel;
+	}
 
 	/**
 	 * Get the current {@link WeightCalculator}.
@@ -454,6 +464,30 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		// add button to toolbar
 		AscapeGUIUtil.addAdditionalBarButton(weightingsAction);
 	}
+	
+	private void addTableBuilderButton(PanelViewProvider provider){
+		PanelViewAction createTableAction = new PanelViewAction(provider,
+				"Create Table", "Create Table");
+		
+		createTableAction.putValue(Action.SMALL_ICON, createImageIcon("tableicon.gif", "a table icon"));
+		
+		//createTableAction.putValue(Action.SMALL_ICON, 
+			//	DesktopEnvironment.getIcon("Scales"));
+
+		AscapeGUIUtil.addAdditionalBarButton(createTableAction);
+	}
+	
+	private ImageIcon createImageIcon(String path,
+            String description) {
+		java.net.URL imgURL = getClass().getResource(path);
+		if (imgURL != null) {
+			return new ImageIcon(imgURL, description);
+		} else {
+			System.err.println("Couldn't find file: " + path);
+		return null;
+		}
+	}
+
 
 	/**
 	 * Expose base file as model parameter to Ascape.

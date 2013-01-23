@@ -17,5 +17,4 @@ public interface Saveable {
 	 * @throws IOException if there is a problem saving
 	 */
 	void saveToCSV(String directory) throws IOException;
-
 }

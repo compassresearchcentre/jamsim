@@ -110,7 +110,9 @@ public class ScapeRListener extends DefaultScapeListener {
 	 */
 	public void scapeInitialized(ScapeEvent scapeEvent) {
 		runNumber++;
-
+		
+		scapeR.printlnToConsole("I was here");
+		
 		if (runNumber == 1) {
 			scapeR.printlnToConsole("");
 			if (rSimBeginCmd != null) {

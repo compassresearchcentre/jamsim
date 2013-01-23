@@ -26,6 +26,7 @@ import net.casper.io.file.def.CDataFileDef;
 import net.casper.io.file.def.CDataFileDefLoader;
 import net.casper.io.file.in.CBuildFromFile;
 
+import org.jamsim.ascape.ui.RExpression;
 import org.jamsim.casper.CDataFileProbDistribution;
 import org.jamsim.math.Glimmix;
 import org.jamsim.math.GlimmixTableModel;
@@ -385,6 +386,48 @@ public class FileLoader implements Output {
 		prefs.put(datasetName, file.getPath());
 
 		return cdcc;
+	}
+	
+	public Map<String, Map<String, String>> loadCSVTableBuilderDataFile(String datasetName)
+			throws IOException {
+		
+		//lookup the file from the prefs, or if it doesn't exist, promt the user
+		File file =
+				getFile(datasetName, "Select file containing dataset \""
+						+ datasetName + "\"",
+						CBuildFromFile.FileTypeFactories.getFilter(), false);
+
+		// load the dataset
+		print("Loading dataset \"" + datasetName + "\" from ["
+				+ file.getPath() + "]. ");
+		
+		CSVTableBuilderDataReader reader = new CSVTableBuilderDataReader();
+		Map<String, Map<String, String>> tableBuilderData = reader.readTableBuilderDataCSVFile(file.getPath());
+		
+		prefs.put(datasetName, file.getPath());
+		
+		return tableBuilderData;
+	}
+	
+	public Map<String, RExpression> loadCSVSubgroupsToOptionsFile(String datasetName)
+			throws IOException {
+		
+		//lookup the file from the prefs, or if it doesn't exist, promt the user
+		File file =
+				getFile(datasetName, "Select file containing dataset \""
+						+ datasetName + "\"",
+						CBuildFromFile.FileTypeFactories.getFilter(), false);
+
+		// load the dataset
+		print("Loading dataset \"" + datasetName + "\" from ["
+				+ file.getPath() + "]. ");
+
+		CSVSubgroupsToOptionsReader reader = new CSVSubgroupsToOptionsReader();
+		Map<String, RExpression> subgroupsToOptions = reader.readSubgroupsToOptionsCSVFile(file.getPath());
+		
+		prefs.put(datasetName,  file.getPath());
+		
+		return subgroupsToOptions;	
 	}
 
 	/**
