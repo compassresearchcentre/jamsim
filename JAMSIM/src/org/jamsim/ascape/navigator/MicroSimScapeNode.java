@@ -24,11 +24,14 @@ import org.jamsim.ascape.output.REXPDatasetProvider;
 import org.jamsim.ascape.output.ROutput;
 import org.jamsim.ascape.output.Saveable;
 import org.jamsim.ascape.r.PanelViewDatasetProvider;
+import org.jamsim.ascape.r.PanelViewLazyDatasetProvider;
 import org.jamsim.ascape.r.PanelViewRTextCommand;
-import org.jamsim.ascape.r.TestPanelViewProvider;
+import org.jamsim.ascape.r.PanelViewJGraphicsDevice;
 import org.jamsim.ascape.ui.PanelViewParameterSet;
 import org.jamsim.ascape.ui.UIUtil;
 import org.jamsim.io.ParameterSet;
+import org.omancode.r.RFaceException;
+import org.rosuda.REngine.REXP;
 
 /**
  * Navigator tree node for a {@link MicroSimScape}. Same as {@link ScapeNode}
@@ -104,27 +107,13 @@ public class MicroSimScapeNode extends ScapeNode {
 				new SubFolderNode("Output Tables", scape, treeModel);
 		treeModel
 				.insertNodeInto(outputTablesNode, this, this.getChildCount());
+		tableNodeMap.put("Output Tables", outputTablesNode);
 	}
 	
 	public MicroSimScape<?> getMsScape(){
 		return scape;
 	}
 	
-	public void addNewNode(String nodeName){		//adds a dummy node to the Navigator panel
-		DefaultMutableTreeNode node = new DefaultMutableTreeNode(nodeName);
-		
-		TestPanelViewProvider provider = new TestPanelViewProvider();
-		
-		provider.gdOpen(400, 400);
-		
-		provider.setName("dummy r window");
-		
-		TestPanelViewNode newNode = new TestPanelViewNode(provider);
-		
-		node.add(newNode);
-		
-		treeModel.insertNodeInto(node, this, this.getChildCount());
-	}
 	
 	private void addDatasetNodes(MicroSimScape<?> scape,
 			DefaultTreeModel treeModel) {
@@ -322,6 +311,39 @@ public class MicroSimScapeNode extends ScapeNode {
 		return newNode;
 	}
 
+
+	public void addLazyTableNode(String rPlotCmd, String name, String parentName, String path){	
+			
+		PanelViewLazyDatasetProvider provider = new PanelViewLazyDatasetProvider(scape.getScapeRInterface(), rPlotCmd, name);
+			
+		PanelViewNode lazyTableNode = new PanelViewNode(provider);
+		
+		addNodeToOnDemandFolder(lazyTableNode, parentName, path);			
+	}
+	
+	
+	/**
+	 * Add a lazy node for a {@link JavaGD} graphics device under "Graphs"
+	 * 
+	 * @param rPlotCmd
+	 * 			  R command that will plot the graph to be displayed
+	 * @param name
+	 * 			  Name of the node
+	 * @param path
+	 *            a path to a sub folder node, eg: "Base/Means" which represents
+	 *            the folder Means under the folder Base, or just "Base" which
+	 *            will add to the folder Base, or {@code null} to add directly
+	 *            under "Graphs".
+	 */
+	public void addLazyJGDNode(String rPlotCmd, String name, String path){
+
+		PanelViewJGraphicsDevice provider = new PanelViewJGraphicsDevice(scape.getScapeRInterface(), rPlotCmd, name, scape);
+		
+		SaveablePanelViewGraphNode lazyJGDNode = new SaveablePanelViewGraphNode(provider, scape);
+		
+		addNodeToOnDemandFolder(lazyJGDNode, "Graphs", path);
+	}
+	
 	/**
 	 * Add a saveable panel view node under "Output Tables".
 	 * 
@@ -344,7 +366,7 @@ public class MicroSimScapeNode extends ScapeNode {
 		outputTablesNode.addChildNode(newNode, path);
 		return newNode;
 	}
-
+		
 	/**
 	 * Add a saveable node for an {@link OutputDatasetProvider} under
 	 * "Output Tables".
@@ -381,6 +403,20 @@ public class MicroSimScapeNode extends ScapeNode {
 	public void addOutputNode(REXPDatasetProvider provider, String path) {
 		addOutputNode((OutputDatasetProvider) provider, path);
 	}
+	
+	public void addOutputNodeFromTableBuilder(REXPDatasetProvider provider, String path){
+		
+		PanelViewDatasetProvider pvprovider =
+				new PanelViewDatasetProvider(provider);
+		
+		SaveablePanelViewNode newNode =
+				new SaveablePanelViewNode(pvprovider, pvprovider);
+		
+		outputTablesNode.addChildNode(newNode, path);
+
+		AscapeGUIUtil.selectNavigatorNode(newNode);
+	}
+
 
 	/**
 	 * Add a saveable node for a {@link REXPDatasetProvider} under

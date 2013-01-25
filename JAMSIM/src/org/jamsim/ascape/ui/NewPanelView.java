@@ -7,6 +7,7 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
@@ -18,6 +19,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -27,6 +29,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JTree;
+import javax.swing.table.TableColumn;
 import javax.swing.tree.MutableTreeNode;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -41,6 +44,7 @@ import org.ascape.runtime.swing.navigator.AgentNode;
 import org.jamsim.ascape.MicroSimScape;
 import org.jamsim.ascape.navigator.MicroSimScapeNode;
 import org.jamsim.ascape.navigator.OutputDatasetNodeProvider;
+import org.jamsim.ascape.weights.CategoricalVarAdjustment;
 import org.jamsim.ascape.weights.WeightCalculator;
 import org.jamsim.io.ParameterSet;
 import org.jamsim.shared.InvalidDataException;
@@ -58,119 +62,244 @@ import org.javabuilders.swing.SwingJavaBuilder;
 public class NewPanelView implements PanelViewProvider, ActionListener {
 
 	private final Map<String, Map<String, WeightCalculator>> allvariablesweightcalcs;
-	private final Map<String, String[]> allsubgroups;
-	private final Map<String, String[]> alloptions;
+
+	private final Map<String, RExpression> subgroupsToOptions;
+	
 	private final String[] wcalcvarnames;
-	private final String[] subgroupnames;
-	private ComboBoxModel[] subgroupoptionsboxes;
+	
+	private final String[] subgroupdescriptions;
+	
+	private Map<String, ComboBoxModel> subgroupoptionsboxes;
+	
 	private final MicroSimScape<?> scape;
-	//private final String[] groupNames;
+
 	private PanelView pv;
-	//private final JLabel grouplabel;
-	//private final JComboBox grouper;
-	//private final Dimension groupdim;
-	private Dimension selectdim;
+	
 	private final JLabel selectlabel;
 	private final JLabel subgrouplabel;
 	private final JLabel subgroupselectlabel;
 	private final JLabel optionslabel;
+	private final JLabel scenarioproportionslabel;
+	private final JLabel basesimulationresultslabel;
+	
 	private final JTextField subgroupbox;
 	private final JComboBox selector;
 	private final JComboBox subgroupselect;
 	private final JComboBox chooseoptions;
-	// private final JScrollPane tablePane;
-	// private final JRadioButton nonebutton;
-	// private final JRadioButton sesbutton;
-	// private final JRadioButton ethbutton;
-	// private final JPanel radioPanel;
 	private final JScrollPane yearpane;
+	private JScrollPane baseSimulationResultsPane;
 
 	private Map<String, WeightCalculator> currentvariableallyears;
 	private String currentselection;
 
-	// static String noneradio = "None";
-	// static String sesradio = "SES at birth";
-	// static String ethradio = "Ethnicity";
-
 	public NewPanelView(
 			Map<String, Map<String, WeightCalculator>> wcalcsvarmaps,
-			Map subgroupdescriptions,
-			Map optionlists,
+			Map subgroupsToOptions,
 			MicroSimScape<?> scape) {
+		
 		this.allvariablesweightcalcs = wcalcsvarmaps;
 		this.wcalcvarnames = wcalcsvarmaps.keySet().toArray(
 				new String[wcalcsvarmaps.size()]);
+		
 		this.scape = scape;
 		
-		allsubgroups = subgroupdescriptions;
-		
-		subgroupnames = allsubgroups.keySet().toArray(
-				new String[allsubgroups.size()]);
-		
-		alloptions = optionlists;
-		
+		this.subgroupsToOptions = subgroupsToOptions;	
+		subgroupdescriptions = this.subgroupsToOptions.keySet().toArray(
+								new String[subgroupsToOptions.size()]);
 		subgroupoptionsboxes = setupComboBoxModels();		
 
-		
-		//groupNames = new String[] { "None", "SES at birth", "Ethnicity" };
-		// create GUI elements
 		pv = PanelViewUtil.createResizablePanelView("Scenario Weightings");
-		//grouplabel = new JLabel();
-		//grouper = new JComboBox(groupNames);
-		//groupdim = new Dimension(100, 40);
-		//grouper.setMaximumSize(groupdim);
+		pv.setPreferredSize(new Dimension(700,630));
+
 		selectlabel = new JLabel();
 		selector = new JComboBox(wcalcvarnames);
-		selectdim = new Dimension(424, 40);
-		selector.setMaximumSize(selectdim);
 		subgrouplabel = new JLabel();
 		subgroupbox = new JTextField(20);
 		subgroupselectlabel = new JLabel();
-		subgroupselect = new JComboBox(subgroupnames);
+		subgroupselect = new JComboBox(subgroupdescriptions);
 		chooseoptions = new JComboBox();
 		optionslabel = new JLabel();
-		
-		// nonebutton = new JRadioButton(noneradio);
-		// sesbutton = new JRadioButton(sesradio);
-		// ethbutton = new JRadioButton(ethradio);
-		// ButtonGroup breakdown = new ButtonGroup();
-		// breakdown.add(nonebutton);
-		// breakdown.add(sesbutton);
-		// breakdown.add(ethbutton);
-		// radioPanel = new JPanel(new GridLayout(0, 1));
-		// radioPanel.add(nonebutton);
-		// radioPanel.add(sesbutton);
-		// radioPanel.add(ethbutton);
+		scenarioproportionslabel = new JLabel();
+		basesimulationresultslabel = new JLabel();	
 		yearpane = new JScrollPane();
-		
+		baseSimulationResultsPane = new JScrollPane();
 
 		BuildResult uiElements = SwingJavaBuilder.build(this);
-		// nonebutton.setSelected(true);
+		pv.add((Component) uiElements.get("pane"));
+	}
+	
 
-		// ButtonModel subgroup = breakdown.getSelection();
-		// add YAML panel
-		pv.add((Component) uiElements.get("panel"));
-		// create GUI elements
-		// pv = PanelViewUtil.createResizablePanelView("Scenario Weightings");
-		// selector = new JComboBox(wcalcNames);
-		// tablePane = new JScrollPane();
-		// BuildResult uiElements = SwingJavaBuilder.build(this);
+	@SuppressWarnings("unused")
+	private void selectorChanged() {
+		Object selected = selector.getSelectedItem();
+		currentvariableallyears = allvariablesweightcalcs.get(selected);
+		for (Entry<String, WeightCalculator> wcalcentry : currentvariableallyears
+				.entrySet()) {
+			setTablePane(wcalcentry.getValue());
+			if(wcalcentry.getValue() instanceof CategoricalVarAdjustment){
+				
+				basesimulationresultslabel.setVisible(true);
+				baseSimulationResultsPane.setVisible(true);
+				setBaseSimulationResultsTablePane(wcalcentry.getValue());
+				
+			} else {
+				basesimulationresultslabel.setVisible(false);
+				baseSimulationResultsPane.setVisible(false);
+			}
+		}
+	}
+	
+	private void updateSubgroupFormula(String s){
+		subgroupbox.setText(subgroupbox.getText() + s + " ");
+	}
+	
+	private void addLeftBracket(){
+		updateSubgroupFormula("(");
+		subgroupbox.requestFocus();
+	}
+	
+	private void addRightBracket(){
+		updateSubgroupFormula(")");
+		subgroupbox.requestFocus();
+	}
+	
+	private void andPressed(){
+		updateSubgroupFormula("&");
+		subgroupbox.requestFocus();
+	}
+	
+	private void orPressed(){
+		updateSubgroupFormula("|");
+		subgroupbox.requestFocus();
+	}
+	
+	private void setFormula(){
+		
+		Object selected = selector.getSelectedItem();
+		currentvariableallyears = allvariablesweightcalcs.get(selected);
+		for (Entry<String, WeightCalculator> wcalcentry : currentvariableallyears.entrySet()) {
+			
+			if(wcalcentry.getValue() instanceof CategoricalVarAdjustment){	
+				((CategoricalVarAdjustment)wcalcentry.getValue()).setBaseSimulationResultsTableModel(subgroupbox.getText());
+			}
+		
+		}
+		subgroupbox.requestFocus();	
+	}
 
-		// add YAML panel
-		// pv.add((Component) uiElements.get("panel"));
+	
+	private void clearFormula(){
+		subgroupbox.setText("");
+		subgroupbox.requestFocus();
+	}
+	
+	private void optionSelected(){
+		
+		currentselection = subgroupsToOptions.get(subgroupselect.getSelectedItem())
+											 .getSubExpressions()
+											 .get(chooseoptions.getSelectedItem().toString())
+											 .getRExpression();
+
+		subgroupbox.requestFocus();
+		
+		updateSubgroupFormula(currentselection);
+	}
+	
+	private void subgroupSelected(){
+		Object selected = subgroupselect.getSelectedItem();
+		currentselection = subgroupsToOptions.get(selected).getRExpression();
+		
+		updateSubgroupFormula(currentselection);
+		changeOptions(subgroupsToOptions.get(selected).rExpression);
+		
+		subgroupbox.requestFocus();
 	}
 	
 	@SuppressWarnings("unchecked")
-	private ComboBoxModel[] setupComboBoxModels(){
+	private void changeOptions(String optiontype){
+		chooseoptions.setModel(subgroupoptionsboxes.get(optiontype));
+	}
 
-		subgroupoptionsboxes = new ComboBoxModel[alloptions.size()];
-		for(int i = 0; i < subgroupoptionsboxes.length; i++){
-			subgroupoptionsboxes[i] = new DefaultComboBoxModel(
-					(String[]) alloptions.get(Integer.toString(i)));
-		}		
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		String cmd = e.getActionCommand();
+		if ("update".equals(cmd)) {
+			update();
+		} else if ("reset".equals(cmd)) {
+			reset();
+		}
+	}
+	
+	private void setBaseSimulationResultsTablePane(WeightCalculator wc) {
+		JTable table = createExistingProportionsTable((CategoricalVarAdjustment) wc);
+		baseSimulationResultsPane.setViewportView(table);
+		baseSimulationResultsPane.setPreferredSize(new Dimension(660, 150));
+		table.setRowHeight(20);
+		table.setIntercellSpacing(new Dimension(10,4));
+	}
+	
+	private void setTablePane(WeightCalculator wc) {
+		JTable table = createTable(wc);
+		yearpane.setViewportView(table);
+		yearpane.setPreferredSize(new Dimension(660, 150));
+		table.setRowHeight(20);
+		table.setIntercellSpacing(new Dimension(10, 4));
+	}
+
+	private JTable createExistingProportionsTable(CategoricalVarAdjustment catvaradj){
+		JTable table = UIUtil.createTable(catvaradj.getBaseSimulationResultsTableModel(), catvaradj.getName(), 110);
+		AscapeGUIUtil.sizeTable(table, AscapeGUIUtil.getDesktopSize());
+		return table;
+	}
+	
+	private JTable createTable(ParameterSet pset) {
+		JTable table = UIUtil.createTable(pset.getTableModel(), pset.getName(), 110);
+		AscapeGUIUtil.sizeTable(table, AscapeGUIUtil.getDesktopSize());
+		return table;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private Map<String, ComboBoxModel> setupComboBoxModels(){
+		
+		subgroupoptionsboxes = new LinkedHashMap<String, ComboBoxModel>();
+		
+		for(String element : subgroupsToOptions.keySet()){
+			
+			subgroupoptionsboxes.put(subgroupsToOptions.get(element).rExpression, 
+									 new DefaultComboBoxModel(subgroupsToOptions.get(element).getSubExpressions().keySet().toArray()));
+			}		
+		
 		return subgroupoptionsboxes;
 	}
 
+	@SuppressWarnings("unused")
+	private void update() {
+		doUpdate("Weights updated.");
+	}
+
+	private void doUpdate(String updateMsg) {
+		try {
+			scape.setGlobalSubgroupFilterExpression(subgroupbox.getText());
+			for (Map<String, WeightCalculator> wcalcsyearsmap : allvariablesweightcalcs
+					.values()) {
+				for (WeightCalculator wcalc : wcalcsyearsmap.values()) {
+					wcalc.validateAndNotify();
+				}
+			}
+			JOptionPane.showMessageDialog(pv, updateMsg);
+		} catch (InvalidDataException e) {
+			// display message box
+			JOptionPane.showMessageDialog(pv, e.getMessage());
+		}
+	}
+
+	private void reset() {
+		for (WeightCalculator wcalc : currentvariableallyears.values()) {
+			wcalc.resetDefaults();
+		}
+		JOptionPane.showMessageDialog(pv, "Current variable reset to base.", "Defaults", JOptionPane.INFORMATION_MESSAGE);
+	}
+	
 	protected final JComponent makeTextPanel(String text) {
 		JPanel panel = new JPanel(false);
 		JLabel filler = new JLabel(text);
@@ -204,7 +333,7 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 
 		return pv;
 	}
-
+	
 	@Override
 	public void panelViewAdded(Container pvFrameImp) {
 		// nothing to do
@@ -214,115 +343,4 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 	public void frameClosed() {
 		// nothing to do
 	}
-
-	@SuppressWarnings("unused")
-	private void selectorChanged() {
-		Object selected = selector.getSelectedItem();
-		currentvariableallyears = allvariablesweightcalcs.get(selected);
-		for (Entry<String, WeightCalculator> wcalcentry : currentvariableallyears
-				.entrySet()) {
-			setTablePane(wcalcentry.getValue(), yearpane);
-		}
-	}
-	
-	private void updateSubgroupFormula(String s){
-		subgroupbox.setText(subgroupbox.getText() + s);
-	}
-	
-	private void andPressed(){
-		updateSubgroupFormula("&");
-		subgroupbox.requestFocus();
-	}
-	
-	private void orPressed(){
-		updateSubgroupFormula("|");
-		subgroupbox.requestFocus();
-	}
-	
-	private void setFormula(){	//Temporarily using to test adding nodes to navigator
-		scape.getScapeNode().addNewNode("the dummy node");
-		subgroupbox.requestFocus();
-	}
-	
-	private void clearFormula(){
-		subgroupbox.setText("");
-		subgroupbox.requestFocus();
-	}
-	
-	private void optionSelected(){
-		currentselection = chooseoptions.getSelectedItem().toString();
-		subgroupbox.requestFocus();
-		
-		updateSubgroupFormula(currentselection);
-	}
-	
-	private void subgroupSelected(){
-		Object selected = subgroupselect.getSelectedItem();
-		currentselection = allsubgroups.get(selected)[0];
-		updateSubgroupFormula(currentselection);
-		changeOptions(allsubgroups.get(selected)[1]);
-		subgroupbox.requestFocus();
-	}
-	
-	@SuppressWarnings("unchecked")
-	private void changeOptions(String optiontype){
-		chooseoptions.setModel(subgroupoptionsboxes[Integer.parseInt(optiontype)]);
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		String cmd = e.getActionCommand();
-		if ("update".equals(cmd)) {
-			update();
-		} else if ("reset".equals(cmd)) {
-			reset();
-		}
-	}
-
-	private void setTablePane(WeightCalculator wc, JScrollPane scrollPane) {
-		JTable table = createTable(wc);
-		scrollPane.setViewportView(table);
-		table.setRowHeight(20);
-		table.setIntercellSpacing(new Dimension(10, 4));
-	}
-
-	private JTable createTable(ParameterSet pset) {
-		JTable table = UIUtil.createTable(pset.getTableModel(), pset.getName());
-		AscapeGUIUtil.sizeTable(table, AscapeGUIUtil.getDesktopSize());
-		return table;
-	}
-
-	@SuppressWarnings("unused")
-	private void update() {
-		doUpdate("Weights updated.");
-	}
-
-	private void doUpdate(String updateMsg) {
-		try {
-			scape.setGlobalSubgroupFilterExpression(subgroupbox.getText());
-			for (Map<String, WeightCalculator> wcalcsyearsmap : allvariablesweightcalcs
-					.values()) {
-				for (WeightCalculator wcalc : wcalcsyearsmap.values()) {
-					wcalc.validateAndNotify();
-				}
-			}
-			JOptionPane.showMessageDialog(pv, updateMsg);
-		} catch (InvalidDataException e) {
-			// display message box
-			JOptionPane.showMessageDialog(pv, e.getMessage());
-		}
-	}
-
-	private void reset() {
-		for (WeightCalculator wcalc : currentvariableallyears.values()) {
-			wcalc.resetDefaults();
-		}
-		JOptionPane.showMessageDialog(pv, "Current variable reset to base.", "Defaults", JOptionPane.INFORMATION_MESSAGE);
-	}
-
-	// @Override
-	// public PanelView getPanelView() {
-	// // TODO Auto-generated method stub
-	// return null;
-	// }
 }

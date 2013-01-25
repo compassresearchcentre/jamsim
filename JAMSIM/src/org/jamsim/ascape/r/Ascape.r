@@ -64,12 +64,12 @@ activateJavaGD <- function(name, path = "", selectNode = FALSE, ...) {
 	
 	# make active
 	invisible(dev.set(which = devNbr))
-
+	
 	if (selectNode) {
 		ascapeGD <- .getJavaGDObject(dev.cur())
 		.jcall(ascapeGD, "V", "selectNode")
 	}
-
+	
 } 
 
 #' Add a list of objects as nodes under the specified parent node.
@@ -189,27 +189,73 @@ addOutputNode <- function(x, name, path = .jnull("java/lang/String")) {
 	.jcall(getScapeNode(), "V", "addOutputNode", rdp, path)
 }
 
-ascapeStart <- function() {
-	# eg: ascapeStart()
-	
-	# remove all graphics devices and the device-name hash
-	graphics.off()
-	
-	# remove all objects (including .deviceHash), except functions
-	cat("ascapeStart: Removing all existing objects\n")
-	objsToDel <- lsNoFunc(all.names=TRUE)
-	
-	# don't delete objects specified by name in the vector .ascape$objsToKeep
-	objsToDel <- objsToDel[!(objsToDel %in% c(".ascape",.ascape$objsToKeep))]
-	
-	rm(pos = ".GlobalEnv", list = objsToDel)
-	
-	#not sure why, but for rJava 0.8+ we need this otherwise get
-	#"rJava was called from a running JVM without .jinit()" when
-	#we try the .jcall
-	invisible(.jinit()) 
-	
+#' Add a graphics device as a node under the  "Graphs" node.
+#' 
+#'  @param path
+#'  a path to a sub folder node, eg: "Base/Means" which represents
+#'  the folder Means under the folder Base, or just "Base" which
+#'  will add to the folder Base, or leave unspecified (the default) to add directly
+#'  under "Graphs".
+#' @param names
+#'  the tree node name used for the object
+addLazyJGDNode <- function(plotCmd, name, path = .jnull("java/lang/String")) {
+	.jcall(getScapeNode(), "V", "addLazyJGDNode", plotCmd, name, path)
 }
+
+addLazyTableNode <- function(plotCmd, name, parentName, path = .jnull("java/lang/String")) {
+	.jcall(getScapeNode(), "V", "addLazyTableNode", plotCmd, name, parentName, path)
+}
+
+tableBuilder <- function(envName, statistic, variableName, subgroupName) {
+	#returns a matrix for now see tableBuilder java
+	cat(envName, statistic, variableName, subgroupName, "\n")
+	matrix(c(1,2,3,4,5,6), nrow=3)
+}
+
+#' @examples
+#'	expr <- "addLazyTableNode('tableBuilder('Base', 'means', 'msmoke1', '')', 'msmoke1 means', 'Lazy tables', '')" 
+#' 	storeOnLoadExpression(expr)
+storeOnLoadExpression <- function(expr){
+	cat(expr, "\n")
+}
+
+saveWorkspace <- function(fileName, path) {
+	cat(fileName, path, "\n")
+}
+
+loadWorkspace <- function(fileName, path) {
+	cat(fileName, path, "\n")
+}
+
+
+storeLazyTableNodeExpression <- function(expression, name, parentName, path = .jnull("java/lang/String")){
+	#call from java (tablebuilder), give the string used to get rexp from tablebuilder
+	#will call addLazyTableNode upon restart
+}
+
+storeLazyJGDNode <- function(plotCmd, name, path = .jnull("java/lang/String"))
+	
+	ascapeStart <- function() {
+		# eg: ascapeStart()
+		
+		# remove all graphics devices and the device-name hash
+		graphics.off()
+		
+		# remove all objects (including .deviceHash), except functions
+		cat("ascapeStart: Removing all existing objects\n")
+		objsToDel <- lsNoFunc(all.names=TRUE)
+		
+		# don't delete objects specified by name in the vector .ascape$objsToKeep
+		objsToDel <- objsToDel[!(objsToDel %in% c(".ascape",.ascape$objsToKeep))]
+		
+		rm(pos = ".GlobalEnv", list = objsToDel)
+		
+		#not sure why, but for rJava 0.8+ we need this otherwise get
+		#"rJava was called from a running JVM without .jinit()" when
+		#we try the .jcall
+		invisible(.jinit()) 
+		
+	}
 
 #' Specify the name of an object to keep 
 #' when ascape restarts.

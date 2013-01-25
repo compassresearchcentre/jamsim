@@ -18,6 +18,7 @@ import net.casper.data.model.CDataRowSet;
 import net.casper.data.model.CDataRuntimeException;
 import net.casper.data.model.CRowMetaData;
 import net.casper.ext.CasperUtil;
+import net.casper.ext.swing.CDatasetTableModel;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.jamsim.ascape.r.ScapeRInterface;
@@ -60,6 +61,10 @@ public class CategoricalVarAdjustment extends Observable implements
 	 * Table model.
 	 */
 	private CategoricalVarAdjTableModel tableModel;
+	
+	private CDatasetTableModel cDatasetTableModel;
+	
+	private String baseSimulationResults;
 
 	private final ScapeRInterface scapeR;
 
@@ -85,9 +90,9 @@ public class CategoricalVarAdjustment extends Observable implements
 	 *             dataset
 	 */
 	public CategoricalVarAdjustment(ScapeRInterface scapeR,
-			String rMatrixVarname, String rVariable, double displayAdjFactor,
+			String existingProportions, String rMatrixVarname, String rVariable, double displayAdjFactor,
 			Preferences prefs) throws IOException {
-		this(scapeR, rMatrixVarname, rVariable, displayAdjFactor);
+		this(scapeR, existingProportions, rMatrixVarname, rVariable, displayAdjFactor);
 		loadState(prefs);
 	}
 
@@ -110,14 +115,16 @@ public class CategoricalVarAdjustment extends Observable implements
 	 *             dataset
 	 */
 	public CategoricalVarAdjustment(ScapeRInterface scapeR,
-			String rMatrixVarname, String rVariable, double displayAdjFactor)
+			String baseSimulationResults, String rMatrixVarname, String rVariable, double displayAdjFactor)
 			throws IOException {
 
 		this.rMatrixVarname = rMatrixVarname;
 		this.variableDesc = scapeR.getMsScape().getDictionary()
 				.getDescription(rVariable);
 		this.displayAdjFactor = displayAdjFactor;
-
+		
+		this.baseSimulationResults = baseSimulationResults;
+		
 		this.scapeR = scapeR;
 		getTableModel();
 	}
@@ -190,12 +197,54 @@ public class CategoricalVarAdjustment extends Observable implements
 	public double[] getAllLevelProps() {
 		throw new NotImplementedException("getAllLevelProps not implemented.");
 	}
-
+	
 	@Override
 	public final String getName() {
 		return variableDesc;
 	}
 
+	public final CDatasetTableModel getBaseSimulationResultsTableModel(){
+		
+		if(cDatasetTableModel == null){
+			setBaseSimulationResultsTableModel("");			
+		}
+		
+		return cDatasetTableModel;
+	}
+	
+	public final void setBaseSimulationResultsTableModel(String subgroupExpression){
+		REXP rexp;
+		CDataCacheContainer container;
+		String rcmd;
+		
+		try{
+			if(baseSimulationResults.substring(0, 22).equals("userFormatDichotFreqs")){
+				rcmd = subgroupExpression;
+			} else {
+				rcmd = "getVariableSubgroupedByCategory(" + "\"" + baseSimulationResults + "\""+ "," + "\"" + subgroupExpression + "\"" + ")";
+			}
+			rexp = scapeR.eval(rcmd);
+
+			try{
+				container = new CDataCacheContainer(new CBuildFromREXP(rexp, variableDesc));
+			
+			} catch (CDataGridException e) {
+				throw new RuntimeException(e.getMessage(), e);
+			}
+			
+			try {
+				cDatasetTableModel = new CDatasetTableModel(container);
+				
+			} catch (IOException e) {
+				throw new RuntimeException(e.getMessage(), e);
+			}
+			
+		} catch (RFaceException e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
+		
+	}
+	
 	@Override
 	public final TableModel getTableModel() {
 		try {
@@ -303,12 +352,13 @@ public class CategoricalVarAdjustment extends Observable implements
 
 			while (rowset.next()) {
 
+				String existingProportions = rowset.getString("existingProportions");
 				String rMatrixVarname = rowset.getString("rMatrixVarname");
 				String rVariable = rowset.getString("rVariable");
 				double displayAdjFactor = rowset.getDouble("displayAdjFactor");
 
 				CategoricalVarAdjustment cva = new CategoricalVarAdjustment(
-						scapeR, rMatrixVarname, rVariable, displayAdjFactor);
+						scapeR, existingProportions, rMatrixVarname, rVariable, displayAdjFactor);
 
 				cvas.add(cva);
 			}
