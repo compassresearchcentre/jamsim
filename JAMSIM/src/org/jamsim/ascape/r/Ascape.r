@@ -190,28 +190,57 @@ addOutputNode <- function(x, name, path = .jnull("java/lang/String")) {
 }
 
 #' Add a graphics device as a node under the  "Graphs" node.
-#' 
+#'  @param plotCmd
+#' 	a command that will be evaluated to produce an R graphics device
+#'  @param name
+#'  the tree node name used for the object
 #'  @param path
 #'  a path to a sub folder node, eg: "Base/Means" which represents
 #'  the folder Means under the folder Base, or just "Base" which
 #'  will add to the folder Base, or leave unspecified (the default) to add directly
 #'  under "Graphs".
-#' @param names
-#'  the tree node name used for the object
 addLazyJGDNode <- function(plotCmd, name, path = .jnull("java/lang/String")) {
 	.jcall(getScapeNode(), "V", "addLazyJGDNode", plotCmd, name, path)
 }
 
-addLazyTableNode <- function(plotCmd, name, parentName, path = .jnull("java/lang/String")) {
-	.jcall(getScapeNode(), "V", "addLazyTableNode", plotCmd, name, parentName, path)
+#' Add a data set as a node under a specified parent node.
+#' 
+#'  @param expr
+#'  An expression to be evaluated to produce a dataset for
+#'  display in the Ascape GUI
+#'  @param name
+#'  the tree node name used for the object
+#'  @param parentName 
+#'  the name of the parent folder in which the node is to be placed
+#'  @param path
+#'  a path to a sub folder node, eg: "Base/Means" which represents
+#'  the folder Means under the folder Base, or just "Base" which
+#'  will add to the folder Base, or leave unspecified (the default) to add directly
+#'  under the specified parent node.
+addLazyTableNode <- function(expr, name, parentName, path = .jnull("java/lang/String")) {
+	.jcall(getScapeNode(), "V", "addLazyTableNode", expr, name, parentName, path)
 }
 
+#' Returns a dataset for use in a table by the Table Builder GUI
+#'  @param envName 
+#'  the environment to use - Base, Scenario 1, Scenario 2 etc.
+#'  @param statistic
+#'  the summary measure to use in producing the dataset - frequencies, means, quintiles
+#'  @param variableName
+#'  the variable to use in producing the dataset
+#' 	@param subgroupName
+#'  a subgroup by which to examine the variable
 tableBuilder <- function(envName, statistic, variableName, subgroupName) {
 	#returns a matrix for now see tableBuilder java
 	cat(envName, statistic, variableName, subgroupName, "\n")
 	matrix(c(1,2,3,4,5,6), nrow=3)
 }
 
+#' The given parameter expr is another function which is called here to 
+#' create the table or graph required. Stores the given expression for use 
+#' in recreating the workspace when the workspace is loaded from a saved RData file
+#' @param expr
+#' 	an expression that is a call to another function to create the table or graph required (see example)
 #' @examples
 #'	expr <- "addLazyTableNode('tableBuilder('Base', 'means', 'msmoke1', '')', 'msmoke1 means', 'Lazy tables', '')" 
 #' 	storeOnLoadExpression(expr)
@@ -219,20 +248,56 @@ storeOnLoadExpression <- function(expr){
 	cat(expr, "\n")
 }
 
+#' Saves the workspace to an RData file
+#' @param fileName
+#' the name to give the file
+#' @param path
+#' the path in which to save the file 
 saveWorkspace <- function(fileName, path) {
 	cat(fileName, path, "\n")
 }
 
+#' Loads a saved workspace from an RData file
+#' @param fileName
+#' the name of the file to load
+#' @param path
+#' the path in which the file is found 
 loadWorkspace <- function(fileName, path) {
 	cat(fileName, path, "\n")
 }
 
-
+#' Is called by the Table Builder GUI when a table is built so that
+#' the information used to create the node may be stored and used to 
+#' add the node again when the model is restarted.
+#'  @param expression
+#'  An expression to be evaluated to produce a dataset for
+#'  display in the Ascape GUI
+#'  @param name
+#'  the tree node name used for the object
+#'  @param parentName 
+#'  the name of the parent folder in which the node is to be placed
+#'  @param path
+#'  a path to a sub folder node, eg: "Base/Means" which represents
+#'  the folder Means under the folder Base, or just "Base" which
+#'  will add to the folder Base, or leave unspecified (the default) to add directly
+#'  under the specified parent node.
 storeLazyTableNodeExpression <- function(expression, name, parentName, path = .jnull("java/lang/String")){
 	#call from java (tablebuilder), give the string used to get rexp from tablebuilder
 	#will call addLazyTableNode upon restart
 }
 
+#' Is called when a Lazy JGD Node is added to the tree so that
+#' the information used to create the node may be stored and used to 
+#' add the node again when the model is restarted.
+#'  @param plotCmd
+#' 	a command that will be evaluated to produce an R graphics device
+#'  @param name
+#'  the tree node name used for the object
+#'  @param path
+#'  a path to a sub folder node, eg: "Base/Means" which represents
+#'  the folder Means under the folder Base, or just "Base" which
+#'  will add to the folder Base, or leave unspecified (the default) to add directly
+#'  under "Graphs".
 storeLazyJGDNode <- function(plotCmd, name, path = .jnull("java/lang/String"))
 	
 	ascapeStart <- function() {

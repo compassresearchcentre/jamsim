@@ -401,7 +401,11 @@ public class FileLoader implements Output {
 		print("Loading dataset \"" + datasetName + "\" from ["
 				+ file.getPath() + "]. ");
 		
-		CSVTableBuilderDataReader reader = new CSVTableBuilderDataReader();
+		UserInterfaceCSVReader reader = new UserInterfaceCSVReader(new LinkedHashMap<String, Map<String, String>>(),
+																   new LinkedHashMap<String, String>(),
+																   new LinkedHashMap<String, String>(),
+																   new LinkedHashMap<String, String>());
+		
 		Map<String, Map<String, String>> tableBuilderData = reader.readTableBuilderDataCSVFile(file.getPath());
 		
 		prefs.put(datasetName, file.getPath());
@@ -421,8 +425,9 @@ public class FileLoader implements Output {
 		// load the dataset
 		print("Loading dataset \"" + datasetName + "\" from ["
 				+ file.getPath() + "]. ");
-
-		CSVSubgroupsToOptionsReader reader = new CSVSubgroupsToOptionsReader();
+		
+		UserInterfaceCSVReader reader = new UserInterfaceCSVReader(new LinkedHashMap<String, RExpression>());
+		
 		Map<String, RExpression> subgroupsToOptions = reader.readSubgroupsToOptionsCSVFile(file.getPath());
 		
 		prefs.put(datasetName,  file.getPath());

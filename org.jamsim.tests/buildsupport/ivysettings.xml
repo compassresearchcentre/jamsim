@@ -35,7 +35,7 @@
 	</resolvers>
 	<modules>
 		<!--  define resolvers for specific modules -->
-		<module organisation="net.casper" resolver="casper-repo" />
+		<module organisation="net.casper" resolver="local" />
 		<module organisation="org.beanshell" resolver="romanface-repo" />
 		<module organisation="org.rosuda" resolver="romanface-repo" />
 		<module organisation="org.omancode" name="omcutil" resolver="omcutil-repo" />

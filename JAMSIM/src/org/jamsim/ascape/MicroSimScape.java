@@ -118,6 +118,9 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 */
 	private transient PanelViewProvider wcalcPanel;
 	
+	/**
+	 * Panel to build tables.
+	 */
 	private PanelViewProvider createTablePanel;
 
 	/**
@@ -269,6 +272,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 			// Add weightings button to additional toolbar
 			addWeightingsButton(wcalcPanel);
 			
+			// Add table builder button to additional toolbar
 			addTableBuilderButton(createTablePanel);
 		}
 	}
@@ -374,6 +378,13 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		this.wcalcPanel = wcalcPanel;
 	}
 	
+	/**
+	 * Set the {@link PanelViewProvider} used to provide the UI to interact with
+	 * the Table Builder
+	 * 
+	 * @param createTablesPanel
+	 * 			  table builder panel provider
+	 */
 	public void setCreateTableOptionsPanelView(PanelViewProvider createTablesPanel){
 		this.createTablePanel = createTablesPanel;
 	}
@@ -463,15 +474,33 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		AscapeGUIUtil.addAdditionalBarButton(weightingsAction);
 	}
 	
+	/**
+	 * Add a "Table" button to the additional tool bar that displays a
+	 * {@link org.jamsim.ascape.ui.PanelViewTableBuilder}.
+	 * 
+	 * @param provider
+	 * 			  Provides a panel view of the TableBuilder UI
+	 */
 	private void addTableBuilderButton(PanelViewProvider provider){
+		// create action
 		PanelViewAction createTableAction = new PanelViewAction(provider,
 				"Create Table", "Create Table");
 		
 		createTableAction.putValue(Action.SMALL_ICON, createImageIcon("tableicon.gif", "a table icon"));
-
+		
+		// add button to toolbar
 		AscapeGUIUtil.addAdditionalBarButton(createTableAction);
 	}
 	
+	/**
+	 * Create an {@link ImageIcon} to add to the toolbar
+	 *
+	 * @param path
+	 * 			Location of image file
+	 * @param description
+	 * 			A description of the icon
+	 * @return {@link ImageIcon}
+	 */
 	private ImageIcon createImageIcon(String path,
             String description) {
 		java.net.URL imgURL = getClass().getResource(path);

@@ -311,7 +311,22 @@ public class MicroSimScapeNode extends ScapeNode {
 		return newNode;
 	}
 
-
+	/**
+	 * Add a {@link PanelViewNode} in the specified path. Creates the path if it
+	 * doesn't exist. Creates a {@link PanelViewLazyDatasetProvider} for the
+	 * PanelViewNode.
+	 * @param rPlotCmd
+	 * 			  an R command that will create the table to be displayed
+	 * @param name
+	 * 			  Name of the node
+	 * @param parentName
+	 * 			  Name of the parent folder of the node
+	 * @param path
+	 *            A path to a sub folder node, eg: "Base/Means" which represents
+	 *            the folder Means under the folder Base, or just "Base" which
+	 *            will add to the folder Base, or {@code null} to add directly
+	 *            under "Graphs".
+	 */	
 	public void addLazyTableNode(String rPlotCmd, String name, String parentName, String path){	
 			
 		PanelViewLazyDatasetProvider provider = new PanelViewLazyDatasetProvider(scape.getScapeRInterface(), rPlotCmd, name);

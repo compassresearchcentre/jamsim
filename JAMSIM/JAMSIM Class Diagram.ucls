@@ -1,0 +1,65 @@
+<class-diagram version="1.0.11" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
+  associations="true" dependencies="false" nesting-relationships="true">  
+  <class id="1" corner="BOTTOM_RIGHT" language="java" name="net.casper.data.model.CDataCacheContainer" project="JAMSIM" 
+    file="C:/Users/bmac055/.ivy2/cache/net.casper/casperdatasets/jars/casperdatasets-2.0.1.jar" binary="true">    
+    <position height="843" width="339" x="1073" y="-105"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="2" corner="BOTTOM_RIGHT" language="java" name="javax.swing.AbstractAction" project="MELC" 
+    file="C:/Program Files/Java/jdk1.7.0_09/jre/lib/rt.jar" binary="true">    
+    <position height="469" width="325" x="686" y="124"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="3" corner="BOTTOM_RIGHT" language="java" name="org.jamsim.ascape.MicroSimScape" project="JAMSIM" 
+    file="/JAMSIM/src/org/jamsim/ascape/MicroSimScape.java" binary="false">    
+    <position height="-1" width="-1" x="368" y="437"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="4" corner="BOTTOM_RIGHT" language="java" name="org.jamsim.ascape.navigator.RecordedMicroSimTreeBuilder" 
+    project="JAMSIM" file="/JAMSIM/src/org/jamsim/ascape/navigator/RecordedMicroSimTreeBuilder.java" binary="false">    
+    <position height="-1" width="-1" x="713" y="27"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="5" corner="BOTTOM_RIGHT" language="java" name="org.jamsim.ascape.ui.RExpression" project="JAMSIM" 
+    file="/JAMSIM/src/org/jamsim/ascape/ui/RExpression.java" binary="false">    
+    <position height="-1" width="-1" x="713" y="685"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <association id="6">    
+    <end type="SOURCE" refId="5" navigable="false">      
+      <attribute id="7" name="subRExpressions"/>      
+      <multiplicity id="8" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="5" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="9">    
+    <end type="SOURCE" refId="3" navigable="false">      
+      <attribute id="10" name="TREE_BUILDER"/>      
+      <multiplicity id="11" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true"/>    
+    <operations public="true" package="true" protected="true" private="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>

@@ -1,0 +1,31 @@
+JScrollPane(name=pane, verticalScrollBarPolicy=asNeeded, horizontalScrollBarPolicy=asNeeded):    
+    JPanel(name=panel):
+        - JLabel(name=scenarioLabel, text=Select Scenario)
+        - JLabel(name=statisticLabel, text=Select Summary Measure)
+        - JLabel(name=variableLabel, text=Select Variable)
+        - JLabel(name=subgroupLabel, text=Select Subgroup)
+        - JComboBox(name=scenarioCombo, onAction=scenarioSelected)
+        - JComboBox(name=variableCombo, onAction=variableSelected)
+        - JComboBox(name=subgroupCombo, onAction=subgroupSelected)
+        - JRadioButton(name=frequenciesButton, onAction=frequenciesSelected)
+        - JRadioButton(name=meansButton, onAction=meansSelected)
+        - JRadioButton(name=quintilesButton, onAction=quintilesSelected)
+        - ButtonGroup: [frequenciesButton, meansButton, quintilesButton]
+        - JButton(name=okButton, text=OK, onAction=okPressed)
+        - JButton(name=save, text=Save to Tree, onAction=savePressed)
+        - JScrollPane(name=tablePane)
+        - MigLayout: |
+            [grow]
+            [grow, shrink]
+            scenarioLabel
+            scenarioCombo
+            statisticLabel
+            frequenciesButton,meansButton,quintilesButton
+            variableLabel=1
+            variableCombo=1
+            subgroupLabel=1
+            subgroupCombo=1
+            tablePane+*
+            >okButton=3,save=3 [grow, shrink, bottom]
+        
+        

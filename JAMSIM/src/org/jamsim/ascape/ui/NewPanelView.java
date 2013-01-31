@@ -54,7 +54,9 @@ import org.javabuilders.swing.SwingJavaBuilder;
 /**
  * Provides a {@link PanelView} based on a {@link ParameterSet}. The
  * {@link PanelView} contains a table of the {@link ParameterSet} as well as
- * update and reset/default buttons.
+ * update and reset/default buttons, Combo boxes and buttons for the user to 
+ * build a subgroup formula and a Base Simulation Results table for categorical
+ * variables.
  * 
  * @author Oliver Mannion
  * @version $Revision$
@@ -91,10 +93,22 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 
 	private Map<String, WeightCalculator> currentvariableallyears;
 	private String currentselection;
-
+	
+	/**
+	 * Creates a {@link NewPanelView}. Sets up the combo boxes and combo box models.
+	 * Builds the Swing components using the Swing JavaBuilder library.
+	 * 
+	 * @param wcalcsvarmaps
+	 * 			Weight Calculators used to create the Scenario Proportions table
+	 * @param subgroupsToOptions
+	 * 			Descriptions and corresponding R expressions used for the combo boxes
+	 * 			and to build the user's R expression
+	 * @param scape
+	 * 			The scape
+	 */
 	public NewPanelView(
 			Map<String, Map<String, WeightCalculator>> wcalcsvarmaps,
-			Map subgroupsToOptions,
+			Map<String, RExpression> subgroupsToOptions,
 			MicroSimScape<?> scape) {
 		
 		this.allvariablesweightcalcs = wcalcsvarmaps;
@@ -128,7 +142,10 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 		pv.add((Component) uiElements.get("pane"));
 	}
 	
-
+	/**
+	 * Gets the variable selected and updates the Scenario Proportions table pane.
+	 * If it is a categorical variable also updates the Base Simulation Results table pane.
+	 */
 	@SuppressWarnings("unused")
 	private void selectorChanged() {
 		Object selected = selector.getSelectedItem();
@@ -149,6 +166,10 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 		}
 	}
 	
+	/**
+	 * Updates the Subgroup Formula textbox based on the user's selection
+	 * @param s
+	 */
 	private void updateSubgroupFormula(String s){
 		subgroupbox.setText(subgroupbox.getText() + s + " ");
 	}
@@ -173,6 +194,10 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 		subgroupbox.requestFocus();
 	}
 	
+	/**
+	 * Gets the variable selected by the user. Gets the Weight Calculator corresponding to that variable.
+	 * Uses the subgroup formula built by the user to update the table panes accordingly
+	 */
 	private void setFormula(){
 		
 		Object selected = selector.getSelectedItem();
@@ -193,6 +218,10 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 		subgroupbox.requestFocus();
 	}
 	
+	/**
+	 * Gets the R expression corresponding to the user's choice of subgroup option.
+	 * Updates the subgroup formula.
+	 */
 	private void optionSelected(){
 		
 		currentselection = subgroupsToOptions.get(subgroupselect.getSelectedItem())
@@ -200,11 +229,14 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 											 .get(chooseoptions.getSelectedItem().toString())
 											 .getRExpression();
 
-		subgroupbox.requestFocus();
-		
 		updateSubgroupFormula(currentselection);
+		subgroupbox.requestFocus();
 	}
 	
+	/**
+	 * Gets the R expression corresponding to the user's choice of subgroup.
+	 * updates the subgroup formula.
+	 */
 	private void subgroupSelected(){
 		Object selected = subgroupselect.getSelectedItem();
 		currentselection = subgroupsToOptions.get(selected).getRExpression();
@@ -215,6 +247,12 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 		subgroupbox.requestFocus();
 	}
 	
+	/**
+	 * Changes the combo box model for the 'options' combo box depending on the
+	 * user's selection of subgroup.
+	 * @param optiontype
+	 * 			The subgroup variable type - range, categorical, binary
+	 */
 	@SuppressWarnings("unchecked")
 	private void changeOptions(String optiontype){
 		chooseoptions.setModel(subgroupoptionsboxes.get(optiontype));
@@ -230,6 +268,12 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 		}
 	}
 	
+	/**
+	 * Creates and sets up the Base Simulation Results table pane depending on the user's
+	 * selection of variable
+	 * @param wc
+	 * 			The user's variable selection
+	 */
 	private void setBaseSimulationResultsTablePane(WeightCalculator wc) {
 		JTable table = createExistingProportionsTable((CategoricalVarAdjustment) wc);
 		baseSimulationResultsPane.setViewportView(table);
@@ -238,6 +282,12 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 		table.setIntercellSpacing(new Dimension(10,4));
 	}
 	
+	/**
+	 * Creates and sets up the Scenario Proportions table pane depending on the user's
+	 * selection of variable
+	 * @param wc
+	 * 			The user's variable selection
+	 */
 	private void setTablePane(WeightCalculator wc) {
 		JTable table = createTable(wc);
 		yearpane.setViewportView(table);
@@ -245,19 +295,39 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 		table.setRowHeight(20);
 		table.setIntercellSpacing(new Dimension(10, 4));
 	}
-
+	
+	/**
+	 * Creates the table for use in the Base Simulation Results table pane
+	 * @param catvaradj
+	 * 			The user's variable selection
+	 * @return
+	 * 			JTable
+	 */
 	private JTable createExistingProportionsTable(CategoricalVarAdjustment catvaradj){
 		JTable table = UIUtil.createTable(catvaradj.getBaseSimulationResultsTableModel(), catvaradj.getName(), 110);
 		AscapeGUIUtil.sizeTable(table, AscapeGUIUtil.getDesktopSize());
 		return table;
 	}
 	
+	/**
+	 * Creates the table for use in the Scenario Proportions table pane
+	 * @param pset
+	 * 			The user's variable selection
+	 * @return
+	 * 			JTable
+	 */
 	private JTable createTable(ParameterSet pset) {
 		JTable table = UIUtil.createTable(pset.getTableModel(), pset.getName(), 110);
 		AscapeGUIUtil.sizeTable(table, AscapeGUIUtil.getDesktopSize());
 		return table;
 	}
 	
+	/**
+	 * Sets up a map of ComboBoxModels used to change the options available to the 
+	 * user based on their subgroup selection
+	 * @return
+	 * 			Map
+	 */
 	@SuppressWarnings("unchecked")
 	private Map<String, ComboBoxModel> setupComboBoxModels(){
 		
@@ -277,6 +347,11 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 		doUpdate("Weights updated.");
 	}
 
+	/**
+	 * Updates the current variable based on the changes made by the user.
+	 * The next time a scenario is simulated it will be based on these changes.
+	 * @param updateMsg
+	 */
 	private void doUpdate(String updateMsg) {
 		try {
 			scape.setGlobalSubgroupFilterExpression(subgroupbox.getText());
@@ -292,7 +367,11 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 			JOptionPane.showMessageDialog(pv, e.getMessage());
 		}
 	}
-
+	
+	/**
+	 * Restore default settings to the variables, removes any changes made to them
+	 * so far by the user.
+	 */
 	private void reset() {
 		for (WeightCalculator wcalc : currentvariableallyears.values()) {
 			wcalc.resetDefaults();
@@ -313,7 +392,10 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 	public String getName() {
 		return "New Panel View";
 	}
-
+	
+	/**
+	 * Sets up the PanelView
+	 */
 	@Override
 	public PanelView getPanelView() {
 		// set current weight calculator
