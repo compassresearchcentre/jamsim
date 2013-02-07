@@ -9,6 +9,13 @@ import java.util.Map;
 import org.jamsim.ascape.ui.RExpression;
 import org.jamsim.ascape.ui.SubgroupRExpressionProvider;
 
+/**
+ * A CSV reader that reads the data into the Maps for the Scenario Weightings ({@link NewPanelView})
+ * and the Table Builder ({@link TableBuilder}) interfaces. 
+ * 
+ * @author bmac055
+ *
+ */
 public class UserInterfaceCSVReader {
 	
 	private Map<String, RExpression> subgroupsToOptions;
@@ -16,28 +23,64 @@ public class UserInterfaceCSVReader {
 	private Map<String, Map<String, String>> tableBuilderData;
 	private Map<String, String> meansAndQuintilesToVariables;
 	private Map<String, String> frequenciesToVariables;
-	private Map<String, String> subgroupsToVariables;
+	private Map<String, String> subgroupsToExpressions;
 	
 	private BufferedReader CSVFile;
 	private String fileName;
 	
+	/**
+	 * Creates a {@link UserInterfaceCSVReader} to read into the Maps used for the Scenario Weightings
+	 * ({@link NewPanelView}) Interface.
+	 * 
+	 * @param subgroupsToOptions
+	 * 		Maps subgroup variable name Strings to corresponding {@link RExpression}s that
+	 * 		contain the R expression string corresponding to the subgroup variable as well
+	 * 		as the options corresponding to that variable and the R expressions corresponding
+	 * 		to those options	
+	 */
 	public UserInterfaceCSVReader(Map<String, RExpression> subgroupsToOptions){
 		this.subgroupsToOptions = subgroupsToOptions;
 		subgroupsToOptions.put("None", new SubgroupRExpressionProvider("", new String[]{}, new String[]{}));
 	}
 	
+	/**
+	 * Creates a {@link UserInterfaceCSVReader} to read into the Maps used for the Table Builder
+	 * ({@link TableBuiler}) Interface.
+	 * 
+	 * @param tableBuilderData
+	 * 		A Map of Strings to maps. Contains maps for summary measure Strings (frequencies, means, quintiles)
+	 * 		to appropriate variable Strings (continuous, categorical etc.) and their corresponding R expression Strings,
+	 * 		as well as a map of subgroup variable Strings and their corresponding subgroup expression Strings.
+	 * @param meansAndQuintilesToVariables
+	 * 		Map of mean and quintile Strings to appropriate variable Strings and their corresponding R expression Strings
+	 * @param frequenciesToVariables
+	 * 		Map of frequency Strings to appropriate variable Strings and their corresponding R expression Strings
+	 * @param subgroupsToExpressions
+	 *		Map of subgroup variable Strings and their corresponding subgroup expression Strings
+	 */
 	public UserInterfaceCSVReader(Map<String, Map<String, String>> tableBuilderData,
 								  Map<String, String> meansAndQuintilesToVariables,
 								  Map<String, String> frequenciesToVariables,
-								  Map<String, String> subgroupsToVariables){
+								  Map<String, String> subgroupsToExpressions){
 		
 		this.tableBuilderData = tableBuilderData;
 		this.meansAndQuintilesToVariables = meansAndQuintilesToVariables;
 		this.frequenciesToVariables = frequenciesToVariables;
-		this.subgroupsToVariables = subgroupsToVariables;
-		subgroupsToVariables.put("None", "");
+		this.subgroupsToExpressions = subgroupsToExpressions;
+		subgroupsToExpressions.put("None", "");
 	}
 	
+	/**
+	 * Reads from the given CSV file into the map used in the Scenario Weightings ({@link NewPanelView}) Interface
+	 * 
+	 * @param file
+	 * 		The CSV file from which to read
+	 * @return
+	 * 		Map of subgroup variable Strings to {@link RExpression}s that
+	 * 		contain the R expression string corresponding to the subgroup variable as well
+	 * 		as the options corresponding to that variable and the R expressions corresponding
+	 * 		to those options	
+	 */
 	public Map<String, RExpression> readSubgroupsToOptionsCSVFile(String file){
 		
 		this.fileName = file;
@@ -73,7 +116,16 @@ public class UserInterfaceCSVReader {
 		return subgroupsToOptions;
 		
 	}	
-	
+
+	/**
+	 * Reads from the given CSV file into the maps used in the {@link TableBuilder} Interface.
+	 * @param fileName
+	 * 		The CSV file from which to read.
+	 * @return
+	 * 		A Map of Strings to maps. Contains maps for summary measure Strings (frequencies, means, quintiles)
+	 * 		to appropriate variable Strings (continuous, categorical etc.) and their corresponding R expression Strings,
+	 * 		as well as a map of subgroup variable Strings and their corresponding subgroup expression Strings.
+	 */
 	public Map<String, Map<String, String>> readTableBuilderDataCSVFile(String fileName){
 		this.fileName = fileName;
 		
@@ -93,7 +145,7 @@ public class UserInterfaceCSVReader {
 						String varname = dataArray[0];
 						String description = dataArray[1];
 						
-						subgroupsToVariables.put(description, varname);
+						subgroupsToExpressions.put(description, varname);
 						
 						if(dataArray.length > 6){
 							varname = dataArray[0];
@@ -113,7 +165,7 @@ public class UserInterfaceCSVReader {
 				tableBuilderData.put("Frequencies", frequenciesToVariables);
 				tableBuilderData.put("Means", meansAndQuintilesToVariables);
 				tableBuilderData.put("Quintiles", meansAndQuintilesToVariables);
-				tableBuilderData.put("Subgroups", subgroupsToVariables);
+				tableBuilderData.put("Subgroups", subgroupsToExpressions);
 				
 			}catch(IOException e){System.out.println("IOException");} 	
 		

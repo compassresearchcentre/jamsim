@@ -95,7 +95,8 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 	private String currentselection;
 	
 	/**
-	 * Creates a {@link NewPanelView}. Sets up the combo boxes and combo box models.
+	 * Creates a {@link NewPanelView}. Sets up the combo boxes, combo box models
+	 * and maps used to apply the user's selections.
 	 * Builds the Swing components using the Swing JavaBuilder library.
 	 * 
 	 * @param wcalcsvarmaps

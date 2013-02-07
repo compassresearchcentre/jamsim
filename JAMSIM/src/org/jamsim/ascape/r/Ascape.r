@@ -236,8 +236,8 @@ tableBuilder <- function(envName, statistic, variableName, subgroupName) {
 	matrix(c(1,2,3,4,5,6), nrow=3)
 }
 
-#' The given parameter expr is another function which is called here to 
-#' create the table or graph required. Stores the given expression for use 
+#' The given parameter expr is a String containing a function to
+#' create the table or graph required. Stores the expression for use 
 #' in recreating the workspace when the workspace is loaded from a saved RData file
 #' @param expr
 #' 	an expression that is a call to another function to create the table or graph required (see example)
@@ -266,61 +266,27 @@ loadWorkspace <- function(fileName, path) {
 	cat(fileName, path, "\n")
 }
 
-#' Is called by the Table Builder GUI when a table is built so that
-#' the information used to create the node may be stored and used to 
-#' add the node again when the model is restarted.
-#'  @param expression
-#'  An expression to be evaluated to produce a dataset for
-#'  display in the Ascape GUI
-#'  @param name
-#'  the tree node name used for the object
-#'  @param parentName 
-#'  the name of the parent folder in which the node is to be placed
-#'  @param path
-#'  a path to a sub folder node, eg: "Base/Means" which represents
-#'  the folder Means under the folder Base, or just "Base" which
-#'  will add to the folder Base, or leave unspecified (the default) to add directly
-#'  under the specified parent node.
-storeLazyTableNodeExpression <- function(expression, name, parentName, path = .jnull("java/lang/String")){
-	#call from java (tablebuilder), give the string used to get rexp from tablebuilder
-	#will call addLazyTableNode upon restart
-}
-
-#' Is called when a Lazy JGD Node is added to the tree so that
-#' the information used to create the node may be stored and used to 
-#' add the node again when the model is restarted.
-#'  @param plotCmd
-#' 	a command that will be evaluated to produce an R graphics device
-#'  @param name
-#'  the tree node name used for the object
-#'  @param path
-#'  a path to a sub folder node, eg: "Base/Means" which represents
-#'  the folder Means under the folder Base, or just "Base" which
-#'  will add to the folder Base, or leave unspecified (the default) to add directly
-#'  under "Graphs".
-storeLazyJGDNode <- function(plotCmd, name, path = .jnull("java/lang/String"))
 	
-	ascapeStart <- function() {
-		# eg: ascapeStart()
-		
-		# remove all graphics devices and the device-name hash
-		graphics.off()
-		
-		# remove all objects (including .deviceHash), except functions
-		cat("ascapeStart: Removing all existing objects\n")
-		objsToDel <- lsNoFunc(all.names=TRUE)
-		
-		# don't delete objects specified by name in the vector .ascape$objsToKeep
-		objsToDel <- objsToDel[!(objsToDel %in% c(".ascape",.ascape$objsToKeep))]
-		
-		rm(pos = ".GlobalEnv", list = objsToDel)
-		
-		#not sure why, but for rJava 0.8+ we need this otherwise get
-		#"rJava was called from a running JVM without .jinit()" when
-		#we try the .jcall
-		invisible(.jinit()) 
-		
-	}
+ascapeStart <- function() {
+	# eg: ascapeStart()
+	
+	# remove all graphics devices and the device-name hash
+	graphics.off()
+	
+	# remove all objects (including .deviceHash), except functions
+	cat("ascapeStart: Removing all existing objects\n")
+	objsToDel <- lsNoFunc(all.names=TRUE)
+	
+	# don't delete objects specified by name in the vector .ascape$objsToKeep
+	objsToDel <- objsToDel[!(objsToDel %in% c(".ascape",.ascape$objsToKeep))]
+	
+	rm(pos = ".GlobalEnv", list = objsToDel)
+	
+	#not sure why, but for rJava 0.8+ we need this otherwise get
+	#"rJava was called from a running JVM without .jinit()" when
+	#we try the .jcall
+	invisible(.jinit()) 	
+}
 
 #' Specify the name of an object to keep 
 #' when ascape restarts.

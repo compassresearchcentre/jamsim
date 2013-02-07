@@ -43,14 +43,22 @@ import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REXPString;
 
+/**
+ * Provides a {@link PanelView} Containing various components for use in
+ * custom building a table based on the user's selection from Scenario, 
+ * Summary Measure, Variable and Subgroup options.
+ * Provides the option to save the table to the Navigator tree.
+ * 
+ * @author bmac055
+ *
+ */
 public class PanelViewTableBuilder implements PanelViewProvider, ActionListener{
 
 	private MicroSimScape scape;
 	
-	//private JFrame saveFrame; 
 	private PanelView pv;
 		
-	private Map<String, Map<String, String>> tableBuilderData;
+	private Map<String, Map<String, String>> summaryMeasuresToVariables;
 	
 	private Map<String, String> scenarioDescriptionToVarname;
 	private Map<String, String> variableDescriptionToVarname;
@@ -91,18 +99,30 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener{
 	private REXPDatasetProvider dsProvider;
 	private REXP rexp;
 	
+	private Boolean summaryMeasureChanged;
+	
+	/**
+	 * Creates a {@link PanelViewTableBuilder}. Sets up the combo boxes, combo box models
+	 * radio buttons and maps used to apply the user's selections.
+	 * Builds the Swing components using the Swing JavaBuilder library.	 
+	 * @param tableBuilderData
+	 * 			A Map of Maps to be used in setting up and applying the user's selection
+	 * @param scape
+	 * 			The scape
+	 */
 	public PanelViewTableBuilder(
-			Map<String, Map<String, String>> tableBuilderData,
+			Map<String, Map<String, String>> summaryMeasuresToVariables,
+			Map<String, String> subgroupsToExpressions,
 			MicroSimScape scape){
 		
 		this.scape = scape;
 		rInterface = scape.getScapeRInterface();
 		
-		this.tableBuilderData = tableBuilderData;
+		this.summaryMeasuresToVariables = summaryMeasuresToVariables;
 		
-		subgroupDescriptionToVarname = tableBuilderData.get("Subgroups");
+		subgroupDescriptionToVarname = subgroupsToExpressions;
 
-		statisticNames = tableBuilderData.keySet().toArray(new String[tableBuilderData.size()]);
+		statisticNames = summaryMeasuresToVariables.keySet().toArray(new String[summaryMeasuresToVariables.size()]);
 		subgroupNames = subgroupDescriptionToVarname.keySet().toArray(new String[subgroupDescriptionToVarname.size()]);
 				
 		scenarioLabel = new JLabel();
@@ -125,8 +145,9 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener{
 		
 		variableComboModels = new LinkedHashMap<String, ComboBoxModel>();
 		setupScenarioToRExpression();		
-		setupVariableComboModels();
+		setupVariableComboModels(summaryMeasuresToVariables);
 		subgroupCombo = new JComboBox(subgroupNames);
+		variableCombo = new JComboBox();
 		
 		pv = PanelViewUtil.createResizablePanelView("Table Builder");
 		pv.setPreferredSize(new Dimension(600,450));
@@ -135,18 +156,27 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener{
 		pv.add((Component) uiElements.get("pane"));
 	}
 	
-	/*public JFrame getSaveFrame(){
-		return saveFrame;
-	}*/
+	/**
+	 * Sets up the map of combo box models for use in the variable combo box
+	 */
+	private void setupVariableComboModels(Map<String, Map<String, String>> summaryMeasuresToVariables){
 	
-	private void setupVariableComboModels(){
-		for(int i = 0; i < statisticNames.length - 1; i++){
-			variableComboModels.put(statisticNames[i], new DefaultComboBoxModel(tableBuilderData.get(statisticNames[i])
-																								.keySet()
-																								.toArray()));			
-		}
+		variableComboModels.put("Frequencies", new DefaultComboBoxModel(summaryMeasuresToVariables.get("Frequencies")
+																								  .keySet()
+																								  .toArray()));
+		variableComboModels.put("Means", new DefaultComboBoxModel(summaryMeasuresToVariables.get("Means")
+																						    .keySet()
+																							.toArray()));
+		variableComboModels.put("Quintiles", new DefaultComboBoxModel(summaryMeasuresToVariables.get("Quintiles")
+																							    .keySet()
+																							    .toArray()));
 	}
 	
+	/**
+	 * Sets up the Map that corresponds to the combo box where the user selects the
+	 * scenario they wish to examine. Uses the R interface to get a list of scenarios
+	 * currently existing in the R environment 
+	 */
 	private void setupScenarioToRExpression(){
 		
 		scenarioDescriptionToVarname = new LinkedHashMap<String, String>();
@@ -169,7 +199,13 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener{
 		}
 	}
 	
-	private void setupTablePane(String expr){
+	/**
+	 * Creates tableBuilderExpression using the selections made by the user in the interface.
+	 * Uses tableBuilderExpression to call the tableBuilder function in the R workspace and obtains 
+	 * an REXP object. Obtains an REXPDatasetProvider and uses this to create a table model for 
+	 * display in a table in the UI
+	 */
+	private void setupTablePane(){
 		
 		try{
 			String tableBuilderExpression = "tableBuilder('" +
@@ -208,10 +244,18 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener{
 		scenarioSelection = scenarioCombo.getSelectedItem().toString();
 	}
 	
+	/**
+	 * Changes the combo box model in the variableCombo combo box when the
+	 * summary measure is changed
+	 * @param indexOfStatisticNames
+	 * 			The index to use to obtain the correct summary measure from the array
+	 * 			of summary measures
+	 */
 	public void changeOfButtonSelection(int indexOfStatisticNames){
 		statisticSelection = statisticNames[indexOfStatisticNames];
 		variableCombo.setModel(variableComboModels.get(statisticSelection));
-		variableDescriptionToVarname = tableBuilderData.get(statisticSelection);
+		variableDescriptionToVarname = summaryMeasuresToVariables.get(statisticSelection);
+		summaryMeasureChanged = true;
 	}
 	
 	private void frequenciesSelected(){
@@ -226,12 +270,20 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener{
 	
 	private void variableSelected(){
 		variableSelection = variableCombo.getSelectedItem().toString();
+		summaryMeasureChanged = false;
 	}
 
 	private void subgroupSelected(){
 		subgroupSelection = subgroupCombo.getSelectedItem().toString();
 	}
 	
+	/**
+	 * Creates an expression to be passed to R that stores the table built by the user
+	 * so that it may be recreated when the model is reloaded or when the workspace 
+	 * is loaded at another time.
+	 * @return
+	 * 		a String expression for the R workspace to store and use
+	 */
 	private String buildStoreOnLoadExpression(){
 		
 		String expr = "\"addLazyTableNode('tableBuilder('" + 
@@ -245,14 +297,19 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener{
 
 		return expr;
 	}
-
+	/**
+	 * Checks that a scenario, summary measure, and variable at least have been selected
+	 * and sets up the table pane.
+	 */
 	private void okPressed(){
-		// temporary test for Output Tables Node
-		for(int i = 0; i < scape.getScapeNode().getOutputTablesNode().getChildCount(); i++){
-			TreeNode child = scape.getScapeNode().getOutputTablesNode().getChildAt(i);
-			System.out.println(child.toString());
+		
+		// Make sure the user chooses a new, appropriate variable in case summary measure (statisticSelection)
+		// has changed. To avoid null pointer exception.
+		if(summaryMeasureChanged == true){
+			rInterface.printToConsole("If you have changed summary measure, please make sure you have selected a variable\n");
+			variableSelection = null;
 		}
-			
+		
 		if(scenarioSelection != null && 
 		   statisticSelection != null && 
 		   variableSelection != null){
@@ -260,12 +317,17 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener{
 			if(subgroupSelection == null){
 				subgroupCombo.setSelectedItem("None");
 			}
-			
-			setupTablePane(buildStoreOnLoadExpression());
+			setupTablePane();
 			tablePane.setVisible(true);
 		}
 	}
 	
+	/**
+	 * Checks that the dataset provider exists and uses that to save the
+	 * custom table to the Navigator tree.
+	 * Stores an expression in the R environment that may be used to restore
+	 * the table when this JAMSIM workspace is loaded at a later time
+	 */
 	private void savePressed(){
 		if(dsProvider != null){
 			
@@ -278,7 +340,9 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener{
 				e.printStackTrace();
 			}
 			
-			scape.getScapeNode().addOutputNodeFromTableBuilder(dsProvider, scenarioSelection + "/" + statisticSelection);
+			scape.getScapeNode().addOutputNodeFromTableBuilder(dsProvider, "User/" + 
+																		   scenarioSelection + "/" + 
+																		   statisticSelection);
 			dsProvider = null;
 		}
 	}

@@ -106,7 +106,7 @@ public class MicroSimScapeNode extends ScapeNode {
 		outputTablesNode =
 				new SubFolderNode("Output Tables", scape, treeModel);
 		treeModel
-				.insertNodeInto(outputTablesNode, this, this.getChildCount());
+		.insertNodeInto(outputTablesNode, this, this.getChildCount());
 		tableNodeMap.put("Output Tables", outputTablesNode);
 	}
 	

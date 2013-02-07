@@ -187,10 +187,11 @@ public class RootScape<D extends ScapeData> extends Scape {
 		}
 	}
 	
-	public void setupTableBuilder(
-			Map<String, Map<String, String>> tableBuilderData){
-		
-		PanelViewTableBuilder tableBuilderPanel = new PanelViewTableBuilder(tableBuilderData, 
+	public void setupTableBuilder(Map<String, Map<String, String>> summaryMeasuresToVariables,
+								  Map<String, String> subgroupsToExpressions){
+			
+		PanelViewTableBuilder tableBuilderPanel = new PanelViewTableBuilder(summaryMeasuresToVariables, 
+																			subgroupsToExpressions, 
 																			msscape);
 		
 		msscape.setCreateTableOptionsPanelView(tableBuilderPanel);
@@ -349,7 +350,6 @@ public class RootScape<D extends ScapeData> extends Scape {
 					.addDataFrameNode(scapeR.getScapeDFRunName(0));
 
 		}
-
 	}
 
 	/**

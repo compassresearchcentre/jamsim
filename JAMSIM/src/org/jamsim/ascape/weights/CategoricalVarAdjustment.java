@@ -62,8 +62,15 @@ public class CategoricalVarAdjustment extends Observable implements
 	 */
 	private CategoricalVarAdjTableModel tableModel;
 	
+	/**
+	 * The table model for the Base Simulation Results panel in the Scenario Weightings 
+	 * ({@link NewPanelView}) interface.
+	 */
 	private CDatasetTableModel cDatasetTableModel;
 	
+	/**
+	 * The base simulation results for this variable
+	 */
 	private String baseSimulationResults;
 
 	private final ScapeRInterface scapeR;
@@ -212,6 +219,15 @@ public class CategoricalVarAdjustment extends Observable implements
 		return cDatasetTableModel;
 	}
 	
+	/**
+	 * Sets the table model for the Base Simulation Results table in the Scenario Weightings Interface
+	 * ({@link NewPanelView}). 
+	 * 
+	 * @param subgroupExpression
+	 * 			An expression passed to an R function that returns an {@link REXP} used to 
+	 * 			build a {@link CDatasetTableModel} that displays the variable in terms
+	 * 			of the user's subgrouping specifications.
+	 */
 	public final void setBaseSimulationResultsTableModel(String subgroupExpression){
 		REXP rexp;
 		CDataCacheContainer container;
