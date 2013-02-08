@@ -194,7 +194,9 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener{
 			scenarioCombo.setSelectedItem("Base");
 			scenarioSelected();
 
-		}catch(RFaceException | REXPMismatchException e){
+		}catch(RFaceException e){ 
+			e.printStackTrace();
+		}catch(REXPMismatchException e){
 			e.printStackTrace();
 		}
 	}
@@ -229,7 +231,9 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener{
 			table.setIntercellSpacing(new Dimension(10,4));
 
 			
-		}catch(IOException | CDataGridException e){
+		}catch(IOException e){
+			e.printStackTrace();
+		}catch(CDataGridException e){
 			e.printStackTrace();
 		}
 	}
@@ -255,6 +259,9 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener{
 		statisticSelection = statisticNames[indexOfStatisticNames];
 		variableCombo.setModel(variableComboModels.get(statisticSelection));
 		variableDescriptionToVarname = summaryMeasuresToVariables.get(statisticSelection);
+		
+		variableCombo.setSelectedIndex(0);
+		
 		summaryMeasureChanged = true;
 	}
 	
@@ -302,14 +309,7 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener{
 	 * and sets up the table pane.
 	 */
 	private void okPressed(){
-		
-		// Make sure the user chooses a new, appropriate variable in case summary measure (statisticSelection)
-		// has changed. To avoid null pointer exception.
-		if(summaryMeasureChanged == true){
-			rInterface.printToConsole("If you have changed summary measure, please make sure you have selected a variable\n");
-			variableSelection = null;
-		}
-		
+
 		if(scenarioSelection != null && 
 		   statisticSelection != null && 
 		   variableSelection != null){
