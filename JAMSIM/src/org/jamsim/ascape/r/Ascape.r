@@ -221,20 +221,6 @@ addLazyTableNode <- function(expr, name, parentName, path = .jnull("java/lang/St
 	.jcall(getScapeNode(), "V", "addLazyTableNode", expr, name, parentName, path)
 }
 
-#' Returns a dataset for use in a table by the Table Builder GUI
-#'  @param envName 
-#'  the environment to use - Base, Scenario 1, Scenario 2 etc.
-#'  @param statistic
-#'  the summary measure to use in producing the dataset - frequencies, means, quintiles
-#'  @param variableName
-#'  the variable to use in producing the dataset
-#' 	@param subgroupName
-#'  a subgroup by which to examine the variable
-tableBuilder <- function(envName, statistic, variableName, subgroupName) {
-	#returns a matrix for now see tableBuilder java
-	cat(envName, statistic, variableName, subgroupName, "\n")
-	matrix(c(1,2,3,4,5,6), nrow=3)
-}
 
 #' The given parameter expr is a String containing a function to
 #' create the table or graph required. Stores the expression for use 
@@ -245,7 +231,11 @@ tableBuilder <- function(envName, statistic, variableName, subgroupName) {
 #'	expr <- "addLazyTableNode('tableBuilder('Base', 'means', 'msmoke1', '')', 'msmoke1 means', 'Lazy tables', '')" 
 #' 	storeOnLoadExpression(expr)
 storeOnLoadExpression <- function(expr){
-	cat(expr, "\n")
+	if (!exists("tab.expressions")) {
+		tab.expressions <<- NULL
+	}
+	tab.expressions <<- c(tab.expressions, expr)
+	#cat(expr, "\n")
 }
 
 #' Saves the workspace to an RData file
@@ -254,7 +244,9 @@ storeOnLoadExpression <- function(expr){
 #' @param path
 #' the path in which to save the file 
 saveWorkspace <- function(fileName, path) {
-	cat(fileName, path, "\n")
+	filepath<-paste(path, fileName, ".RData", sep="")
+	save.image(filepath)
+	#cat(fileName, path, "\n")
 }
 
 #' Loads a saved workspace from an RData file
@@ -263,7 +255,8 @@ saveWorkspace <- function(fileName, path) {
 #' @param path
 #' the path in which the file is found 
 loadWorkspace <- function(fileName, path) {
-	cat(fileName, path, "\n")
+	filepath<-paste(path, fileName, ".RData", sep="")
+	load(filepath)
 }
 
 	
