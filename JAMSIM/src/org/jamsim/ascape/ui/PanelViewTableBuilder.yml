@@ -3,7 +3,7 @@ JScrollPane(name=pane, verticalScrollBarPolicy=asNeeded, horizontalScrollBarPoli
         - JLabel(name=scenarioLabel, text=Select Scenario)
         - JLabel(name=statisticLabel, text=Select Summary Measure)
         - JLabel(name=variableLabel, text=Select Variable)
-        - JLabel(name=subgroupLabel, text=Select Subgroup)
+        - JLabel(name=subgroupLabel, text=Select Grouping Variable)
         - JComboBox(name=scenarioCombo, onAction=scenarioSelected)
         - JComboBox(name=variableCombo, onAction=variableSelected)
         - JComboBox(name=subgroupCombo, onAction=subgroupSelected)

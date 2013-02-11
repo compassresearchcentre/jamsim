@@ -99,8 +99,6 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener{
 	private REXPDatasetProvider dsProvider;
 	private REXP rexp;
 	
-	private Boolean summaryMeasureChanged;
-	
 	/**
 	 * Creates a {@link PanelViewTableBuilder}. Sets up the combo boxes, combo box models
 	 * radio buttons and maps used to apply the user's selections.
@@ -261,8 +259,6 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener{
 		variableDescriptionToVarname = summaryMeasuresToVariables.get(statisticSelection);
 		
 		variableCombo.setSelectedIndex(0);
-		
-		summaryMeasureChanged = true;
 	}
 	
 	private void frequenciesSelected(){
@@ -277,7 +273,6 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener{
 	
 	private void variableSelected(){
 		variableSelection = variableCombo.getSelectedItem().toString();
-		summaryMeasureChanged = false;
 	}
 
 	private void subgroupSelected(){

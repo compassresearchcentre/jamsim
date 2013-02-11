@@ -236,8 +236,10 @@ public class CategoricalVarAdjustment extends Observable implements
 		try{
 			if(baseSimulationResults.substring(0, 22).equals("userFormatDichotFreqs")){
 				rcmd = subgroupExpression;
+				System.out.println("if " + rcmd);
 			} else {
 				rcmd = "getVariableSubgroupedByCategory(" + "\"" + baseSimulationResults + "\""+ "," + "\"" + subgroupExpression + "\"" + ")";
+				System.out.println("else " + rcmd);
 			}
 			rexp = scapeR.eval(rcmd);
 
