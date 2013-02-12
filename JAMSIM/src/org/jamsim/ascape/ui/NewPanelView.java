@@ -215,6 +215,7 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 
 	
 	private void clearFormula(){
+		subgroupselect.setSelectedIndex(0);
 		subgroupbox.setText("");
 		subgroupbox.requestFocus();
 	}
