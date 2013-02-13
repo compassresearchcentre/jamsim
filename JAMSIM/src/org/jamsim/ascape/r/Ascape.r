@@ -243,8 +243,8 @@ storeOnLoadExpression <- function(expr){
 #' the name to give the file
 #' @param path
 #' the path in which to save the file 
-saveWorkspace <- function(fileName, path) {
-	filepath<-paste(path, fileName, ".RData", sep="")
+saveWorkspace <- function(path) {
+	filepath<-paste(path, ".RData", sep="")
 	save.image(filepath)
 	#cat(fileName, path, "\n")
 }
