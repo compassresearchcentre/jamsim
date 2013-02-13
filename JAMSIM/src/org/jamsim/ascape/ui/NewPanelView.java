@@ -408,7 +408,7 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 
 		if (sIndex == -1) {
 			throw new RuntimeException("Can't find wcalc named "
-					+ wcalcvarnames);
+					+ currentvariableallyears);
 		}
 
 		//grouper.setSelectedIndex(0);

@@ -169,15 +169,15 @@ public class RootScape<D extends ScapeData> extends Scape {
 			NewPanelView wcalcPanel = new NewPanelView(wcalcsvarmaps, subgroupsToOptions, msscape);
 
 			msscape.setWeightCalculatorPanelView(wcalcPanel);
-		}
-
-		for (Map<String, WeightCalculator> wcalcsyearsmap : wcalcsvarmaps
-				.values()) {
-			for (WeightCalculator wcalc : wcalcsyearsmap.values()) {
-				wcalc.addObserver((Observer) this);
+		
+		
+			for (Map<String, WeightCalculator> wcalcsyearsmap : wcalcsvarmaps
+					.values()) {
+				for (WeightCalculator wcalc : wcalcsyearsmap.values()) {
+					wcalc.addObserver((Observer) this);
+				}
 			}
 		}
-
 		WeightCalculator currentCalc = selectWeightCalculatorFromPrefs(
 				wcalcsvarmaps, loader.getPrefs());
 		try {

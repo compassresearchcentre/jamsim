@@ -104,18 +104,12 @@ public class SaveLoadAction extends AbstractAction {
 			String path = fileChooser.getSelectedFile().getAbsolutePath();
 			path = path.replace("\\", "/");
 
-			String fileName = fileChooser.getSelectedFile().getName();
 
 			if (action.equals("save")) {
 
-				if (fileName.endsWith(".RData")) {
-					fileName = fileName.substring(0, fileName.indexOf("."));
-					path = path.substring(0, fileName.indexOf("."));
-				}
-
 				try {
-					rInterface.eval("saveWorkspace('" + fileName + "', '"
-							+ path + "')");
+					rInterface.eval("saveWorkspace('" + path + "')");
+					
 				} catch (RFaceException exception) {
 					exception.printStackTrace();
 				}
@@ -123,8 +117,8 @@ public class SaveLoadAction extends AbstractAction {
 
 			if (action.equals("load")) {
 				try {
-					rInterface.eval("loadWorkspace('" + fileName + "', '"
-							+ path + "')");
+					rInterface.eval("loadWorkspace('" + path + "')");
+					
 				} catch (RFaceException exception) {
 					exception.printStackTrace();
 				}

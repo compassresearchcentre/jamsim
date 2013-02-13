@@ -404,6 +404,7 @@ public class FileLoader implements Output {
 		UserInterfaceCSVReader reader = new UserInterfaceCSVReader(new LinkedHashMap<String, Map<String, String>>(),
 																   new LinkedHashMap<String, String>(),
 																   new LinkedHashMap<String, String>(),
+																   new LinkedHashMap<String, String>(),
 																   new LinkedHashMap<String, String>());
 		
 		Map<String, Map<String, String>> tableBuilderData = reader.readTableBuilderDataCSVFile(file.getPath());

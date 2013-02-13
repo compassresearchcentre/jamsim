@@ -246,7 +246,6 @@ storeOnLoadExpression <- function(expr){
 saveWorkspace <- function(path) {
 	filepath<-paste(path, ".RData", sep="")
 	save.image(filepath)
-	#cat(fileName, path, "\n")
 }
 
 #' Loads a saved workspace from an RData file
@@ -254,9 +253,9 @@ saveWorkspace <- function(path) {
 #' the name of the file to load
 #' @param path
 #' the path in which the file is found 
-loadWorkspace <- function(fileName, path) {
-	filepath<-paste(path, fileName, ".RData", sep="")
-	load(filepath)
+loadWorkspace <- function(path) {
+	load(path)
+	cat(path, "\n")
 }
 
 	

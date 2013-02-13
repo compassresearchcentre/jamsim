@@ -21,7 +21,8 @@ public class UserInterfaceCSVReader {
 	private Map<String, RExpression> subgroupsToOptions;
 	
 	private Map<String, Map<String, String>> tableBuilderData;
-	private Map<String, String> meansAndQuintilesToVariables;
+	private Map<String, String> meansToVariables;
+	private Map<String, String> quintilesToVariables;
 	private Map<String, String> frequenciesToVariables;
 	private Map<String, String> subgroupsToExpressions;
 	
@@ -59,12 +60,14 @@ public class UserInterfaceCSVReader {
 	 *		Map of subgroup variable Strings and their corresponding subgroup expression Strings
 	 */
 	public UserInterfaceCSVReader(Map<String, Map<String, String>> tableBuilderData,
-								  Map<String, String> meansAndQuintilesToVariables,
+								  Map<String, String> meansToVariables,
+								  Map<String, String> quintilesToVariables,
 								  Map<String, String> frequenciesToVariables,
 								  Map<String, String> subgroupsToExpressions){
 		
 		this.tableBuilderData = tableBuilderData;
-		this.meansAndQuintilesToVariables = meansAndQuintilesToVariables;
+		this.meansToVariables = meansToVariables;
+		this.quintilesToVariables = quintilesToVariables;
 		this.frequenciesToVariables = frequenciesToVariables;
 		this.subgroupsToExpressions = subgroupsToExpressions;
 		subgroupsToExpressions.put("None", "");
@@ -150,21 +153,26 @@ public class UserInterfaceCSVReader {
 						if(dataArray.length > 6){
 							varname = dataArray[0];
 							description = dataArray[1];
-							String summaryMeasure = dataArray[6];
+							String[] summaryMeasures = dataArray[6].split("/");
 							
-							if(summaryMeasure.equals("frequencies")){
-								frequenciesToVariables.put(description, varname);
-							}else if(summaryMeasure.equals("means") | summaryMeasure.equals("quintiles")){
-								meansAndQuintilesToVariables.put(description, varname);
+							for(int i = 0; i < summaryMeasures.length; i++){
+								if(summaryMeasures[i].equals("frequencies")){
+									frequenciesToVariables.put(description, varname);
+								} else if(summaryMeasures[i].equals("means")){
+									meansToVariables.put(description, varname);
+								} else if(summaryMeasures[i].equals("quintiles")){
+									quintilesToVariables.put(description, varname);
+								}
 							}
+
 						}
 					}
 					dataRow = CSVFile.readLine();
 				}
 				
 				tableBuilderData.put("Frequencies", frequenciesToVariables);
-				tableBuilderData.put("Means", meansAndQuintilesToVariables);
-				tableBuilderData.put("Quintiles", meansAndQuintilesToVariables);
+				tableBuilderData.put("Means", meansToVariables);
+				tableBuilderData.put("Quintiles", quintilesToVariables);
 				tableBuilderData.put("Subgroups", subgroupsToExpressions);
 				
 			}catch(IOException e){System.out.println("IOException");} 	
