@@ -23,14 +23,14 @@ JScrollPane(name=pane, verticalScrollBarPolicy=asNeeded, horizontalScrollBarPoli
         - MigLayout: |
             [grow]
             [grow, shrink]                [grow, shrink]
-            selectlabel=1         
-            selector+*=1      
             subgroupselectlabel=1 
             subgroupselect+*=1      
             optionslabel
             chooseoptions+*=1             and=3,or=3
             subgrouplabel                 >leftBracket=3,rightBracket=3
             subgroupbox+*=1               set=3,clear=3
+            selectlabel=1         
+            selector+*=1
             scenarioproportionslabel=1    
             yearpane+*
             basesimulationresultslabel

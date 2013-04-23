@@ -172,7 +172,7 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 	 * @param s
 	 */
 	private void updateSubgroupFormula(String s){
-		subgroupbox.setText(subgroupbox.getText() + s + " ");
+		subgroupbox.setText(subgroupbox.getText() + s);
 	}
 	
 	private void addLeftBracket(){
@@ -207,6 +207,7 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 			
 			if(wcalcentry.getValue() instanceof CategoricalVarAdjustment){	
 				((CategoricalVarAdjustment)wcalcentry.getValue()).setBaseSimulationResultsTableModel(subgroupbox.getText());
+				setBaseSimulationResultsTablePane(wcalcentry.getValue()); //needed?
 			}
 		
 		}

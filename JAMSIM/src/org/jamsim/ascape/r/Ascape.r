@@ -231,10 +231,11 @@ addLazyTableNode <- function(expr, name, parentName, path = .jnull("java/lang/St
 #'	expr <- "addLazyTableNode('tableBuilder('Base', 'means', 'msmoke1', '')', 'msmoke1 means', 'Lazy tables', '')" 
 #' 	storeOnLoadExpression(expr)
 storeOnLoadExpression <- function(expr){
-	if (!exists("tab.expressions")) {
-		tab.expressions <<- NULL
+	if (!exists("onload.expressions")) {
+		onload.expressions <<- NULL
+		ascapeKeepObject('onload.expressions')
 	}
-	tab.expressions <<- c(tab.expressions, expr)
+	onload.expressions <<- c(onload.expressions, expr)
 	#cat(expr, "\n")
 }
 
@@ -254,7 +255,7 @@ saveWorkspace <- function(path) {
 #' @param path
 #' the path in which the file is found 
 loadWorkspace <- function(path) {
-	load(path)
+	load(path, envir = .GlobalEnv)
 	cat(path, "\n")
 }
 

@@ -234,7 +234,7 @@ public class CategoricalVarAdjustment extends Observable implements
 		String rcmd;
 		
 		try{
-			if(baseSimulationResults.substring(0, 22).equals("userFormatDichotFreqs")){
+			if(baseSimulationResults.contains("userFormatDichotFreqs")){
 				rcmd = subgroupExpression;
 				System.out.println("if " + rcmd);
 			} else {

@@ -5,6 +5,7 @@ import java.io.File;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
 import org.ascape.util.swing.AscapeGUIUtil;
@@ -101,29 +102,37 @@ public class SaveLoadAction extends AbstractAction {
 					.getDesktopEnvironment().getUserFrame());
 		}
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			String path = fileChooser.getSelectedFile().getAbsolutePath();
-			path = path.replace("\\", "/");
-
+			String fcPath = fileChooser.getSelectedFile().getAbsolutePath();
+			final String path = fcPath.replace("\\", "/");
 
 			if (action.equals("save")) {
 
 				try {
 					rInterface.eval("saveWorkspace('" + path + "')");
-					
+
 				} catch (RFaceException exception) {
 					exception.printStackTrace();
 				}
 			}
 
 			if (action.equals("load")) {
-				try {
-					rInterface.eval("loadWorkspace('" + path + "')");
-					
-				} catch (RFaceException exception) {
-					exception.printStackTrace();
-				}
+
 				AscapeGUIUtil.getDesktopEnvironment().getUserFrame()
 						.getMenuView().getReopenAction().actionPerformed(e);
+
+				// invoke on AWT thread so occurs AFTER reopen action above
+				Runnable doWorkRunnable = new Runnable() {
+					public void run() {
+						try {
+							rInterface.eval("loadWorkspace('" + path + "')");
+
+						} catch (RFaceException exception) {
+							exception.printStackTrace();
+						}
+					}
+				};
+				SwingUtilities.invokeLater(doWorkRunnable);
+
 			}
 		}
 	}

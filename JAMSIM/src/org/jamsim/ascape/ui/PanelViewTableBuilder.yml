@@ -25,7 +25,7 @@ JScrollPane(name=pane, verticalScrollBarPolicy=asNeeded, horizontalScrollBarPoli
             variableCombo=1
             subgroupLabel=1
             subgroupCombo=1
-            tablePane+*
-            >okButton=3,save=3 [grow, shrink, bottom]
+            tablePane+* [grow]
+            >okButton=3,save=3 [shrink, bottom]
         
         
