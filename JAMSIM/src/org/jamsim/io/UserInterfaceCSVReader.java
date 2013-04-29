@@ -143,6 +143,8 @@ public class UserInterfaceCSVReader {
 
 	}
 
+
+
 	/**
 	 * Reads from the given CSV file into the maps used in the
 	 * {@link TableBuilder} Interface.
@@ -155,7 +157,7 @@ public class UserInterfaceCSVReader {
 	 *         expression Strings, as well as a map of subgroup variable Strings
 	 *         and their corresponding subgroup expression Strings.
 	 */
-	public Map<String, Map<String, String>> readTableBuilderDataCSVFile(
+	public Map<String, Map<String, String>> readTableBuilderDataCSVFile_old(
 			String fileName) {
 		this.fileName = fileName;
 

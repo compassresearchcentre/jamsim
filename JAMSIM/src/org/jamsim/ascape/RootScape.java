@@ -163,14 +163,14 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 *            map of weight calculators
 	 */
 	public void setupWeightCalculators(
-			Map<String, Map<String, WeightCalculator>> wcalcsvarmaps, 
+			Map<String, Map<String, WeightCalculator>> wcalcsvarmaps,
 			Map subgroupsToOptions) {
 		if (wcalcsvarmaps != null) {
-			NewPanelView wcalcPanel = new NewPanelView(wcalcsvarmaps, subgroupsToOptions, msscape);
+			NewPanelView wcalcPanel = new NewPanelView(wcalcsvarmaps,
+					subgroupsToOptions, msscape);
 
 			msscape.setWeightCalculatorPanelView(wcalcPanel);
-		
-		
+
 			for (Map<String, WeightCalculator> wcalcsyearsmap : wcalcsvarmaps
 					.values()) {
 				for (WeightCalculator wcalc : wcalcsyearsmap.values()) {
@@ -186,14 +186,16 @@ public class RootScape<D extends ScapeData> extends Scape {
 			throw new RuntimeException(e.getMessage(), e);
 		}
 	}
-	
-	public void setupTableBuilder(Map<String, Map<String, String>> summaryMeasuresToVariables,
-								  Map<String, String> subgroupsToExpressions){
-			
-		PanelViewTableBuilder tableBuilderPanel = new PanelViewTableBuilder(summaryMeasuresToVariables, 
-																			subgroupsToExpressions, 
-																			msscape);
-		
+
+	public void setupTableBuilder(
+			Map<String, Map<String, String>> summaryMeasuresToVariables,
+			Map<String, String> subgroupsToExpressions,
+			Map<String, String> variablesToSubgroups) {
+
+		PanelViewTableBuilder tableBuilderPanel = new PanelViewTableBuilder(
+				summaryMeasuresToVariables, subgroupsToExpressions,
+				variablesToSubgroups, msscape);
+
 		msscape.setCreateTableOptionsPanelView(tableBuilderPanel);
 	}
 
@@ -218,10 +220,10 @@ public class RootScape<D extends ScapeData> extends Scape {
 		String wcalcName = prefs.get(WeightCalculator.WCALC_KEY, "");
 
 		WeightCalculator wcalc;
-		
+
 		if (wcalcName.equals("")) {
-			wcalc = wcalcsvarmaps.values().iterator().next()
-					.values().toArray(new WeightCalculator[0])[0];
+			wcalc = wcalcsvarmaps.values().iterator().next().values()
+					.toArray(new WeightCalculator[0])[0];
 		}
 
 		else {

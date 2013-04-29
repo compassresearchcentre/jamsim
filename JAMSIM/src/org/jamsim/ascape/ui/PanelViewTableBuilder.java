@@ -69,9 +69,7 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener{
 	private String variableSelection;
 	private String subgroupSelection;
 	
-	private String[] scenarioNames;
 	private String[] statisticNames;
-	private String[] variableNames;
 	private String[] subgroupNames;
 	
 	private JLabel scenarioLabel;
@@ -111,6 +109,7 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener{
 	public PanelViewTableBuilder(
 			Map<String, Map<String, String>> summaryMeasuresToVariables,
 			Map<String, String> subgroupsToExpressions,
+			Map<String, String> variablesToSubgroups,
 			MicroSimScape scape){
 		
 		this.scape = scape;
@@ -180,7 +179,7 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener{
 		scenarioDescriptionToVarname = new LinkedHashMap<String, String>();
 		scenarioDescriptionToVarname.put("Base", "Base");
 		try{
-			REXP rexp = scape.getScapeRInterface().eval("as.list(names(envs))");
+			REXP rexp = scape.getScapeRInterface().eval("as.list(names(envs)[-length(envs)])");
 			
 			List<REXPString> list = rexp.asList();
 			

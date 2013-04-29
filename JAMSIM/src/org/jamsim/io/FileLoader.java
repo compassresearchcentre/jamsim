@@ -388,10 +388,10 @@ public class FileLoader implements Output {
 		return cdcc;
 	}
 	
-	public Map<String, Map<String, String>> loadCSVTableBuilderDataFile(String datasetName)
+	public Map<String, Map<String, String>> loadCSVTableBuilderDataFile_old(String datasetName)
 			throws IOException {
 		
-		//lookup the file from the prefs, or if it doesn't exist, promt the user
+		//lookup the file from the prefs, or if it doesn't exist, prompt the user
 		File file =
 				getFile(datasetName, "Select file containing dataset \""
 						+ datasetName + "\"",
@@ -413,6 +413,41 @@ public class FileLoader implements Output {
 		
 		return tableBuilderData;
 	}
+
+	public Map<String, Map<String, String>> loadTableBuilderConfigFile(String datasetName)
+			throws IOException {
+		
+		//lookup the file from the prefs, or if it doesn't exist, prompt the user
+		File file =
+				getFile(datasetName, "Select file containing table builder config \""
+						+ datasetName + "\"",
+						CBuildFromFile.FileTypeFactories.getFilter(), false);
+
+		// load the dataset
+		print("Loading table builder config \"" + datasetName + "\" from ["
+				+ file.getPath() + "]. ");
+		
+		Map<String, Map<String, String>> tableBuilderData = reader.readTableBuilderDataCSVFile(file.getPath());
+		
+		// load narrowed file. column headings and primary key unspecified
+		CBuilder builder =
+				new CBuildNarrowedFile(file).setConvertMissing(true);
+		CDataCacheContainer cdcc;
+		try {
+			cdcc = new CDataCacheContainer(builder);
+		} catch (CDataGridException e) {
+			throw new IOException(e);
+		}
+		println("Done. ");
+		
+		CDataCacheContainer cdcc = cdef.loadDataset(file);
+		
+		
+		prefs.put(datasetName, file.getPath());
+		
+		return tableBuilderData;
+	}
+
 	
 	public Map<String, RExpression> loadCSVSubgroupsToOptionsFile(String datasetName)
 			throws IOException {
