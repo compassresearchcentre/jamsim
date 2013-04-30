@@ -157,7 +157,7 @@ public class UserInterfaceCSVReader {
 	 *         expression Strings, as well as a map of subgroup variable Strings
 	 *         and their corresponding subgroup expression Strings.
 	 */
-	public Map<String, Map<String, String>> readTableBuilderDataCSVFile_old(
+	public Map<String, Map<String, String>> readTableBuilderDataCSVFile (
 			String fileName) {
 		this.fileName = fileName;
 

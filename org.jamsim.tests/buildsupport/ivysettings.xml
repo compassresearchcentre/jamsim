@@ -16,7 +16,7 @@
 
 		<ibiblio name="jamsim-repo" root="http://jamsim.googlecode.com/git/repo/" m2compatible="true" />
 		
-		<ibiblio name="casper-repo" root="http://casperdatasets.googlecode.com/svn/trunk/repo/" m2compatible="true" />
+		<ibiblio name="casper-repo" root="https://raw.github.com/casperds/casperdatasets/develop/repo/releases/" m2compatible="true" />
 
 		<!-- the javabuilders maven repo -->
 		<ibiblio name="javabuilders" root="http://javabuilders.googlecode.com/svn/repo/"
@@ -32,10 +32,17 @@
 				pattern="http://ivyroundup.googlecode.com/svn/trunk/repo/modules/[organisation]/[module]/[revision]/packager.xml" />
 		</packager>
 
+		<!-- for publishing to -->
+		<filesystem name="local-maven-repo" m2compatible="true">
+			<artifact pattern="${ivy.basedir}/../repo/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"/>
+		</filesystem>
+		
 	</resolvers>
 	<modules>
 		<!--  define resolvers for specific modules -->
-		<module organisation="net.casper" resolver="local" />
+  		<module organisation="net.casper" name="casperdatasets-io" resolver="casper-repo" />
+  		<module organisation="net.casper" name="casperdatasets-ext" resolver="casper-repo" />
+  		<module organisation="net.casper" name="casperdatasets" resolver="casper-repo" /> 
 		<module organisation="org.beanshell" resolver="romanface-repo" />
 		<module organisation="org.rosuda" resolver="romanface-repo" />
 		<module organisation="org.omancode" name="omcutil" resolver="omcutil-repo" />
@@ -46,6 +53,6 @@
 		<module organisation="org.ascape" resolver="ivyroundup" />
 		<module organisation="org.omancode" name="romanface" resolver="romanface-repo" />
 		<module organisation="org.jedit" resolver="jamsim-repo" />
-		<module organisation="org.jamsim" resolver="jamsim-repo" />
+		
 	</modules>
 </ivysettings>

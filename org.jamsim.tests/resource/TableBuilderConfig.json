@@ -1,0 +1,13 @@
+{
+    "householdsize": {
+        "measures": ["frequencies", "means", "quantiles"],
+        "subgroups": ["z1singleLvl1"]
+    },
+    "kids": {
+        "measures": ["frequencies", "means", "quantiles"],
+        "subgroups": ["z1singleLvl1"]
+    }
+}
+
+
+
