@@ -2,6 +2,8 @@ package org.jamsim.ascape;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Observer;
 import java.util.prefs.Preferences;
@@ -188,9 +190,9 @@ public class RootScape<D extends ScapeData> extends Scape {
 	}
 
 	public void setupTableBuilder(
-			Map<String, Map<String, String>> summaryMeasuresToVariables,
+			Map<String, List<String>> summaryMeasuresToVariables,
 			Map<String, String> subgroupsToExpressions,
-			Map<String, String> variablesToSubgroups) {
+			Map<String, List<String>> variablesToSubgroups) {
 
 		PanelViewTableBuilder tableBuilderPanel = new PanelViewTableBuilder(
 				summaryMeasuresToVariables, subgroupsToExpressions,
