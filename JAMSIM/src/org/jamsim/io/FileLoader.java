@@ -1,16 +1,10 @@
 package org.jamsim.io;
 
 import java.awt.Component;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
@@ -46,9 +40,6 @@ import org.omancode.util.io.OutputToPrintStream;
 import org.omancode.util.swing.ArrayTableModel;
 import org.omancode.util.swing.PrefsOrOpenFileChooser;
 import org.omancode.util.swing.PrefsOrSaveFileChooser;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 /**
  * File loader that loads datasets, and objects based on datasets, from files.
@@ -314,16 +305,6 @@ public class FileLoader implements Output {
 
 	}
 
-	public Map<String, Map<String, List<String>>> loadTableBuilderConfig() throws FileNotFoundException {
-		Gson gson = new Gson();
-		Reader reader = new BufferedReader(new FileReader("resource/TableBuilderConfig.json"));
-		
-		Type mapType = new TypeToken<Map<String, Map<String, List<String>>>>(){}.getType();
-		Map<String, Map<String, List<String>>> result = gson.fromJson(reader, mapType);
-		
-		return result;
-	}
-	
 	/**
 	 * Supplies a File to a {@link CDataFile} and loads the dataset. The file to
 	 * load is specified by looking up the file location in the preferences. If

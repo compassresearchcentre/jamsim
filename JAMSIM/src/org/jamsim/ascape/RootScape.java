@@ -22,6 +22,7 @@ import org.jamsim.ascape.r.ScapeRListener;
 import org.jamsim.ascape.ui.AnalysisMenu;
 import org.jamsim.ascape.ui.NewPanelView;
 import org.jamsim.ascape.ui.PanelViewTableBuilder;
+import org.jamsim.ascape.ui.TableBuilderConfig;
 import org.jamsim.ascape.ui.cmd.ScapeRCommand;
 import org.jamsim.ascape.ui.cmd.ScapeRCommandAction;
 import org.jamsim.ascape.weights.WeightCalculator;
@@ -189,14 +190,9 @@ public class RootScape<D extends ScapeData> extends Scape {
 		}
 	}
 
-	public void setupTableBuilder(
-			Map<String, List<String>> summaryMeasuresToVariables,
-			Map<String, String> subgroupsToExpressions,
-			Map<String, List<String>> variablesToSubgroups) {
+	public void setupTableBuilder(TableBuilderConfig tableBuilderConfig) {
 
-		PanelViewTableBuilder tableBuilderPanel = new PanelViewTableBuilder(
-				summaryMeasuresToVariables, subgroupsToExpressions,
-				variablesToSubgroups, msscape);
+		PanelViewTableBuilder tableBuilderPanel = new PanelViewTableBuilder(tableBuilderConfig, msscape);
 
 		msscape.setCreateTableOptionsPanelView(tableBuilderPanel);
 	}

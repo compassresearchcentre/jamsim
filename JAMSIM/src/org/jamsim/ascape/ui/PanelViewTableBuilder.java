@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,18 +54,14 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener 
 
 	private PanelView pv;
 
-	private Map<String, Map<String, String>> summaryMeasuresToVariables;
-
 	private Map<String, String> scenarioDescriptionToVarname;
-	private Map<String, String> subgroupDescriptionToVarname;
 
 	private String scenarioSelection;
 	private String statisticSelection;
 	private String variableSelection;
 	private String subgroupSelection;
 
-	private String[] statisticNames;
-	private String[] subgroupNames;
+	private String[] summaryMeasures = new String[] {"Frequencies", "Means", "Quintiles"};
 
 	private JLabel scenarioLabel;
 	private JLabel statisticLabel;
@@ -73,7 +70,7 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener 
 
 	private JComboBox scenarioCombo;
 	private JComboBox variableCombo;
-	private JComboBox subgroupCombo;
+	private JComboBox<Object> subgroupCombo;
 
 	private JRadioButton frequenciesButton;
 	private JRadioButton meansButton;
@@ -93,6 +90,8 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener 
 
 	private DataDictionary dict;
 
+	private Map<String, DefaultComboBoxModel<Object>> subgroupComboBoxModels;
+
 	/**
 	 * Creates a {@link PanelViewTableBuilder}. Sets up the combo boxes, combo
 	 * box models radio buttons and maps used to apply the user's selections.
@@ -104,31 +103,22 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener 
 	 * @param scape
 	 *            The scape
 	 */
-	public PanelViewTableBuilder(
-			Map<String, List<String>> summaryMeasuresToVariables,
-			Map<String, String> subgroupDescriptionToVarname,
-			Map<String, List<String>> variablesToSubgroups, MicroSimScape scape) {
+	public PanelViewTableBuilder(TableBuilderConfig tableBuilderConfig,
+			MicroSimScape scape) {
 
 		this.scape = scape;
 		this.dict = scape.getDictionary();
 
 		rInterface = scape.getScapeRInterface();
 
-		this.subgroupDescriptionToVarname = subgroupDescriptionToVarname;
-
-		statisticNames = summaryMeasuresToVariables.keySet().toArray(
-				new String[summaryMeasuresToVariables.size()]);
-		subgroupNames = subgroupDescriptionToVarname.keySet().toArray(
-				new String[subgroupDescriptionToVarname.size()]);
-
 		scenarioLabel = new JLabel();
 		statisticLabel = new JLabel();
 		variableLabel = new JLabel();
 		subgroupLabel = new JLabel();
 
-		frequenciesButton = new JRadioButton(statisticNames[0]);
-		meansButton = new JRadioButton(statisticNames[1]);
-		quintilesButton = new JRadioButton(statisticNames[2]);
+		frequenciesButton = new JRadioButton(summaryMeasures[0]);
+		meansButton = new JRadioButton(summaryMeasures[1]);
+		quintilesButton = new JRadioButton(summaryMeasures[2]);
 
 		statisticButtonGroup = new ButtonGroup();
 		statisticButtonGroup.add(frequenciesButton);
@@ -141,9 +131,8 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener 
 
 		variableComboModels = new LinkedHashMap<String, ComboBoxModel>();
 		setupScenarioToRExpression();
-		setupVariableComboModels(summaryMeasuresToVariables);
-		subgroupCombo = new JComboBox(subgroupNames);
-		variableCombo = new JComboBox();
+		this.variableComboModels = setupVariableComboModels(tableBuilderConfig.getVariablesbySummaryMeasure());
+		this.subgroupComboBoxModels = createSubgroupComboModels(tableBuilderConfig.getSubgroupsByVariable());
 
 		pv = PanelViewUtil.createResizablePanelView("Table Builder");
 		pv.setPreferredSize(new Dimension(600, 450));
@@ -155,17 +144,36 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener 
 	/**
 	 * Sets up the map of combo box models for use in the variable combo box
 	 */
-	private void setupVariableComboModels(
+	private Map<String, ComboBoxModel>  setupVariableComboModels(
 			Map<String, List<String>> summaryMeasuresToVariables) {
 
-		variableComboModels.put("Frequencies", new DefaultComboBoxModel(
+		Map<String, ComboBoxModel> comboBoxModels = new HashMap<String, ComboBoxModel>();
+		
+		comboBoxModels.put("Frequencies", new DefaultComboBoxModel(
 				summaryMeasuresToVariables.get("Frequencies").toArray()));
-		variableComboModels.put("Means", new DefaultComboBoxModel(
+		comboBoxModels.put("Means", new DefaultComboBoxModel(
 				summaryMeasuresToVariables.get("Means").toArray()));
-		variableComboModels.put("Quintiles", new DefaultComboBoxModel(
+		comboBoxModels.put("Quintiles", new DefaultComboBoxModel(
 				summaryMeasuresToVariables.get("Quintiles").toArray()));
+		
+		return comboBoxModels;
 	}
 
+	
+	private Map<String, DefaultComboBoxModel<Object>> createSubgroupComboModels(
+			Map<String, List<String>> variablesToSubgroups) {
+
+		Map<String, DefaultComboBoxModel<Object>> comboBoxModels = new HashMap<String, DefaultComboBoxModel<Object>>();
+		
+		
+		for (Map.Entry<String, List<String>> variableToSubgroups : variablesToSubgroups.entrySet()) {
+			comboBoxModels.put(variableToSubgroups.getKey(), new DefaultComboBoxModel<Object>(variableToSubgroups.getValue().toArray()));
+		}
+		
+		return comboBoxModels;
+	}
+
+	
 	/**
 	 * Sets up the Map that corresponds to the combo box where the user selects
 	 * the scenario they wish to examine. Uses the R interface to get a list of
@@ -214,7 +222,7 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener 
 					+ "','"
 					+ dict.getVarname(variableSelection)
 					+ "','"
-					+ subgroupDescriptionToVarname.get(subgroupSelection)
+					+ dict.getVarname(subgroupSelection)
 							.toString() + "')";
 
 			rexp = rInterface.parseEvalTry(tableBuilderExpression);
@@ -255,11 +263,11 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener 
 	 *            the array of summary measures
 	 */
 	public void summaryMeasureChanged(int indexOfStatisticNames) {
-		statisticSelection = statisticNames[indexOfStatisticNames];
+		statisticSelection = summaryMeasures[indexOfStatisticNames];
 		variableCombo.setModel(variableComboModels.get(statisticSelection));
-
 		variableCombo.setSelectedIndex(0);
 	}
+	
 
 	private void frequenciesSelected() {
 		summaryMeasureChanged(0);
@@ -275,10 +283,18 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener 
 
 	private void variableSelected() {
 		variableSelection = variableCombo.getSelectedItem().toString();
+		populateSubgroupCombo(variableSelection);
 	}
 
 	private void subgroupSelected() {
 		subgroupSelection = subgroupCombo.getSelectedItem().toString();
+	}
+
+	private void populateSubgroupCombo(String variable) {
+		ComboBoxModel<Object> cbm = subgroupComboBoxModels.get(variable);
+		subgroupCombo.setModel(cbm);
+		subgroupCombo.setSelectedIndex(0);
+		
 	}
 
 	/**
@@ -293,7 +309,7 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener 
 		String expr = "\"addLazyTableNode('tableBuilder('" + scenarioSelection
 				+ "', '" + statisticSelection + "', '"
 				+ dict.getVarname(variableSelection) + "', '"
-				+ subgroupDescriptionToVarname.get(subgroupSelection)
+				+ dict.getVarname(subgroupSelection)
 				+ "')', '" + variableSelection + " by " + subgroupSelection
 				+ " - " + scenarioSelection + "', " + "'nameOfParentNode', "
 				+ "'path')\"";
