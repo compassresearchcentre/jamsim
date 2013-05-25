@@ -55,6 +55,8 @@
         </dependency>
         
         <dependency org="org.jedit" name="jedit-textArea" rev="latest.integration" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
+
+        <dependency org="com.google.guava" name="guava" rev="14.0.1" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
         
     </dependencies>
 </ivy-module>

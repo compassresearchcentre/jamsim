@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,6 +39,8 @@ import org.omancode.r.RFaceException;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REXPString;
+
+import com.google.common.collect.Multimap;
 
 /**
  * Provides a {@link PanelView} Containing various components for use in custom
@@ -131,7 +134,7 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener 
 
 		variableComboModels = new LinkedHashMap<String, ComboBoxModel>();
 		setupScenarioToRExpression();
-		this.variableComboModels = setupVariableComboModels(tableBuilderConfig.getVariablesbySummaryMeasure());
+		this.variableComboModels = setupVariableComboModels(tableBuilderConfig);
 		this.subgroupComboBoxModels = createSubgroupComboModels(tableBuilderConfig.getSubgroupsByVariable());
 
 		pv = PanelViewUtil.createResizablePanelView("Table Builder");
@@ -145,28 +148,27 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener 
 	 * Sets up the map of combo box models for use in the variable combo box
 	 */
 	private Map<String, ComboBoxModel>  setupVariableComboModels(
-			Map<String, List<String>> summaryMeasuresToVariables) {
+			TableBuilderConfig tableBuilderConfig) {
 
 		Map<String, ComboBoxModel> comboBoxModels = new HashMap<String, ComboBoxModel>();
 		
 		comboBoxModels.put("Frequencies", new DefaultComboBoxModel(
-				summaryMeasuresToVariables.get("Frequencies").toArray()));
+				tableBuilderConfig.getVariablesForFrequencies().toArray()));
 		comboBoxModels.put("Means", new DefaultComboBoxModel(
-				summaryMeasuresToVariables.get("Means").toArray()));
+				tableBuilderConfig.getVariablesForMeans().toArray()));
 		comboBoxModels.put("Quintiles", new DefaultComboBoxModel(
-				summaryMeasuresToVariables.get("Quintiles").toArray()));
+				tableBuilderConfig.getVariablesForQuintiles().toArray()));
 		
 		return comboBoxModels;
 	}
 
 	
 	private Map<String, DefaultComboBoxModel<Object>> createSubgroupComboModels(
-			Map<String, List<String>> variablesToSubgroups) {
+			Multimap<String, String> variablesToSubgroups) {
 
 		Map<String, DefaultComboBoxModel<Object>> comboBoxModels = new HashMap<String, DefaultComboBoxModel<Object>>();
 		
-		
-		for (Map.Entry<String, List<String>> variableToSubgroups : variablesToSubgroups.entrySet()) {
+		for (Map.Entry<String, Collection<String>> variableToSubgroups : variablesToSubgroups.asMap().entrySet()) {
 			comboBoxModels.put(variableToSubgroups.getKey(), new DefaultComboBoxModel<Object>(variableToSubgroups.getValue().toArray()));
 		}
 		

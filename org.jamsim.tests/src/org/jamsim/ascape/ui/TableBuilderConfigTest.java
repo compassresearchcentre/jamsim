@@ -1,6 +1,7 @@
 package org.jamsim.ascape.ui;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -18,12 +19,21 @@ public class TableBuilderConfigTest {
 	@Test
 	public void test() throws IOException {
 		Gson gson = new Gson();
-		Reader reader = new BufferedReader(new FileReader("resource/TableBuilderConfig.json"));
-		
-		//Object result = gson.fromJson(reader, Object.class);
-		
-		Type mapType = new TypeToken<Map<String, Map<String, List<String>>>>(){}.getType();
-		Map<String, Map<String, List<String>>> result = gson.fromJson(reader, mapType);
+		Reader reader = new BufferedReader(new FileReader(
+				"resource/TableBuilderConfig.json"));
+
+		// Object result = gson.fromJson(reader, Object.class);
+
+		Type mapType = new TypeToken<Map<String, Map<String, List<String>>>>() {
+		}.getType();
+		Map<String, Map<String, List<String>>> result = gson.fromJson(reader,
+				mapType);
+	}
+
+	@Test
+	public void newTableBuilderConfig() throws FileNotFoundException {
+		TableBuilderConfig tbc = new TableBuilderConfig(
+				"resource/TableBuilderConfig.json");
 	}
 
 }

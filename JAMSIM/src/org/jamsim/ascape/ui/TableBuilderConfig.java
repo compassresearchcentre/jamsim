@@ -5,10 +5,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
 import java.lang.reflect.Type;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.TreeMultimap;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -29,12 +31,12 @@ public class TableBuilderConfig {
 	 */
 	private final Map<String, Map<String, List<String>>> variablesData;
 
-	private final Map<String, List<String>> variablesBySummaryMeasure;
+	private final Multimap<String, String> variablesBySummaryMeasure;
 
-	private final Map<String, List<String>> subgroupsByVariable;
+	private final Multimap<String, String> subgroupsByVariable;
 
 	/**
-	 * Load from json file.
+	 * Load from JSON file.
 	 * 
 	 * @param jsonFileName
 	 *            json file name
@@ -55,36 +57,50 @@ public class TableBuilderConfig {
 
 	}
 
-	public Map<String, List<String>> extractVariablesbySummaryMeasure(
+	public Multimap<String, String> extractVariablesbySummaryMeasure(
 			Map<String, Map<String, List<String>>> variablesData) {
-		Map<String, List<String>> variablesBySummaryMeasure = new HashMap<String, List<String>>();
+		Multimap<String, String> variablesBySummaryMeasure = TreeMultimap.create();
 		
+		for (Map.Entry<String, Map<String, List<String>>> variable: variablesData.entrySet()) {
+			String variableName = variable.getKey();
+			List<String> measures = variable.getValue().get("measures");
+			
+			for (String measure: measures) {
+				variablesBySummaryMeasure.put(measure, variableName);
+			}
+		}
+
 		return variablesBySummaryMeasure;
 	}
 
-	public Map<String, List<String>> extractSubgroupsByVariable(Map<String, Map<String, List<String>>> variablesData) {
-		Map<String, List<String>> subgroupsByVariable = new HashMap<String, List<String>>();
+	public Multimap<String, String> extractSubgroupsByVariable(Map<String, Map<String, List<String>>> variablesData) {
+		Multimap<String, String> subgroupsByVariable = TreeMultimap.create();
+
+		for (Map.Entry<String, Map<String, List<String>>> variable: variablesData.entrySet()) {
+			String variableName = variable.getKey();
+			List<String> subgroups = variable.getValue().get("subgroups");
+			subgroupsByVariable.putAll(variableName, subgroups);
+		}
 		
 		return subgroupsByVariable;
 	}
 	
-	public List<String>> getVariablesForFrequencies() {
-		return variablesBySummaryMeasure;
+	public Collection<String> getVariablesForFrequencies() {
+		return variablesBySummaryMeasure.get("frequencies");
 	}
 
-	public List<String>> getVariablesForMeans() {
-		return variablesBySummaryMeasure;
-	}
-
-	
-	public List<String>> getVariablesForQuintiles() {
-		return variablesBySummaryMeasure;
+	public Collection<String> getVariablesForMeans() {
+		return variablesBySummaryMeasure.get("means");
 	}
 
 	
-	public Map<String, List<String>> getSubgroupsByVariable() {
+	public Collection<String> getVariablesForQuintiles() {
+		return variablesBySummaryMeasure.get("quintiles");
+	}
+
+	
+	public Multimap<String, String> getSubgroupsByVariable() {
 		return subgroupsByVariable;
 	}
-
 
 }
