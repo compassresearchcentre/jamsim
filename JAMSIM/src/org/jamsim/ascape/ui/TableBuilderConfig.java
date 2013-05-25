@@ -9,6 +9,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
 import com.google.gson.Gson;
@@ -31,9 +33,9 @@ public class TableBuilderConfig {
 	 */
 	private final Map<String, Map<String, List<String>>> variablesData;
 
-	private final Multimap<String, String> variablesBySummaryMeasure;
+	private final ListMultimap<String, String> variablesBySummaryMeasure;
 
-	private final Multimap<String, String> subgroupsByVariable;
+	private final ListMultimap<String, String> subgroupsByVariable;
 
 	/**
 	 * Load from JSON file.
@@ -57,9 +59,9 @@ public class TableBuilderConfig {
 
 	}
 
-	public Multimap<String, String> extractVariablesbySummaryMeasure(
+	public ListMultimap<String, String> extractVariablesbySummaryMeasure(
 			Map<String, Map<String, List<String>>> variablesData) {
-		Multimap<String, String> variablesBySummaryMeasure = TreeMultimap.create();
+		ListMultimap<String, String> variablesBySummaryMeasure = ArrayListMultimap.create();
 		
 		for (Map.Entry<String, Map<String, List<String>>> variable: variablesData.entrySet()) {
 			String variableName = variable.getKey();
@@ -73,8 +75,8 @@ public class TableBuilderConfig {
 		return variablesBySummaryMeasure;
 	}
 
-	public Multimap<String, String> extractSubgroupsByVariable(Map<String, Map<String, List<String>>> variablesData) {
-		Multimap<String, String> subgroupsByVariable = TreeMultimap.create();
+	public ListMultimap<String, String> extractSubgroupsByVariable(Map<String, Map<String, List<String>>> variablesData) {
+		ListMultimap<String, String> subgroupsByVariable = ArrayListMultimap.create();
 
 		for (Map.Entry<String, Map<String, List<String>>> variable: variablesData.entrySet()) {
 			String variableName = variable.getKey();
@@ -85,21 +87,20 @@ public class TableBuilderConfig {
 		return subgroupsByVariable;
 	}
 	
-	public Collection<String> getVariablesForFrequencies() {
+	public List<String> getVariablesForFrequencies() {
 		return variablesBySummaryMeasure.get("frequencies");
 	}
 
-	public Collection<String> getVariablesForMeans() {
+	public List<String> getVariablesForMeans() {
 		return variablesBySummaryMeasure.get("means");
 	}
 
 	
-	public Collection<String> getVariablesForQuintiles() {
+	public List<String> getVariablesForQuintiles() {
 		return variablesBySummaryMeasure.get("quintiles");
 	}
-
 	
-	public Multimap<String, String> getSubgroupsByVariable() {
+	public ListMultimap<String, String> getSubgroupsByVariable() {
 		return subgroupsByVariable;
 	}
 

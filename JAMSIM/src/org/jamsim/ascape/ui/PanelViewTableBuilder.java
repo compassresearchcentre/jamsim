@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,7 +41,7 @@ import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REXPString;
 
-import com.google.common.collect.Multimap;
+import com.google.common.collect.ListMultimap;
 
 /**
  * Provides a {@link PanelView} Containing various components for use in custom
@@ -52,6 +53,8 @@ import com.google.common.collect.Multimap;
  * 
  */
 public class PanelViewTableBuilder implements PanelViewProvider, ActionListener {
+
+	private static final String NONE = "None";
 
 	private MicroSimScape scape;
 
@@ -152,24 +155,39 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener 
 
 		Map<String, ComboBoxModel> comboBoxModels = new HashMap<String, ComboBoxModel>();
 		
-		comboBoxModels.put("Frequencies", new DefaultComboBoxModel(
-				tableBuilderConfig.getVariablesForFrequencies().toArray()));
-		comboBoxModels.put("Means", new DefaultComboBoxModel(
-				tableBuilderConfig.getVariablesForMeans().toArray()));
-		comboBoxModels.put("Quintiles", new DefaultComboBoxModel(
-				tableBuilderConfig.getVariablesForQuintiles().toArray()));
+		List<String> freqVars = dict.getDescriptions(tableBuilderConfig.getVariablesForFrequencies());
+		List<String> meanVars = dict.getDescriptions(tableBuilderConfig.getVariablesForMeans());
+		List<String> quintileVars = dict.getDescriptions(tableBuilderConfig.getVariablesForQuintiles());
+
+		Collections.sort(freqVars);
+		Collections.sort(meanVars);
+		Collections.sort(quintileVars);
+		
+		comboBoxModels.put("Frequencies",
+				new DefaultComboBoxModel(freqVars.toArray()));
+		comboBoxModels.put("Means",
+				new DefaultComboBoxModel(meanVars.toArray()));
+		comboBoxModels.put("Quintiles",
+				new DefaultComboBoxModel(quintileVars.toArray()));
 		
 		return comboBoxModels;
 	}
 
 	
 	private Map<String, DefaultComboBoxModel<Object>> createSubgroupComboModels(
-			Multimap<String, String> variablesToSubgroups) {
+			ListMultimap<String, String> variablesToSubgroups) {
 
 		Map<String, DefaultComboBoxModel<Object>> comboBoxModels = new HashMap<String, DefaultComboBoxModel<Object>>();
 		
 		for (Map.Entry<String, Collection<String>> variableToSubgroups : variablesToSubgroups.asMap().entrySet()) {
-			comboBoxModels.put(variableToSubgroups.getKey(), new DefaultComboBoxModel<Object>(variableToSubgroups.getValue().toArray()));
+			String variableName = variableToSubgroups.getKey();
+			String variableDesc = dict.getDescription(variableName);
+			Collection<String> subgroupingVariableNames = variableToSubgroups.getValue();
+			List<String> subgroupingVariableDescriptions = dict.getDescriptions(subgroupingVariableNames);
+			Collections.sort(subgroupingVariableDescriptions);
+			subgroupingVariableDescriptions.add(0, "None");
+			
+			comboBoxModels.put(variableDesc, new DefaultComboBoxModel<Object>(subgroupingVariableDescriptions.toArray()));
 		}
 		
 		return comboBoxModels;
@@ -207,6 +225,10 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener 
 		}
 	}
 
+	private String lookupVarname(String description) {
+		return (NONE.equals(description) ? "" : dict.getVarname(description));
+	}
+	
 	/**
 	 * Creates tableBuilderExpression using the selections made by the user in
 	 * the interface. Uses tableBuilderExpression to call the tableBuilder
@@ -222,11 +244,12 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener 
 					+ "','"
 					+ statisticSelection
 					+ "','"
-					+ dict.getVarname(variableSelection)
+					+ lookupVarname(variableSelection)
 					+ "','"
-					+ dict.getVarname(subgroupSelection)
+					+ lookupVarname(subgroupSelection)
 							.toString() + "')";
 
+			System.out.println(tableBuilderExpression);
 			rexp = rInterface.parseEvalTry(tableBuilderExpression);
 
 			dsProvider = new REXPDatasetProvider(variableSelection + " by "
@@ -292,8 +315,8 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener 
 		subgroupSelection = subgroupCombo.getSelectedItem().toString();
 	}
 
-	private void populateSubgroupCombo(String variable) {
-		ComboBoxModel<Object> cbm = subgroupComboBoxModels.get(variable);
+	private void populateSubgroupCombo(String variableDescription) {
+		ComboBoxModel<Object> cbm = subgroupComboBoxModels.get(variableDescription);
 		subgroupCombo.setModel(cbm);
 		subgroupCombo.setSelectedIndex(0);
 		
@@ -310,8 +333,8 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener 
 
 		String expr = "\"addLazyTableNode('tableBuilder('" + scenarioSelection
 				+ "', '" + statisticSelection + "', '"
-				+ dict.getVarname(variableSelection) + "', '"
-				+ dict.getVarname(subgroupSelection)
+				+ lookupVarname(variableSelection) + "', '"
+				+ lookupVarname(subgroupSelection)
 				+ "')', '" + variableSelection + " by " + subgroupSelection
 				+ " - " + scenarioSelection + "', " + "'nameOfParentNode', "
 				+ "'path')\"";
@@ -329,7 +352,7 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener 
 				&& variableSelection != null) {
 
 			if (subgroupSelection == null) {
-				subgroupCombo.setSelectedItem("None");
+				subgroupCombo.setSelectedItem(NONE);
 			}
 			setupTablePane();
 			tablePane.setVisible(true);

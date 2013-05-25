@@ -1,6 +1,9 @@
 package org.jamsim.ascape;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -34,16 +37,26 @@ public class DataDictionary {
 	/**
 	 * Get variable description from name.
 	 * 
-	 * @param variable
+	 * @param variableName
 	 *            variable name
 	 * @return variable description
 	 */
-	public String getDescription(String variable) {
-		if (!desc.containsKey(variable)) {
-			throw new RuntimeException(variable + " not in data dictionary");
+	public String getDescription(String variableName) {
+		if (!desc.containsKey(variableName)) {
+			throw new RuntimeException(variableName + " not in data dictionary");
 		}
 
-		return desc.get(variable);
+		return desc.get(variableName);
+	}
+	
+	public List<String> getDescriptions(Collection<String> variableNames) {
+		List<String> descriptions = new ArrayList<String>(variableNames.size());
+				
+		for (String variableName: variableNames) {
+			descriptions.add(getDescription(variableName));
+		}
+		
+		return descriptions;
 	}
 
 	/**
