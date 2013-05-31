@@ -199,6 +199,9 @@ addOutputNode <- function(x, name, path = .jnull("java/lang/String")) {
 #'  the folder Means under the folder Base, or just "Base" which
 #'  will add to the folder Base, or leave unspecified (the default) to add directly
 #'  under "Graphs".
+#' 
+#' @examples
+#'  #addLazyJGDNode('plot(rnorm(1:100))', 'graph', 'test')
 addLazyJGDNode <- function(plotCmd, name, path = .jnull("java/lang/String")) {
 	.jcall(getScapeNode(), "V", "addLazyJGDNode", plotCmd, name, path)
 }
