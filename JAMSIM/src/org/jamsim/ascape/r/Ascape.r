@@ -206,6 +206,12 @@ addLazyJGDNode <- function(plotCmd, name, path = .jnull("java/lang/String")) {
 	.jcall(getScapeNode(), "V", "addLazyJGDNode", plotCmd, name, path)
 }
 
+createNewJavaGDAndStore <- function () {
+	JavaGD()
+	ascapeGD <- JavaGD:::.getJavaGDObject(dev.cur())
+	.jcall(ascapeGD, "V", "storeLastCreatedAscapeGD", ascapeGD); # or could add directly to MicroSimScape 
+}
+
 #' Add a data set as a node under a specified parent node.
 #' 
 #'  @param expr

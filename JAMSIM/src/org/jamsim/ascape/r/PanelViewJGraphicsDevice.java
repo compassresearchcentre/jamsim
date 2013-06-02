@@ -88,10 +88,8 @@ public class PanelViewJGraphicsDevice implements PanelViewProvider {
 		
 		try{
 			
-			rInterface.eval("JavaGD()");
-			rInterface.eval(rPlotCmd);
-			rInterface.eval("ascapeGD <- .getJavaGDObject(dev.cur())");
-			rInterface.eval(".jcall(ascapeGD, \"V\", \"storeLastCreatedAscapeGD\", ascapeGD)"); // or could add directly to MicroSimScape
+			rInterface.parseEvalTry("createNewJavaGDAndStore()");
+			rInterface.parseEvalTry(rPlotCmd);
 	
 			Object lastcreatedascapegdobject = scape.getLastCreatedAscapeGDObject();
 			
@@ -101,10 +99,12 @@ public class PanelViewJGraphicsDevice implements PanelViewProvider {
 					
 				pv = ascapeGD.getPanelView();
 				pv.setName(nodeName);
+			} else {
+				throw new RuntimeException("Could not get last created ascape GD object");
 			}
 		
 		} catch (RFaceException e) {
-			System.out.println("RFaceException caught");
+			throw new RuntimeException(e);
 		}	
 		
 		return pv;
