@@ -203,8 +203,34 @@ addOutputNode <- function(x, name, path = .jnull("java/lang/String")) {
 #' @examples
 #'  #addLazyJGDNode('plot(rnorm(1:100))', 'graph', 'test')
 addLazyJGDNode <- function(plotCmd, name, path = .jnull("java/lang/String")) {
-	.jcall(getScapeNode(), "V", "addLazyJGDNode", plotCmd, name, path)
+	if (!existsFunction("JavaGD")) {
+		warning("JavaGD has not been loaded - may not be running in Ascape")	
+	} else {
+		.jcall(getScapeNode(), "V", "addLazyJGDNode", plotCmd, name, path)
+	}
 }
+
+#' @examples 
+#' func <- function() { plot(rnorm(1:100)) }
+#' name <- 'plot'; path <- 'test'
+#' addLazyGraphNode(func, name, path)
+addLazyGraphNode <- function (func, name, path) {
+	graph.full.name <- paste(path, name, sep="/")
+	plotCmd <- storeGraphFunction(func, graph.full.name)
+	
+	addLazyJGDNode(plotCmd, name=name, path=path)
+}
+
+storeGraphFunction <-  function (func, name) {
+	if (!exists("graphs")) {
+		graphs <<- list()
+		ascapeKeepObject('graphs')
+	}
+	
+	graphs[[name]] <<- func 
+	return(gettextf("graphs[['%s']]()", name))
+}
+
 
 createNewJavaGDAndStore <- function () {
 	JavaGD()
