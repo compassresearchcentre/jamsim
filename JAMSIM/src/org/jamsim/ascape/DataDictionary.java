@@ -53,7 +53,9 @@ public class DataDictionary {
 		List<String> descriptions = new ArrayList<String>(variableNames.size());
 				
 		for (String variableName: variableNames) {
-			descriptions.add(getDescription(variableName));
+			if (variableName != null) {
+				descriptions.add(getDescription(variableName));
+			}
 		}
 		
 		return descriptions;

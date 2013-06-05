@@ -185,7 +185,7 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener 
 			Collection<String> subgroupingVariableNames = variableToSubgroups.getValue();
 			List<String> subgroupingVariableDescriptions = dict.getDescriptions(subgroupingVariableNames);
 			Collections.sort(subgroupingVariableDescriptions);
-			subgroupingVariableDescriptions.add(0, "None");
+			subgroupingVariableDescriptions.add(0, NONE);
 			
 			comboBoxModels.put(variableDesc, new DefaultComboBoxModel<Object>(subgroupingVariableDescriptions.toArray()));
 		}

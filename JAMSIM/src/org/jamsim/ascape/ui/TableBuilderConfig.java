@@ -81,7 +81,11 @@ public class TableBuilderConfig {
 		for (Map.Entry<String, Map<String, List<String>>> variable: variablesData.entrySet()) {
 			String variableName = variable.getKey();
 			List<String> subgroups = variable.getValue().get("subgroups");
-			subgroupsByVariable.putAll(variableName, subgroups);
+			if (subgroups.isEmpty()) {
+				subgroupsByVariable.put(variableName, null);
+			} else {
+				subgroupsByVariable.putAll(variableName, subgroups);
+			}
 		}
 		
 		return subgroupsByVariable;
