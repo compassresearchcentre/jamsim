@@ -20,7 +20,7 @@ import org.jamsim.ascape.output.OutputDatasetDefs;
 import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.ascape.r.ScapeRListener;
 import org.jamsim.ascape.ui.AnalysisMenu;
-import org.jamsim.ascape.ui.NewPanelView;
+import org.jamsim.ascape.ui.ScenarioBuilder;
 import org.jamsim.ascape.ui.PanelViewTableBuilder;
 import org.jamsim.ascape.ui.TableBuilderConfig;
 import org.jamsim.ascape.ui.cmd.ScapeRCommand;
@@ -169,7 +169,7 @@ public class RootScape<D extends ScapeData> extends Scape {
 			Map<String, Map<String, WeightCalculator>> wcalcsvarmaps,
 			Map subgroupsToOptions) {
 		if (wcalcsvarmaps != null) {
-			NewPanelView wcalcPanel = new NewPanelView(wcalcsvarmaps,
+			ScenarioBuilder wcalcPanel = new ScenarioBuilder(wcalcsvarmaps,
 					subgroupsToOptions, msscape);
 
 			msscape.setWeightCalculatorPanelView(wcalcPanel);

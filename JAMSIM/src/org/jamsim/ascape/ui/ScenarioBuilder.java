@@ -61,7 +61,7 @@ import org.javabuilders.swing.SwingJavaBuilder;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class NewPanelView implements PanelViewProvider, ActionListener {
+public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 
 	private final Map<String, Map<String, WeightCalculator>> allvariablesweightcalcs;
 
@@ -95,7 +95,7 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 	private String currentselection;
 	
 	/**
-	 * Creates a {@link NewPanelView}. Sets up the combo boxes, combo box models
+	 * Creates a {@link ScenarioBuilder}. Sets up the combo boxes, combo box models
 	 * and maps used to apply the user's selections.
 	 * Builds the Swing components using the Swing JavaBuilder library.
 	 * 
@@ -107,7 +107,7 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 	 * @param scape
 	 * 			The scape
 	 */
-	public NewPanelView(
+	public ScenarioBuilder(
 			Map<String, Map<String, WeightCalculator>> wcalcsvarmaps,
 			Map<String, RExpression> subgroupsToOptions,
 			MicroSimScape<?> scape) {
@@ -123,7 +123,7 @@ public class NewPanelView implements PanelViewProvider, ActionListener {
 								new String[subgroupsToOptions.size()]);
 		subgroupoptionsboxes = setupComboBoxModels();		
 
-		pv = PanelViewUtil.createResizablePanelView("Scenario Weightings");
+		pv = PanelViewUtil.createResizablePanelView("Scenario Builder");
 		pv.setPreferredSize(new Dimension(700,630));
 
 		selectlabel = new JLabel();

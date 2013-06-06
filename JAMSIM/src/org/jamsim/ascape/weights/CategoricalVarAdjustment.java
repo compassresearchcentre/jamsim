@@ -64,7 +64,7 @@ public class CategoricalVarAdjustment extends Observable implements
 	
 	/**
 	 * The table model for the Base Simulation Results panel in the Scenario Weightings 
-	 * ({@link NewPanelView}) interface.
+	 * ({@link ScenarioBuilder}) interface.
 	 */
 	private CDatasetTableModel cDatasetTableModel;
 	
@@ -221,7 +221,7 @@ public class CategoricalVarAdjustment extends Observable implements
 	
 	/**
 	 * Sets the table model for the Base Simulation Results table in the Scenario Weightings Interface
-	 * ({@link NewPanelView}). 
+	 * ({@link ScenarioBuilder}). 
 	 * 
 	 * @param subgroupExpression
 	 * 			An expression passed to an R function that returns an {@link REXP} used to 

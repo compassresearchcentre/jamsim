@@ -11,7 +11,7 @@ import org.jamsim.ascape.ui.SubgroupRExpressionProvider;
 
 /**
  * A CSV reader that reads the data into the Maps for the Scenario Weightings (
- * {@link NewPanelView}) and the Table Builder ({@link TableBuilder})
+ * {@link ScenarioBuilder}) and the Table Builder ({@link TableBuilder})
  * interfaces.
  * 
  * @author bmac055
@@ -32,7 +32,7 @@ public class UserInterfaceCSVReader {
 
 	/**
 	 * Creates a {@link UserInterfaceCSVReader} to read into the Maps used for
-	 * the Scenario Weightings ({@link NewPanelView}) Interface.
+	 * the Scenario Weightings ({@link ScenarioBuilder}) Interface.
 	 * 
 	 * @param subgroupsToOptions
 	 *            Maps subgroup variable name Strings to corresponding
@@ -85,7 +85,7 @@ public class UserInterfaceCSVReader {
 
 	/**
 	 * Reads from the given CSV file into the map used in the Scenario
-	 * Weightings ({@link NewPanelView}) Interface
+	 * Weightings ({@link ScenarioBuilder}) Interface
 	 * 
 	 * @param file
 	 *            The CSV file from which to read
