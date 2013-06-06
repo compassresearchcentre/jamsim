@@ -43,6 +43,7 @@ import org.jamsim.ascape.weights.WeightCalculator;
 import org.jamsim.io.FileLoader;
 import org.jamsim.shared.InvalidDataException;
 import org.omancode.r.RFaceException;
+import org.omancode.util.StringUtil;
 
 /**
  * A Scape with micro-simulation input/output functions including base file
@@ -270,7 +271,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 			getScapeNode().addParameterSetNode(wcalcPanel);
 
 			// Add weightings button to additional toolbar
-			addWeightingsButton(wcalcPanel);
+			addScenarioButton(wcalcPanel);
 			
 			// Add table builder button to additional toolbar
 			addTableBuilderButton(createTablePanel);
@@ -283,12 +284,11 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 */
 	public void setGlobalSubgroupFilterExpression(String subgroupExpression) {
 		try {
-			scapeR.eval("cat(\"Setting global subgroup expression, "+subgroupExpression+"\n\", sep=\"\")");
-			scapeR.eval("for (i in 1:length(env.scenario$cat.adjustments)) " +
-					"{ attr(env.scenario$cat.adjustments[[i]], \"logisetexpr\") <- \"" + subgroupExpression + "\"}");
-		} catch (RFaceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			String rCmd = StringUtil.functionCall("setGlobalSubgroupFilterExpression", StringUtil.doublequote(subgroupExpression));
+			System.out.println(rCmd);
+			scapeR.eval(rCmd);
+			} catch (RFaceException e) {
+				e.printStackTrace();
 		}
 	}
 
@@ -457,21 +457,19 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	}
 
 	/**
-	 * Add a "Weightings" button to the additional tool bar that displays a
-	 * {@link org.jamsim.ascape.ui.PanelViewWeightCalculators}.
+	 * Add a "Scenario" button to the additional tool bar that displays
+	 * the provided {@link PanelViewProvider}.
 	 * 
-	 * @param weightings
-	 *            weightings parameter set
 	 */
-	private void addWeightingsButton(PanelViewProvider provider) {
+	private void addScenarioButton(PanelViewProvider provider) {
 		// create action
-		PanelViewAction weightingsAction = new PanelViewAction(provider,
-				"Weightings", "Weightings");
-		weightingsAction.putValue(Action.SMALL_ICON,
+		PanelViewAction action = new PanelViewAction(provider,
+				"Scenarios", "Scenarios");
+		action.putValue(Action.SMALL_ICON,
 				DesktopEnvironment.getIcon("Scales"));
 
 		// add button to toolbar
-		AscapeGUIUtil.addAdditionalBarButton(weightingsAction);
+		AscapeGUIUtil.addAdditionalBarButton(action);
 	}
 	
 	/**
