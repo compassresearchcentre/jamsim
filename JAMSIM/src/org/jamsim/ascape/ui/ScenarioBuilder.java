@@ -347,7 +347,7 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 
 	@SuppressWarnings("unused")
 	private void update() {
-		doUpdate("Weights updated.");
+		doUpdate("Scenario set.");
 	}
 
 	/**
@@ -379,7 +379,7 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 		for (WeightCalculator wcalc : currentvariableallyears.values()) {
 			wcalc.resetDefaults();
 		}
-		JOptionPane.showMessageDialog(pv, "Current variable reset to base.", "Defaults", JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane.showMessageDialog(pv, "Current variable scenario removed.", "Defaults", JOptionPane.INFORMATION_MESSAGE);
 	}
 	
 	protected final JComponent makeTextPanel(String text) {
