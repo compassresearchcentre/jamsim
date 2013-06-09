@@ -73,6 +73,7 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 	private JLabel statisticLabel;
 	private JLabel variableLabel;
 	private JLabel subgroupLabel;
+	private JLabel previewLabel;
 
 	private JComboBox scenarioCombo;
 	private JComboBox variableCombo;
@@ -121,6 +122,7 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 		statisticLabel = new JLabel();
 		variableLabel = new JLabel();
 		subgroupLabel = new JLabel();
+		previewLabel = new JLabel();
 
 		frequenciesButton = new JRadioButton("Percentages");
 		meansButton = new JRadioButton("Means");

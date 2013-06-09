@@ -11,8 +11,9 @@ JScrollPane(name=pane, verticalScrollBarPolicy=asNeeded, horizontalScrollBarPoli
         - JRadioButton(name=meansButton, onAction=meansSelected)
         - JRadioButton(name=quintilesButton, onAction=quintilesSelected)
         - ButtonGroup: [frequenciesButton, meansButton, quintilesButton]
-        - JButton(name=okButton, text=OK, onAction=okPressed)
+        - JButton(name=okButton, text=Preview, onAction=okPressed)
         - JButton(name=save, text=Save to Tree, onAction=savePressed)
+        - JLabel(name=previewLabel, text=Table Preview)
         - JScrollPane(name=tablePane)
         - MigLayout: |
             [grow]
@@ -25,7 +26,9 @@ JScrollPane(name=pane, verticalScrollBarPolicy=asNeeded, horizontalScrollBarPoli
             variableCombo=1
             subgroupLabel=1
             subgroupCombo=1
-            tablePane+* [grow]
-            >okButton=3,save=3 [shrink, bottom]
+            >okButton=3,save=3
+            previewLabel
+            tablePane+* [grow, shrink, bottom]
+            
         
         
