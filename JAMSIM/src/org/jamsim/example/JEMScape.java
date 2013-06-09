@@ -50,7 +50,7 @@ public class JEMScape extends RootScape<JEMData> {
 			baseScape.loadAgents(data);
 
 			// start R and create scape dataframe
-			scapeR = loadR(false);
+			scapeR = loadR(false, true);
 
 			loadRStartupFile();
 

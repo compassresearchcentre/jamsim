@@ -70,20 +70,24 @@ public final class RFileInterface implements PanelViewListener,
 	 *             if problem reading MRU files from prefs
 	 */
 	private RFileInterface(Scape scape, ScapeRInterface scapeR,
-			FileLoader fileloader) throws IOException {
+			FileLoader fileloader, boolean showRMenu) throws IOException {
 		this.scape = scape;
 		this.scapeR = scapeR;
 		this.fileloader = fileloader;
 		this.mruFiles =
 				new MRUFiles(this, fileloader.getPrefs(), MRU_PREFS_KEY,
 						MRU_SIZE);
-		addRMenu();
+		if (showRMenu) {
+			addRMenu();
+		}
 		setupJEditModes();
 	}
 
 	private static Scape staticScape = null;
 	private static ScapeRInterface staticScapeR = null;
 	private static FileLoader staticFileloader = null;
+
+	private static boolean staticShowRMenu;
 
 	/**
 	 * SingletonHolder is loaded, and the static initializer executed, on the
@@ -105,7 +109,7 @@ public final class RFileInterface implements PanelViewListener,
 		private static RFileInterface createSingleton() {
 			try {
 				return new RFileInterface(staticScape, staticScapeR, // NOPMD
-						staticFileloader);
+						staticFileloader, staticShowRMenu);
 			} catch (IOException e) {
 				// a static initializer cannot throw exceptions
 				// but it can throw an ExceptionInInitializerError
@@ -145,10 +149,11 @@ public final class RFileInterface implements PanelViewListener,
 	 *             if problem reading MRU files from prefs
 	 */
 	public static RFileInterface getInstance(Scape scape,
-			ScapeRInterface scapeR, FileLoader fileloader) throws IOException {
+			ScapeRInterface scapeR, FileLoader fileloader, boolean showRMenu) throws IOException {
 		RFileInterface.staticScape = scape;
 		RFileInterface.staticScapeR = scapeR;
 		RFileInterface.staticFileloader = fileloader;
+		RFileInterface.staticShowRMenu = showRMenu;
 
 		try {
 			return SingletonHolder.getInstance();

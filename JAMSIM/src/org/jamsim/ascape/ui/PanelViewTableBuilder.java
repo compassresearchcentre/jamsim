@@ -122,9 +122,9 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener 
 		variableLabel = new JLabel();
 		subgroupLabel = new JLabel();
 
-		frequenciesButton = new JRadioButton(summaryMeasures[0]);
-		meansButton = new JRadioButton(summaryMeasures[1]);
-		quintilesButton = new JRadioButton(summaryMeasures[2]);
+		frequenciesButton = new JRadioButton("Percentages");
+		meansButton = new JRadioButton("Means");
+		quintilesButton = new JRadioButton("Quantiles");
 
 		statisticButtonGroup = new ButtonGroup();
 		statisticButtonGroup.add(frequenciesButton);

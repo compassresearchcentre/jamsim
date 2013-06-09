@@ -733,7 +733,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 *             if problem looking up {@code startUpFilePrefsKey} or
 	 *             initialising R
 	 */
-	public ScapeRInterface loadR(String dataFrameSymbol, boolean keepAllRunDFs)
+	public ScapeRInterface loadR(String dataFrameSymbol, boolean keepAllRunDFs, boolean showRMenu)
 			throws IOException {
 
 		// load R
@@ -770,7 +770,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		}
 
 		// create R menu with R file editing functions
-		RFileInterface.getInstance(this, scapeR, loader);
+		RFileInterface.getInstance(this, scapeR, loader, showRMenu);
 
 		return scapeR;
 	}

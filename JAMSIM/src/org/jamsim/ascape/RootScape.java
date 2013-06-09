@@ -249,8 +249,8 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 * @throws IOException
 	 *             if problem starting R
 	 */
-	public ScapeRInterface loadR(boolean keepAllRunDFs) throws IOException {
-		scapeR = msscape.loadR(msscape.getName().toLowerCase(), false);
+	public ScapeRInterface loadR(boolean keepAllRunDFs, boolean showRMenu) throws IOException {
+		scapeR = msscape.loadR(msscape.getName().toLowerCase(), false, showRMenu);
 		return scapeR;
 	}
 
@@ -346,8 +346,8 @@ public class RootScape<D extends ScapeData> extends Scape {
 			// scapeR.printPrompt();
 
 			// add a dataframe information node
-			msscape.getScapeNode()
-					.addDataFrameNode(scapeR.getScapeDFRunName(0));
+		//	msscape.getScapeNode()
+		//			.addDataFrameNode(scapeR.getScapeDFRunName(0));
 
 		}
 	}
