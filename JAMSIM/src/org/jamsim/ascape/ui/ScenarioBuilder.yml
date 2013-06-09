@@ -5,7 +5,7 @@ JScrollPane(name=pane, verticalScrollBarPolicy=asNeeded, horizontalScrollBarPoli
         - JLabel(name=optionslabel, text=Options)
         - JLabel(name=subgroupselectlabel, text=Select subgroup)
         - JLabel(name=scenarioproportionslabel, text=Scenario Proportions)
-        - JLabel(name=basesimulationresultslabel, text=Base Simulation Results)
+        - JLabel(name=basesimulationresultslabel, text=Base Simulation Preview for Current Subset)
         - JComboBox(name=selector, onAction=selectorChanged)
         - JComboBox(name=subgroupselect, onAction=subgroupSelected)
         - JComboBox(name=chooseoptions, onAction=optionSelected)
@@ -14,7 +14,7 @@ JScrollPane(name=pane, verticalScrollBarPolicy=asNeeded, horizontalScrollBarPoli
         - JScrollPane(name=baseSimulationResultsPane)
         - JButton(name=update, text=Set, onAction=update)
         - JButton(name=reset, text=Unset, onAction=reset)
-        - JButton(name=set, text=View, onAction=setFormula)
+        - JButton(name=set, text=Preview, onAction=setFormula)
         - JButton(name=clear, text=Clear, onAction=clearFormula)
         - JButton(name=and, text=AND, onAction=andPressed)
         - JButton(name=or, text=OR, onAction=orPressed)
@@ -33,6 +33,6 @@ JScrollPane(name=pane, verticalScrollBarPolicy=asNeeded, horizontalScrollBarPoli
             selector+*=1
             scenarioproportionslabel=1    
             yearpane+*
+                                          >update=3,reset=3 [grow, shrink, bottom]
             basesimulationresultslabel
             baseSimulationResultsPane+*
-                                          >update=3,reset=3 [grow, shrink, bottom]

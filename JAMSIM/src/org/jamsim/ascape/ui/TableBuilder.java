@@ -52,7 +52,7 @@ import com.google.common.collect.ListMultimap;
  * @author bmac055
  * 
  */
-public class PanelViewTableBuilder implements PanelViewProvider, ActionListener {
+public class TableBuilder implements PanelViewProvider, ActionListener {
 
 	private static final String NONE = "None";
 
@@ -99,7 +99,7 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener 
 	private Map<String, DefaultComboBoxModel<Object>> subgroupComboBoxModels;
 
 	/**
-	 * Creates a {@link PanelViewTableBuilder}. Sets up the combo boxes, combo
+	 * Creates a {@link TableBuilder}. Sets up the combo boxes, combo
 	 * box models radio buttons and maps used to apply the user's selections.
 	 * Builds the Swing components using the Swing JavaBuilder library.
 	 * 
@@ -109,7 +109,7 @@ public class PanelViewTableBuilder implements PanelViewProvider, ActionListener 
 	 * @param scape
 	 *            The scape
 	 */
-	public PanelViewTableBuilder(TableBuilderConfig tableBuilderConfig,
+	public TableBuilder(TableBuilderConfig tableBuilderConfig,
 			MicroSimScape scape) {
 
 		this.scape = scape;

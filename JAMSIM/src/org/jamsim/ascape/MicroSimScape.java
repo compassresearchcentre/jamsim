@@ -474,7 +474,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	
 	/**
 	 * Add a "Table" button to the additional tool bar that displays a
-	 * {@link org.jamsim.ascape.ui.PanelViewTableBuilder}.
+	 * {@link org.jamsim.ascape.ui.TableBuilder}.
 	 * 
 	 * @param provider
 	 * 			  Provides a panel view of the TableBuilder UI

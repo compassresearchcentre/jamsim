@@ -21,7 +21,7 @@ import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.ascape.r.ScapeRListener;
 import org.jamsim.ascape.ui.AnalysisMenu;
 import org.jamsim.ascape.ui.ScenarioBuilder;
-import org.jamsim.ascape.ui.PanelViewTableBuilder;
+import org.jamsim.ascape.ui.TableBuilder;
 import org.jamsim.ascape.ui.TableBuilderConfig;
 import org.jamsim.ascape.ui.cmd.ScapeRCommand;
 import org.jamsim.ascape.ui.cmd.ScapeRCommandAction;
@@ -192,7 +192,7 @@ public class RootScape<D extends ScapeData> extends Scape {
 
 	public void setupTableBuilder(TableBuilderConfig tableBuilderConfig) {
 
-		PanelViewTableBuilder tableBuilderPanel = new PanelViewTableBuilder(tableBuilderConfig, msscape);
+		TableBuilder tableBuilderPanel = new TableBuilder(tableBuilderConfig, msscape);
 
 		msscape.setCreateTableOptionsPanelView(tableBuilderPanel);
 	}
