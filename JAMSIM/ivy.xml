@@ -48,7 +48,7 @@
         <dependency org="org.javabuilders" name="javabuilder-swing" rev="1.1-RC4" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
         
         <!-- slf4j-log4j12 needed for javabuilders at runtime -->
-        <dependency org="org.slf4j" name="slf4j-log4j12" rev="latest.integration" conf="runtime->runtime(*),master(*)"/>
+        <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.7.5" conf="runtime->runtime(*),master(*)"/>
         
         <dependency org="colt" name="colt" rev="latest.integration" conf="compile->compile(*),master(*);runtime->runtime(*)">
 	        <exclude name="concurrent" />
