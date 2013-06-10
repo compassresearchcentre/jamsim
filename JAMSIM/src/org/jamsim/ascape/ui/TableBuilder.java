@@ -60,8 +60,6 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 
 	private PanelView pv;
 
-	private Map<String, String> scenarioDescriptionToVarname;
-
 	private String scenarioSelection;
 	private String statisticSelection;
 	private String variableSelection;
@@ -104,9 +102,7 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 	 * box models radio buttons and maps used to apply the user's selections.
 	 * Builds the Swing components using the Swing JavaBuilder library.
 	 * 
-	 * @param tableBuilderData
-	 *            A Map of Maps to be used in setting up and applying the user's
-	 *            selection
+	 * @param tableBuilderConfig
 	 * @param scape
 	 *            The scape
 	 */
@@ -115,18 +111,7 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 
 		this.scape = scape;
 		this.dict = scape.getDictionary();
-
-		rInterface = scape.getScapeRInterface();
-
-		scenarioLabel = new JLabel();
-		statisticLabel = new JLabel();
-		variableLabel = new JLabel();
-		subgroupLabel = new JLabel();
-		previewLabel = new JLabel();
-
-		frequenciesButton = new JRadioButton("Percentages");
-		meansButton = new JRadioButton("Means");
-		quintilesButton = new JRadioButton("Quantiles");
+		this.rInterface = scape.getScapeRInterface();
 
 		statisticButtonGroup = new ButtonGroup();
 		statisticButtonGroup.add(frequenciesButton);
@@ -138,7 +123,6 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 		tablePane.setVisible(false);
 
 		variableComboModels = new LinkedHashMap<String, ComboBoxModel>();
-		setupScenarioToRExpression();
 		this.variableComboModels = setupVariableComboModels(tableBuilderConfig);
 		this.subgroupComboBoxModels = createSubgroupComboModels(tableBuilderConfig.getSubgroupsByVariable());
 
@@ -150,7 +134,7 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 	}
 
 	/**
-	 * Sets up the map of combo box models for use in the variable combo box
+	 * Sets up the map of combo box models for use in the variable combo box.
 	 */
 	private Map<String, ComboBoxModel>  setupVariableComboModels(
 			TableBuilderConfig tableBuilderConfig) {
@@ -201,13 +185,14 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 	 * the scenario they wish to examine. Uses the R interface to get a list of
 	 * scenarios currently existing in the R environment
 	 */
-	private void setupScenarioToRExpression() {
+	private void loadScenarioCombo() {
 
-		scenarioDescriptionToVarname = new LinkedHashMap<String, String>();
+		Map<String, String> scenarioDescriptionToVarname = new LinkedHashMap<String, String>();
 		scenarioDescriptionToVarname.put("Base", "Base");
+		
 		try {
 			REXP rexp = scape.getScapeRInterface().eval(
-					"as.list(names(envs)[-length(envs)])");
+					"as.list(scenarioNames())");
 
 			List<REXPString> list = rexp.asList();
 
@@ -215,8 +200,8 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 				scenarioDescriptionToVarname.put(o.asString(), o.asString());
 			}
 
-			scenarioCombo = new JComboBox(scenarioDescriptionToVarname.keySet()
-					.toArray());
+			scenarioCombo.setModel(new DefaultComboBoxModel(scenarioDescriptionToVarname.keySet()
+					.toArray()));
 			scenarioCombo.setSelectedItem("Base");
 			scenarioSelected();
 
@@ -386,6 +371,7 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 	}
 
 	public PanelView getPanelView() {
+		loadScenarioCombo();
 		return pv;
 	}
 

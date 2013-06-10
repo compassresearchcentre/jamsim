@@ -7,9 +7,9 @@ JScrollPane(name=pane, verticalScrollBarPolicy=asNeeded, horizontalScrollBarPoli
         - JComboBox(name=scenarioCombo, onAction=scenarioSelected)
         - JComboBox(name=variableCombo, onAction=variableSelected)
         - JComboBox(name=subgroupCombo, onAction=subgroupSelected)
-        - JRadioButton(name=frequenciesButton, onAction=frequenciesSelected)
-        - JRadioButton(name=meansButton, onAction=meansSelected)
-        - JRadioButton(name=quintilesButton, onAction=quintilesSelected)
+        - JRadioButton(name=frequenciesButton, text=Percentages, onAction=frequenciesSelected)
+        - JRadioButton(name=meansButton, text=Means, onAction=meansSelected)
+        - JRadioButton(name=quintilesButton, text=Quantiles, onAction=quintilesSelected)
         - ButtonGroup: [frequenciesButton, meansButton, quintilesButton]
         - JButton(name=okButton, text=Preview, onAction=okPressed)
         - JButton(name=save, text=Save to Tree, onAction=savePressed)
