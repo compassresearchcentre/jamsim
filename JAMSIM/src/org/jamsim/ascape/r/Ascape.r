@@ -145,10 +145,17 @@ addOutputNodes <- function(xlist, xnames, path = .jnull("java/lang/String")) {
 #' @examples
 #'  
 addTableNode <- function(x, name, parentName, path = .jnull("java/lang/String")) {
-	rdp <- .jnew("org/jamsim/ascape/output/REXPDatasetProvider", name, toJava(x))
-	.jcall(getScapeNode(), "V", "addTableNode", rdp, parentName, path)
+	if (!runningInAscape()) {
+		warning("Not running in Ascape")
+	} else {
+		rdp <- .jnew("org/jamsim/ascape/output/REXPDatasetProvider", name, toJava(x))
+		.jcall(getScapeNode(), "V", "addTableNode", rdp, parentName, path)
+	}
 }
 
+runningInAscape <- function() {
+	existsFunction("JavaGD")
+}
 
 #' Add an object as a node under the "Model Inputs" node.
 #' 
@@ -185,8 +192,12 @@ addInputNode <- function(x, name, path = .jnull("java/lang/String")) {
 #' @examples
 #' x <- xlist[[1]]  
 addOutputNode <- function(x, name, path = .jnull("java/lang/String")) {
-	rdp <- .jnew("org/jamsim/ascape/output/REXPDatasetProvider", name, toJava(x))
-	.jcall(getScapeNode(), "V", "addOutputNode", rdp, path)
+	if (!runningInAscape()) {
+		warning("Not running in Ascape")
+	} else {
+		rdp <- .jnew("org/jamsim/ascape/output/REXPDatasetProvider", name, toJava(x))
+		.jcall(getScapeNode(), "V", "addOutputNode", rdp, path)
+	}
 }
 
 #' Add a graphics device as a node under the  "Graphs" node.
