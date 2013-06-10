@@ -3,47 +3,31 @@ package org.jamsim.ascape.ui;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.prefs.Preferences;
+import java.util.Set;
 
-import javax.swing.ButtonGroup;
-import javax.swing.ButtonModel;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.JTree;
-import javax.swing.table.TableColumn;
-import javax.swing.tree.MutableTreeNode;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.ascape.runtime.swing.navigator.PanelViewProvider;
-import org.ascape.runtime.swing.navigator.PanelViewTable;
 import org.ascape.util.swing.AscapeGUIUtil;
 import org.ascape.util.swing.PanelViewUtil;
 import org.ascape.view.vis.PanelView;
-import org.ascape.model.AscapeObject;
-import org.ascape.model.Agent;
-import org.ascape.runtime.swing.navigator.AgentNode;
 import org.jamsim.ascape.MicroSimScape;
-import org.jamsim.ascape.navigator.MicroSimScapeNode;
-import org.jamsim.ascape.navigator.OutputDatasetNodeProvider;
 import org.jamsim.ascape.weights.CategoricalVarAdjustment;
 import org.jamsim.ascape.weights.WeightCalculator;
 import org.jamsim.io.ParameterSet;
@@ -71,7 +55,7 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 	
 	private final String[] subgroupdescriptions;
 	
-	private Map<String, ComboBoxModel> subgroupoptionsboxes;
+	private Map<String, ComboBoxModel> optionsComboModels;
 	
 	private final MicroSimScape<?> scape;
 
@@ -87,7 +71,7 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 	private final JTextField subgroupbox;
 	private final JComboBox selector;
 	private final JComboBox subgroupselect;
-	private final JComboBox chooseoptions;
+	private final JComboBox optionsCombo;
 	private final JScrollPane yearpane;
 	private JScrollPane baseSimulationResultsPane;
 
@@ -121,7 +105,7 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 		this.subgroupsToOptions = subgroupsToOptions;	
 		subgroupdescriptions = this.subgroupsToOptions.keySet().toArray(
 								new String[subgroupsToOptions.size()]);
-		subgroupoptionsboxes = setupComboBoxModels();		
+		optionsComboModels = setupComboBoxModels();		
 
 		pv = PanelViewUtil.createResizablePanelView("Scenario Builder");
 		pv.setPreferredSize(new Dimension(700,630));
@@ -132,7 +116,7 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 		subgroupbox = new JTextField(20);
 		subgroupselectlabel = new JLabel();
 		subgroupselect = new JComboBox(subgroupdescriptions);
-		chooseoptions = new JComboBox();
+		optionsCombo = new JComboBox();
 		optionslabel = new JLabel();
 		scenarioproportionslabel = new JLabel();
 		basesimulationresultslabel = new JLabel();	
@@ -229,7 +213,7 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 		
 		currentselection = subgroupsToOptions.get(subgroupselect.getSelectedItem())
 											 .getSubExpressions()
-											 .get(chooseoptions.getSelectedItem().toString())
+											 .get(optionsCombo.getSelectedItem().toString())
 											 .getRExpression();
 
 		updateSubgroupFormula(currentselection);
@@ -258,7 +242,7 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 	 */
 	@SuppressWarnings("unchecked")
 	private void changeOptions(String optiontype){
-		chooseoptions.setModel(subgroupoptionsboxes.get(optiontype));
+		optionsCombo.setModel(optionsComboModels.get(optiontype));
 	}
 
 	@Override
@@ -332,17 +316,19 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 	 * 			Map
 	 */
 	@SuppressWarnings("unchecked")
-	private Map<String, ComboBoxModel> setupComboBoxModels(){
-		
-		subgroupoptionsboxes = new LinkedHashMap<String, ComboBoxModel>();
-		
-		for(String element : subgroupsToOptions.keySet()){
+	private Map<String, ComboBoxModel> setupComboBoxModels() {
+
+		Map<String, ComboBoxModel> optionsComboModels = new LinkedHashMap<String, ComboBoxModel>();
+
+		for (String element : subgroupsToOptions.keySet()) {
+				
+			Set<String> subExpresssions = subgroupsToOptions.get(element).getSubExpressions().keySet();
 			
-			subgroupoptionsboxes.put(subgroupsToOptions.get(element).rExpression, 
-									 new DefaultComboBoxModel(subgroupsToOptions.get(element).getSubExpressions().keySet().toArray()));
-			}		
-		
-		return subgroupoptionsboxes;
+			optionsComboModels.put(subgroupsToOptions.get(element).rExpression, new DefaultComboBoxModel(
+					subExpresssions.toArray()));
+		}
+
+		return optionsComboModels;
 	}
 
 	@SuppressWarnings("unused")
