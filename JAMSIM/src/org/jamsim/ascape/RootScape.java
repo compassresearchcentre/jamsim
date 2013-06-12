@@ -219,7 +219,7 @@ public class RootScape<D extends ScapeData> extends Scape {
 
 		WeightCalculator wcalc;
 
-		if (wcalcName.equals("")) {
+		if (wcalcName.equals("") ||  wcalcsvarmaps.get(wcalcName) == null) {
 			wcalc = wcalcsvarmaps.values().iterator().next().values()
 					.toArray(new WeightCalculator[0])[0];
 		}
