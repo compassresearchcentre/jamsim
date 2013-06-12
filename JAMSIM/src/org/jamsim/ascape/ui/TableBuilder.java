@@ -62,10 +62,16 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 
 	private String scenarioSelection;
 	private String statisticSelection;
+	private String statisticSelectionLabel;
 	private String variableSelection;
 	private String subgroupSelection;
 
-	private String[] summaryMeasures = new String[] {"Frequencies", "Means", "Quintiles"};
+	private String FREQS = "Frequencies";
+	private String MEANS = "Means";
+	private String QUINTILES = "Quintiles";
+	
+	private String[] summaryMeasuresLabels = new String[] {"Percentages", "Means", "Quantiles"};
+	private String[] summaryMeasures = new String[] {FREQS, MEANS, QUINTILES};
 
 	private JLabel scenarioLabel;
 	private JLabel statisticLabel;
@@ -149,11 +155,11 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 		Collections.sort(meanVars);
 		Collections.sort(quintileVars);
 		
-		comboBoxModels.put("Frequencies",
+		comboBoxModels.put(FREQS,
 				new DefaultComboBoxModel(freqVars.toArray()));
-		comboBoxModels.put("Means",
+		comboBoxModels.put(MEANS,
 				new DefaultComboBoxModel(meanVars.toArray()));
-		comboBoxModels.put("Quintiles",
+		comboBoxModels.put(QUINTILES,
 				new DefaultComboBoxModel(quintileVars.toArray()));
 		
 		return comboBoxModels;
@@ -276,6 +282,7 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 	 */
 	public void summaryMeasureChanged(int indexOfStatisticNames) {
 		statisticSelection = summaryMeasures[indexOfStatisticNames];
+		statisticSelectionLabel = summaryMeasuresLabels[indexOfStatisticNames];
 		variableCombo.setModel(variableComboModels.get(statisticSelection));
 		variableCombo.setSelectedIndex(0);
 	}
@@ -318,13 +325,13 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 	 */
 	private String buildStoreOnLoadExpression() {
 
-		String expr = "\"addLazyTableNode('tableBuilder('" + scenarioSelection
+		String expr = "\"addLazyTableNode(\\\"tableBuilder('" + scenarioSelection
 				+ "', '" + statisticSelection + "', '"
 				+ lookupVarname(variableSelection) + "', '"
 				+ lookupVarname(subgroupSelection)
-				+ "')', '" + variableSelection + " by " + subgroupSelection
-				+ " - " + scenarioSelection + "', " + "'nameOfParentNode', "
-				+ "'path')\"";
+				+ "')\\\", '" + variableSelection + " by " + subgroupSelection
+				+ " - " + scenarioSelection + "', " + "'Output Tables', "
+				+ "'" + navigatorPathForCurrentSelection() + "')\"";
 
 		return expr;
 	}
@@ -365,9 +372,13 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 			}
 
 			scape.getScapeNode().addOutputNodeFromTableBuilder(dsProvider,
-					"User/" + scenarioSelection + "/" + statisticSelection);
+					navigatorPathForCurrentSelection());
 			dsProvider = null;
 		}
+	}
+	
+	private String navigatorPathForCurrentSelection() {
+		return "User/" + scenarioSelection + "/" + statisticSelectionLabel;
 	}
 
 	public PanelView getPanelView() {
