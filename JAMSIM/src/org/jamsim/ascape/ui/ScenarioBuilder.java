@@ -7,9 +7,9 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
@@ -46,6 +46,8 @@ import org.javabuilders.swing.SwingJavaBuilder;
  * @version $Revision$
  */
 public class ScenarioBuilder implements PanelViewProvider, ActionListener {
+
+	private static final String NONE = "None";
 
 	private final Map<String, Map<String, WeightCalculator>> allvariablesweightcalcs;
 
@@ -117,6 +119,7 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 		subgroupselectlabel = new JLabel();
 		subgroupselect = new JComboBox(subgroupdescriptions);
 		optionsCombo = new JComboBox();
+		optionsCombo.setModel(optionsComboModels.get(""));	//start with list of options for the "none" subgroup
 		optionslabel = new JLabel();
 		scenarioproportionslabel = new JLabel();
 		basesimulationresultslabel = new JLabel();	
@@ -210,14 +213,15 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 	 * Updates the subgroup formula.
 	 */
 	private void optionSelected(){
-		
-		currentselection = subgroupsToOptions.get(subgroupselect.getSelectedItem())
-											 .getSubExpressions()
-											 .get(optionsCombo.getSelectedItem().toString())
-											 .getRExpression();
+		if (!optionsCombo.getSelectedItem().toString().equals(NONE)) {
+			currentselection = subgroupsToOptions.get(subgroupselect.getSelectedItem())
+					 .getSubExpressions()
+					 .get(optionsCombo.getSelectedItem().toString())
+					 .getRExpression();
 
-		updateSubgroupFormula(currentselection);
-		subgroupbox.requestFocus();
+			updateSubgroupFormula(currentselection);
+			subgroupbox.requestFocus();
+		}
 	}
 	
 	/**
@@ -322,10 +326,13 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 
 		for (String element : subgroupsToOptions.keySet()) {
 				
-			Set<String> subExpresssions = subgroupsToOptions.get(element).getSubExpressions().keySet();
+			LinkedHashSet<String> subExpressions = new LinkedHashSet();
+			
+			subExpressions.add(NONE);
+			subExpressions.addAll(subgroupsToOptions.get(element).getSubExpressions().keySet());
 			
 			optionsComboModels.put(subgroupsToOptions.get(element).rExpression, new DefaultComboBoxModel(
-					subExpresssions.toArray()));
+					subExpressions.toArray()));
 		}
 
 		return optionsComboModels;
