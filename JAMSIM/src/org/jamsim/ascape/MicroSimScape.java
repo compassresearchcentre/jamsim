@@ -482,9 +482,13 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	private void addTableBuilderButton(PanelViewProvider provider){
 		// create action
 		PanelViewAction createTableAction = new PanelViewAction(provider,
-				"Create Table", "Create Table");
+				"Table Builder", "Table Builder");
 		
-		createTableAction.putValue(Action.SMALL_ICON, createImageIcon("tableicon.gif", "a table icon"));
+		//createTableAction.putValue(Action.SMALL_ICON, createImageIcon("tableicon.gif", "a table icon"));
+		
+		createTableAction.putValue(Action.SMALL_ICON,
+				DesktopEnvironment.getIcon("Sheet"));
+		
 		
 		// add button to toolbar
 		AscapeGUIUtil.addAdditionalBarButton(createTableAction);
