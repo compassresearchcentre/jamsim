@@ -8,7 +8,7 @@ JScrollPane(name=pane, verticalScrollBarPolicy=asNeeded, horizontalScrollBarPoli
         - JLabel(name=basesimulationresultslabel, text=Base Simulation Preview for Current Subset)
         - JComboBox(name=selector, onAction=selectorChanged)
         - JComboBox(name=subgroupselect, onAction=subgroupSelected)
-        - JComboBox(name=chooseoptions, onAction=optionSelected)
+        - JComboBox(name=optionsCombo, onAction=optionSelected)
         - JTextField(name=subgroupbox)
         - JScrollPane(name=yearpane)
         - JScrollPane(name=baseSimulationResultsPane)
@@ -26,7 +26,7 @@ JScrollPane(name=pane, verticalScrollBarPolicy=asNeeded, horizontalScrollBarPoli
             subgroupselectlabel=1 
             subgroupselect+*=1      
             optionslabel
-            chooseoptions+*=1             and=3,or=3
+            optionsCombo+*=1             and=3,or=3
             subgrouplabel                 >leftBracket=3,rightBracket=3
             subgroupbox+*=1               set=3,clear=3
             selectlabel=1         
