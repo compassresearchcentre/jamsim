@@ -8,11 +8,14 @@ import java.util.Map;
 import java.util.Observer;
 import java.util.prefs.Preferences;
 
+import javax.swing.Action;
+
 import org.apache.commons.lang.mutable.MutableInt;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ascape.model.Agent;
 import org.ascape.model.Scape;
+import org.ascape.model.event.ControlEvent;
 import org.ascape.model.space.ListSpace;
 import org.ascape.model.space.SpatialTemporalException;
 import org.ascape.util.swing.AscapeGUIUtil;
@@ -85,6 +88,10 @@ public class RootScape<D extends ScapeData> extends Scape {
 		this.numberRuns.setValue(numRuns);
 	}
 
+	public void start() {
+		respondControl(new ControlEvent(this, ControlEvent.REQUEST_START));
+	}
+	
 	@Override
 	public void createScape() {
 		super.createScape();
@@ -363,6 +370,9 @@ public class RootScape<D extends ScapeData> extends Scape {
 				command));
 	}
 
+	public void addAnalysisMenuAction(Action action) {
+		AnalysisMenu.INSTANCE.addMenuItem(action);
+	}
 	/**
 	 * Remove all commands from the Analysis menu.
 	 */

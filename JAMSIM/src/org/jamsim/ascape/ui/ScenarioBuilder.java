@@ -28,6 +28,7 @@ import org.ascape.util.swing.AscapeGUIUtil;
 import org.ascape.util.swing.PanelViewUtil;
 import org.ascape.view.vis.PanelView;
 import org.jamsim.ascape.MicroSimScape;
+import org.jamsim.ascape.RootScape;
 import org.jamsim.ascape.weights.CategoricalVarAdjustment;
 import org.jamsim.ascape.weights.WeightCalculator;
 import org.jamsim.io.ParameterSet;
@@ -48,6 +49,10 @@ import org.javabuilders.swing.SwingJavaBuilder;
 public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 
 	private static final String NONE = "None";
+
+	private static final String[] RUNS_COMBO_ITEMS = new String[] { "2 runs",
+			"3 runs", "4 runs", "5 runs", "6 runs", "7 runs", "8 runs",
+			"9 runs", "10 runs" };
 
 	private final Map<String, Map<String, WeightCalculator>> allvariablesweightcalcs;
 
@@ -74,6 +79,7 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 	private final JComboBox selector;
 	private final JComboBox subgroupselect;
 	private final JComboBox optionsCombo;
+	private final JComboBox runsCombo;
 	private final JScrollPane yearpane;
 	private JScrollPane baseSimulationResultsPane;
 
@@ -110,7 +116,7 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 		optionsComboModels = setupComboBoxModels();		
 
 		pv = PanelViewUtil.createResizablePanelView("Scenario Builder");
-		pv.setPreferredSize(new Dimension(700,630));
+		pv.setPreferredSize(new Dimension(700,693));
 
 		selectlabel = new JLabel();
 		selector = new JComboBox(wcalcvarnames);
@@ -118,6 +124,8 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 		subgroupbox = new JTextField(20);
 		subgroupselectlabel = new JLabel();
 		subgroupselect = new JComboBox(subgroupdescriptions);
+		runsCombo = new JComboBox(RUNS_COMBO_ITEMS);
+		
 		optionsCombo = new JComboBox();
 		optionsCombo.setModel(optionsComboModels.get(""));	//start with list of options for the "none" subgroup
 		optionslabel = new JLabel();
@@ -125,6 +133,7 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 		basesimulationresultslabel = new JLabel();	
 		yearpane = new JScrollPane();
 		baseSimulationResultsPane = new JScrollPane();
+
 
 		BuildResult uiElements = SwingJavaBuilder.build(this);
 		pv.add((Component) uiElements.get("pane"));
@@ -167,13 +176,13 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 		subgroupbox.requestFocus();
 	}
 	
-	private void addRightBracket(){
-		updateSubgroupFormula(")");
+	private void andPressed(){
+		updateSubgroupFormula("&");
 		subgroupbox.requestFocus();
 	}
 	
-	private void andPressed(){
-		updateSubgroupFormula("&");
+	private void addRightBracket(){
+		updateSubgroupFormula(")");
 		subgroupbox.requestFocus();
 	}
 	
@@ -182,6 +191,86 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 		subgroupbox.requestFocus();
 	}
 	
+	private void bsPressed(){
+		subgroupbox.setText(subgroupbox.getText().substring(0, subgroupbox.getText().length()-1));
+		subgroupbox.requestFocus();
+	}
+	
+	private void lePressed(){
+		updateSubgroupFormula("<=");
+		subgroupbox.requestFocus();
+	}
+	
+	private void ltPressed(){
+		updateSubgroupFormula("<");
+		subgroupbox.requestFocus();
+	}
+	
+	private void gePressed(){
+		updateSubgroupFormula(">=");
+		subgroupbox.requestFocus();
+	}
+	
+	private void gtPressed(){
+		updateSubgroupFormula(">");
+		subgroupbox.requestFocus();
+	}
+	
+	private void eqPressed(){
+		updateSubgroupFormula("==");
+		subgroupbox.requestFocus();
+	}
+	
+	private void zeroPressed(){
+		updateSubgroupFormula("0");
+		subgroupbox.requestFocus();
+	}
+	
+	private void onePressed(){
+		updateSubgroupFormula("1");
+		subgroupbox.requestFocus();
+	}
+	
+	private void twoPressed(){
+		updateSubgroupFormula("2");
+		subgroupbox.requestFocus();
+	}
+	
+	private void threePressed(){
+		updateSubgroupFormula("3");
+		subgroupbox.requestFocus();
+	}
+	
+	private void fourPressed(){
+		updateSubgroupFormula("4");
+		subgroupbox.requestFocus();
+	}
+	
+	private void fivePressed(){
+		updateSubgroupFormula("5");
+		subgroupbox.requestFocus();
+	}
+	
+	private void sixPressed(){
+		updateSubgroupFormula("6");
+		subgroupbox.requestFocus();
+	}
+	
+	private void sevenPressed(){
+		updateSubgroupFormula("7");
+		subgroupbox.requestFocus();
+	}
+	
+	private void eightPressed(){
+		updateSubgroupFormula("8");
+		subgroupbox.requestFocus();
+	}
+	
+	private void ninePressed(){
+		updateSubgroupFormula("9");
+		subgroupbox.requestFocus();
+	}
+
 	/**
 	 * Gets the variable selected by the user. Gets the Weight Calculator corresponding to that variable.
 	 * Uses the subgroup formula built by the user to update the table panes accordingly
@@ -343,6 +432,12 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 		doUpdate("Scenario set.");
 	}
 
+	private void run() {
+		int numberRuns = runsCombo.getSelectedIndex()+2;
+		RootScape rootScape = (RootScape) scape.getRoot();
+		rootScape.setNumberRuns(numberRuns);
+		rootScape.start();
+	}
 	/**
 	 * Updates the current variable based on the changes made by the user.
 	 * The next time a scenario is simulated it will be based on these changes.

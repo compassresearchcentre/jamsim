@@ -270,11 +270,9 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 			// Add navigator node
 			getScapeNode().addParameterSetNode(wcalcPanel);
 
-			// Add weightings button to additional toolbar
-			addScenarioButton(wcalcPanel);
-			
-			// Add table builder button to additional toolbar
-			addTableBuilderButton(createTablePanel);
+			addScenarioBuilderMenuItem(wcalcPanel);
+
+			addTableBuilderMenuItem(createTablePanel);
 		}
 	}
 
@@ -457,41 +455,39 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	}
 
 	/**
-	 * Add a "Scenario" button to the additional tool bar that displays
+	 * Add a "Scenario" button to the Analysis menu that displays
 	 * the provided {@link PanelViewProvider}.
 	 * 
 	 */
-	private void addScenarioButton(PanelViewProvider provider) {
+	private void addScenarioBuilderMenuItem(PanelViewProvider wcalcPanel) {
 		// create action
-		PanelViewAction action = new PanelViewAction(provider,
-				"Scenarios", "Scenarios");
+		PanelViewAction action = new PanelViewAction(wcalcPanel,
+				"Scenario Builder", "Scenario Builder");
 		action.putValue(Action.SMALL_ICON,
 				DesktopEnvironment.getIcon("Scales"));
-
-		// add button to toolbar
-		AscapeGUIUtil.addAdditionalBarButton(action);
+		
+		((RootScape)this.getRoot()).addAnalysisMenuAction(action);
 	}
 	
 	/**
-	 * Add a "Table" button to the additional tool bar that displays a
+	 * Add a "Table" menu item to the Analysis menu that displays a
 	 * {@link org.jamsim.ascape.ui.TableBuilder}.
 	 * 
 	 * @param provider
 	 * 			  Provides a panel view of the TableBuilder UI
 	 */
-	private void addTableBuilderButton(PanelViewProvider provider){
+	private void addTableBuilderMenuItem(PanelViewProvider provider){
 		// create action
-		PanelViewAction createTableAction = new PanelViewAction(provider,
+		PanelViewAction tbAction = new PanelViewAction(provider,
 				"Table Builder", "Table Builder");
 		
 		//createTableAction.putValue(Action.SMALL_ICON, createImageIcon("tableicon.gif", "a table icon"));
 		
-		createTableAction.putValue(Action.SMALL_ICON,
+		tbAction.putValue(Action.SMALL_ICON,
 				DesktopEnvironment.getIcon("Sheet"));
 		
-		
-		// add button to toolbar
-		AscapeGUIUtil.addAdditionalBarButton(createTableAction);
+		((RootScape)this.getRoot()).addAnalysisMenuAction(tbAction);
+
 	}
 	
 	/**

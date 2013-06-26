@@ -1,34 +1,52 @@
 JScrollPane(name=pane, verticalScrollBarPolicy=asNeeded, horizontalScrollBarPolicy=asNeeded):    
     JPanel(name=panel):
-        - JLabel(name=subgrouplabel, text=Subgroup formula)
-        - JLabel(name=selectlabel, text=Variable)
-        - JLabel(name=optionslabel, text=Options)
-        - JLabel(name=subgroupselectlabel, text=Select subgroup)
-        - JLabel(name=scenarioproportionslabel, text=Scenario Proportions)
-        - JLabel(name=basesimulationresultslabel, text=Base Simulation Preview for Current Subset)
+        - JLabel(name=subgrouplabel, text=Subgroup Formula)
+        - JLabel(name=selectlabel, text=Select Variable to Examine)
+        - JLabel(name=optionslabel, text=Select Options)
+        - JLabel(name=subgroupselectlabel, text=Select Subgroup Variable for your Scenario)
+        - JLabel(name=scenarioproportionslabel, text=Adjust Proportions for your Scenario)
+        - JLabel(name=basesimulationresultslabel, text=Preview Base Simulation Results for the Current Subgroup)
         - JComboBox(name=selector, onAction=selectorChanged)
         - JComboBox(name=subgroupselect, onAction=subgroupSelected)
         - JComboBox(name=optionsCombo, onAction=optionSelected)
+        - JComboBox(name=runsCombo)
         - JTextField(name=subgroupbox)
         - JScrollPane(name=yearpane)
         - JScrollPane(name=baseSimulationResultsPane)
-        - JButton(name=update, text=Set, onAction=update)
-        - JButton(name=reset, text=Unset, onAction=reset)
-        - JButton(name=set, text=Preview, onAction=setFormula)
-        - JButton(name=clear, text=Clear, onAction=clearFormula)
-        - JButton(name=and, text=AND, onAction=andPressed)
-        - JButton(name=or, text=OR, onAction=orPressed)
+        - JButton(name=update, text=Apply Changes, onAction=update)
+        - JButton(name=reset, text=Reset Variable, onAction=reset)
+        - JButton(name=run, text=Run Scenario, onAction=run)
+        - JButton(name=set, text=Preview Base, onAction=setFormula)
+        - JButton(name=clear, text=Clear Formula, onAction=clearFormula)
         - JButton(name=leftBracket, text="\x28", onAction=addLeftBracket)
+        - JButton(name=and, text=And, onAction=andPressed)
+        - JButton(name=or, text=Or, onAction=orPressed)
         - JButton(name=rightBracket, text="\x29", onAction=addRightBracket)
+        - JButton(name=bs, text=Del, onAction=bsPressed)
+        - JButton(name=lt, text="\u003c", onAction=ltPressed)
+        - JButton(name=le, text="\u2264", onAction=lePressed)
+        - JButton(name=eq, text="\u003d", onAction=eqPressed)
+        - JButton(name=ge, text="\u2265", onAction=gePressed)
+        - JButton(name=gt, text="\u003e", onAction=gtPressed)
+        - JButton(name=zero, text=0, onAction=zeroPressed)
+        - JButton(name=one, text=1, onAction=onePressed)
+        - JButton(name=two, text=2, onAction=twoPressed)
+        - JButton(name=three, text=3, onAction=threePressed)
+        - JButton(name=four, text=4, onAction=fourPressed)
+        - JButton(name=five, text=5, onAction=fivePressed)
+        - JButton(name=six, text=6, onAction=sixPressed)
+        - JButton(name=seven, text=7, onAction=sevenPressed)
+        - JButton(name=eight, text=8, onAction=eightPressed)
+        - JButton(name=nine, text=9, onAction=ninePressed)
         - MigLayout: |
-            [grow]
+            [grow]                        [grow]
             [grow, shrink]                [grow, shrink]
             subgroupselectlabel=1 
-            subgroupselect+*=1      
-            optionslabel
-            optionsCombo+*=1             and=3,or=3
-            subgrouplabel                 >leftBracket=3,rightBracket=3
-            subgroupbox+*=1               set=3,clear=3
+            subgroupselect+*=1            >leftBracket=5,rightBracket=5,and=5,or=5,bs=5
+            optionslabel                  >le=5,ge=5,seven=5,eight=5,nine=5
+            optionsCombo+*=1              >lt=5,gt=5,four=5,five=5,six=5
+            subgrouplabel                 >eq=5,zero=5,one=5,two=5,three=5
+            subgroupbox+*=1               >set=3,clear=3
             selectlabel=1         
             selector+*=1
             scenarioproportionslabel=1    
@@ -36,3 +54,4 @@ JScrollPane(name=pane, verticalScrollBarPolicy=asNeeded, horizontalScrollBarPoli
                                           >update=3,reset=3
             basesimulationresultslabel
             baseSimulationResultsPane+*   [grow, shrink, bottom]
+                                          >run,runsCombo
