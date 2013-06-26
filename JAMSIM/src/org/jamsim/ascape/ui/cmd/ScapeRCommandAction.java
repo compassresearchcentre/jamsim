@@ -10,7 +10,7 @@ import javax.swing.JPanel;
 
 import org.ascape.util.swing.AscapeGUIUtil;
 import org.jamsim.ascape.r.ScapeRInterface;
-import org.jamsim.ascape.ui.AnalysisMenu;
+import org.jamsim.ascape.ui.ToolsMenu;
 
 /**
  * Action that opens a {@link ScapeRCommandPanel} displaying the specified
@@ -56,7 +56,7 @@ public class ScapeRCommandAction extends AbstractAction {
 	private void openRUICommandWindow() throws IOException {
 		JDialog diag = new JDialog(AscapeGUIUtil.getUserFrame());
 		diag.setTitle(rCmd.getName());
-		diag.setLocationRelativeTo(AnalysisMenu.INSTANCE.getJMenu());
+		diag.setLocationRelativeTo(ToolsMenu.INSTANCE.getJMenu());
 
 		JPanel panel = new ScapeRCommandPanel(scapeR, diag, rCmd);
 		diag.add(panel);

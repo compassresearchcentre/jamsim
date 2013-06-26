@@ -17,7 +17,7 @@ import org.ascape.util.swing.AscapeGUIUtil;
  * @version $Revision$
  * 
  */
-public enum AnalysisMenu {
+public enum ToolsMenu {
 
 	/**
 	 * Singleton instance.
@@ -26,6 +26,14 @@ public enum AnalysisMenu {
 
 	private JMenu menu;
 
+	public JMenu getMenu() {
+		return menu;
+	}
+
+	public void setMenu(JMenu menu) {
+		this.menu = menu;
+	}
+
 	/**
 	 * Add the Analysis menu to the menu bar.
 	 * 
@@ -33,7 +41,7 @@ public enum AnalysisMenu {
 	 *            scape
 	 */
 	private void addMenu() {
-		menu = new JMenu("Analysis");
+		menu = new JMenu("Tools");
 		menu.setMnemonic(KeyEvent.VK_A);
 
 		AscapeGUIUtil.addMenu(menu);

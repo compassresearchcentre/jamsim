@@ -2,8 +2,6 @@ package org.jamsim.ascape;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Observer;
 import java.util.prefs.Preferences;
@@ -22,7 +20,7 @@ import org.ascape.util.swing.AscapeGUIUtil;
 import org.jamsim.ascape.output.OutputDatasetDefs;
 import org.jamsim.ascape.r.ScapeRInterface;
 import org.jamsim.ascape.r.ScapeRListener;
-import org.jamsim.ascape.ui.AnalysisMenu;
+import org.jamsim.ascape.ui.ToolsMenu;
 import org.jamsim.ascape.ui.ScenarioBuilder;
 import org.jamsim.ascape.ui.TableBuilder;
 import org.jamsim.ascape.ui.TableBuilderConfig;
@@ -365,19 +363,19 @@ public class RootScape<D extends ScapeData> extends Scape {
 	 * @param command
 	 *            command
 	 */
-	public void addAnalysisMenuCommand(ScapeRCommand command) {
-		AnalysisMenu.INSTANCE.addMenuItem(new ScapeRCommandAction(scapeR,
+	public void addToolsMenuCommand(ScapeRCommand command) {
+		ToolsMenu.INSTANCE.addMenuItem(new ScapeRCommandAction(scapeR,
 				command));
 	}
 
-	public void addAnalysisMenuAction(Action action) {
-		AnalysisMenu.INSTANCE.addMenuItem(action);
+	public void addToolsMenuAction(Action action) {
+		ToolsMenu.INSTANCE.addMenuItem(action);
 	}
 	/**
 	 * Remove all commands from the Analysis menu.
 	 */
-	public void removeAllAnalysisMenuCommands() {
-		AnalysisMenu.INSTANCE.removeAll();
+	public void removeAllToolsMenuCommands() {
+		ToolsMenu.INSTANCE.removeAll();
 	}
 
 	/**

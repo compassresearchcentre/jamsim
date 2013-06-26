@@ -466,7 +466,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		action.putValue(Action.SMALL_ICON,
 				DesktopEnvironment.getIcon("Scales"));
 		
-		((RootScape)this.getRoot()).addAnalysisMenuAction(action);
+		((RootScape)this.getRoot()).addToolsMenuAction(action);
 	}
 	
 	/**
@@ -486,7 +486,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		tbAction.putValue(Action.SMALL_ICON,
 				DesktopEnvironment.getIcon("Sheet"));
 		
-		((RootScape)this.getRoot()).addAnalysisMenuAction(tbAction);
+		((RootScape)this.getRoot()).addToolsMenuAction(tbAction);
 
 	}
 	

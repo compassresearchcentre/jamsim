@@ -50,7 +50,7 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 
 	private static final String NONE = "None";
 
-	private static final String[] RUNS_COMBO_ITEMS = new String[] { "2 runs",
+	private static final String[] RUNS_COMBO_ITEMS = new String[] { "1 run", "2 runs",
 			"3 runs", "4 runs", "5 runs", "6 runs", "7 runs", "8 runs",
 			"9 runs", "10 runs" };
 
@@ -125,6 +125,7 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 		subgroupselectlabel = new JLabel();
 		subgroupselect = new JComboBox(subgroupdescriptions);
 		runsCombo = new JComboBox(RUNS_COMBO_ITEMS);
+		runsCombo.setSelectedIndex(1);
 		
 		optionsCombo = new JComboBox();
 		optionsCombo.setModel(optionsComboModels.get(""));	//start with list of options for the "none" subgroup
@@ -433,7 +434,7 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 	}
 
 	private void run() {
-		int numberRuns = runsCombo.getSelectedIndex()+2;
+		int numberRuns = runsCombo.getSelectedIndex()+1;
 		RootScape rootScape = (RootScape) scape.getRoot();
 		rootScape.setNumberRuns(numberRuns);
 		rootScape.start();

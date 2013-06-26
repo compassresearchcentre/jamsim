@@ -79,8 +79,8 @@ public class JEMScape extends RootScape<JEMData> {
 				"expandPeople()");
 
 		// remove from previous sim (if any)
-		removeAllAnalysisMenuCommands();
-		addAnalysisMenuCommand(VIEW_OBJECTS);
+		removeAllToolsMenuCommands();
+		addToolsMenuCommand(VIEW_OBJECTS);
 
 		super.createGraphicViews();
 	}
