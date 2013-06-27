@@ -1,5 +1,7 @@
 package org.jamsim.ascape;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -9,6 +11,7 @@ import java.util.prefs.Preferences;
 
 import javax.swing.Action;
 import javax.swing.ImageIcon;
+import javax.swing.KeyStroke;
 
 import net.casper.data.model.CDataCacheContainer;
 import net.casper.data.model.CDataGridException;
@@ -465,6 +468,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 				"Scenario Builder", "Scenario Builder");
 		action.putValue(Action.SMALL_ICON,
 				DesktopEnvironment.getIcon("Scales"));
+		action.putValue(Action.ACCELERATOR_KEY,KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.CTRL_MASK));
 		
 		((RootScape)this.getRoot()).addToolsMenuAction(action);
 	}
@@ -485,6 +489,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 		
 		tbAction.putValue(Action.SMALL_ICON,
 				DesktopEnvironment.getIcon("Sheet"));
+		tbAction.putValue(Action.ACCELERATOR_KEY,KeyStroke.getKeyStroke(KeyEvent.VK_T, ActionEvent.CTRL_MASK));
 		
 		((RootScape)this.getRoot()).addToolsMenuAction(tbAction);
 

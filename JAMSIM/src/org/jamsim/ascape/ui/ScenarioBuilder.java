@@ -74,8 +74,10 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 	private final JLabel optionslabel;
 	private final JLabel scenarioproportionslabel;
 	private final JLabel basesimulationresultslabel;
+	private final JLabel namelabel;
 	
 	private final JTextField subgroupbox;
+	private final JTextField namebox;
 	private final JComboBox selector;
 	private final JComboBox subgroupselect;
 	private final JComboBox optionsCombo;
@@ -126,6 +128,8 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 		subgroupselect = new JComboBox(subgroupdescriptions);
 		runsCombo = new JComboBox(RUNS_COMBO_ITEMS);
 		runsCombo.setSelectedIndex(1);
+		namebox = new JTextField(10);
+		namelabel = new JLabel();
 		
 		optionsCombo = new JComboBox();
 		optionsCombo.setModel(optionsComboModels.get(""));	//start with list of options for the "none" subgroup

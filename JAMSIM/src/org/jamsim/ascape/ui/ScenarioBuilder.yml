@@ -11,6 +11,8 @@ JScrollPane(name=pane, verticalScrollBarPolicy=asNeeded, horizontalScrollBarPoli
         - JComboBox(name=optionsCombo, onAction=optionSelected)
         - JComboBox(name=runsCombo)
         - JTextField(name=subgroupbox)
+        - JLabel(name=namelabel, text=Name your Scenario)
+        - JTextField(name=namebox)
         - JScrollPane(name=yearpane)
         - JScrollPane(name=baseSimulationResultsPane)
         - JButton(name=update, text=Apply Changes, onAction=update)
@@ -54,4 +56,4 @@ JScrollPane(name=pane, verticalScrollBarPolicy=asNeeded, horizontalScrollBarPoli
                                           >update=3,reset=3
             basesimulationresultslabel
             baseSimulationResultsPane+*   [grow, shrink, bottom]
-                                          >run,runsCombo
+            namelabel,namebox             >runsCombo,run=3
