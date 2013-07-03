@@ -96,7 +96,7 @@ public class MicroSimScapeNode extends DefaultMutableTreeNode {
 
 		treeModel = treeBuilder.getTreeModel();
 
-		addDatasetNodes(scape, treeModel);
+		//addDatasetNodes(scape, treeModel);
 		addParameterSetNodes(scape);
 
 		// create the Output Tables node
