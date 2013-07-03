@@ -3,9 +3,7 @@ package org.jamsim.ascape.navigator;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.JButton;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -24,14 +22,13 @@ import org.jamsim.ascape.output.REXPDatasetProvider;
 import org.jamsim.ascape.output.ROutput;
 import org.jamsim.ascape.output.Saveable;
 import org.jamsim.ascape.r.PanelViewDatasetProvider;
+import org.jamsim.ascape.r.PanelViewJGraphicsDevice;
 import org.jamsim.ascape.r.PanelViewLazyDatasetProvider;
 import org.jamsim.ascape.r.PanelViewRTextCommand;
-import org.jamsim.ascape.r.PanelViewJGraphicsDevice;
 import org.jamsim.ascape.ui.PanelViewParameterSet;
 import org.jamsim.ascape.ui.UIUtil;
 import org.jamsim.io.ParameterSet;
-import org.omancode.r.RFaceException;
-import org.rosuda.REngine.REXP;
+import org.rosuda.javaGD.JavaGD;
 
 /**
  * Navigator tree node for a {@link MicroSimScape}. Same as {@link ScapeNode}
@@ -46,7 +43,7 @@ import org.rosuda.REngine.REXP;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class MicroSimScapeNode extends ScapeNode {
+public class MicroSimScapeNode extends DefaultMutableTreeNode {
 
 	/**
 	 * 
@@ -93,7 +90,7 @@ public class MicroSimScapeNode extends ScapeNode {
 	 *            tree builder
 	 */
 	public MicroSimScapeNode(MicroSimScape<?> scape, TreeBuilder treeBuilder) {
-		super(scape, treeBuilder);
+		super(scape);
 
 		this.scape = scape;
 
