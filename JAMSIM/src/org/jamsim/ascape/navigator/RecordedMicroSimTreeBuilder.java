@@ -6,11 +6,10 @@ import java.util.Map;
 import javax.swing.tree.MutableTreeNode;
 
 import org.ascape.model.AscapeObject;
-import org.ascape.runtime.swing.navigator.TreeBuilder;
 
 /**
- * {@link TreeBuilder} that records nodes created so they can be fetched
- * afterwards.
+ * {@link org.ascape.runtime.swing.navigator.TreeBuilder} that records nodes 
+ * created so they can be fetched afterwards.
  * <p>
  * NB: Must be a subclass of the recorded TreeBuilder, rather than a wrapper,
  * because created nodes may use the TreeBuilder they are built by, which would
