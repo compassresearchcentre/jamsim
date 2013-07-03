@@ -441,8 +441,19 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 		int numberRuns = runsCombo.getSelectedIndex()+1;
 		RootScape rootScape = (RootScape) scape.getRoot();
 		rootScape.setNumberRuns(numberRuns);
+		setScenarioNameIfPresent();
 		rootScape.start();
 	}
+	
+	
+	private void setScenarioNameIfPresent() {
+		String scenarioName = namebox.getText();
+		if (!"".equals(scenarioName)) {
+			scape.getScapeRInterface().parseEvalPrint("env.scenario$name <- '" + scenarioName + "'");
+			namebox.setText("");
+		}
+	}
+	
 	/**
 	 * Updates the current variable based on the changes made by the user.
 	 * The next time a scenario is simulated it will be based on these changes.
