@@ -449,7 +449,7 @@ public class ScenarioBuilder implements PanelViewProvider, ActionListener {
 	private void setScenarioNameIfPresent() {
 		String scenarioName = namebox.getText();
 		if (!"".equals(scenarioName)) {
-			scape.getScapeRInterface().parseEvalPrint("env.scenario$name <- '" + scenarioName + "'");
+			scape.getScapeRInterface().parseEvalPrint("setCurrentScenarioName('" + scenarioName + "')");
 			namebox.setText("");
 		}
 	}
