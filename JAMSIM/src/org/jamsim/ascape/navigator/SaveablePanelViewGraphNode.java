@@ -17,6 +17,7 @@ import org.ascape.runtime.swing.navigator.PopupMenuProvider;
 import org.jamsim.ascape.MicroSimScape;
 import org.jamsim.ascape.r.PanelViewJGraphicsDevice;
 import org.jamsim.ascape.r.ScapeRInterface;
+import org.jamsim.ascape.ui.BringToFrontPanelViewNode;
 import org.omancode.util.io.FileUtil;
 
 /**
@@ -27,7 +28,7 @@ import org.omancode.util.io.FileUtil;
  *
  */
 
-public class SaveablePanelViewGraphNode extends PanelViewNode implements PopupMenuProvider {
+public class SaveablePanelViewGraphNode extends BringToFrontPanelViewNode implements PopupMenuProvider {
 
 	private PanelViewJGraphicsDevice provider;
 	private MicroSimScape<?> scape;

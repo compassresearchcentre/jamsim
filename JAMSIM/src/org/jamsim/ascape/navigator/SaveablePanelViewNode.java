@@ -8,6 +8,7 @@ import org.ascape.runtime.swing.navigator.PanelViewNode;
 import org.ascape.runtime.swing.navigator.PanelViewProvider;
 import org.ascape.runtime.swing.navigator.PopupMenuProvider;
 import org.jamsim.ascape.output.Saveable;
+import org.jamsim.ascape.ui.BringToFrontPanelViewNode;
 
 /**
  * A {@link Saveable} {@link org.ascape.view.vis.PanelViewNode}.
@@ -15,7 +16,7 @@ import org.jamsim.ascape.output.Saveable;
  * @author Oliver Mannion
  * @version $Revision$
  */
-public class SaveablePanelViewNode extends PanelViewNode implements Saveable,
+public class SaveablePanelViewNode extends BringToFrontPanelViewNode implements Saveable,
 		PopupMenuProvider {
 
 	private static final long serialVersionUID = -5425600805782008997L;

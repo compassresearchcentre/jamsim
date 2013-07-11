@@ -21,7 +21,7 @@ public class PanelViewAction extends AbstractAction {
 	 */
 	private static final long serialVersionUID = -982398520409026159L;
 
-	private final PanelViewNode pvNode;
+	private final BringToFrontPanelViewNode pvNode;
 
 	/**
 	 * Construct {@link PanelViewAction} from a {@link PanelViewProvider}.
@@ -36,7 +36,7 @@ public class PanelViewAction extends AbstractAction {
 	public PanelViewAction(PanelViewProvider provider, String name,
 			String description) {
 
-		pvNode = new PanelViewNode(provider);
+		pvNode = new BringToFrontPanelViewNode(provider);
 
 		putValue(Action.NAME, name);
 		putValue(Action.SHORT_DESCRIPTION, description);

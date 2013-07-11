@@ -25,6 +25,7 @@ import org.jamsim.ascape.r.PanelViewDatasetProvider;
 import org.jamsim.ascape.r.PanelViewJGraphicsDevice;
 import org.jamsim.ascape.r.PanelViewLazyDatasetProvider;
 import org.jamsim.ascape.r.PanelViewRTextCommand;
+import org.jamsim.ascape.ui.BringToFrontPanelViewNode;
 import org.jamsim.ascape.ui.PanelViewParameterSet;
 import org.jamsim.ascape.ui.UIUtil;
 import org.jamsim.io.ParameterSet;
@@ -134,7 +135,7 @@ public class MicroSimScapeNode extends DefaultMutableTreeNode {
 
 			// add PanelViewNode to the tree
 			PanelViewProvider provider = new PanelViewTable(table);
-			PanelViewNode newNode = new PanelViewNode(provider);
+			PanelViewNode newNode = new BringToFrontPanelViewNode(provider);
 			parentNode.add(newNode); // NOPMD
 		}
 
@@ -164,7 +165,7 @@ public class MicroSimScapeNode extends DefaultMutableTreeNode {
 	 *            panel view provider
 	 */
 	public final void addParameterSetNode(PanelViewProvider provider) {
-	//	addNodeToOnDemandFolder(new PanelViewNode(provider),
+	//	addNodeToOnDemandFolder(new BringToFrontPanelViewNode(provider),
 		//		"Parameter sets", null);
 	}
 
@@ -183,7 +184,7 @@ public class MicroSimScapeNode extends DefaultMutableTreeNode {
 		PanelViewDatasetProvider provider =
 				new PanelViewDatasetProvider(basefileDS);
 
-		treeModel.insertNodeInto(new PanelViewNode(provider), this,
+		treeModel.insertNodeInto(new BringToFrontPanelViewNode(provider), this,
 				this.getChildCount());
 	}
 
@@ -209,7 +210,7 @@ public class MicroSimScapeNode extends DefaultMutableTreeNode {
 					new PanelViewRTextCommand(scape.getScapeRInterface(),
 							dataFrameName, rcmd);
 
-			addNodeToOnDemandFolder(new PanelViewNode(provider),
+			addNodeToOnDemandFolder(new BringToFrontPanelViewNode(provider),
 					"Dataframes", null);
 
 			dataFrameNodeMap.put(dataFrameName, null);
@@ -232,7 +233,7 @@ public class MicroSimScapeNode extends DefaultMutableTreeNode {
 	 * @return newly added node
 	 */
 	public PanelViewNode addGraphNode(PanelViewProvider provider, String path) {
-		PanelViewNode newNode = new PanelViewNode(provider);
+		PanelViewNode newNode = new BringToFrontPanelViewNode(provider);
 		addNodeToOnDemandFolder(newNode, "Graphs", path);
 		return newNode;
 	}
@@ -303,7 +304,7 @@ public class MicroSimScapeNode extends DefaultMutableTreeNode {
 	 * @return newly added node
 	 */
 	public PanelViewNode addUserNode(PanelViewProvider provider, String path) {
-		PanelViewNode newNode = new PanelViewNode(provider);
+		PanelViewNode newNode = new BringToFrontPanelViewNode(provider);
 		addNodeToOnDemandFolder(newNode, "User Tables", path);
 		return newNode;
 	}
@@ -328,7 +329,7 @@ public class MicroSimScapeNode extends DefaultMutableTreeNode {
 			
 		PanelViewLazyDatasetProvider provider = new PanelViewLazyDatasetProvider(scape.getScapeRInterface(), rPlotCmd, name);
 			
-		PanelViewNode lazyTableNode = new PanelViewNode(provider);
+		PanelViewNode lazyTableNode = new BringToFrontPanelViewNode(provider);
 		
 		addNodeToOnDemandFolder(lazyTableNode, parentName, path);			
 	}
