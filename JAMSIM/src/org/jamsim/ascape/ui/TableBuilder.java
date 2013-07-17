@@ -54,6 +54,8 @@ import com.google.common.collect.ListMultimap;
  */
 public class TableBuilder implements PanelViewProvider, ActionListener {
 
+	private static final String TREE_NODE_NAME = "Table Builder";
+
 	private static final String NONE = "None";
 
 	private MicroSimScape scape;
@@ -132,7 +134,7 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 		this.variableComboModels = setupVariableComboModels(tableBuilderConfig);
 		this.subgroupComboBoxModels = createSubgroupComboModels(tableBuilderConfig.getSubgroupsByVariable());
 
-		pv = PanelViewUtil.createResizablePanelView("Table Builder");
+		pv = PanelViewUtil.createResizablePanelView(TREE_NODE_NAME);
 		pv.setPreferredSize(new Dimension(700, 603));
 
 		BuildResult uiElements = SwingJavaBuilder.build(this);
@@ -361,7 +363,7 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 	 */
 	private void savePressed() {
 		if (dsProvider != null) {
-			scape.getScapeNode().addTableNode(dsProvider, "User", navigatorPathForCurrentSelection());
+			scape.getScapeNode().addTableNode(dsProvider, TREE_NODE_NAME, navigatorPathForCurrentSelection());
 			dsProvider = null;
 		}
 	}
