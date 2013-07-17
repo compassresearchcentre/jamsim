@@ -30,8 +30,10 @@ import org.omancode.util.io.FileUtil;
 
 public class SaveablePanelViewGraphNode extends BringToFrontPanelViewNode implements PopupMenuProvider {
 
-	private PanelViewJGraphicsDevice provider;
-	private MicroSimScape<?> scape;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3713826597187929868L;
 	private ScapeRInterface rInterface;
 	private String rPlotCmd;
 	private String nodeName;
@@ -51,9 +53,8 @@ public class SaveablePanelViewGraphNode extends BringToFrontPanelViewNode implem
 	 * @param scape
 	 * 			The {@link MicroSimScape}.
 	 */
-	public SaveablePanelViewGraphNode(PanelViewJGraphicsDevice provider, MicroSimScape scape) {
+	public SaveablePanelViewGraphNode(PanelViewJGraphicsDevice provider) {
 		super(provider);
-		this.scape = scape;
 		rInterface = provider.getRInterface();
 		rPlotCmd = provider.getRPlotCmd();
 		nodeName = provider.getName();

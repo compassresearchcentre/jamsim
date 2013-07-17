@@ -352,7 +352,7 @@ public class MicroSimScapeNode extends DefaultMutableTreeNode {
 
 		PanelViewJGraphicsDevice provider = new PanelViewJGraphicsDevice(scape.getScapeRInterface(), rPlotCmd, name, scape);
 		
-		SaveablePanelViewGraphNode lazyJGDNode = new SaveablePanelViewGraphNode(provider, scape);
+		SaveablePanelViewGraphNode lazyJGDNode = new SaveablePanelViewGraphNode(provider);
 		
 		addNodeToOnDemandFolder(lazyJGDNode, "Graphs", path);
 	}

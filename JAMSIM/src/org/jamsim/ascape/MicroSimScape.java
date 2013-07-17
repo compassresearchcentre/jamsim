@@ -67,7 +67,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 */
 	private static final long serialVersionUID = 5534365905529673862L;
 
-	private static final RecordedMicroSimTreeBuilder TREE_BUILDER = new RecordedMicroSimTreeBuilder();
+	private RecordedMicroSimTreeBuilder treeBuilder = new RecordedMicroSimTreeBuilder();
 
 	private MicroSimScapeNode scapeNode;
 
@@ -83,7 +83,11 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	}
 	
 	public RecordedMicroSimTreeBuilder getTreeBuilder(){
-		return TREE_BUILDER;
+		return treeBuilder;
+	}
+	
+	public void setTreeBuilder(RecordedMicroSimTreeBuilder treeBuilder) {
+		this.treeBuilder = treeBuilder;
 	}
 
 	private static final String OUTPUTDIR_KEY = "output directory";
@@ -259,7 +263,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 */
 	@Override
 	public void createScape() {
-		AscapeGUIUtil.setNavigatorTreeBuilder(TREE_BUILDER);
+		AscapeGUIUtil.setNavigatorTreeBuilder(treeBuilder);
 	}
 
 	@Override
@@ -311,7 +315,7 @@ public class MicroSimScape<D extends ScapeData> extends Scape implements
 	 */
 	private void initScapeNode() {
 		if (scapeNode == null) {
-			scapeNode = (MicroSimScapeNode) TREE_BUILDER
+			scapeNode = (MicroSimScapeNode) treeBuilder
 					.getCreatedTreeNode(this);
 
 			if (scapeNode == null) {
