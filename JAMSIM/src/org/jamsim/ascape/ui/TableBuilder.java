@@ -133,7 +133,7 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 		this.subgroupComboBoxModels = createSubgroupComboModels(tableBuilderConfig.getSubgroupsByVariable());
 
 		pv = PanelViewUtil.createResizablePanelView("Table Builder");
-		pv.setPreferredSize(new Dimension(600, 450));
+		pv.setPreferredSize(new Dimension(700, 603));
 
 		BuildResult uiElements = SwingJavaBuilder.build(this);
 		pv.add((Component) uiElements.get("pane"));
