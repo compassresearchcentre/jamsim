@@ -54,7 +54,7 @@ import com.google.common.collect.ListMultimap;
  */
 public class TableBuilder implements PanelViewProvider, ActionListener {
 
-	private static final String TREE_NODE_NAME = "Table Builder";
+	public static final String TREE_NODE_NAME = "Table Builder";
 
 	private static final String NONE = "None";
 

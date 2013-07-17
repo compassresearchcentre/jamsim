@@ -15,6 +15,7 @@ import org.jamsim.ascape.navigator.SubFolderNode;
 import org.jamsim.ascape.output.REXPDatasetProvider;
 import org.jamsim.ascape.r.PanelViewDatasetProvider;
 import org.jamsim.ascape.r.PanelViewJGraphicsDevice;
+import org.jamsim.ascape.ui.TableBuilder;
 import org.rosuda.javaGD.JavaGD;
 
 public class TreeRootNode extends MicroSimScapeNode {
@@ -26,15 +27,20 @@ public class TreeRootNode extends MicroSimScapeNode {
 
 	private final MicroSimScape<?> scape;
 	private final DefaultTreeModel treeModel;
-	
-	private final Map<String, SubFolderNode> tableNodeMap =
-			new HashMap<String, SubFolderNode>();
 
-	
+	private final Map<String, SubFolderNode> tableNodeMap = new HashMap<String, SubFolderNode>();
+
 	public TreeRootNode(MicroSimScape<?> scape, TreeBuilder treeBuilder) {
 		super(scape, treeBuilder);
 		this.scape = scape;
 		this.treeModel = treeBuilder.getTreeModel();
+		createSubFolderNode(TableBuilder.TREE_NODE_NAME);
+	}
+
+	private void createSubFolderNode(String name) {
+		SubFolderNode node = new SubFolderNode(name, scape, treeModel);
+		treeModel.insertNodeInto(node, this, this.getChildCount());
+		tableNodeMap.put(name, node);
 	}
 
 	/**
