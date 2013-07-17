@@ -323,14 +323,14 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 	 * 
 	 * @return a String expression for the R workspace to store and use
 	 */
-	private String buildStoreOnLoadExpression() {
+	private String buildLazyTableNodeExpression() {
 
 		String expr = "\"addLazyTableNode(\\\"tableBuilder('" + scenarioSelection
 				+ "', '" + statisticSelection + "', '"
 				+ lookupVarname(variableSelection) + "', '"
 				+ lookupVarname(subgroupSelection)
 				+ "')\\\", '" + variableSelection + " by " + subgroupSelection
-				+ " - " + scenarioSelection + "', " + "'Output Tables', "
+				+ " - " + scenarioSelection + "', " + "'User', "
 				+ "'" + navigatorPathForCurrentSelection() + "')\"";
 
 		return expr;
@@ -361,24 +361,13 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 	 */
 	private void savePressed() {
 		if (dsProvider != null) {
-
-			String expr = buildStoreOnLoadExpression();
-
-			try {
-				rInterface.assign("expr", expr);
-				rInterface.parseEvalTry("storeOnLoadExpression(expr)");
-			} catch (RFaceException e) {
-				e.printStackTrace();
-			}
-
-			scape.getScapeNode().addOutputNodeFromTableBuilder(dsProvider,
-					navigatorPathForCurrentSelection());
+			scape.getScapeNode().addTableNode(dsProvider, "User", navigatorPathForCurrentSelection());
 			dsProvider = null;
 		}
 	}
 	
 	private String navigatorPathForCurrentSelection() {
-		return "User/" + scenarioSelection + "/" + statisticSelectionLabel;
+		return statisticSelectionLabel;
 	}
 
 	public PanelView getPanelView() {
