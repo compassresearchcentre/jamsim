@@ -3,6 +3,7 @@ package org.jamsim.ui;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 
@@ -31,7 +32,7 @@ public class TreeRootNode extends MicroSimScapeNode {
 	private final Map<String, SubFolderNode> tableNodeMap = new HashMap<String, SubFolderNode>();
 
 	public TreeRootNode(MicroSimScape<?> scape, TreeBuilder treeBuilder) {
-		super(scape, treeBuilder);
+		super(scape, treeBuilder, false);
 		this.scape = scape;
 		this.treeModel = treeBuilder.getTreeModel();
 		createSubFolderNode(TableBuilder.TREE_NODE_NAME);
@@ -126,6 +127,6 @@ public class TreeRootNode extends MicroSimScapeNode {
 		String parent = path.substring(0, path.indexOf("/"));
 		String subpath = path.substring(path.indexOf("/") + 1, path.length());
 
-		addNodeToOnDemandFolder(lazyJGDNode, parent, subpath);
+		addNodeToOnDemandParent(lazyJGDNode, parent, subpath);
 	}
 }

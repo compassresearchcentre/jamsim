@@ -56,7 +56,7 @@ public class MicroSimScapeNode extends DefaultMutableTreeNode {
 	/**
 	 * Output tables nodes.
 	 */
-	private final SubFolderNode outputTablesNode;
+	private SubFolderNode outputTablesNode;
 
 	/**
 	 * Map of data frames added. Used to prevent addition of duplicates.
@@ -91,6 +91,10 @@ public class MicroSimScapeNode extends DefaultMutableTreeNode {
 	 *            tree builder
 	 */
 	public MicroSimScapeNode(MicroSimScape<?> scape, TreeBuilder treeBuilder) {
+		this(scape, treeBuilder, true);
+	}
+
+	public MicroSimScapeNode(MicroSimScape<?> scape, TreeBuilder treeBuilder, boolean hasOutputTablesNode) {
 		super(scape);
 
 		this.scape = scape;
@@ -100,13 +104,16 @@ public class MicroSimScapeNode extends DefaultMutableTreeNode {
 		//addDatasetNodes(scape, treeModel);
 		addParameterSetNodes(scape);
 
-		// create the Output Tables node
-		outputTablesNode =
-				new SubFolderNode("Output Tables", scape, treeModel);
-		treeModel
-		.insertNodeInto(outputTablesNode, this, this.getChildCount());
-		tableNodeMap.put("Output Tables", outputTablesNode);
+		if (hasOutputTablesNode) {
+			// create the Output Tables node
+			outputTablesNode =
+					new SubFolderNode("Output Tables", scape, treeModel);
+			treeModel
+			.insertNodeInto(outputTablesNode, this, this.getChildCount());
+			tableNodeMap.put("Output Tables", outputTablesNode);
+		}
 	}
+
 	
 	public MicroSimScape<?> getMsScape(){
 		return scape;
