@@ -44,6 +44,12 @@ public class TreeRootNode extends MicroSimScapeNode {
 		tableNodeMap.put(name, node);
 	}
 
+	@Override
+	public void addTableNode(REXPDatasetProvider provider, String parentName,
+			String path) {
+		addSaveableNode(provider, parentName, path);
+	}
+	
 	/**
 	 * Add a saveable node for a {@link REXPDatasetProvider} under the folder
 	 * and subfolder specified. Creates the folder and/or subfolder if it
@@ -116,6 +122,7 @@ public class TreeRootNode extends MicroSimScapeNode {
 	 *            will add to the folder Base, or {@code null} to add directly
 	 *            under the root node.
 	 */
+	@Override
 	public void addLazyJGDNode(String rPlotCmd, String name, String path) {
 
 		PanelViewJGraphicsDevice provider = new PanelViewJGraphicsDevice(
