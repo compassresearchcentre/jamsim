@@ -117,14 +117,16 @@ public class SaveLoadAction extends AbstractAction {
 
 			if (action.equals("load")) {
 
-				AscapeGUIUtil.getDesktopEnvironment().getUserFrame()
-						.getMenuView().getReopenAction().actionPerformed(e);
+//				AscapeGUIUtil.getDesktopEnvironment().getUserFrame()
+//						.getMenuView().getReopenAction().actionPerformed(e);
 
 				// invoke on AWT thread so occurs AFTER reopen action above
 				Runnable doWorkRunnable = new Runnable() {
 					public void run() {
 						try {
-							rInterface.eval("loadWorkspace('" + path + "')");
+							String expr = "loadWorkspace('" + path + "')";
+							System.out.println(expr);
+							rInterface.eval(expr);
 
 						} catch (RFaceException exception) {
 							exception.printStackTrace();

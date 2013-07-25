@@ -292,7 +292,9 @@ storeOnLoadExpression <- function(expr){
 #' the path in which to save the file 
 saveWorkspace <- function(path) {
 	filepath<-paste(path, ".RData", sep="")
-	save.image(filepath)
+	save(envs,file=filepath)
+	number_scenarios <- length(envs)-1
+	cat(paste("Saved", number_scenarios, "scenarios\n to",filepath))
 }
 
 #' Loads a saved workspace from an RData file
@@ -302,7 +304,9 @@ saveWorkspace <- function(path) {
 #' the path in which the file is found 
 loadWorkspace <- function(path) {
 	load(path, envir = .GlobalEnv)
-	cat(path, "\n")
+	#reloaded .scapeNode will have old reference, so remove it
+	rm(.scapeNode)
+	cat("Loaded", path, "\n")
 }
 
 	

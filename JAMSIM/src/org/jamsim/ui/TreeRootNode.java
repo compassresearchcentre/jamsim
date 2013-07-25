@@ -136,4 +136,9 @@ public class TreeRootNode extends MicroSimScapeNode {
 
 		addNodeToOnDemandParent(lazyJGDNode, parent, subpath);
 	}
+	
+	@Override
+	public void removeAllChildren() {
+		super.removeAllChildren();
+	}
 }
