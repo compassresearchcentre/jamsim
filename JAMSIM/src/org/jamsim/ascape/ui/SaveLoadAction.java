@@ -103,12 +103,20 @@ public class SaveLoadAction extends AbstractAction {
 		}
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			String fcPath = fileChooser.getSelectedFile().getAbsolutePath();
+
+			if (!fcPath.endsWith(".RData")) {
+				fcPath += ".RData";
+			}
+
 			final String path = fcPath.replace("\\", "/");
+			
 
 			if (action.equals("save")) {
 
 				try {
-					rInterface.eval("saveWorkspace('" + path + "')");
+					String expr = "saveWorkspace('" + path + "')";
+					System.out.println(expr);
+					rInterface.eval(expr);
 
 				} catch (RFaceException exception) {
 					exception.printStackTrace();

@@ -234,15 +234,7 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 	private void setupTablePane() {
 
 		try {
-			String tableBuilderExpression = "tableBuilder('"
-					+ scenarioSelection
-					+ "','"
-					+ statisticSelection
-					+ "','"
-					+ lookupVarname(variableSelection)
-					+ "','"
-					+ lookupVarname(subgroupSelection)
-							.toString() + "')";
+			String tableBuilderExpression = tableBuilderExpression();
 
 			System.out.println(tableBuilderExpression);
 			rexp = rInterface.parseEvalTry(tableBuilderExpression);
@@ -318,6 +310,19 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 		
 	}
 
+	private String tableBuilderExpression() {
+		return "tableBuilder('"
+				+ scenarioSelection
+				+ "','"
+				+ statisticSelection
+				+ "','"
+				+ lookupVarname(variableSelection)
+				+ "','"
+				+ lookupVarname(subgroupSelection)
+				+ "')";
+	}
+
+	
 	/**
 	 * Creates an expression to be passed to R that stores the table built by
 	 * the user so that it may be recreated when the model is reloaded or when
@@ -325,15 +330,14 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 	 * 
 	 * @return a String expression for the R workspace to store and use
 	 */
-	private String buildLazyTableNodeExpression() {
+	private String addLazyTableNodeExpression() {
 
-		String expr = "\"addLazyTableNode(\\\"tableBuilder('" + scenarioSelection
-				+ "', '" + statisticSelection + "', '"
-				+ lookupVarname(variableSelection) + "', '"
-				+ lookupVarname(subgroupSelection)
-				+ "')\\\", '" + variableSelection + " by " + subgroupSelection
-				+ " - " + scenarioSelection + "', " + "'User', "
-				+ "'" + navigatorPathForCurrentSelection() + "')\"";
+		String expr = "\"addLazyTableNode(\\\""
+				+ tableBuilderExpression() 
+				+ "\\\", '"
+				+ variableSelection + " by " + subgroupSelection + " - "
+				+ scenarioSelection + "', '"+ TREE_NODE_NAME + "', " + "'"
+				+ navigatorPathForCurrentSelection() + "')\"";
 
 		return expr;
 	}
@@ -363,6 +367,16 @@ public class TableBuilder implements PanelViewProvider, ActionListener {
 	 */
 	private void savePressed() {
 		if (dsProvider != null) {
+			
+			String expr =  addLazyTableNodeExpression();
+
+			try {
+				rInterface.assign("expr", expr);
+				rInterface.parseEvalTry("storeOnLoadExpression(expr)");
+			} catch (RFaceException e) {
+				e.printStackTrace();
+			}
+			
 			scape.getScapeNode().addTableNode(dsProvider, TREE_NODE_NAME, navigatorPathForCurrentSelection());
 			dsProvider = null;
 		}

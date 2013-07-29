@@ -291,10 +291,17 @@ storeOnLoadExpression <- function(expr){
 #' @param path
 #' the path in which to save the file 
 saveWorkspace <- function(path) {
-	filepath<-paste(path, ".RData", sep="")
-	save(envs,file=filepath)
+	filepath<-path
+	
+	objs_to_save <- "envs"
+	if (exists("onload.expressions")) {
+		objs_to_save <- c("onload.expressions", objs_to_save)
+	}
+	
+	
+	save(list=objs_to_save,file=filepath)
 	number_scenarios <- length(envs)-1
-	cat(paste("Saved", number_scenarios, "scenarios\n to",filepath))
+	cat(paste("Saved", number_scenarios, "scenarios to",filepath,"\n"))
 }
 
 #' Loads a saved workspace from an RData file
