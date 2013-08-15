@@ -7,6 +7,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 
+import org.ascape.runtime.swing.navigator.PanelViewNode;
 import org.ascape.runtime.swing.navigator.TreeBuilder;
 import org.jamsim.ascape.MicroSimScape;
 import org.jamsim.ascape.navigator.MicroSimScapeNode;
@@ -16,6 +17,8 @@ import org.jamsim.ascape.navigator.SubFolderNode;
 import org.jamsim.ascape.output.REXPDatasetProvider;
 import org.jamsim.ascape.r.PanelViewDatasetProvider;
 import org.jamsim.ascape.r.PanelViewJGraphicsDevice;
+import org.jamsim.ascape.r.PanelViewLazyDatasetProvider;
+import org.jamsim.ascape.ui.BringToFrontPanelViewNode;
 import org.jamsim.ascape.ui.TableBuilder;
 import org.rosuda.javaGD.JavaGD;
 
@@ -49,6 +52,16 @@ public class TreeRootNode extends MicroSimScapeNode {
 			String path) {
 		addSaveableNode(provider, parentName, path);
 	}
+	
+	public void addLazyTableNode(String rPlotCmd, String name, String parentName, String path){	
+		
+		PanelViewLazyDatasetProvider provider = new PanelViewLazyDatasetProvider(scape.getScapeRInterface(), rPlotCmd, name);
+			
+		PanelViewNode lazyTableNode = new BringToFrontPanelViewNode(provider);
+		
+		addNodeToOnDemandParent(lazyTableNode, parentName, path);			
+	}
+
 	
 	/**
 	 * Add a saveable node for a {@link REXPDatasetProvider} under the folder
