@@ -6,9 +6,11 @@ import java.util.Map;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreePath;
 
 import org.ascape.runtime.swing.navigator.PanelViewNode;
 import org.ascape.runtime.swing.navigator.TreeBuilder;
+import org.ascape.util.swing.AscapeGUIUtil;
 import org.jamsim.ascape.MicroSimScape;
 import org.jamsim.ascape.navigator.MicroSimScapeNode;
 import org.jamsim.ascape.navigator.SaveablePanelViewGraphNode;
@@ -38,6 +40,7 @@ public class TreeRootNode extends MicroSimScapeNode {
 		super(scape, treeBuilder, false);
 		this.scape = scape;
 		this.treeModel = treeBuilder.getTreeModel();
+		treeModel.setRoot(this);
 		createSubFolderNode(TableBuilder.TREE_NODE_NAME);
 	}
 
@@ -153,5 +156,9 @@ public class TreeRootNode extends MicroSimScapeNode {
 	@Override
 	public void removeAllChildren() {
 		super.removeAllChildren();
+		treeModel.nodeStructureChanged(this);
+		tableNodeMap.clear();
+		AscapeGUIUtil.getNavigator().setSelectionPath(
+				new TreePath(this.getPath()));
 	}
 }
