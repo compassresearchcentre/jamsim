@@ -14,3 +14,4 @@ org.jamsim.io
 org.jamsim.math
 org.jamsim.matrix
 org.jamsim.shared
+org.jamsim.ui
