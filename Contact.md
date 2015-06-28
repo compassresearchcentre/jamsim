@@ -1,0 +1,3 @@
+JAMSIM is developed by the [Centre of Methods and Policy Application in the Social Sciences (COMPASS)](http://www.compass.auckland.ac.nz/) within the Faculty of Arts of The University of Auckland. A component of the [New Zealand Social Science Data Service (NZSSDS)](http://www.nzssds.org.nz/). Supported by the [Health Research Council of New Zealand (HRC)](http://www.hrc.govt.nz/) and the [Foundation for Research, Science and Technology (FRST)](http://www.frst.govt.nz/).
+
+For any questions or queries, please contact us via the email address <a href='http://www.google.com/recaptcha/mailhide/d?k=01SUg9vnSs_ctzsnPSPC4yjg==&c=PoBaIMqXz7UBejhthmq6NjLGWG1elunmvJJcBEo4kC0='>here</a>.

@@ -1,0 +1,1 @@
+JAMSIM embeds the [R statistical computing language](http://www.r-project.org/) via the [rJava](http://www.rforge.net/rJava/) high level (org.rosuda.REngine) interface. Simulation objects, such as the agents, parameter files, and simulation outputs are available in R for producing descriptive statistics and graphics.

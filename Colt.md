@@ -1,0 +1,1 @@
+JAMSIM provides conversion of micro-data sets to matrices for manipulation in [Colt](http://acs.lbl.gov/~hoschek/colt/).

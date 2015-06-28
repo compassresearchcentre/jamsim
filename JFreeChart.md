@@ -1,0 +1,1 @@
+JAMSIM uses the version of [JFreeChart](http://www.jfree.org/jfreechart/) that ships with [Ascape](Ascape.md) for visualing simulation outputs.

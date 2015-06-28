@@ -1,0 +1,1 @@
+A microsimulation model requires the manipulation of micro-data sets and additional parameter files. Micro-data sets and parameter files are represented in JAMSIM using the [Casper datasets](http://code.google.com/p/casperdatasets/) generic, in-memory dataset manipulation library.
