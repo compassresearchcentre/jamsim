@@ -1,14 +1,14 @@
-JAMSIM is a framework for creating microsimulation models in Java. It provides code and packages for common [features](wiki/Features) of microsimulation models for end users.
+JAMSIM is a framework for creating microsimulation models in Java. It provides code and packages for common [features](https://github.com/compassresearchcentre/jamsim/wiki/Features) of microsimulation models for end users.
 
-JAMSIM models run as standalone programs with a friendly GUI without requiring technical expertise. For further details see the [requirements outline](wiki/RequirementsSpec) or this [JAMSIM paper](http://jasss.soc.surrey.ac.uk/15/1/8.html).
+JAMSIM models run as standalone programs with a friendly GUI without requiring technical expertise. For further details see the [requirements outline](https://github.com/compassresearchcentre/jamsim/wiki/RequirementsSpec) or this [JAMSIM paper](http://jasss.soc.surrey.ac.uk/15/1/8.html).
 
-The JAMSIM code consists of a number of [third party packages](wiki/ThirdPartyPackages) and the integration glue to bind them together.
+The JAMSIM code consists of a number of [third party packages](https://github.com/compassresearchcentre/jamsim/wiki/ThirdPartyPackages) and the integration glue to bind them together.
 
-To run the JAMSIM Example Model (JEM), which demonstrates the features of JAMSIM, consult the [Usage](wiki/Usage) page.
+To run the JAMSIM Example Model (JEM), which demonstrates the features of JAMSIM, consult the [Usage](https://github.com/compassresearchcentre/jamsim/wiki/Usage) page.
 
 <p align='center'><a href='http://jamsim.googlecode.com/svn/wiki/screenshot/Ascape_with_modified_tree_and_R_Console_big.png'><img src='http://jamsim.googlecode.com/svn/wiki/screenshot/Ascape_with_modified_tree_and_R_Console_small.jpg' /></a></p>
 
-<p align='center'>Example JAMSIM model screenshot. See more <a href='Screenshots.md'>screenshots here</a></p>
+<p align='center'>Example JAMSIM model screenshot. See more <a href='https://github.com/compassresearchcentre/jamsim/wiki/Screenshots.md'>screenshots here</a></p>
 
 Developed by the [Centre of Methods and Policy Application in the Social Sciences (COMPASS)](http://www.compass.auckland.ac.nz/) within the Faculty of Arts of The University of Auckland. A component of the [New Zealand Social Science Data Service (NZSSDS)](http://www.nzssds.org.nz/). Supported by the [Health Research Council of New Zealand (HRC)](http://www.hrc.govt.nz/) and the [Foundation for Research, Science and Technology (FRST)](http://www.frst.govt.nz/).
 
